@@ -1,0 +1,57 @@
+{
+    "name": "traktl-backend",
+    "version": "0.0.b",
+    "description": "Backend for Traktl",
+    "main": "src/index.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/index.js",
+        "dev": "tsnd --respawn --clear --rs --quiet false --notify false src/app.ts",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format": "prettier --write ."
+    },
+    "keywords": [
+        "pomodoro",
+        "timetracker",
+        "time",
+        "tracker",
+        "productivity"
+    ],
+    "author": "Alan Quintana",
+    "license": "MIT",
+    "packageManager": "pnpm@10.5.2",
+    "dependencies": {
+        "bcryptjs": "^3.0.2",
+        "cors": "^2.8.5",
+        "dot-env": "^0.0.1",
+        "dotenv": "^16.4.7",
+        "env-var": "^7.5.0",
+        "express": "^4.21.2",
+        "jsonwebtoken": "^9.0.2",
+        "mongodb": "^6.14.2",
+        "mongoose": "^8.12.1",
+        "reflect-metadata": "^0.1.13",
+        "uuid": "^9.0.1",
+        "zod": "^3.22.4"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.21.0",
+        "@types/bcryptjs": "^2.4.6",
+        "@types/cors": "^2.8.17",
+        "@types/express": "^4.17.21",
+        "@types/jsonwebtoken": "^9.0.9",
+        "@types/mongoose": "^5.11.97",
+        "@types/node": "^22.13.9",
+        "@typescript-eslint/eslint-plugin": "^8.26.0",
+        "eslint-config-airbnb-typescript": "^18.0.0",
+        "eslint-config-prettier": "^10.0.2",
+        "eslint-plugin-prettier": "^5.2.3",
+        "eslint-plugin-react": "^7.37.4",
+        "globals": "^16.0.0",
+        "prettier": "^3.5.3",
+        "ts-node": "^10.9.2",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.8.2",
+        "typescript-eslint": "^8.26.0"
+    }
+}
