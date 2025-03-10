@@ -66,7 +66,7 @@ export class UserService {
         console.log('User found:', user.email);
         console.log('Stored hashed password:', user.password);
         console.log('Provided password:', password);
-
+    //TODO: Ocultar password
         // Check if comparePassword method exists
         if (!user.comparePassword) {
             console.error('comparePassword method does not exist on user object');
@@ -76,7 +76,7 @@ export class UserService {
         // Validate password
         const isPasswordValid = user.comparePassword(password);
         console.log('Password validation result:', isPasswordValid);
-        
+
         if (!isPasswordValid) {
             console.log('Invalid password for user:', email);
             throw CustomError.unauthorized('Invalid credentials')

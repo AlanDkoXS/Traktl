@@ -1,0 +1,162 @@
+{
+  "app": {
+    "name": "Traktl",
+    "tagline": "Track your time, boost your productivity"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "clients": "Clients",
+    "tasks": "Tasks",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "passwordConfirm": "Confirm Password",
+    "passwordMismatch": "Passwords do not match",
+    "passwordRequirements": "Password must be at least 8 characters long and contain at least one number, one uppercase letter, and one special character",
+    "invalidCredentials": "Invalid email or password"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "timer": {
+    "start": "Start",
+    "stop": "Stop",
+    "pause": "Pause",
+    "resume": "Resume",
+    "reset": "Reset",
+    "skipToNext": "Skip to Next",
+    "workTime": "Work Time",
+    "breakTime": "Break Time",
+    "session": "Session",
+    "workDuration": "Work Duration",
+    "breakDuration": "Break Duration",
+    "repetitions": "Repetitions",
+    "workCompleted": "Work completed! Time for a break.",
+    "breakCompleted": "Break completed! Back to work.",
+    "enableNotifications": "Enable notifications to be alerted when timer completes.",
+    "allowNotifications": "Allow Notifications"
+  },
+  "projects": {
+    "title": "Projects",
+    "new": "New Project",
+    "edit": "Edit Project",
+    "name": "Project Name",
+    "description": "Description",
+    "client": "Client",
+    "color": "Color",
+    "noProjects": "No projects found",
+    "notFound": "Project not found",
+    "status": {
+      "title": "Status",
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "noClient": "No Client"
+  },
+  "clients": {
+    "title": "Clients",
+    "new": "New Client",
+    "edit": "Edit Client",
+    "name": "Client Name",
+    "contact": "Contact Information",
+    "color": "Color",
+    "noClients": "No clients found",
+    "notFound": "Client not found"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "new": "New Task",
+    "edit": "Edit Task",
+    "name": "Task Name",
+    "description": "Description",
+    "project": "Project",
+    "selectProject": "Select a project",
+    "status": {
+      "title": "Status",
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "noTasks": "No tasks found",
+    "notFound": "Task not found"
+  },
+  "timeEntries": {
+    "title": "Time Entries",
+    "new": "New Time Entry",
+    "edit": "Edit Time Entry",
+    "project": "Project",
+    "task": "Task",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "duration": "Duration",
+    "notes": "Notes",
+    "noEntries": "No time entries found",
+    "notFound": "Time entry not found",
+    "selectProject": "Select a project",
+    "selectTask": "Select a task",
+    "isRunning": "Currently running",
+    "runningHelp": "If checked, end time will be ignored and the timer will keep running.",
+    "running": "Running",
+    "endTimeRequired": "End time is required for non-running entries",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "allProjects": "All Projects"
+  },
+  "reports": {
+    "title": "Reports",
+    "summary": "Summary",
+    "totalTime": "Total Time",
+    "entries": "Entries",
+    "avgDaily": "Avg. Daily",
+    "timeByProject": "Time by Project",
+    "timeByDay": "Time by Day",
+    "project": "Project",
+    "time": "Time",
+    "percentage": "Percentage"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "appearance": "Appearance",
+    "language": "Language",
+    "theme": "Theme",
+    "saved": "Settings saved successfully"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "create": "Create",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "actions": "Actions",
+    "loading": "Loading...",
+    "noResults": "No results found",
+    "confirmDelete": "Are you sure you want to delete this?",
+    "yes": "Yes",
+    "no": "No",
+    "goBack": "Go Back"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "passwordLength": "Password must be at least 8 characters long",
+    "passwordStrength": "Password must contain at least one number, one uppercase letter, and one special character",
+    "serverError": "Server error, please try again",
+    "unauthorized": "Unauthorized, please sign in"
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "app": {
+    "name": "Traktl",
+    "tagline": "Controla tu tiempo, aumenta tu productividad"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "projects": "Proyectos",
+    "clients": "Clientes",
+    "tasks": "Tareas",
+    "reports": "Informes",
+    "settings": "Ajustes"
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar Sesión",
+    "email": "Correo",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes una cuenta?",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "passwordConfirm": "Confirmar Contraseña",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "passwordRequirements": "La contraseña debe tener al menos 8 caracteres e incluir al menos un número, una letra mayúscula y un carácter especial",
+    "invalidCredentials": "Correo o contraseña inválidos"
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema"
+  },
+  "timer": {
+    "start": "Iniciar",
+    "stop": "Detener",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "reset": "Reiniciar",
+    "skipToNext": "Saltar al Siguiente",
+    "workTime": "Tiempo de trabajo",
+    "breakTime": "Tiempo de descanso",
+    "session": "Sesión",
+    "workDuration": "Duración del trabajo",
+    "breakDuration": "Duración del descanso",
+    "repetitions": "Repeticiones",
+    "workCompleted": "¡Trabajo completado! Tiempo de descanso.",
+    "breakCompleted": "¡Descanso completado! De vuelta al trabajo.",
+    "enableNotifications": "Habilita las notificaciones para ser alertado cuando el temporizador termine.",
+    "allowNotifications": "Permitir Notificaciones"
+  },
+  "projects": {
+    "title": "Proyectos",
+    "new": "Nuevo Proyecto",
+    "edit": "Editar Proyecto",
+    "name": "Nombre del Proyecto",
+    "description": "Descripción",
+    "client": "Cliente",
+    "color": "Color",
+    "noProjects": "No se encontraron proyectos",
+    "notFound": "Proyecto no encontrado",
+    "status": {
+      "title": "Estado",
+      "active": "Activo",
+      "archived": "Archivado"
+    },
+    "noClient": "Sin Cliente"
+  },
+  "clients": {
+    "title": "Clientes",
+    "new": "Nuevo Cliente",
+    "edit": "Editar Cliente",
+    "name": "Nombre del Cliente",
+    "contact": "Información de Contacto",
+    "color": "Color",
+    "noClients": "No se encontraron clientes",
+    "notFound": "Cliente no encontrado"
+  },
+  "tasks": {
+    "title": "Tareas",
+    "new": "Nueva Tarea",
+    "edit": "Editar Tarea",
+    "name": "Nombre de la Tarea",
+    "description": "Descripción",
+    "project": "Proyecto",
+    "selectProject": "Selecciona un proyecto",
+    "status": {
+      "title": "Estado",
+      "pending": "Pendiente",
+      "inProgress": "En Progreso",
+      "completed": "Completada"
+    },
+    "noTasks": "No se encontraron tareas",
+    "notFound": "Tarea no encontrada"
+  },
+  "timeEntries": {
+    "title": "Registros de Tiempo",
+    "new": "Nuevo Registro",
+    "edit": "Editar Registro",
+    "project": "Proyecto",
+    "task": "Tarea",
+    "startTime": "Hora de Inicio",
+    "endTime": "Hora de Fin",
+    "duration": "Duración",
+    "notes": "Notas",
+    "noEntries": "No se encontraron registros de tiempo",
+    "notFound": "Registro de tiempo no encontrado",
+    "selectProject": "Selecciona un proyecto",
+    "selectTask": "Selecciona una tarea",
+    "isRunning": "En ejecución",
+    "runningHelp": "Si está marcado, la hora de finalización se ignorará y el temporizador seguirá funcionando.",
+    "running": "En curso",
+    "endTimeRequired": "La hora de finalización es obligatoria para registros no en ejecución",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "allProjects": "Todos los Proyectos"
+  },
+  "reports": {
+    "title": "Informes",
+    "summary": "Resumen",
+    "totalTime": "Tiempo Total",
+    "entries": "Registros",
+    "avgDaily": "Promedio Diario",
+    "timeByProject": "Tiempo por Proyecto",
+    "timeByDay": "Tiempo por Día",
+    "project": "Proyecto",
+    "time": "Tiempo",
+    "percentage": "Porcentaje"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "profile": "Perfil",
+    "appearance": "Apariencia",
+    "language": "Idioma",
+    "theme": "Tema",
+    "saved": "Ajustes guardados correctamente"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "actions": "Acciones",
+    "loading": "Cargando...",
+    "noResults": "No se encontraron resultados",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar esto?",
+    "yes": "Sí",
+    "no": "No",
+    "goBack": "Volver"
+  },
+  "errors": {
+    "required": "Este campo es obligatorio",
+    "invalidEmail": "Dirección de correo inválida",
+    "passwordLength": "La contraseña debe tener al menos 8 caracteres",
+    "passwordStrength": "La contraseña debe contener al menos un número, una letra mayúscula y un carácter especial",
+    "serverError": "Error del servidor, inténtalo de nuevo",
+    "unauthorized": "No autorizado, inicia sesión por favor"
+  }
+}
