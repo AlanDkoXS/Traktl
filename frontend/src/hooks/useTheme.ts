@@ -3,11 +3,11 @@ import { useThemeStore } from '../store/themeStore';
 
 export const useTheme = () => {
   const { theme, setTheme, toggleTheme } = useThemeStore();
-  
+
   useEffect(() => {
     // Get system preference
     const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
+
     // Apply theme
     if (theme === 'system') {
       if (isSystemDark) {
@@ -25,7 +25,7 @@ export const useTheme = () => {
   // Listen for system preference change
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     const handleChange = () => {
       if (theme === 'system') {
         if (mediaQuery.matches) {
@@ -35,7 +35,7 @@ export const useTheme = () => {
         }
       }
     };
-    
+
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);

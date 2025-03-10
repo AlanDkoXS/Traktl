@@ -12,8 +12,18 @@ export class MongoProjectRepository implements ProjectRepository {
     }
 
     async findById(id: string): Promise<ProjectEntity | null> {
-        const project = await Project.findById(id)
-        return project ? this.mapToDomain(project) : null
+        // Validate if the ID is valid
+        if (!id || id === 'undefined') {
+            return null;
+        }
+
+        try {
+            const project = await Project.findById(id);
+            return project ? this.mapToDomain(project) : null;
+        } catch (error) {
+            console.error('Error finding project by ID:', error);
+            return null;
+        }
     }
 
     async update(

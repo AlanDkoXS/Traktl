@@ -3,7 +3,9 @@ import { z } from 'zod'
 const UpdateTaskSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }).optional(),
     description: z.string().optional(),
-    project: z.string().optional(),
+    project: z.string().regex(/^[0-9a-fA-F]{24}$/, {
+        message: 'Project ID must be a valid MongoDB ObjectID'
+    }).optional(),
     status: z.enum(['pending', 'in-progress', 'completed']).optional(),
 })
 

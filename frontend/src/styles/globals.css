@@ -2,95 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-primary-50: 240, 249, 255;
-  --color-primary-100: 224, 242, 254;
-  --color-primary-200: 186, 230, 253;
-  --color-primary-300: 125, 211, 252;
-  --color-primary-400: 56, 189, 248;
-  --color-primary-500: 14, 165, 233;
-  --color-primary-600: 2, 132, 199;
-  --color-primary-700: 3, 105, 161;
-  --color-primary-800: 7, 89, 133;
-  --color-primary-900: 12, 74, 110;
-  --color-primary-950: 8, 47, 73;
-}
+@layer base {
+	:root {
+		--color-primary-50: 240, 249, 255;
+		--color-primary-100: 224, 242, 254;
+		--color-primary-200: 186, 230, 253;
+		--color-primary-300: 125, 211, 252;
+		--color-primary-400: 56, 189, 248;
+		--color-primary-500: 14, 165, 233;
+		--color-primary-600: 2, 132, 199;
+		--color-primary-700: 3, 105, 161;
+		--color-primary-800: 7, 89, 133;
+		--color-primary-900: 12, 74, 110;
+		--color-primary-950: 8, 47, 73;
+	}
 
-.dark {
-  --color-primary-50: 8, 47, 73;
-  --color-primary-100: 12, 74, 110;
-  --color-primary-200: 7, 89, 133;
-  --color-primary-300: 3, 105, 161;
-  --color-primary-400: 2, 132, 199;
-  --color-primary-500: 14, 165, 233;
-  --color-primary-600: 56, 189, 248;
-  --color-primary-700: 125, 211, 252;
-  --color-primary-800: 186, 230, 253;
-  --color-primary-900: 224, 242, 254;
-  --color-primary-950: 240, 249, 255;
+	.dark {
+		--color-primary-50: 8, 47, 73;
+		--color-primary-100: 12, 74, 110;
+		--color-primary-200: 7, 89, 133;
+		--color-primary-300: 3, 105, 161;
+		--color-primary-400: 2, 132, 199;
+		--color-primary-500: 14, 165, 233;
+		--color-primary-600: 56, 189, 248;
+		--color-primary-700: 125, 211, 252;
+		--color-primary-800: 186, 230, 253;
+		--color-primary-900: 224, 242, 254;
+		--color-primary-950: 240, 249, 255;
+	}
 }
 
 /* Custom component styles */
 @layer components {
-  .btn {
-    @apply px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 inline-flex items-center;
-  }
-  
-  .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-400 dark:focus:ring-primary-400;
-  }
-  
-  .btn-secondary {
-    @apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600;
-  }
-  
-  .form-input {
-    @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm;
-  }
-  
-  .form-label {
-    @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
-  }
+	.btn {
+		@apply rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 inline-flex items-center;
+	}
+
+	.btn-primary {
+		@apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-400 dark:focus:ring-primary-400;
+	}
+
+	.btn-secondary {
+		@apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600;
+	}
+
+	.form-input {
+		@apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm;
+	}
+
+	.form-label {
+		@apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+	}
 }
 
 /* Dark mode overrides */
 .dark {
-  --tw-bg-opacity: 1;
-  background-color: rgb(17 24 39 / var(--tw-bg-opacity));
-  color: rgb(229 231 235 / 1);
+	background-color: rgb(17 24 39 / 1);
+	color: rgb(229 231 235 / 1);
 }
 
 /* Fix for full height layouts */
-html, body, #root {
-  height: 100%;
+html,
+body,
+#root {
+	height: 100%;
 }
 
 /* Ensure forms look good on dark mode */
-input, select, textarea {
-  @apply dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-400;
+input,
+select,
+textarea {
+	@apply dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-400;
 }
 
 /* Dynamic color system for light/dark modes */
 .dynamic-color-primary {
-  color: rgb(var(--color-primary-600));
+	color: rgb(var(--color-primary-600));
 }
 
 .dark .dynamic-color-primary {
-  color: rgb(var(--color-primary-400));
+	color: rgb(var(--color-primary-400));
 }
 
 .dynamic-bg-primary {
-  background-color: rgb(var(--color-primary-600));
+	background-color: rgb(var(--color-primary-600));
 }
 
 .dark .dynamic-bg-primary {
-  background-color: rgb(var(--color-primary-400));
+	background-color: rgb(var(--color-primary-400));
 }
 
 .dynamic-border-primary {
-  border-color: rgb(var(--color-primary-600));
+	border-color: rgb(var(--color-primary-600));
 }
 
 .dark .dynamic-border-primary {
-  border-color: rgb(var(--color-primary-400));
+	border-color: rgb(var(--color-primary-400));
 }

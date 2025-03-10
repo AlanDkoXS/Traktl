@@ -3,6 +3,7 @@ import { Task, TaskEntity } from '../../entities/task.entity'
 import { CreateTaskDTO } from '../../dtos/task/create-task.dto'
 import { UpdateTaskDTO } from '../../dtos/task/update-task.dto'
 import { CustomError } from '../../errors/custom.errors'
+import mongoose from 'mongoose'
 
 export class TaskService {
     constructor(private readonly taskRepository: TaskRepository) {}
@@ -11,6 +12,11 @@ export class TaskService {
         userId: string,
         createTaskDto: CreateTaskDTO
     ): Promise<Task> {
+        // Double-check ObjectId validity
+        if (!mongoose.Types.ObjectId.isValid(createTaskDto.project)) {
+            throw CustomError.badRequest('Invalid project ID format');
+        }
+
         const taskEntity: TaskEntity = {
             name: createTaskDto.name,
             description: createTaskDto.description || '',
@@ -32,6 +38,11 @@ export class TaskService {
         const existingTask = await this.taskRepository.findById(taskId)
         if (!existingTask || existingTask.user.toString() !== userId) {
             throw CustomError.notFound('Task not found')
+        }
+
+        // Validate project ID if provided
+        if (updateTaskDto.project && !mongoose.Types.ObjectId.isValid(updateTaskDto.project)) {
+            throw CustomError.badRequest('Invalid project ID format');
         }
 
         const updatedTask = await this.taskRepository.update(
@@ -68,6 +79,11 @@ export class TaskService {
         page?: number,
         limit?: number
     ): Promise<Task[]> {
+        // Validate projectId format
+        if (!mongoose.Types.ObjectId.isValid(projectId)) {
+            throw CustomError.badRequest('Invalid project ID format');
+        }
+
         return await this.taskRepository.listByProject(projectId, page, limit)
     }
 
@@ -90,6 +106,11 @@ export class TaskService {
     }
 
     async countProjectTasks(projectId: string): Promise<number> {
+        // Validate projectId format
+        if (!mongoose.Types.ObjectId.isValid(projectId)) {
+            throw CustomError.badRequest('Invalid project ID format');
+        }
+
         return await this.taskRepository.countByProject(projectId)
     }
 }

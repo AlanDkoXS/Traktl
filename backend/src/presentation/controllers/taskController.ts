@@ -3,6 +3,7 @@ import { BaseController } from './baseController'
 import { TaskService } from '../../domain/services/task/taskService'
 import { CreateTaskDTO, UpdateTaskDTO } from '../../domain/dtos'
 import '../../domain/types/request-extension'
+import mongoose from 'mongoose'
 
 export class TaskController extends BaseController {
     constructor(private readonly taskService: TaskService) {
@@ -16,6 +17,13 @@ export class TaskController extends BaseController {
 
             const [error, createTaskDto] = CreateTaskDTO.create(req.body)
             if (error) return res.status(400).json({ error })
+
+            // Validate ObjectId format
+            if (!mongoose.Types.ObjectId.isValid(createTaskDto!.project)) {
+                return res.status(400).json({
+                    error: 'Invalid project ID format. Must be a valid MongoDB ObjectID'
+                });
+            }
 
             const task = await this.taskService.createTask(
                 userId,
@@ -48,6 +56,13 @@ export class TaskController extends BaseController {
             const { id } = req.params
             const [error, updateTaskDto] = UpdateTaskDTO.create(req.body)
             if (error) return res.status(400).json({ error })
+
+            // Validate ObjectId format for project if provided
+            if (updateTaskDto!.project && !mongoose.Types.ObjectId.isValid(updateTaskDto!.project)) {
+                return res.status(400).json({
+                    error: 'Invalid project ID format. Must be a valid MongoDB ObjectID'
+                });
+            }
 
             const updatedTask = await this.taskService.updateTask(
                 userId,
@@ -87,6 +102,13 @@ export class TaskController extends BaseController {
                 ? parseInt(req.query.limit as string)
                 : undefined
             const projectId = req.query.projectId as string | undefined
+
+            // Validate ObjectId format for projectId if provided
+            if (projectId && !mongoose.Types.ObjectId.isValid(projectId)) {
+                return res.status(400).json({
+                    error: 'Invalid project ID format. Must be a valid MongoDB ObjectID'
+                });
+            }
 
             let tasks
             if (projectId) {

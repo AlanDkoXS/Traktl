@@ -21,6 +21,7 @@ import { Register } from './pages/Register';
 import { useTheme } from './hooks/useTheme';
 import { useAuthStore } from './store/authStore';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { checkCurrentToken } from './utils/tokenHelper';
 
 function App() {
   // Initialize theme
@@ -28,7 +29,15 @@ function App() {
   const { loadUser } = useAuthStore();
 
   useEffect(() => {
-    loadUser();
+    console.log('App mounted, checking token and loading user...');
+    const tokenInfo = checkCurrentToken();
+
+    if (tokenInfo.valid) {
+      console.log('Token valid, loading user...');
+      loadUser();
+    } else {
+      console.log('Token invalid or expired:', tokenInfo.message);
+    }
   }, [loadUser]);
 
   return (

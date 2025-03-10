@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { useAuthStore } from '../store/authStore'; // Usar directamente el store
+import { useAuthStore } from '../store/authStore';
+import { checkCurrentToken } from '../utils/tokenHelper';
 
 export const Login = () => {
   const { t } = useTranslation();
@@ -14,10 +15,24 @@ export const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Usar el store directamente
-  const { login } = useAuthStore();
+  // Use the login method from the auth store
+  const { login, isAuthenticated, token } = useAuthStore();
 
-  // Obtener la ruta a la que el usuario intentaba acceder
+  // Check token on mount for debugging
+  useEffect(() => {
+    console.log('Login component mounted, checking token...');
+    checkCurrentToken();
+
+    console.log('Auth state:', { isAuthenticated, token });
+
+    // If already authenticated, redirect to dashboard
+    if (isAuthenticated && token) {
+      console.log('Already authenticated, redirecting to dashboard');
+      navigate('/');
+    }
+  }, [isAuthenticated, token, navigate]);
+
+  // Redirect to the previous location after login
   const from = location.state?.from?.pathname || '/';
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -31,10 +46,16 @@ export const Login = () => {
       setLoading(true);
       setError('');
 
-      // Llamar directamente al método login del store
+      console.log('Attempting login with email:', email);
+
+      // Call the login method from the auth store
       await login(email, password);
 
-      // Si llegamos aquí, el login fue exitoso
+      console.log('Login successful, checking token after login');
+      checkCurrentToken();
+
+      // Login successful, redirect to the previous location
+      console.log('Redirecting to:', from);
       navigate(from, { replace: true });
     } catch (err: any) {
       console.error('Login error:', err);

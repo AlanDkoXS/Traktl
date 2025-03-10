@@ -2,7 +2,7 @@ export interface Task {
     _id: string
     name: string
     description: string
-    project: string
+    project: string | Object
     status: 'pending' | 'in-progress' | 'completed'
     createdAt: Date
     updatedAt: Date
