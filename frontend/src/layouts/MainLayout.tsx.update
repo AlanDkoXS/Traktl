@@ -1,0 +1,9 @@
+// Import the necessary icons at the top
+import {
+  TagIcon,
+  ClockIcon as TimerIcon
+} from '@heroicons/react/24/outline';
+
+// Inside the navigation array, add the following items:
+{ name: t('tags.title'), href: '/tags', icon: TagIcon },
+{ name: t('timerPresets.title'), href: '/timer-presets', icon: TimerIcon },

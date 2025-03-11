@@ -139,6 +139,29 @@
         "endDate": "Fecha de Fin",
         "allProjects": "Todos los Proyectos"
     },
+    "tags": {
+        "title": "Etiquetas",
+        "new": "Nueva Etiqueta",
+        "edit": "Editar Etiqueta",
+        "name": "Nombre de Etiqueta",
+        "color": "Color",
+        "noTags": "No se encontraron etiquetas",
+        "notFound": "Etiqueta no encontrada",
+        "deleteConfirmation": "¿Estás seguro de que quieres eliminar la etiqueta \"{{name}}\"? Esta acción no se puede deshacer."
+    },
+    "timerPresets": {
+        "title": "Presets de Temporizador",
+        "new": "Nuevo Preset",
+        "edit": "Editar Preset",
+        "name": "Nombre del Preset",
+        "workDuration": "Duración del Trabajo (minutos)",
+        "breakDuration": "Duración del Descanso (minutos)",
+        "repetitions": "Repeticiones",
+        "cycles": "ciclos",
+        "noPresets": "No se encontraron presets",
+        "notFound": "Preset no encontrado",
+        "deleteConfirmation": "¿Estás seguro de que quieres eliminar el preset \"{{name}}\"? Esta acción no se puede deshacer."
+    },
     "reports": {
         "title": "Informes",
         "summary": "Resumen",
@@ -157,7 +180,10 @@
         "appearance": "Apariencia",
         "language": "Idioma",
         "theme": "Tema",
-        "saved": "Ajustes guardados correctamente"
+        "saved": "Ajustes guardados correctamente",
+        "timers": "Temporizadores",
+        "defaultTimerPreset": "Preset Predeterminado",
+        "noDefaultPreset": "Sin preset predeterminado"
     },
     "common": {
         "save": "Guardar",

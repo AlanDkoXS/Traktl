@@ -11,6 +11,8 @@ import {
 	Cog6ToothIcon,
 	Bars3Icon,
 	XMarkIcon,
+	TagIcon,
+	ClockIcon as TimerIcon,
 } from '@heroicons/react/24/outline';
 
 interface MainLayoutProps {
@@ -21,12 +23,12 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 	const { t } = useTranslation();
 	const location = useLocation();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-	
+
 	// Close mobile menu when location changes
 	useEffect(() => {
 		setIsMobileMenuOpen(false);
 	}, [location.pathname]);
-	
+
 	// Close mobile menu when Escape key is pressed
 	useEffect(() => {
 		const handleEsc = (event: KeyboardEvent) => {
@@ -34,14 +36,14 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 				setIsMobileMenuOpen(false);
 			}
 		};
-		
+
 		window.addEventListener('keydown', handleEsc);
-		
+
 		return () => {
 			window.removeEventListener('keydown', handleEsc);
 		};
 	}, []);
-	
+
 	// Prevent scrolling when mobile menu is open
 	useEffect(() => {
 		if (isMobileMenuOpen) {
@@ -49,7 +51,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 		} else {
 			document.body.style.overflow = '';
 		}
-		
+
 		return () => {
 			document.body.style.overflow = '';
 		};
@@ -60,6 +62,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 		{ name: t('nav.projects'), href: '/projects', icon: ClipboardDocumentListIcon },
 		{ name: t('nav.clients'), href: '/clients', icon: UserGroupIcon },
 		{ name: t('nav.tasks'), href: '/tasks', icon: ClockIcon },
+		{ name: t('tags.title'), href: '/tags', icon: TagIcon },
+		{ name: t('timerPresets.title'), href: '/timer-presets', icon: TimerIcon },
 		{ name: t('nav.reports'), href: '/reports', icon: ChartBarIcon },
 		{ name: t('nav.settings'), href: '/settings', icon: Cog6ToothIcon },
 	];
@@ -68,12 +72,12 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 		<div className="min-h-screen flex flex-col">
 			{/* Mobile menu overlay */}
 			{isMobileMenuOpen && (
-				<div 
+				<div
 					className="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 md:hidden"
 					onClick={() => setIsMobileMenuOpen(false)}
 				/>
 			)}
-			
+
 			{/* Mobile header */}
 			<header className="md:hidden bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-20 px-4 py-2">
 				<div className="flex items-center justify-between h-12">
@@ -84,19 +88,21 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 					>
 						<Bars3Icon className="h-6 w-6" />
 					</button>
-					
+
 					<div className="text-xl font-bold text-primary-600 dark:text-primary-400">
 						{t('app.name')}
 					</div>
-					
+
 					<UserMenu />
 				</div>
 			</header>
 
 			{/* Sidebar for mobile */}
-			<div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
-				isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-			}`}>
+			<div
+				className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
+					isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+				}`}
+			>
 				<div className="h-16 flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
 					<h1 className="text-xl font-bold text-primary-600 dark:text-primary-400">
 						{t('app.name')}
@@ -109,7 +115,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 						<XMarkIcon className="h-5 w-5" />
 					</button>
 				</div>
-				
+
 				{/* Navigation links */}
 				<nav className="p-3 mt-2">
 					<div className="space-y-1">
@@ -190,9 +196,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 				</header>
 
 				{/* Page content */}
-				<main className="max-w-7xl mx-auto p-4 sm:p-6">
-					{children}
-				</main>
+				<main className="max-w-7xl mx-auto p-4 sm:p-6">{children}</main>
 			</div>
 		</div>
 	);

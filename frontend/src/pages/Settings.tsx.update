@@ -1,0 +1,42 @@
+// Add this import
+import { useTimerPresetStore } from '../store/timerPresetStore';
+
+// Inside the Settings component, add:
+const { timerPresets, fetchTimerPresets } = useTimerPresetStore();
+const [defaultTimerPreset, setDefaultTimerPreset] = useState<string>(
+  user?.defaultTimerPreset || ''
+);
+
+// Add this effect
+useEffect(() => {
+  fetchTimerPresets();
+}, [fetchTimerPresets]);
+
+// Inside the form, before the last section (button), add:
+<div>
+  <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+    {t('settings.timers')}
+  </h2>
+
+  <div>
+    <label
+      htmlFor="defaultTimerPreset"
+      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+    >
+      {t('settings.defaultTimerPreset')}
+    </label>
+    <select
+      id="defaultTimerPreset"
+      value={defaultTimerPreset}
+      onChange={(e) => setDefaultTimerPreset(e.target.value)}
+      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+    >
+      <option value="">{t('settings.noDefaultPreset')}</option>
+      {timerPresets.map((preset) => (
+        <option key={preset.id} value={preset.id}>
+          {preset.name} ({preset.workDuration}m/{preset.breakDuration}m)
+        </option>
+      ))}
+    </select>
+  </div>
+</div>

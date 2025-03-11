@@ -139,6 +139,29 @@
         "endDate": "End Date",
         "allProjects": "All Projects"
     },
+    "tags": {
+        "title": "Tags",
+        "new": "New Tag",
+        "edit": "Edit Tag",
+        "name": "Tag Name",
+        "color": "Color",
+        "noTags": "No tags found",
+        "notFound": "Tag not found",
+        "deleteConfirmation": "Are you sure you want to delete the tag \"{{name}}\"? This action cannot be undone."
+    },
+    "timerPresets": {
+        "title": "Timer Presets",
+        "new": "New Timer Preset",
+        "edit": "Edit Timer Preset",
+        "name": "Preset Name",
+        "workDuration": "Work Duration (minutes)",
+        "breakDuration": "Break Duration (minutes)",
+        "repetitions": "Repetitions",
+        "cycles": "cycles",
+        "noPresets": "No timer presets found",
+        "notFound": "Timer preset not found",
+        "deleteConfirmation": "Are you sure you want to delete the timer preset \"{{name}}\"? This action cannot be undone."
+    },
     "reports": {
         "title": "Reports",
         "summary": "Summary",
@@ -157,7 +180,10 @@
         "appearance": "Appearance",
         "language": "Language",
         "theme": "Theme",
-        "saved": "Settings saved successfully"
+        "saved": "Settings saved successfully",
+        "timers": "Timers",
+        "defaultTimerPreset": "Default Timer Preset",
+        "noDefaultPreset": "No default preset"
     },
     "common": {
         "save": "Save",
