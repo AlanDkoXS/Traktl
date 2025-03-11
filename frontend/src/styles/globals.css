@@ -35,15 +35,15 @@
 /* Custom component styles */
 @layer components {
 	.btn {
-		@apply rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 inline-flex items-center;
+		@apply rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 inline-flex items-center px-4 py-2 m-1;
 	}
 
 	.btn-primary {
-		@apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-400 dark:focus:ring-primary-400;
+		@apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-400 dark:focus:ring-primary-400 shadow-sm;
 	}
 
 	.btn-secondary {
-		@apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600;
+		@apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 shadow-sm;
 	}
 
 	.form-input {
@@ -53,6 +53,21 @@
 	.form-label {
 		@apply block text-sm font-medium text-gray-700 dark:text-gray-300;
 	}
+    
+    /* Mobile-first container */
+    .container-mobile {
+        @apply w-full px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+    }
+    
+    /* Card styles */
+    .card {
+        @apply bg-white dark:bg-gray-800 shadow rounded-lg p-4 sm:p-6;
+    }
+    
+    /* Page heading */
+    .page-heading {
+        @apply text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6;
+    }
 }
 
 /* Dark mode overrides */
@@ -66,6 +81,13 @@ html,
 body,
 #root {
 	height: 100%;
+	width: 100%;
+	overflow-x: hidden;
+}
+
+/* Mobile-first layout adjustments */
+body {
+    @apply text-base;
 }
 
 /* Ensure forms look good on dark mode */
@@ -98,4 +120,29 @@ textarea {
 
 .dark .dynamic-border-primary {
 	border-color: rgb(var(--color-primary-400));
+}
+
+/* Mobile navigation improvements */
+@media (max-width: 768px) {
+    .main-layout {
+        margin-left: 0;
+    }
+    
+    .sidebar-open .main-layout {
+        margin-left: 240px;
+    }
+}
+
+/* Improved focus styles for accessibility */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+    @apply outline-none ring-2 ring-primary-500 ring-opacity-50;
+}
+
+/* Better spacing for mobile */
+.m-responsive {
+    @apply m-2 sm:m-4;
+}
+
+.p-responsive {
+    @apply p-2 sm:p-4;
 }

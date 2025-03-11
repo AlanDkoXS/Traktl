@@ -3,15 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { useTimeEntryStore } from '../store/timeEntryStore';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import { ClockIcon } from '@heroicons/react/24/outline';
+import { PlayIcon } from '@heroicons/react/24/solid';
 
 interface TimeEntryListProps {
 	projectId?: string;
 	taskId?: string;
 	startDate?: Date;
 	endDate?: Date;
+	limit?: number;
 }
 
-export const TimeEntryList = ({ projectId, taskId, startDate, endDate }: TimeEntryListProps) => {
+export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: TimeEntryListProps) => {
 	const { t } = useTranslation();
 	const { timeEntries, isLoading, error, fetchTimeEntries } = useTimeEntryStore();
 
@@ -24,18 +27,25 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate }: TimeEnt
 		const seconds = Math.floor(milliseconds / 1000);
 		const hours = Math.floor(seconds / 3600);
 		const minutes = Math.floor((seconds % 3600) / 60);
-		const remainingSeconds = seconds % 60;
-
-		return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+		
+		if (hours === 0) {
+			return `${minutes}m`;
+		}
+		return `${hours}h ${minutes}m`;
 	};
 
 	if (isLoading) {
-		return <div className="text-center py-4">{t('common.loading')}</div>;
+		return (
+			<div className="text-center py-4 flex justify-center">
+				<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
+				<span className="ml-2">{t('common.loading')}</span>
+			</div>
+		);
 	}
 
 	if (error) {
 		return (
-			<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-4 rounded-md">
+			<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm">
 				{error}
 			</div>
 		);
@@ -43,79 +53,79 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate }: TimeEnt
 
 	if (timeEntries.length === 0) {
 		return (
-			<div className="text-center py-8">
-				<p className="text-gray-500 dark:text-gray-400 mb-4">
+			<div className="text-center py-4">
+				<p className="text-gray-500 dark:text-gray-400">
 					{t('timeEntries.noEntries')}
 				</p>
-				<Link to="/time-entries/new" className="btn btn-primary">
+				<Link to="/time-entries/new" className="btn btn-primary mt-2 inline-flex">
 					{t('timeEntries.new')}
 				</Link>
 			</div>
 		);
 	}
 
-	return (
-		<div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
-			<ul className="divide-y divide-gray-200 dark:divide-gray-700">
-				{timeEntries.map((entry) => (
-					<li key={entry.id}>
-						<Link
-							to={`/time-entries/${entry.id}`}
-							className="block hover:bg-gray-50 dark:hover:bg-gray-700"
-						>
-							<div className="px-4 py-4 flex items-center sm:px-6">
-								<div className="min-w-0 flex-1">
-									<div className="flex items-center justify-between">
-										<div>
-											<p className="text-sm font-medium text-primary-600 dark:text-primary-400">
-												{entry.project}
-											</p>
-											{entry.task && (
-												<p className="text-xs text-gray-500 dark:text-gray-400">
-													{entry.task}
-												</p>
-											)}
-										</div>
-										<div className="ml-2 flex-shrink-0 flex">
-											{entry.isRunning ? (
-												<span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-													{t('timeEntries.running')}
-												</span>
-											) : (
-												<span className="text-sm text-gray-700 dark:text-gray-300">
-													{formatDuration(entry.duration)}
-												</span>
-											)}
-										</div>
-									</div>
-									<div className="mt-2 flex justify-between">
-										<div className="text-sm text-gray-500 dark:text-gray-400">
-											<span>
-												{format(
-													new Date(entry.startTime),
-													'MMM dd, yyyy HH:mm'
-												)}
-											</span>
-											{entry.endTime && !entry.isRunning && (
-												<span>
-													{' '}
-													- {format(new Date(entry.endTime), 'HH:mm')}
-												</span>
-											)}
-										</div>
+	// Limit the number of entries if specified
+	const displayEntries = limit ? timeEntries.slice(0, limit) : timeEntries;
 
-										{entry.notes && (
-											<div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
-												{entry.notes}
-											</div>
-										)}
-									</div>
+	return (
+		<div className="space-y-2">
+			{displayEntries.map((entry) => (
+				<Link
+					key={entry.id}
+					to={`/time-entries/${entry.id}`}
+					className="block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-3 transition-colors"
+				>
+					<div className="flex items-center justify-between">
+						<div className="flex items-center">
+							{entry.isRunning ? (
+								<div className="flex-shrink-0 h-8 w-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-3">
+									<PlayIcon className="h-4 w-4 text-green-600 dark:text-green-300" />
 								</div>
+							) : (
+								<div className="flex-shrink-0 h-8 w-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mr-3">
+									<ClockIcon className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+								</div>
+							)}
+							<div>
+								<div className="font-medium text-gray-900 dark:text-white">
+									{entry.project}
+								</div>
+								{entry.task && (
+									<div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+										{entry.task}
+									</div>
+								)}
 							</div>
-						</Link>
-					</li>
-				))}
-			</ul>
+						</div>
+						<div className="text-right">
+							<div className={`font-medium ${entry.isRunning ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
+								{entry.isRunning ? (
+									t('timeEntries.running')
+								) : (
+									formatDuration(entry.duration)
+								)}
+							</div>
+							<div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+								{format(new Date(entry.startTime), 'MMM d, h:mm a')}
+							</div>
+						</div>
+					</div>
+					{entry.notes && (
+						<div className="mt-2 text-sm text-gray-500 dark:text-gray-400 truncate">
+							{entry.notes}
+						</div>
+					)}
+				</Link>
+			))}
+			
+			{limit && timeEntries.length > limit && (
+				<Link 
+					to="/time-entries" 
+					className="block text-center text-sm text-primary-600 dark:text-primary-400 hover:underline p-2"
+				>
+					{t('common.viewAll')} ({timeEntries.length})
+				</Link>
+			)}
 		</div>
 	);
 };

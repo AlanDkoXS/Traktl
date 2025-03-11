@@ -6,7 +6,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import enTranslation from './locales/en.json';
 import esTranslation from './locales/es.json';
 
-// Initialize i18next
+// Initialize i18next with improved language detection
 i18n.use(LanguageDetector)
 	.use(initReactI18next)
 	.init({
@@ -19,6 +19,20 @@ i18n.use(LanguageDetector)
 			},
 		},
 		fallbackLng: 'en',
+		detection: {
+			// Order of language detection methods
+			order: ['navigator', 'htmlTag', 'path', 'localStorage'],
+			// Cache detected language in localStorage
+			caches: ['localStorage'],
+			// Look for language info in HTML
+			lookupFromPathIndex: 0,
+			lookupFromSubdomainIndex: 0,
+			// Don't use cookies to avoid unnecessary headers
+			lookupCookie: 'i18next',
+			cookieExpirationDate: new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000), // 2 years
+			// HTML lang attribute
+			htmlTag: document.documentElement,
+		},
 		debug: process.env.NODE_ENV === 'development',
 		interpolation: {
 			escapeValue: false, // React already escapes by default

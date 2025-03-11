@@ -3,6 +3,26 @@
     "name": "Traktl",
     "tagline": "Controla tu tiempo, aumenta tu productividad"
   },
+  "languages": {
+    "english": "Inglés",
+    "spanish": "Español"
+  },
+  "dashboard": {
+    "activityHeatmap": "Mapa de Actividad",
+    "recentEntries": "Entradas Recientes",
+    "quickLinks": "Enlaces Rápidos",
+    "more": "Más",
+    "less": "Menos",
+    "days": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mié",
+      "thu": "Jue",
+      "fri": "Vie",
+      "sat": "Sáb",
+      "sun": "Dom"
+    }
+  },
   "nav": {
     "dashboard": "Panel",
     "projects": "Proyectos",
@@ -149,7 +169,8 @@
     "confirmDelete": "¿Estás seguro de que quieres eliminar esto?",
     "yes": "Sí",
     "no": "No",
-    "goBack": "Volver"
+    "goBack": "Volver",
+    "viewAll": "Ver Todo"
   },
   "errors": {
     "required": "Este campo es obligatorio",

@@ -5,16 +5,11 @@ export const useTheme = () => {
   const { theme, setTheme, toggleTheme } = useThemeStore();
 
   useEffect(() => {
-    // Get system preference
-    const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    // Apply theme
-    if (theme === 'system') {
-      if (isSystemDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+    // Auto-detect system preference on first load
+    if (theme === 'system' || !theme) {
+      const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const preferredTheme = isSystemDark ? 'dark' : 'light';
+      document.documentElement.classList.toggle('dark', isSystemDark);
     } else if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -28,11 +23,7 @@ export const useTheme = () => {
 
     const handleChange = () => {
       if (theme === 'system') {
-        if (mediaQuery.matches) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        document.documentElement.classList.toggle('dark', mediaQuery.matches);
       }
     };
 

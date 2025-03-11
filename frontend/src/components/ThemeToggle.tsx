@@ -7,10 +7,10 @@ export const ThemeToggle = () => {
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex items-center space-x-2">
+		<div className="flex items-center space-x-3 p-2">
 			<button
 				onClick={() => setTheme('light')}
-				className={` rounded-md ${theme === 'light' ? 'bg-gray-200 dark:bg-gray-700' : ''}`}
+				className={`p-2 rounded-md ${theme === 'light' ? 'bg-gray-200 dark:bg-gray-700' : ''}`}
 				aria-label={t('theme.light')}
 				title={t('theme.light')}
 			>
@@ -18,7 +18,7 @@ export const ThemeToggle = () => {
 			</button>
 			<button
 				onClick={() => setTheme('dark')}
-				className={`rounded-md ${theme === 'dark' ? 'bg-gray-200 dark:bg-gray-700' : ''}`}
+				className={`p-2 rounded-md ${theme === 'dark' ? 'bg-gray-200 dark:bg-gray-700' : ''}`}
 				aria-label={t('theme.dark')}
 				title={t('theme.dark')}
 			>
@@ -26,7 +26,7 @@ export const ThemeToggle = () => {
 			</button>
 			<button
 				onClick={() => setTheme('system')}
-				className={`rounded-md ${theme === 'system' ? 'bg-gray-200 dark:bg-gray-700' : ''}`}
+				className={`p-2 rounded-md ${theme === 'system' ? 'bg-gray-200 dark:bg-gray-700' : ''}`}
 				aria-label={t('theme.system')}
 				title={t('theme.system')}
 			>
