@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../hooks/useTheme';
 import { useAuthStore } from '../store/authStore';
+import { useTimerPresetStore } from '../store/timerPresetStore';
 
 export const Settings = () => {
 	const { t, i18n } = useTranslation();
 	const { theme, setTheme } = useTheme();
 	const { user, updateUser, isLoading, error } = useAuthStore();
+	const { timerPresets, fetchTimerPresets } = useTimerPresetStore();
 
 	const [name, setName] = useState(user?.name || '');
 	const [email, setEmail] = useState(user?.email || '');
@@ -16,8 +18,16 @@ export const Settings = () => {
 	const [userTheme, setUserTheme] = useState<'light' | 'dark'>(
 		(user?.theme as 'light' | 'dark') || 'light'
 	);
+	const [defaultTimerPreset, setDefaultTimerPreset] = useState<string>(
+		user?.defaultTimerPreset || ''
+	);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [successMessage, setSuccessMessage] = useState('');
+
+	// Load timer presets
+	useEffect(() => {
+		fetchTimerPresets();
+	}, [fetchTimerPresets]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -33,6 +43,7 @@ export const Settings = () => {
 			//   email,
 			//   preferredLanguage,
 			//   theme: userTheme,
+			//   defaultTimerPreset,
 			// });
 
 			// Apply changes to app
@@ -160,6 +171,34 @@ export const Settings = () => {
 									<option value="dark">{t('theme.dark')}</option>
 								</select>
 							</div>
+						</div>
+					</div>
+
+					<div>
+						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+							{t('settings.timers')}
+						</h2>
+
+						<div>
+							<label
+								htmlFor="defaultTimerPreset"
+								className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+							>
+								{t('settings.defaultTimerPreset')}
+							</label>
+							<select
+								id="defaultTimerPreset"
+								value={defaultTimerPreset}
+								onChange={(e) => setDefaultTimerPreset(e.target.value)}
+								className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+							>
+								<option value="">{t('settings.noDefaultPreset')}</option>
+								{timerPresets.map((preset) => (
+									<option key={preset.id} value={preset.id}>
+										{preset.name} ({preset.workDuration}m/{preset.breakDuration}m)
+									</option>
+								))}
+							</select>
 						</div>
 					</div>
 

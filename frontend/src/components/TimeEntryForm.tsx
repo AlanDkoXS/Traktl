@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTimeEntryStore } from '../store/timeEntryStore';
 import { useProjectStore } from '../store/projectStore';
 import { useTaskStore } from '../store/taskStore';
+import { useTagStore } from '../store/tagStore';
 import { TimeEntry } from '../types';
 import { format } from 'date-fns';
 
@@ -19,6 +20,7 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 	const { createTimeEntry, updateTimeEntry } = useTimeEntryStore();
 	const { projects, fetchProjects } = useProjectStore();
 	const { tasks, fetchTasks } = useTaskStore();
+	const { tags, fetchTags } = useTagStore();
 
 	// Get projectId from query params if available
 	const queryParams = new URLSearchParams(location.search);
@@ -27,6 +29,7 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 
 	const [projectId, setProjectId] = useState(timeEntry?.project || queryProjectId || '');
 	const [taskId, setTaskId] = useState(timeEntry?.task || queryTaskId || '');
+	const [selectedTags, setSelectedTags] = useState<string[]>(timeEntry?.tags || []);
 	const [startTime, setStartTime] = useState(
 		timeEntry?.startTime
 			? format(new Date(timeEntry.startTime), "yyyy-MM-dd'T'HH:mm")
@@ -44,7 +47,8 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 
 	useEffect(() => {
 		fetchProjects();
-	}, [fetchProjects]);
+		fetchTags();
+	}, [fetchProjects, fetchTags]);
 
 	useEffect(() => {
 		if (projectId) {
@@ -56,6 +60,14 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 		const newProjectId = e.target.value;
 		setProjectId(newProjectId);
 		setTaskId(''); // Reset task when project changes
+	};
+
+	const handleTagToggle = (tagId: string) => {
+		setSelectedTags(prev => 
+			prev.includes(tagId) 
+				? prev.filter(id => id !== tagId) 
+				: [...prev, tagId]
+		);
 	};
 
 	const calculateDuration = () => {
@@ -94,7 +106,7 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 				duration: isRunning ? 0 : duration,
 				notes,
 				isRunning,
-				tags: timeEntry?.tags || [],
+				tags: selectedTags,
 			};
 
 			if (isEditing && timeEntry) {
@@ -237,6 +249,39 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 					rows={3}
 					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 				/>
+			</div>
+
+			<div>
+				<label
+					className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+				>
+					{t('timeEntries.tags')}
+				</label>
+				<div className="mt-2 flex flex-wrap gap-2">
+					{tags.map(tag => (
+						<button
+							key={tag.id}
+							type="button"
+							onClick={() => handleTagToggle(tag.id)}
+							className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+								selectedTags.includes(tag.id)
+									? 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300'
+									: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+							}`}
+						>
+							<div
+								className="w-2 h-2 rounded-full mr-1.5"
+								style={{ backgroundColor: tag.color }}
+							/>
+							{tag.name}
+						</button>
+					))}
+					{tags.length === 0 && (
+						<span className="text-sm text-gray-500 dark:text-gray-400">
+							{t('tags.noTags')} <Link to="/tags/new" className="text-primary-600 dark:text-primary-400 underline">{t('tags.new')}</Link>
+						</span>
+					)}
+				</div>
 			</div>
 
 			<div className="flex justify-end space-x-3">

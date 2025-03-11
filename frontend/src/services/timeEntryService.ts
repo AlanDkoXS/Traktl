@@ -7,10 +7,12 @@ const formatTimeEntry = (timeEntry: any): TimeEntry => {
   
   return {
     id: timeEntry._id || timeEntry.id,
-    user: timeEntry.user._id || timeEntry.user,
-    project: timeEntry.project._id || timeEntry.project,
-    task: timeEntry.task?._id || timeEntry.task || undefined,
-    tags: timeEntry.tags?.map((tag: any) => tag._id || tag) || [],
+    user: typeof timeEntry.user === 'object' ? timeEntry.user._id || timeEntry.user.id : timeEntry.user,
+    project: typeof timeEntry.project === 'object' ? timeEntry.project._id || timeEntry.project.id : timeEntry.project,
+    task: timeEntry.task ? (typeof timeEntry.task === 'object' ? timeEntry.task._id || timeEntry.task.id : timeEntry.task) : undefined,
+    tags: Array.isArray(timeEntry.tags) 
+      ? timeEntry.tags.map((tag: any) => typeof tag === 'object' ? tag._id || tag.id : tag)
+      : [],
     startTime: new Date(timeEntry.startTime),
     endTime: timeEntry.endTime ? new Date(timeEntry.endTime) : undefined,
     duration: timeEntry.duration || 0,
