@@ -79,6 +79,7 @@
     "color": "Color",
     "noProjects": "No se encontraron proyectos",
     "notFound": "Proyecto no encontrado",
+    "deleteConfirmation": "¿Estás seguro de que quieres eliminar el proyecto \"{{name}}\"? Esta acción no se puede deshacer.",
     "status": {
       "title": "Estado",
       "active": "Activo",
@@ -166,11 +167,12 @@
     "actions": "Acciones",
     "loading": "Cargando...",
     "noResults": "No se encontraron resultados",
-    "confirmDelete": "¿Estás seguro de que quieres eliminar esto?",
+    "confirmDelete": "Confirmar Eliminación",
     "yes": "Sí",
     "no": "No",
     "goBack": "Volver",
-    "viewAll": "Ver Todo"
+    "viewAll": "Ver Todo",
+    "retry": "Reintentar"
   },
   "errors": {
     "required": "Este campo es obligatorio",

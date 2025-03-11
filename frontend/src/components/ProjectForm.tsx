@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../store/projectStore';
 import { useClientStore } from '../store/clientStore';
 import { Project } from '../types';
+import { toObjectIdOrUndefined } from '../utils/validationHelpers';
 
 interface ProjectFormProps {
 	project?: Project;
@@ -39,13 +40,16 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 		setIsSubmitting(true);
 		setError('');
 
+		// Convert clientId to a valid ObjectId or undefined to prevent the error
+		const validClientId = toObjectIdOrUndefined(clientId);
+
 		try {
 			if (isEditing && project) {
 				await updateProject(project.id, {
 					name,
 					description,
 					color,
-					client: clientId || undefined,
+					client: validClientId,
 					status,
 				});
 			} else {
@@ -53,13 +57,14 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 					name,
 					description,
 					color,
-					client: clientId || undefined,
+					client: validClientId,
 					status,
 				});
 			}
 
 			navigate('/projects');
 		} catch (err: any) {
+			console.error('Project submission error:', err);
 			setError(err.message || t('errors.serverError'));
 		} finally {
 			setIsSubmitting(false);
