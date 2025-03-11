@@ -48,6 +48,7 @@ export const ClientForm = ({ client, isEditing = false }: ClientFormProps) => {
 
       navigate('/clients');
     } catch (err: any) {
+      console.error('Client submission error:', err);
       setError(err.message || t('errors.serverError'));
     } finally {
       setIsSubmitting(false);

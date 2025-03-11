@@ -95,7 +95,8 @@
         "contact": "Contact Information",
         "color": "Color",
         "noClients": "No clients found",
-        "notFound": "Client not found"
+        "notFound": "Client not found",
+        "deleteConfirmation": "Are you sure you want to delete the client \"{{name}}\"? This action cannot be undone."
     },
     "tasks": {
         "title": "Tasks",
@@ -112,7 +113,8 @@
             "completed": "Completed"
         },
         "noTasks": "No tasks found",
-        "notFound": "Task not found"
+        "notFound": "Task not found",
+        "deleteConfirmation": "Are you sure you want to delete the task \"{{name}}\"? This action cannot be undone."
     },
     "timeEntries": {
         "title": "Time Entries",

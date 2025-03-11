@@ -1,10 +1,18 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { TaskList } from '../components/TaskList';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { useTaskStore } from '../store/taskStore';
 
 export const Tasks = () => {
 	const { t } = useTranslation();
+	const { clearSelectedTask } = useTaskStore();
+	
+	// Clear selected task when entering the tasks list
+	useEffect(() => {
+		clearSelectedTask();
+	}, [clearSelectedTask]);
 
 	return (
 		<div>

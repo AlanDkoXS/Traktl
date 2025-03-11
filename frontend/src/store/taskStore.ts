@@ -17,6 +17,7 @@ interface TaskState {
 	) => Promise<void>;
 	deleteTask: (id: string) => Promise<void>;
 	selectTask: (task: Task | null) => void;
+	clearSelectedTask: () => void;
 }
 
 export const useTaskStore = create<TaskState>((set, get) => ({
@@ -64,6 +65,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				error: error.response?.data?.error || 'Failed to create task',
 				isLoading: false,
 			});
+			throw error;
 		}
 	},
 
@@ -81,6 +83,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				error: error.response?.data?.error || 'Failed to update task',
 				isLoading: false,
 			});
+			throw error;
 		}
 	},
 
@@ -98,10 +101,15 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				error: error.response?.data?.error || 'Failed to delete task',
 				isLoading: false,
 			});
+			throw error;
 		}
 	},
 
 	selectTask: (task) => {
 		set({ selectedTask: task });
 	},
+	
+	clearSelectedTask: () => {
+		set({ selectedTask: null });
+	}
 }));
