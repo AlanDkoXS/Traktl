@@ -67,7 +67,8 @@
         "workCompleted": "¡Trabajo completado! Tiempo de descanso.",
         "breakCompleted": "¡Descanso completado! De vuelta al trabajo.",
         "enableNotifications": "Habilita las notificaciones para ser alertado cuando el temporizador termine.",
-        "allowNotifications": "Permitir Notificaciones"
+        "allowNotifications": "Permitir Notificaciones",
+        "selectProject": "Por favor selecciona un proyecto antes de iniciar el temporizador"
     },
     "projects": {
         "title": "Proyectos",

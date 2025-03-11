@@ -14,6 +14,7 @@ export const useTimer = () => {
 		taskId,
 		notes,
 		tags,
+		workStartTime,
 
 		tick,
 		start,
@@ -30,6 +31,7 @@ export const useTimer = () => {
 		setTaskId,
 		setNotes,
 		setTags,
+		createTimeEntryFromWorkSession,
 	} = useTimerStore();
 
 	const lastTickTimeRef = useRef<number | null>(null);
@@ -100,6 +102,7 @@ export const useTimer = () => {
 		taskId,
 		notes,
 		tags,
+		workStartTime,
 
 		start,
 		pause,
@@ -107,6 +110,7 @@ export const useTimer = () => {
 		stop,
 		reset,
 		skipToNext,
+		createTimeEntryOnCompletion: createTimeEntryFromWorkSession,
 
 		setWorkDuration,
 		setBreakDuration,

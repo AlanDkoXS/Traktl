@@ -67,7 +67,8 @@
         "workCompleted": "Work completed! Time for a break.",
         "breakCompleted": "Break completed! Back to work.",
         "enableNotifications": "Enable notifications to be alerted when timer completes.",
-        "allowNotifications": "Allow Notifications"
+        "allowNotifications": "Allow Notifications",
+        "selectProject": "Please select a project before starting the timer"
     },
     "projects": {
         "title": "Projects",
