@@ -68,7 +68,9 @@
         "breakCompleted": "Break completed! Back to work.",
         "enableNotifications": "Enable notifications to be alerted when timer completes.",
         "allowNotifications": "Allow Notifications",
-        "selectProject": "Please select a project before starting the timer"
+        "selectProject": "Please select a project before starting the timer",
+        "settings": "Timer Settings",
+        "presets": "Presets"
     },
     "projects": {
         "title": "Projects",
@@ -138,7 +140,8 @@
         "endTimeRequired": "End time is required for non-running entries",
         "startDate": "Start Date",
         "endDate": "End Date",
-        "allProjects": "All Projects"
+        "allProjects": "All Projects",
+        "details": "Session Details"
     },
     "tags": {
         "title": "Tags",
@@ -202,7 +205,9 @@
         "no": "No",
         "goBack": "Go Back",
         "viewAll": "View All",
-        "retry": "Retry"
+        "retry": "Retry",
+        "done": "Done",
+        "edit": "Edit"
     },
     "errors": {
         "required": "This field is required",

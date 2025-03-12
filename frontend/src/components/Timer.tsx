@@ -11,8 +11,10 @@ import { TimerDisplay } from './timer/TimerDisplay';
 import { TimerControls } from './timer/TimerControls';
 import { TimerSettings } from './timer/TimerSettings';
 import { ProjectTaskSelector } from './timer/ProjectTaskSelector';
+import { PresetSelector } from './timer/PresetSelector';
 import { ActivityHeatmap } from './timer/ActivityHeatmap';
 import { NotificationManager } from './timer/NotificationManager';
+import { TimerPreset } from '../types';
 
 export const Timer = () => {
   const { t } = useTranslation();
@@ -56,7 +58,6 @@ export const Timer = () => {
       fetchProjects(),
       fetchTags()
     ]);
-    // Dependency array incluye fetchProjects y fetchTags, que no deberían cambiar
   }, [fetchProjects, fetchTags]);
 
   // Load tasks when project changes
@@ -64,7 +65,7 @@ export const Timer = () => {
     if (projectId) {
       fetchTasks(projectId);
     }
-  }, [projectId, fetchTasks]); // Solo se ejecuta cuando projectId cambia
+  }, [projectId, fetchTasks]);
 
   // Audio references
   const workAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -83,14 +84,14 @@ export const Timer = () => {
       workAudioRef.current = null;
       breakAudioRef.current = null;
     };
-  }, []); // Solo se ejecuta una vez
+  }, []);
 
   // Request notification permission once
   useEffect(() => {
     if ('Notification' in window) {
       setNotificationPermission(Notification.permission);
     }
-  }, []); // Solo se ejecuta una vez
+  }, []);
 
   // Play sound and show notification when timer completes
   useEffect(() => {
@@ -133,7 +134,7 @@ export const Timer = () => {
       
       return () => clearTimeout(timeout);
     }
-  }, [mode, progress, notificationPermission, t]); // Dependencias correctas
+  }, [mode, progress, notificationPermission, t]);
 
   // Request notification permission
   const requestNotificationPermission = async () => {
@@ -153,7 +154,14 @@ export const Timer = () => {
     const controller = new AbortController();
     fetchTimeEntries(undefined, undefined, startDate, endDate);
     return () => controller.abort();
-  }, [fetchTimeEntries, startDate, endDate]); // Dependencias correctas
+  }, [fetchTimeEntries, startDate, endDate]);
+
+  // Handle preset selection
+  const handlePresetSelect = (preset: TimerPreset) => {
+    setWorkDuration(preset.workDuration);
+    setBreakDuration(preset.breakDuration);
+    setRepetitions(preset.repetitions);
+  };
 
   return (
     <div className="flex flex-col space-y-6">
@@ -182,9 +190,20 @@ export const Timer = () => {
           mode={mode} 
         />
 
+        {/* Timer Controls */}
+        <TimerControls
+          status={status}
+          start={start}
+          pause={pause}
+          resume={resume}
+          stop={stop}
+          skipToNext={skipToNext}
+          projectId={projectId}
+        />
+
         {/* Project & Task Selection (only visible when idle) */}
         {status === 'idle' && (
-          <div className="mb-6">
+          <div className="mt-6">
             <ProjectTaskSelector
               projects={projects}
               tasks={tasks}
@@ -198,19 +217,11 @@ export const Timer = () => {
               setNotes={setNotes}
               setSelectedTags={setTags}
             />
+            
+            {/* Timer Presets */}
+            <PresetSelector onSelectPreset={handlePresetSelect} />
           </div>
         )}
-
-        {/* Controls */}
-        <TimerControls
-          status={status}
-          start={start}
-          pause={pause}
-          resume={resume}
-          stop={stop}
-          skipToNext={skipToNext}
-          projectId={projectId}
-        />
 
         {/* Settings */}
         <TimerSettings

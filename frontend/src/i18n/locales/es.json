@@ -68,7 +68,9 @@
         "breakCompleted": "¡Descanso completado! De vuelta al trabajo.",
         "enableNotifications": "Habilita las notificaciones para ser alertado cuando el temporizador termine.",
         "allowNotifications": "Permitir Notificaciones",
-        "selectProject": "Por favor selecciona un proyecto antes de iniciar el temporizador"
+        "selectProject": "Por favor selecciona un proyecto antes de iniciar el temporizador",
+        "settings": "Configuración del Temporizador",
+        "presets": "Presets"
     },
     "projects": {
         "title": "Proyectos",
@@ -138,7 +140,8 @@
         "endTimeRequired": "La hora de finalización es obligatoria para registros no en ejecución",
         "startDate": "Fecha de Inicio",
         "endDate": "Fecha de Fin",
-        "allProjects": "Todos los Proyectos"
+        "allProjects": "Todos los Proyectos",
+        "details": "Detalles de la Sesión"
     },
     "tags": {
         "title": "Etiquetas",
@@ -202,7 +205,9 @@
         "no": "No",
         "goBack": "Volver",
         "viewAll": "Ver Todo",
-        "retry": "Reintentar"
+        "retry": "Reintentar",
+        "done": "Listo",
+        "edit": "Editar"
     },
     "errors": {
         "required": "Este campo es obligatorio",
