@@ -27,6 +27,7 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 	const queryProjectId = queryParams.get('projectId');
 	const queryTaskId = queryParams.get('taskId');
 
+	// Initialize with either existing time entry, query params, or defaults
 	const [projectId, setProjectId] = useState(timeEntry?.project || queryProjectId || '');
 	const [taskId, setTaskId] = useState(timeEntry?.task || queryTaskId || '');
 	const [selectedTags, setSelectedTags] = useState<string[]>(timeEntry?.tags || []);
@@ -46,20 +47,25 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 	const [error, setError] = useState('');
 
 	useEffect(() => {
+		// Load projects, tasks, and tags
 		fetchProjects();
 		fetchTags();
-	}, [fetchProjects, fetchTags]);
-
-	useEffect(() => {
+		
+		// If we have a project ID, fetch tasks for that project
 		if (projectId) {
 			fetchTasks(projectId);
 		}
-	}, [fetchTasks, projectId]);
+	}, [fetchProjects, fetchTags, fetchTasks, projectId]);
 
 	const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newProjectId = e.target.value;
 		setProjectId(newProjectId);
 		setTaskId(''); // Reset task when project changes
+		
+		// If this project changes, fetch tasks for the new project
+		if (newProjectId) {
+			fetchTasks(newProjectId);
+		}
 	};
 
 	const handleTagToggle = (tagId: string) => {
@@ -98,6 +104,7 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 		setError('');
 
 		try {
+			console.log("Preparing time entry data...");
 			const timeEntryData = {
 				project: projectId,
 				task: taskId || undefined,
@@ -108,20 +115,36 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 				isRunning,
 				tags: selectedTags,
 			};
+			
+			console.log("Time entry data:", timeEntryData);
 
 			if (isEditing && timeEntry) {
+				console.log(`Updating time entry ${timeEntry.id}`);
 				await updateTimeEntry(timeEntry.id, timeEntryData);
+				console.log("Time entry updated successfully");
 			} else {
+				console.log("Creating new time entry");
 				await createTimeEntry(timeEntryData);
+				console.log("Time entry created successfully");
 			}
 
 			navigate('/time-entries');
 		} catch (err: any) {
+			console.error("Error submitting time entry:", err);
 			setError(err.message || t('errors.serverError'));
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
+
+	// Update the end time field when isRunning changes
+	useEffect(() => {
+		if (isRunning) {
+			setEndTime('');
+		} else if (!endTime) {
+			setEndTime(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
+		}
+	}, [isRunning, endTime]);
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-6">
@@ -166,7 +189,7 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 					value={taskId}
 					onChange={(e) => setTaskId(e.target.value)}
 					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
-					disabled={!projectId}
+					disabled={!projectId || tasks.length === 0}
 				>
 					<option value="">{t('timeEntries.selectTask')}</option>
 					{tasks.map((task) => (

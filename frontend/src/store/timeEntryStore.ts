@@ -34,17 +34,22 @@ export const useTimeEntryStore = create<TimeEntryState>((set, get) => ({
   error: null,
 
   fetchTimeEntries: async (projectId, taskId, startDate, endDate) => {
+    console.log('timeEntryStore.fetchTimeEntries called with', { projectId, taskId, startDate, endDate });
     try {
       set({ isLoading: true, error: null });
+      
       const timeEntries = await timeEntryService.getTimeEntries(
         projectId,
         taskId,
         startDate,
         endDate
       );
+      
+      console.log('timeEntryStore: received time entries:', timeEntries.length);
       set({ timeEntries, isLoading: false });
       return timeEntries;
     } catch (error: any) {
+      console.error('timeEntryStore.fetchTimeEntries error:', error);
       set({
         error: error.message || 'Failed to fetch time entries',
         isLoading: false,

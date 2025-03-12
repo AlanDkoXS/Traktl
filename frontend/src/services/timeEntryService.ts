@@ -1,7 +1,6 @@
 import api from './api';
 import { TimeEntry } from '../types';
 
-// Helper to transform MongoDB _id to id in our frontend
 const formatTimeEntry = (timeEntry: any): TimeEntry => {
   if (!timeEntry) return timeEntry;
   
@@ -24,7 +23,6 @@ const formatTimeEntry = (timeEntry: any): TimeEntry => {
 };
 
 export const timeEntryService = {
-  // Get all time entries
   getTimeEntries: async (
     projectId?: string,
     taskId?: string,
@@ -32,7 +30,7 @@ export const timeEntryService = {
     endDate?: Date
   ): Promise<TimeEntry[]> => {
     try {
-      console.log('Fetching time entries...');
+      console.log('Fetching time entries with params:', { projectId, taskId, startDate, endDate });
       let url = '/time-entries';
       const params = new URLSearchParams();
 
@@ -46,16 +44,18 @@ export const timeEntryService = {
       }
 
       const response = await api.get(url);
-      console.log('Time entries response:', response.data);
+      console.log('Time entries raw response:', response);
 
-      // Handle different response formats
+      // Extract data based on API response format
       let timeEntries = [];
-      if (Array.isArray(response.data)) {
-        timeEntries = response.data;
-      } else if (Array.isArray(response.data.data)) {
+      if (response.data && response.data.data) {
+        // Handle {ok: true, data: [...]} format
         timeEntries = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        // Handle direct array format
+        timeEntries = response.data;
       } else {
-        console.error('Unexpected time entries response format:', response.data);
+        console.error('Unexpected response format:', response.data);
         return [];
       }
 
@@ -66,21 +66,10 @@ export const timeEntryService = {
     }
   },
 
-  // Get a single time entry by ID
   getTimeEntry: async (id: string): Promise<TimeEntry> => {
     try {
-      console.log(`Fetching time entry with id: ${id}`);
       const response = await api.get(`/time-entries/${id}`);
-      console.log('Time entry response:', response.data);
-
-      // Handle different response formats
-      let timeEntry;
-      if (response.data.data) {
-        timeEntry = response.data.data;
-      } else {
-        timeEntry = response.data;
-      }
-
+      const timeEntry = response.data.data || response.data;
       return formatTimeEntry(timeEntry);
     } catch (error) {
       console.error('Error fetching time entry:', error);
@@ -88,22 +77,12 @@ export const timeEntryService = {
     }
   },
 
-  // Create a new time entry
   createTimeEntry: async (
     timeEntry: Omit<TimeEntry, 'id' | 'user' | 'createdAt' | 'updatedAt'>
   ): Promise<TimeEntry> => {
     try {
-      console.log('Creating time entry with data:', timeEntry);
       const response = await api.post('/time-entries', timeEntry);
-
-      // Handle different response formats
-      let newTimeEntry;
-      if (response.data.data) {
-        newTimeEntry = response.data.data;
-      } else {
-        newTimeEntry = response.data;
-      }
-
+      const newTimeEntry = response.data.data || response.data;
       return formatTimeEntry(newTimeEntry);
     } catch (error) {
       console.error('Error creating time entry:', error);
@@ -111,23 +90,13 @@ export const timeEntryService = {
     }
   },
 
-  // Update a time entry
   updateTimeEntry: async (
     id: string,
     timeEntry: Partial<Omit<TimeEntry, 'id' | 'user' | 'createdAt' | 'updatedAt'>>
   ): Promise<TimeEntry> => {
     try {
-      console.log(`Updating time entry ${id} with data:`, timeEntry);
       const response = await api.put(`/time-entries/${id}`, timeEntry);
-
-      // Handle different response formats
-      let updatedTimeEntry;
-      if (response.data.data) {
-        updatedTimeEntry = response.data.data;
-      } else {
-        updatedTimeEntry = response.data;
-      }
-
+      const updatedTimeEntry = response.data.data || response.data;
       return formatTimeEntry(updatedTimeEntry);
     } catch (error) {
       console.error('Error updating time entry:', error);
@@ -135,10 +104,8 @@ export const timeEntryService = {
     }
   },
 
-  // Delete a time entry
   deleteTimeEntry: async (id: string): Promise<void> => {
     try {
-      console.log(`Deleting time entry with id: ${id}`);
       await api.delete(`/time-entries/${id}`);
     } catch (error) {
       console.error('Error deleting time entry:', error);

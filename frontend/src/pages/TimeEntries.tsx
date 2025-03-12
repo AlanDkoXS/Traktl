@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { TimeEntryList } from '../components/TimeEntryList';
 import { PlusIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { useProjectStore } from '../store/projectStore';
 import { format, subDays } from 'date-fns';
+import { useTimeEntryStore } from '../store/timeEntryStore';
 
 export const TimeEntries = () => {
 	const { t } = useTranslation();
-	const { projects } = useProjectStore();
+	const { projects, fetchProjects } = useProjectStore();
+	const { fetchTimeEntries } = useTimeEntryStore();
 
 	const [projectId, setProjectId] = useState<string>('');
 	const [startDate, setStartDate] = useState<string>(
@@ -16,6 +18,37 @@ export const TimeEntries = () => {
 	);
 	const [endDate, setEndDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
 	const [showFilters, setShowFilters] = useState(false);
+	const [refreshKey, setRefreshKey] = useState(0);
+
+	// Load projects on mount
+	useEffect(() => {
+		fetchProjects();
+	}, [fetchProjects]);
+
+	// Initial load of time entries
+	useEffect(() => {
+		console.log('TimeEntries: Initial load');
+		const loadInitialData = async () => {
+			try {
+				await fetchTimeEntries(
+					projectId || undefined,
+					undefined,
+					startDate ? new Date(startDate) : undefined,
+					endDate ? new Date(endDate) : undefined
+				);
+			} catch (error) {
+				console.error('Error loading initial time entries:', error);
+			}
+		};
+		
+		loadInitialData();
+	}, [fetchTimeEntries, refreshKey]);
+
+	// Handle filter changes
+	const applyFilters = () => {
+		console.log('Applying filters:', { projectId, startDate, endDate });
+		setRefreshKey(prevKey => prevKey + 1);
+	};
 
 	return (
 		<div>
@@ -95,10 +128,20 @@ export const TimeEntries = () => {
 							/>
 						</div>
 					</div>
+					
+					<div className="mt-4 flex justify-end">
+						<button 
+							onClick={applyFilters}
+							className="btn btn-primary"
+						>
+							{t('common.filter')}
+						</button>
+					</div>
 				</div>
 			)}
 
 			<TimeEntryList
+				key={refreshKey}
 				projectId={projectId || undefined}
 				startDate={startDate ? new Date(startDate) : undefined}
 				endDate={endDate ? new Date(endDate) : undefined}

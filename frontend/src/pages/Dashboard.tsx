@@ -14,6 +14,16 @@ export const Dashboard = () => {
 	const { tasks, fetchTasks } = useTaskStore();
 	
 	const [isLoading, setIsLoading] = useState(true);
+	const [refreshCounter, setRefreshCounter] = useState(0);
+
+	// Set up an interval to refresh the data periodically
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setRefreshCounter(prev => prev + 1);
+		}, 30000); // Refresh every 30 seconds
+		
+		return () => clearInterval(interval);
+	}, []);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -27,7 +37,7 @@ export const Dashboard = () => {
 		};
 		
 		fetchData();
-	}, [fetchProjects, fetchClients, fetchTasks]);
+	}, [fetchProjects, fetchClients, fetchTasks, refreshCounter]);
 
 	return (
 		<div className="max-w-7xl mx-auto">
