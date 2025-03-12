@@ -36,11 +36,6 @@ export const ProjectTaskSelector = ({
     setTaskId(null); // Reset task when project changes
   };
 
-  const handleTaskChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newTaskId = e.target.value;
-    setTaskId(newTaskId || null);
-  };
-  
   const handleTagToggle = (tagId: string) => {
     if (selectedTags.includes(tagId)) {
       setSelectedTags(selectedTags.filter(id => id !== tagId));
@@ -81,7 +76,7 @@ export const ProjectTaskSelector = ({
         <select
           id="task-select"
           value={taskId || ''}
-          onChange={handleTaskChange}
+          onChange={(e) => setTaskId(e.target.value || null)}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
           disabled={!projectId}
         >

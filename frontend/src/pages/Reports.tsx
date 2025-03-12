@@ -7,34 +7,36 @@ import { format, subDays, parseISO, differenceInDays } from 'date-fns';
 export const Reports = () => {
 	const { t } = useTranslation();
 	const { projects, fetchProjects } = useProjectStore();
-	const { timeEntries, fetchTimeEntries } = useTimeEntryStore();
+	const { timeEntries, fetchTimeEntries, isLoading, error } = useTimeEntryStore();
 
 	const [startDate, setStartDate] = useState(format(subDays(new Date(), 30), 'yyyy-MM-dd'));
 	const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 	const [projectId, setProjectId] = useState('');
-	const [isLoading, setIsLoading] = useState(false);
+	const [filterKey, setFilterKey] = useState(0);
 
-	useEffect(() => {
-		fetchProjects();
-	}, [fetchProjects]);
-
+	// Load initial data
 	useEffect(() => {
 		const loadData = async () => {
-			setIsLoading(true);
 			try {
+				await fetchProjects();
 				await fetchTimeEntries(
 					projectId || undefined,
 					undefined,
 					startDate ? new Date(startDate) : undefined,
 					endDate ? new Date(endDate) : undefined
 				);
-			} finally {
-				setIsLoading(false);
+			} catch (err) {
+				console.error('Error loading reports data:', err);
 			}
 		};
 
 		loadData();
-	}, [fetchTimeEntries, startDate, endDate, projectId]);
+	}, [fetchProjects, fetchTimeEntries, projectId, startDate, endDate, filterKey]);
+
+	// Apply filters
+	const applyFilters = () => {
+		setFilterKey(prev => prev + 1);
+	};
 
 	// Calculate total time spent
 	const totalTime = timeEntries.reduce((acc, entry) => acc + entry.duration, 0);
@@ -88,7 +90,7 @@ export const Reports = () => {
 	return (
 		<div>
 			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
-				{t('nav.reports')}
+				{t('reports.title')}
 			</h1>
 
 			{/* Filters */}
@@ -148,10 +150,26 @@ export const Reports = () => {
 						</select>
 					</div>
 				</div>
+				
+				<div className="mt-4 flex justify-end">
+					<button 
+						onClick={applyFilters}
+						className="btn btn-primary"
+					>
+						{t('common.filter')}
+					</button>
+				</div>
 			</div>
 
 			{isLoading ? (
-				<div className="text-center py-4">{t('common.loading')}</div>
+				<div className="text-center py-4">
+					<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mx-auto"></div>
+					<span className="block mt-2">{t('common.loading')}</span>
+				</div>
+			) : error ? (
+				<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-4 rounded-md">
+					{error}
+				</div>
 			) : (
 				<div className="space-y-6">
 					{/* Summary */}

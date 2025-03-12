@@ -1,5 +1,3 @@
-import { motion } from 'framer-motion';
-
 interface TimerDisplayProps {
   progress: number;
   formattedTime: string;
@@ -27,7 +25,7 @@ export const TimerDisplay = ({ progress, formattedTime, mode }: TimerDisplayProp
         />
 
         {/* Progress circle */}
-        <motion.circle
+        <circle
           cx="50"
           cy="50"
           r="45"
@@ -38,9 +36,6 @@ export const TimerDisplay = ({ progress, formattedTime, mode }: TimerDisplayProp
           strokeDasharray="283"
           strokeDashoffset={283 - (283 * progress) / 100}
           className="transform origin-center -rotate-90"
-          initial={{ strokeDashoffset: 283 }}
-          animate={{ strokeDashoffset: 283 - (283 * progress) / 100 }}
-          transition={{ duration: 0.5 }}
         />
       </svg>
 

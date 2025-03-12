@@ -3,10 +3,10 @@ import { TimeEntry } from '../../types';
 import { format, subDays, addDays, startOfWeek, getDay } from 'date-fns';
 
 interface ActivityHeatmapProps {
-  timeEntries: TimeEntry[];
+  timeEntries?: TimeEntry[];  // Make timeEntries optional
 }
 
-export const ActivityHeatmap = ({ timeEntries }: ActivityHeatmapProps) => {
+export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {  // Provide default empty array
   const { t } = useTranslation();
   const daysTranslation = {
     0: t('dashboard.days.sun'),
@@ -44,15 +44,17 @@ export const ActivityHeatmap = ({ timeEntries }: ActivityHeatmapProps) => {
   const getActivityData = () => {
     const calendarGrid = generateCalendarGrid();
     
-    // Map timeEntries to days
-    timeEntries.forEach(entry => {
-      const entryDate = format(new Date(entry.startTime), 'yyyy-MM-dd');
-      const day = calendarGrid.find(d => d.dateString === entryDate);
-      
-      if (day) {
-        day.activity += entry.duration / (1000 * 60); // Convert ms to minutes
-      }
-    });
+    // Map timeEntries to days if they exist
+    if (timeEntries && timeEntries.length > 0) {
+      timeEntries.forEach(entry => {
+        const entryDate = format(new Date(entry.startTime), 'yyyy-MM-dd');
+        const day = calendarGrid.find(d => d.dateString === entryDate);
+        
+        if (day) {
+          day.activity += entry.duration / (1000 * 60); // Convert ms to minutes
+        }
+      });
+    }
     
     return calendarGrid;
   };

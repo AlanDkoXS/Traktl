@@ -50,12 +50,13 @@ export const Timer = () => {
   const { tasks, fetchTasks } = useTaskStore();
   const { tags, fetchTags } = useTagStore();
 
-  // Load projects and tags on mount
+  // Load projects and tags only once
   useEffect(() => {
     Promise.all([
       fetchProjects(),
       fetchTags()
     ]);
+    // Dependency array incluye fetchProjects y fetchTags, que no deberían cambiar
   }, [fetchProjects, fetchTags]);
 
   // Load tasks when project changes
@@ -63,7 +64,7 @@ export const Timer = () => {
     if (projectId) {
       fetchTasks(projectId);
     }
-  }, [projectId, fetchTasks]);
+  }, [projectId, fetchTasks]); // Solo se ejecuta cuando projectId cambia
 
   // Audio references
   const workAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -73,7 +74,7 @@ export const Timer = () => {
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | null>(null);
   const [showNotification, setShowNotification] = useState(false);
 
-  // Initialize audio elements
+  // Initialize audio elements once
   useEffect(() => {
     workAudioRef.current = new Audio('/sounds/work.mp3');
     breakAudioRef.current = new Audio('/sounds/break.mp3');
@@ -82,14 +83,14 @@ export const Timer = () => {
       workAudioRef.current = null;
       breakAudioRef.current = null;
     };
-  }, []);
+  }, []); // Solo se ejecuta una vez
 
-  // Request notification permission on mount
+  // Request notification permission once
   useEffect(() => {
     if ('Notification' in window) {
       setNotificationPermission(Notification.permission);
     }
-  }, []);
+  }, []); // Solo se ejecuta una vez
 
   // Play sound and show notification when timer completes
   useEffect(() => {
@@ -132,7 +133,7 @@ export const Timer = () => {
       
       return () => clearTimeout(timeout);
     }
-  }, [mode, progress, notificationPermission, t]);
+  }, [mode, progress, notificationPermission, t]); // Dependencias correctas
 
   // Request notification permission
   const requestNotificationPermission = async () => {
@@ -144,17 +145,15 @@ export const Timer = () => {
 
   // Set up time entries display
   const { timeEntries, fetchTimeEntries } = useTimeEntryStore();
-  const [startDateStr] = useState(format(subDays(new Date(), 28), 'yyyy-MM-dd'));
-  const [endDateStr] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const startDate = new Date(startDateStr);
-  const endDate = new Date(endDateStr);
+  const [startDate] = useState(subDays(new Date(), 28));
+  const [endDate] = useState(new Date());
 
-  // Fetch time entries only once on component mount
+  // Fetch time entries only once
   useEffect(() => {
     const controller = new AbortController();
     fetchTimeEntries(undefined, undefined, startDate, endDate);
     return () => controller.abort();
-  }, []);
+  }, [fetchTimeEntries, startDate, endDate]); // Dependencias correctas
 
   return (
     <div className="flex flex-col space-y-6">
@@ -230,7 +229,7 @@ export const Timer = () => {
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
           {t('dashboard.activityHeatmap')}
         </h3>
-        <ActivityHeatmap timeEntries={timeEntries} />
+        <ActivityHeatmap timeEntries={timeEntries || []} />
       </div>
 
       {/* Recent Time Entries */}
