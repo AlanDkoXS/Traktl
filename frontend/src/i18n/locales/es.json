@@ -141,7 +141,8 @@
         "startDate": "Fecha de Inicio",
         "endDate": "Fecha de Fin",
         "allProjects": "Todos los Proyectos",
-        "details": "Detalles de la Sesión"
+        "details": "Detalles de la Sesión",
+        "session": "Sesión"
     },
     "tags": {
         "title": "Etiquetas",

@@ -141,7 +141,8 @@
         "startDate": "Start Date",
         "endDate": "End Date",
         "allProjects": "All Projects",
-        "details": "Session Details"
+        "details": "Session Details",
+        "session": "Session"
     },
     "tags": {
         "title": "Tags",

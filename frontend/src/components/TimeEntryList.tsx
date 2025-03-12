@@ -25,27 +25,21 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [fetchCounter, setFetchCounter] = useState(0);
 
-  // Cargar datos iniciales
   useEffect(() => {
-    console.log("Fetching initial data...");
-    // Cargar datos de soporte primero
-    Promise.all([
-      fetchProjects(),
-      fetchTasks(),
-      fetchTags()
-    ]).then(() => {
-      console.log("Support data loaded, fetching time entries");
-      // Solo después cargar time entries para evitar dependencias circulares
-      fetchTimeEntries(projectId, taskId, startDate, endDate);
-    }).catch(err => {
-      console.error("Error fetching data:", err);
-    });
-  }, [fetchCounter]); // Solo depende del contador de refreshes, no de las funciones fetch
-
-  // Forzar recarga de datos
-  const refreshData = () => {
-    setFetchCounter(prev => prev + 1);
-  };
+    const fetchData = async () => {
+      await Promise.all([
+        fetchProjects(),
+        fetchTasks(),
+        fetchTags()
+      ]).then(() => {
+        fetchTimeEntries(projectId, taskId, startDate, endDate);
+      }).catch(err => {
+        console.error("Error fetching data:", err);
+      });
+    };
+    
+    fetchData();
+  }, [fetchCounter]);
 
   const formatDuration = (milliseconds: number) => {
     const seconds = Math.floor(milliseconds / 1000);
@@ -108,7 +102,7 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
       <div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm flex flex-col">
         <p>{error}</p>
         <button 
-          onClick={refreshData} 
+          onClick={() => setFetchCounter(prev => prev + 1)} 
           className="mt-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 underline"
         >
           {t('common.retry')}
@@ -134,7 +128,7 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
 
   return (
     <div className="space-y-2">
-      {displayEntries.map((entry) => (
+      {displayEntries.map((entry, index) => (
         <div key={entry.id} className="relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-3 transition-colors">
           <Link to={`/time-entries/${entry.id}`} className="block">
             <div className="flex items-center justify-between pr-16">
@@ -153,12 +147,11 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
                 <div>
                   <div className="font-medium text-gray-900 dark:text-white">
                     {getProjectName(entry.project)}
+                    {entry.task && `: ${getTaskName(entry.task)}`}
                   </div>
-                  {entry.task && (
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      {getTaskName(entry.task)}
-                    </div>
-                  )}
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {t('timeEntries.session')}: {index + 1}
+                  </div>
                 </div>
               </div>
               <div className="text-right">

@@ -38,7 +38,7 @@ interface TimerState {
   switchToNext: () => void;
   switchToBreak: () => void;
   switchToWork: () => void;
-  
+
   // Helper for creating time entries
   createTimeEntryFromWorkSession: () => Promise<void>;
 }
@@ -89,22 +89,22 @@ export const useTimerStore = create<TimerState>()(
           return state;
         }),
 
-      stop: async () => {
-        // First save the state to use it for time entry creation
-        const state = get();
-        
-        // Create a time entry if in work mode and have a project selected
-        if (state.mode === 'work' && state.projectId) {
-          await get().createTimeEntryFromWorkSession();
-        }
-        
-        // Then reset the timer state
-        set({
-          status: 'idle',
-          elapsed: 0,
-          workStartTime: null,
-        });
-      },
+        stop: async () => {
+            // Access current state in set callback
+            set(state => {
+                // Create a time entry if in work mode and have a project selected
+                if (state.mode === 'work' && state.projectId) {
+                    state.createTimeEntryFromWorkSession();
+                }
+
+                // Reset timer state
+                return {
+                    status: 'idle',
+                    elapsed: 0,
+                    workStartTime: null,
+                };
+            });
+        },
 
       reset: () =>
         set(() => ({
@@ -137,7 +137,7 @@ export const useTimerStore = create<TimerState>()(
                 setTimeout(() => {
                   get().createTimeEntryFromWorkSession();
                 }, 0);
-                
+
                 return {
                   mode: 'break',
                   status: 'running',
@@ -187,18 +187,18 @@ export const useTimerStore = create<TimerState>()(
       // Function to create a time entry from current work session
       createTimeEntryFromWorkSession: async () => {
         const state = get();
-        
+
         // Skip if not in work mode or no project selected
         if (!state.projectId) {
           console.log('No project selected, skipping time entry creation');
           return;
         }
-        
+
         try {
           const startTime = state.workStartTime || new Date(Date.now() - state.elapsed);
           const endTime = new Date();
           const duration = endTime.getTime() - startTime.getTime();
-          
+
           console.log('Creating time entry from work session:', {
             project: state.projectId,
             task: state.taskId,
@@ -208,10 +208,10 @@ export const useTimerStore = create<TimerState>()(
             notes: state.notes,
             tags: state.tags,
           });
-          
+
           // Use the time entry store to create the entry
           const timeEntryStore = useTimeEntryStore.getState();
-          
+
           await timeEntryStore.createTimeEntry({
             project: state.projectId,
             task: state.taskId || undefined,
@@ -222,7 +222,7 @@ export const useTimerStore = create<TimerState>()(
             tags: state.tags,
             isRunning: false,
           });
-          
+
           console.log('Time entry created successfully');
         } catch (error) {
           console.error('Error creating time entry from work session:', error);
@@ -238,7 +238,7 @@ export const useTimerStore = create<TimerState>()(
             setTimeout(() => {
               get().createTimeEntryFromWorkSession();
             }, 0);
-            
+
             return {
               mode: 'break',
               status: 'running',
@@ -279,7 +279,7 @@ export const useTimerStore = create<TimerState>()(
               get().createTimeEntryFromWorkSession();
             }, 0);
           }
-          
+
           return {
             mode: 'break',
             elapsed: 0,
