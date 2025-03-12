@@ -36,18 +36,18 @@ export const Settings = () => {
 		setSuccessMessage('');
 
 		try {
-			// Update user settings
-			// Note: This is a placeholder since we haven't fully implemented the updateUser function
-			// await updateUser({
-			//   name,
-			//   email,
-			//   preferredLanguage,
-			//   theme: userTheme,
-			//   defaultTimerPreset,
-			// });
+			// Update user settings with valid theme value
+			// Note: only 'light' or 'dark' are valid for the backend
+			await updateUser({
+				name,
+				email,
+				preferredLanguage,
+				theme: userTheme, // This is already constrained to 'light' or 'dark'
+				defaultTimerPreset,
+			});
 
-			// Apply changes to app
-			setTheme(userTheme === 'system' ? 'system' : userTheme);
+			// Apply changes to app UI
+			setTheme(userTheme === 'light' ? 'light' : 'dark');
 			i18n.changeLanguage(preferredLanguage);
 
 			setSuccessMessage(t('settings.saved'));
@@ -65,8 +65,8 @@ export const Settings = () => {
 	};
 
 	const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newTheme = e.target.value as 'light' | 'dark' | 'system';
-		setUserTheme(newTheme as 'light' | 'dark');
+		const newTheme = e.target.value as 'light' | 'dark';
+		setUserTheme(newTheme);
 		setTheme(newTheme);
 	};
 
@@ -79,19 +79,19 @@ export const Settings = () => {
 			<div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
 				<form onSubmit={handleSubmit} className="p-6 space-y-6">
 					{error && (
-						<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 padding-4 rounded-md">
+						<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-4 rounded-md">
 							{error}
 						</div>
 					)}
 
 					{successMessage && (
-						<div className="bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 padding-4 rounded-md">
+						<div className="bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 p-4 rounded-md">
 							{successMessage}
 						</div>
 					)}
 
 					<div>
-						<h2 className="text-lg font-medium text-gray-900 dark:text-white margin-bottom-4">
+						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
 							{t('settings.profile')}
 						</h2>
 
@@ -108,7 +108,7 @@ export const Settings = () => {
 									id="name"
 									value={name}
 									onChange={(e) => setName(e.target.value)}
-									className="margin-top-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								/>
 							</div>
 
@@ -124,14 +124,14 @@ export const Settings = () => {
 									id="email"
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-									className="margin-top-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								/>
 							</div>
 						</div>
 					</div>
 
 					<div>
-						<h2 className="text-lg font-medium text-gray-900 dark:text-white margin-bottom-4">
+						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
 							{t('settings.appearance')}
 						</h2>
 
@@ -147,7 +147,7 @@ export const Settings = () => {
 									id="language"
 									value={preferredLanguage}
 									onChange={handleLanguageChange}
-									className="margin-top-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								>
 									<option value="en">English</option>
 									<option value="es">Español</option>
@@ -165,7 +165,7 @@ export const Settings = () => {
 									id="theme"
 									value={userTheme}
 									onChange={handleThemeChange}
-									className="margin-top-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								>
 									<option value="light">{t('theme.light')}</option>
 									<option value="dark">{t('theme.dark')}</option>

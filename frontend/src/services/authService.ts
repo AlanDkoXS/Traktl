@@ -26,11 +26,11 @@ export const authService = {
       if (response.data.token) {
         // Format 1: { token, user }
         token = response.data.token;
-        user = response.data.user;
+        user = response.data.data || response.data.user;
       } else if (response.data.data?.token) {
         // Format 2: { data: { token, user } }
         token = response.data.data.token;
-        user = response.data.data.user;
+        user = response.data.data.user || response.data.data;
       } else {
         console.error('Unexpected response format:', response.data);
         throw new Error('Invalid response format from server');
@@ -52,12 +52,15 @@ export const authService = {
     theme: string = 'light'
   ): Promise<RegisterResponse> => {
     try {
+      // Make sure we only send 'light' or 'dark', not 'system'
+      const safeTheme = theme === 'light' || theme === 'dark' ? theme : 'light';
+      
       const response = await api.post('/users/register', {
         name,
         email,
         password,
         preferredLanguage,
-        theme,
+        theme: safeTheme,
       });
 
       console.log('Register API response:', response.data);
@@ -67,10 +70,10 @@ export const authService = {
 
       if (response.data.token) {
         token = response.data.token;
-        user = response.data.user;
+        user = response.data.user || response.data.data;
       } else if (response.data.data?.token) {
         token = response.data.data.token;
-        user = response.data.data.user;
+        user = response.data.data.user || response.data.data;
       } else {
         console.error('Unexpected response format:', response.data);
         throw new Error('Invalid response format from server');
@@ -111,7 +114,13 @@ export const authService = {
   // Update user profile
   updateProfile: async (userData: Partial<User>): Promise<User> => {
     try {
-      const response = await api.put('/users/profile', userData);
+      // Make sure we only send 'light' or 'dark', not 'system'
+      const safeUserData = {...userData};
+      if (safeUserData.theme && safeUserData.theme !== 'light' && safeUserData.theme !== 'dark') {
+        safeUserData.theme = 'light';
+      }
+      
+      const response = await api.put('/users/profile', safeUserData);
 
       // Handle different response formats
       let user;

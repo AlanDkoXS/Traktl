@@ -15,7 +15,7 @@ export const Register = () => {
 	const [error, setError] = useState('');
 	const [passwordError, setPasswordError] = useState('');
 	const [confirmError, setConfirmError] = useState('');
-	const [loading, setLoading] = useState(false);
+	const [loading, setIsSubmitting] = useState(false);
 
 	// Password validation
 	useEffect(() => {
@@ -62,20 +62,20 @@ export const Register = () => {
 		}
 
 		try {
-			setLoading(true);
+			setIsSubmitting(true);
 			setError('');
 
-			// This would normally call an API endpoint
+			// Note: changed 'system' to 'light' here to match backend validation
 			try {
 				const response = await api.post('/users/register', {
 					name,
 					email,
 					password,
 					preferredLanguage: 'en',
-					theme: 'system',
+					theme: 'light',
 				});
 
-				localStorage.setItem('auth-token', response.data.token);
+				localStorage.setItem('auth-token', response.data.token || response.data.data?.token);
 				navigate('/');
 			} catch (err: any) {
 				if (err.response && err.response.data && err.response.data.error) {
@@ -87,7 +87,7 @@ export const Register = () => {
 		} catch (err: any) {
 			setError(err.message || t('errors.serverError'));
 		} finally {
-			setLoading(false);
+			setIsSubmitting(false);
 		}
 	};
 
