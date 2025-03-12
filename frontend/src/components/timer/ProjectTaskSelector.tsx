@@ -1,7 +1,9 @@
 import { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router-dom';
 import { Project, Task, Tag } from '../../types';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 interface ProjectTaskSelectorProps {
   projects: Project[];
@@ -31,6 +33,7 @@ export const ProjectTaskSelector = ({
   setSelectedTags
 }: ProjectTaskSelectorProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -202,11 +205,16 @@ export const ProjectTaskSelector = ({
                             {tag.name}
                           </button>
                         ))}
-                        {tags.length === 0 && (
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {t('tags.noTags')}
-                          </span>
-                        )}
+                        <button
+                          onClick={() => {
+                            closeModal();
+                            navigate('/tags/new');
+                          }}
+                          className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900 hover:bg-primary-200 dark:hover:bg-primary-800 text-primary-600 dark:text-primary-400"
+                        >
+                          <PlusIcon className="h-3 w-3 mr-1" />
+                          {t('tags.new')}
+                        </button>
                       </div>
                     </div>
                   </div>
