@@ -4,6 +4,7 @@ import { useTimer } from '../hooks/useTimer';
 import { useTimeEntryStore } from '../store/timeEntryStore';
 import { useProjectStore } from '../store/projectStore';
 import { useTaskStore } from '../store/taskStore';
+import { useTagStore } from '../store/tagStore';
 import { format, subDays } from 'date-fns';
 import { TimeEntryList } from './TimeEntryList';
 import { TimerDisplay } from './timer/TimerDisplay';
@@ -27,6 +28,7 @@ export const Timer = () => {
     projectId,
     taskId,
     notes,
+    tags: selectedTags,
 
     start,
     pause,
@@ -40,16 +42,21 @@ export const Timer = () => {
     setProjectId,
     setTaskId,
     setNotes,
+    setTags,
   } = useTimer();
 
-  // Get projects and tasks
+  // Get projects, tasks and tags
   const { projects, fetchProjects } = useProjectStore();
   const { tasks, fetchTasks } = useTaskStore();
+  const { tags, fetchTags } = useTagStore();
 
-  // Load projects on mount
+  // Load projects and tags on mount
   useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
+    Promise.all([
+      fetchProjects(),
+      fetchTags()
+    ]);
+  }, [fetchProjects, fetchTags]);
 
   // Load tasks when project changes
   useEffect(() => {
@@ -137,17 +144,17 @@ export const Timer = () => {
 
   // Set up time entries display
   const { timeEntries, fetchTimeEntries } = useTimeEntryStore();
-  const [startDate] = useState<string>(format(subDays(new Date(), 28), 'yyyy-MM-dd'));
-  const [endDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+  const [startDateStr] = useState(format(subDays(new Date(), 28), 'yyyy-MM-dd'));
+  const [endDateStr] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const startDate = new Date(startDateStr);
+  const endDate = new Date(endDateStr);
 
+  // Fetch time entries only once on component mount
   useEffect(() => {
-    fetchTimeEntries(
-      undefined, 
-      undefined, 
-      startDate ? new Date(startDate) : undefined,
-      endDate ? new Date(endDate) : undefined
-    );
-  }, [fetchTimeEntries, startDate, endDate]);
+    const controller = new AbortController();
+    fetchTimeEntries(undefined, undefined, startDate, endDate);
+    return () => controller.abort();
+  }, []);
 
   return (
     <div className="flex flex-col space-y-6">
@@ -182,12 +189,15 @@ export const Timer = () => {
             <ProjectTaskSelector
               projects={projects}
               tasks={tasks}
+              tags={tags}
               projectId={projectId}
               taskId={taskId}
               notes={notes}
+              selectedTags={selectedTags}
               setProjectId={setProjectId}
               setTaskId={setTaskId}
               setNotes={setNotes}
+              setSelectedTags={setTags}
             />
           </div>
         )}
@@ -228,17 +238,9 @@ export const Timer = () => {
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
           {t('dashboard.recentEntries')}
         </h3>
-        {timeEntries.length > 0 ? (
-          <TimeEntryList 
-            startDate={startDate ? new Date(startDate) : undefined}
-            endDate={endDate ? new Date(endDate) : undefined}
-            limit={5}
-          />
-        ) : (
-          <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-            {t('timeEntries.noEntries')}
-          </p>
-        )}
+        <TimeEntryList 
+          limit={5}
+        />
       </div>
     </div>
   );

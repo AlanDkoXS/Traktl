@@ -1,26 +1,32 @@
 import { useTranslation } from 'react-i18next';
-import { Project, Task } from '../../types';
+import { Project, Task, Tag } from '../../types';
 
 interface ProjectTaskSelectorProps {
   projects: Project[];
   tasks: Task[];
+  tags: Tag[];
   projectId: string | null;
   taskId: string | null;
   notes: string;
+  selectedTags: string[];
   setProjectId: (id: string | null) => void;
   setTaskId: (id: string | null) => void;
   setNotes: (notes: string) => void;
+  setSelectedTags: (tags: string[]) => void;
 }
 
 export const ProjectTaskSelector = ({
   projects,
   tasks,
+  tags,
   projectId,
   taskId,
   notes,
+  selectedTags,
   setProjectId,
   setTaskId,
-  setNotes
+  setNotes,
+  setSelectedTags
 }: ProjectTaskSelectorProps) => {
   const { t } = useTranslation();
 
@@ -33,6 +39,14 @@ export const ProjectTaskSelector = ({
   const handleTaskChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newTaskId = e.target.value;
     setTaskId(newTaskId || null);
+  };
+  
+  const handleTagToggle = (tagId: string) => {
+    if (selectedTags.includes(tagId)) {
+      setSelectedTags(selectedTags.filter(id => id !== tagId));
+    } else {
+      setSelectedTags([...selectedTags, tagId]);
+    }
   };
 
   return (
@@ -76,6 +90,46 @@ export const ProjectTaskSelector = ({
             <option key={task.id} value={task.id}>{task.name}</option>
           ))}
         </select>
+      </div>
+      
+      <div>
+        <label
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
+          {t('timeEntries.tags')}
+        </label>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {tags.map(tag => (
+            <button
+              key={tag.id}
+              type="button"
+              onClick={() => handleTagToggle(tag.id)}
+              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                selectedTags.includes(tag.id)
+                  ? 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300'
+                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+              }`}
+              style={{
+                backgroundColor: selectedTags.includes(tag.id) ? `${tag.color}30` : undefined,
+                color: selectedTags.includes(tag.id) ? tag.color : undefined,
+                borderWidth: '1px',
+                borderStyle: 'solid', 
+                borderColor: selectedTags.includes(tag.id) ? tag.color : 'transparent'
+              }}
+            >
+              <div
+                className="w-2 h-2 rounded-full mr-1.5"
+                style={{ backgroundColor: tag.color }}
+              />
+              {tag.name}
+            </button>
+          ))}
+          {tags.length === 0 && (
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {t('tags.noTags')}
+            </span>
+          )}
+        </div>
       </div>
       
       <div>

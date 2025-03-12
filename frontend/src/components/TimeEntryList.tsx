@@ -1,6 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTimeEntryStore } from '../store/timeEntryStore';
+import { useProjectStore } from '../store/projectStore';
+import { useTaskStore } from '../store/taskStore';
+import { useTagStore } from '../store/tagStore';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ClockIcon } from '@heroicons/react/24/outline';
@@ -17,10 +20,45 @@ interface TimeEntryListProps {
 export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: TimeEntryListProps) => {
 	const { t } = useTranslation();
 	const { timeEntries, isLoading, error, fetchTimeEntries } = useTimeEntryStore();
+	const isFirstRender = useRef(true);
+	const { projects, fetchProjects } = useProjectStore();
+	const { tasks, fetchTasks } = useTaskStore();
+	const { tags, fetchTags } = useTagStore();
 
 	useEffect(() => {
-		fetchTimeEntries(projectId, taskId, startDate, endDate);
-	}, [fetchTimeEntries, projectId, taskId, startDate, endDate]);
+		// Load related data for display
+		const loadAllData = async () => {
+			await Promise.all([
+				fetchProjects(),
+				fetchTasks(),
+				fetchTags()
+			]);
+		};
+		
+		loadAllData();
+	}, []);
+
+	useEffect(() => {
+		if (isFirstRender.current && timeEntries.length > 0) {
+			isFirstRender.current = false;
+			return;
+		}
+		
+		isFirstRender.current = false;
+		const controller = new AbortController();
+		
+		const loadData = async () => {
+			try {
+				await fetchTimeEntries(projectId, taskId, startDate, endDate);
+			} catch (err) {
+				console.error('Error loading time entries:', err);
+			}
+		};
+		
+		loadData();
+		
+		return () => controller.abort();
+	}, [projectId, taskId, startDate, endDate]);
 
 	// Helper function to format duration (milliseconds to human-readable)
 	const formatDuration = (milliseconds: number) => {
@@ -32,6 +70,23 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
 			return `${minutes}m`;
 		}
 		return `${hours}h ${minutes}m`;
+	};
+
+	// Helper to get project name from ID
+	const getProjectName = (projectId: string) => {
+		const project = projects.find(p => p.id === projectId);
+		return project ? project.name : projectId;
+	};
+
+	// Helper to get task name from ID
+	const getTaskName = (taskId: string) => {
+		const task = tasks.find(t => t.id === taskId);
+		return task ? task.name : taskId;
+	};
+
+	// Helper to get tags from IDs
+	const getTagsForEntry = (tagIds: string[]) => {
+		return tags.filter(tag => tagIds.includes(tag.id));
 	};
 
 	if (isLoading) {
@@ -88,11 +143,11 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
 							)}
 							<div>
 								<div className="font-medium text-gray-900 dark:text-white">
-									{entry.project}
+									{getProjectName(entry.project)}
 								</div>
 								{entry.task && (
 									<div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-										{entry.task}
+										{getTaskName(entry.task)}
 									</div>
 								)}
 							</div>
@@ -110,6 +165,26 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
 							</div>
 						</div>
 					</div>
+					
+					{/* Tags display */}
+					{entry.tags && entry.tags.length > 0 && (
+						<div className="mt-2 flex flex-wrap gap-1">
+							{getTagsForEntry(entry.tags).map(tag => (
+								<span 
+									key={tag.id} 
+									className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs"
+									style={{ 
+										backgroundColor: `${tag.color}20`, 
+										color: tag.color,
+										border: `1px solid ${tag.color}`
+									}}
+								>
+									{tag.name}
+								</span>
+							))}
+						</div>
+					)}
+					
 					{entry.notes && (
 						<div className="mt-2 text-sm text-gray-500 dark:text-gray-400 truncate">
 							{entry.notes}

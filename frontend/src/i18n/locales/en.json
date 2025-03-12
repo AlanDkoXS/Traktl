@@ -123,6 +123,7 @@
         "edit": "Edit Time Entry",
         "project": "Project",
         "task": "Task",
+        "tags": "Tags",
         "startTime": "Start Time",
         "endTime": "End Time",
         "duration": "Duration",

@@ -67,7 +67,7 @@ export const Register = () => {
 
 			// This would normally call an API endpoint
 			try {
-				const response = await api.post('/api/users/register', {
+				const response = await api.post('/users/register', {
 					name,
 					email,
 					password,
