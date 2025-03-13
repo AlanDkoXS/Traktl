@@ -14,6 +14,7 @@ import { ActivityHeatmap } from './timer/ActivityHeatmap';
 import { NotificationManager } from './timer/NotificationManager';
 import { TimerPreset } from '../types';
 import { useTimeEntryStore } from '../store/timeEntryStore';
+import { requestNotificationPermission, checkNotificationPermission } from '../utils/notifications/TimerNotifications';
 
 export const Timer = () => {
   const { t } = useTranslation();
@@ -49,12 +50,19 @@ export const Timer = () => {
   // State hooks
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | null>(null);
   const [showNotification, setShowNotification] = useState(false);
+  const [timeEntriesLoaded, setTimeEntriesLoaded] = useState(false);
+  
+  // Store hooks
+  const { fetchTimeEntries } = useTimeEntryStore();
 
   // Request notification permission once
   useEffect(() => {
-    if ('Notification' in window) {
-      setNotificationPermission(Notification.permission);
-    }
+    const checkPermission = async () => {
+      const permission = checkNotificationPermission();
+      setNotificationPermission(permission);
+    };
+    
+    checkPermission();
   }, []);
 
   // Play sound and show notification when timer completes
@@ -65,12 +73,20 @@ export const Timer = () => {
     }
   }, [mode, progress]);
 
+  // Load recent time entries for the heatmap
+  useEffect(() => {
+    const loadTimeEntries = async () => {
+      await fetchTimeEntries();
+      setTimeEntriesLoaded(true);
+    };
+    
+    loadTimeEntries();
+  }, [fetchTimeEntries]);
+
   // Request notification permission
-  const requestNotificationPermission = async () => {
-    if ('Notification' in window) {
-      const permission = await Notification.requestPermission();
-      setNotificationPermission(permission);
-    }
+  const handleRequestPermission = async () => {
+    const permission = await requestNotificationPermission();
+    setNotificationPermission(permission);
   };
 
   // Close notification handler
@@ -92,7 +108,7 @@ export const Timer = () => {
         <NotificationManager 
           showNotification={showNotification}
           mode={mode}
-          onRequestPermission={requestNotificationPermission}
+          onRequestPermission={handleRequestPermission}
           notificationPermission={notificationPermission}
           onCloseNotification={handleCloseNotification}
         />
@@ -128,9 +144,6 @@ export const Timer = () => {
         {status === 'idle' && (
           <div className="mt-6">
             <ProjectTaskSelector
-              projects={[]}
-              tasks={[]}
-              tags={[]}
               projectId={projectId}
               taskId={taskId}
               notes={notes}
@@ -163,7 +176,7 @@ export const Timer = () => {
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
           {t('dashboard.activityHeatmap')}
         </h3>
-        <ActivityHeatmap timeEntries={[]} />
+        <ActivityHeatmap />
       </div>
 
       {/* Recent Time Entries */}
