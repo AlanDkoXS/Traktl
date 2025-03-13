@@ -215,6 +215,9 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		const x = cx + radius * Math.cos(-midAngle * RADIAN);
 		const y = cy + radius * Math.sin(-midAngle * RADIAN);
 		
+		// Truncate long names
+		const shortName = name.length > 10 ? name.substring(0, 9) + '...' : name;
+		
 		return (
 			<text 
 				x={x} 
@@ -222,98 +225,17 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 				fill="#888"
 				textAnchor={x > cx ? 'start' : 'end'} 
 				dominantBaseline="central"
-				className="text-xs"
+				style={{ fontSize: '8px' }}
 			>
-				{name} ({(percent * 100).toFixed(0)}%)
+				{shortName} ({(percent * 100).toFixed(0)}%)
 			</text>
 		);
 	};
 
 	return (
 		<div className="w-full">
-			<div className="flex flex-col-reverse sm:flex-row gap-6">
-				{/* Activity Heatmap */}
-				<div className="w-full sm:w-2/3">
-					<div className="flex flex-col items-center">
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: `auto repeat(${numCols}, ${cellSize}px)`,
-								gap: '2px',
-							}}
-							className="overflow-x-auto pb-4 max-w-full"
-						>
-							{/* Top left empty cell */}
-							<div className="w-6"></div>
-
-							{/* Date labels at top */}
-							{Array.from({ length: numCols }).map((_, colIndex) => {
-								if (
-									colIndex % 4 === 0 &&
-									calendarData[1] &&
-									calendarData[1][colIndex]
-								) {
-									return (
-										<div
-											key={`date-${colIndex}`}
-											className="text-xs text-center text-gray-500 dark:text-gray-400 mb-1"
-										>
-											{format(calendarData[1][colIndex].date, 'MMM d')}
-										</div>
-									);
-								}
-								return <div key={`date-${colIndex}`}></div>;
-							})}
-
-							{/* Day rows with labels */}
-							{[0, 1, 2, 3, 4, 5, 6].map((dayOfWeek) => (
-								<React.Fragment key={`row-${dayOfWeek}`}>
-									<div className="text-xs flex items-center justify-end pr-1 text-gray-500 dark:text-gray-400">
-										{daysTranslation[dayOfWeek]}
-									</div>
-
-									{Array.from({ length: numCols }).map((_, colIndex) => {
-										const day =
-											calendarData[dayOfWeek] &&
-											calendarData[dayOfWeek][colIndex];
-											
-										if (!day) return <div key={`cell-${dayOfWeek}-${colIndex}`} className="bg-transparent" style={{ width: `${cellSize}px`, height: `${cellSize}px` }} />;
-										
-										return (
-											<div
-												key={`cell-${dayOfWeek}-${colIndex}`}
-												className={`${getActivityColor(day.activity)} rounded-sm relative group`}
-												style={{
-													width: `${cellSize}px`,
-													height: `${cellSize}px`,
-												}}
-											>
-												<div className="hidden group-hover:block absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 whitespace-nowrap">
-													{renderTooltip(day)}
-												</div>
-											</div>
-										);
-									})}
-								</React.Fragment>
-							))}
-						</div>
-
-						{/* Legend - Centered horizontally */}
-						<div className="flex items-center mt-4 justify-center text-xs text-gray-500 dark:text-gray-400">
-							<span>{t('dashboard.less')}</span>
-							<div className="flex mx-2 space-x-1 items-center">
-								<div className="h-2 w-2 bg-gray-100 dark:bg-gray-700 rounded-sm"></div>
-								<div className="h-2.5 w-2.5 bg-green-100 dark:bg-green-900 rounded-sm"></div>
-								<div className="h-3 w-3 bg-green-300 dark:bg-green-700 rounded-sm"></div>
-								<div className="h-3.5 w-3.5 bg-green-500 dark:bg-green-500 rounded-sm"></div>
-								<div className="h-4 w-4 bg-green-700 dark:bg-green-300 rounded-sm"></div>
-							</div>
-							<span>{t('dashboard.more')}</span>
-						</div>
-					</div>
-				</div>
-
-				{/* Today's Projects Pie Chart - Now first on mobile */}
+			<div className="flex flex-col sm:flex-row gap-6">
+				{/* Today's Projects Pie Chart - Now first */}
 				<div className="w-full sm:w-1/3">
 					<h3 className="text-xs font-medium text-gray-900 dark:text-white mb-1 text-center">
 						{format(new Date(), 'MMM d')}
@@ -345,7 +267,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 							</ResponsiveContainer>
 							
 							<div className="text-xs text-center mt-1 text-gray-500 dark:text-gray-400">
-								{totalMinutesToday > 0 ? `${totalMinutesToday} min` : ''}
+								{totalMinutesToday > 0 ? `${totalMinutesToday} min total` : ''}
 							</div>
 						</>
 					) : (
@@ -355,6 +277,99 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 							</p>
 						</div>
 					)}
+				</div>
+
+				{/* Activity Heatmap */}
+				<div className="w-full sm:w-2/3">
+					<div className="flex flex-col items-center">
+						<div className="overflow-x-auto pb-4 max-w-full">
+							<div 
+								className="inline-grid" 
+								style={{
+									gridTemplateColumns: `auto repeat(${numCols}, ${cellSize}px)`,
+									gridTemplateRows: `auto repeat(7, ${cellSize}px)`,
+									gap: '2px'
+								}}
+							>
+								{/* Top left empty cell */}
+								<div className="w-6"></div>
+
+								{/* Date labels at top */}
+								{Array.from({ length: numCols }).map((_, colIndex) => {
+									if (
+										colIndex % 4 === 0 &&
+										calendarData[1] &&
+										calendarData[1][colIndex]
+									) {
+										return (
+											<div
+												key={`date-${colIndex}`}
+												className="text-center text-gray-500 dark:text-gray-400 mb-1"
+												style={{ fontSize: '9px' }}
+											>
+												{format(calendarData[1][colIndex].date, 'MMM d')}
+											</div>
+										);
+									}
+									return <div key={`date-${colIndex}`}></div>;
+								})}
+
+								{/* Day rows with labels */}
+								{[0, 1, 2, 3, 4, 5, 6].map((dayOfWeek) => (
+									<React.Fragment key={`row-${dayOfWeek}`}>
+										<div 
+											className="flex items-center justify-end pr-1 text-gray-500 dark:text-gray-400"
+											style={{ fontSize: '9px' }}
+										>
+											{daysTranslation[dayOfWeek]}
+										</div>
+
+										{Array.from({ length: numCols }).map((_, colIndex) => {
+											const day =
+												calendarData[dayOfWeek] &&
+												calendarData[dayOfWeek][colIndex];
+												
+											if (!day) return (
+												<div 
+													key={`cell-${dayOfWeek}-${colIndex}`} 
+													className="bg-transparent" 
+													style={{ width: `${cellSize}px`, height: `${cellSize}px` }} 
+												/>
+											);
+											
+											return (
+												<div
+													key={`cell-${dayOfWeek}-${colIndex}`}
+													className={`${getActivityColor(day.activity)} rounded-sm relative group`}
+													style={{
+														width: `${cellSize}px`,
+														height: `${cellSize}px`,
+													}}
+												>
+													<div className="hidden group-hover:block absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 whitespace-nowrap">
+														{renderTooltip(day)}
+													</div>
+												</div>
+											);
+										})}
+									</React.Fragment>
+								))}
+							</div>
+						</div>
+
+						{/* Legend - Centered horizontally */}
+						<div className="flex items-center mt-4 justify-center text-gray-500 dark:text-gray-400" style={{ fontSize: '9px' }}>
+							<span>{t('dashboard.less')}</span>
+							<div className="flex mx-2 space-x-1 items-center">
+								<div className="h-2 w-2 bg-gray-100 dark:bg-gray-700 rounded-sm"></div>
+								<div className="h-2.5 w-2.5 bg-green-100 dark:bg-green-900 rounded-sm"></div>
+								<div className="h-3 w-3 bg-green-300 dark:bg-green-700 rounded-sm"></div>
+								<div className="h-3.5 w-3.5 bg-green-500 dark:bg-green-500 rounded-sm"></div>
+								<div className="h-4 w-4 bg-green-700 dark:bg-green-300 rounded-sm"></div>
+							</div>
+							<span>{t('dashboard.more')}</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
