@@ -56,6 +56,7 @@
         "start": "Iniciar",
         "stop": "Detener",
         "pause": "Pausar",
+        "paused": "Pausa",
         "resume": "Reanudar",
         "reset": "Reiniciar",
         "skipToNext": "Saltar al Siguiente",

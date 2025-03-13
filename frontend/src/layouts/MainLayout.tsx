@@ -14,6 +14,7 @@ import {
 	TagIcon,
 	ClockIcon as TimerIcon,
 } from '@heroicons/react/24/outline';
+import { StickyTimer } from '../components/timer/StickyTimer';
 
 interface MainLayoutProps {
 	children: ReactNode;
@@ -198,6 +199,9 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 				{/* Page content */}
 				<main className="max-w-7xl mx-auto p-4 sm:p-6">{children}</main>
 			</div>
+			
+			{/* Sticky Timer */}
+			<StickyTimer />
 		</div>
 	);
 };
