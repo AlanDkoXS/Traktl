@@ -50,11 +50,7 @@ export const Timer = () => {
   // State hooks
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | null>(null);
   const [showNotification, setShowNotification] = useState(false);
-  const [timeEntriesLoaded, setTimeEntriesLoaded] = useState(false);
   
-  // Store hooks
-  const { fetchTimeEntries } = useTimeEntryStore();
-
   // Request notification permission once
   useEffect(() => {
     const checkPermission = async () => {
@@ -72,16 +68,6 @@ export const Timer = () => {
       setShowNotification(true);
     }
   }, [mode, progress]);
-
-  // Load recent time entries for the heatmap
-  useEffect(() => {
-    const loadTimeEntries = async () => {
-      await fetchTimeEntries();
-      setTimeEntriesLoaded(true);
-    };
-    
-    loadTimeEntries();
-  }, [fetchTimeEntries]);
 
   // Request notification permission
   const handleRequestPermission = async () => {

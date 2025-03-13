@@ -34,25 +34,57 @@ export const useTimeEntryStore = create<TimeEntryState>((set, get) => ({
 	error: null,
 
 	fetchTimeEntries: async (projectId, taskId, startDate, endDate) => {
-		try {
-			set({ isLoading: true, error: null });
+	  console.log('fetchTimeEntries called with params:', { projectId, taskId, startDate, endDate });
+    try {
+      // Avoid redundant API calls by checking if we already have entries
+      // Only fetch if certain conditions (like new filters) are applied
+      const shouldFetch = projectId !== undefined || 
+                       taskId !== undefined || 
+                       startDate !== undefined || 
+                       endDate !== undefined || 
+                       get().timeEntries.length === 0;
+                       
+      if (!shouldFetch && !get().isLoading) {
+        console.log('Skipping fetch as we already have time entries and no filters applied');
+        return get().timeEntries;
+      }
+      
+      set({ isLoading: true, error: null });
 
-			const timeEntries = await timeEntryService.getTimeEntries(
-				projectId,
-				taskId,
-				startDate,
-				endDate
-			);
+      // Ensure dates are properly formatted
+      let formattedStartDate = startDate;
+      let formattedEndDate = endDate;
+      
+      if (startDate && !(startDate instanceof Date && !isNaN(startDate.getTime()))) {
+        if (typeof startDate === 'string' && !startDate.includes('T')) {
+          formattedStartDate = new Date(startDate + 'T00:00:00');
+        }
+      }
+      
+      if (endDate && !(endDate instanceof Date && !isNaN(endDate.getTime()))) {
+        if (typeof endDate === 'string' && !endDate.includes('T')) {
+          formattedEndDate = new Date(endDate + 'T23:59:59.999');
+        }
+      }
 
-			set({ timeEntries, isLoading: false });
-			return timeEntries;
-		} catch (error: any) {
-			set({
-				error: error.message || 'Failed to fetch time entries',
-				isLoading: false,
-			});
-			return [];
-		}
+      const timeEntries = await timeEntryService.getTimeEntries(
+        projectId,
+        taskId,
+        formattedStartDate,
+        formattedEndDate
+      );
+
+      console.log('Fetched time entries:', timeEntries.length);
+      set({ timeEntries, isLoading: false });
+      return timeEntries;
+    } catch (error: any) {
+      console.error('Error fetching time entries:', error);
+      set({
+        error: error.message || 'Failed to fetch time entries',
+        isLoading: false,
+      });
+      return [];
+    }
 	},
 
 	fetchTimeEntry: async (id: string) => {

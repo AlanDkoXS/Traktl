@@ -15,5 +15,3 @@
 
 ---
 THIS APP IS UNDER DEVELOPMENT
-
-Notifications by https://www.zapsplat.com/
