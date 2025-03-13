@@ -24,6 +24,8 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	const { timeEntries: storeTimeEntries } = useTimeEntryStore();
 	const { projects } = useProjectStore();
 	const [cellSize, setCellSize] = useState(10);
+	const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
+	const [tooltipData, setTooltipData] = useState<{x: number, y: number, data: any} | null>(null);
 
 	// Handle responsive behavior
 	useEffect(() => {
@@ -41,7 +43,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	// Generate calendar grid
 	const calendarData = useMemo(() => {
 		const today = new Date();
-		const weeksToShow = 21; // Increased from 13 to 21 (4 more on each side)
+		const weeksToShow = 21; 
 
 		const halfWeeks = Math.floor(weeksToShow / 2);
 		const startDate = subDays(today, halfWeeks * 7);
@@ -119,14 +121,24 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			projectTimeMap[entry.project] += entry.duration / (1000 * 60);
 		});
 
-		return Object.entries(projectTimeMap).map(([projectId, duration]) => {
+		// Calculate total to determine percentages
+		const total = Object.values(projectTimeMap).reduce((sum, mins) => sum + mins, 0);
+		
+		const result = Object.entries(projectTimeMap).map(([projectId, duration]) => {
 			const project = projects.find((p) => p.id === projectId);
+			const percent = total > 0 ? (duration / total) : 0;
+			
 			return {
+				id: projectId,
 				name: project?.name || 'Unknown Project',
 				value: Math.round(duration),
+				percent: percent,
 				color: project?.color || '#ccc',
 			};
 		});
+		
+		// Sort by percentage (highest first to assign colors)
+		return result.sort((a, b) => b.percent - a.percent);
 	}, [timeEntries, storeTimeEntries, projects]);
 
 	const totalMinutesToday = todaysPieData.reduce((sum, item) => sum + item.value, 0);
@@ -139,6 +151,23 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		if (minutes <= maxActivity * 0.4) return 'bg-green-300 dark:bg-green-700';
 		if (minutes <= maxActivity * 0.7) return 'bg-green-500 dark:bg-green-500';
 		return 'bg-green-700 dark:bg-green-300';
+	};
+	
+	// Get color based on position in the array (highest gets lightest color)
+	const getPieColorForIndex = (index: number, totalItems: number) => {
+		// Colors from least percentage to most percentage
+		const colors = [
+			'#6B7280',  // gray-500 (medium gray, for smallest percentages)
+			'#047857',  // green-700 (darkest green)
+			'#10B981',  // green-500 (medium green)
+			'#6EE7B7',  // green-300
+			'#D1FAE5'   // green-100 (lightest green, for highest percentages)
+		];
+		
+		// Invert the index to get darkest for lowest and lightest for highest
+		const invertedIndex = totalItems - index - 1;
+		const colorIndex = Math.min(Math.floor((invertedIndex / totalItems) * colors.length), colors.length - 1);
+		return colors[colorIndex];
 	};
 
 	const daysTranslation = {
@@ -195,12 +224,33 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 
 	// Custom tooltip for pie chart
 	const CustomTooltip = ({ active, payload }: any) => {
-		if (active && payload && payload.length) {
+		if ((active && payload && payload.length) || hoveredLabel || tooltipData) {
+			const data = hoveredLabel 
+				? todaysPieData.find(item => item.id === hoveredLabel) 
+				: tooltipData 
+					? tooltipData.data
+					: payload?.[0]?.payload;
+				
+			if (!data) return null;
+				
+			const style = tooltipData 
+				? {
+					position: 'absolute', 
+					left: `${tooltipData.x}px`, 
+					top: `${tooltipData.y}px`, 
+					transform: 'translate(-50%, -100%)',
+					zIndex: 100
+				} as React.CSSProperties
+				: {};
+				
 			return (
-				<div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md border border-gray-200 dark:border-gray-700 text-xs">
-					<p className="font-medium">{payload[0].name}</p>
+				<div 
+					className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md border border-gray-200 dark:border-gray-700 text-xs" 
+					style={style}
+				>
+					<p className="font-medium">{data.name}</p>
 					<p className="text-gray-700 dark:text-gray-300">
-						{payload[0].value} min ({Math.round((payload[0].value / totalMinutesToday) * 100)}%)
+						{data.value} min ({Math.round(data.percent * 100)}%)
 					</p>
 				</div>
 			);
@@ -209,26 +259,56 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	};
 
 	// Custom label for pie chart
-	const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }) => {
+	const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name, value, payload }) => {
 		const RADIAN = Math.PI / 180;
-		const radius = outerRadius * 1.4;
+		const radius = outerRadius * 1.3;
 		const x = cx + radius * Math.cos(-midAngle * RADIAN);
 		const y = cy + radius * Math.sin(-midAngle * RADIAN);
 		
-		// Truncate long names
-		const shortName = name.length > 10 ? name.substring(0, 9) + '...' : name;
+		// Truncate to 5 characters
+		const shortName = name.length > 5 ? name.substring(0, 5) + '...' : name;
+		
+		const handleMouseMove = (e: React.MouseEvent) => {
+			setTooltipData({
+				x: e.clientX,
+				y: e.clientY,
+				data: payload
+			});
+		};
+		
+		const handleMouseLeave = () => {
+			setTooltipData(null);
+		};
 		
 		return (
-			<text 
-				x={x} 
-				y={y} 
-				fill="#888"
-				textAnchor={x > cx ? 'start' : 'end'} 
-				dominantBaseline="central"
-				style={{ fontSize: '8px' }}
+			<g 
+				onMouseEnter={() => setHoveredLabel(payload.id)}
+				onMouseLeave={() => setHoveredLabel(null)}
+				onMouseMove={handleMouseMove}
+				onMouseOut={handleMouseLeave}
+				style={{cursor: 'pointer'}}
 			>
-				{shortName} ({(percent * 100).toFixed(0)}%)
-			</text>
+				<text 
+					x={x} 
+					y={y} 
+					fill="#666"
+					textAnchor={x > cx ? 'start' : 'end'} 
+					dominantBaseline="central"
+					style={{ fontSize: '8px' }}
+				>
+					{shortName}
+				</text>
+				<text 
+					x={x} 
+					y={y + 10} 
+					fill="#666"
+					textAnchor={x > cx ? 'start' : 'end'} 
+					dominantBaseline="central"
+					style={{ fontSize: '8px', fontWeight: 'bold' }}
+				>
+					{(percent * 100).toFixed(0)}%
+				</text>
+			</g>
 		);
 	};
 
@@ -243,28 +323,34 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 
 					{todaysPieData.length > 0 ? (
 						<>
-							<ResponsiveContainer width="100%" height={180}>
-								<PieChart>
-									<Pie
-										data={todaysPieData}
-										cx="50%"
-										cy="50%"
-										innerRadius={25}
-										outerRadius={45}
-										paddingAngle={2}
-										dataKey="value"
-										nameKey="name"
-										strokeWidth={0}
-										label={renderCustomizedLabel}
-										labelLine={true}
-									>
-										{todaysPieData.map((entry, index) => (
-											<Cell key={`cell-${index}`} fill={entry.color} />
-										))}
-									</Pie>
-									<Tooltip content={<CustomTooltip />} />
-								</PieChart>
-							</ResponsiveContainer>
+							<div className="relative">
+								<ResponsiveContainer width="100%" height={180}>
+									<PieChart>
+										<Pie
+											data={todaysPieData}
+											cx="50%"
+											cy="50%"
+											innerRadius={25}
+											outerRadius={45}
+											paddingAngle={2}
+											dataKey="value"
+											nameKey="name"
+											strokeWidth={0}
+											label={renderCustomizedLabel}
+											labelLine={true}
+										>
+											{todaysPieData.map((entry, index) => (
+												<Cell 
+													key={`cell-${index}`} 
+													fill={getPieColorForIndex(index, todaysPieData.length)} 
+												/>
+											))}
+										</Pie>
+										<Tooltip content={<CustomTooltip />} />
+									</PieChart>
+								</ResponsiveContainer>
+								{tooltipData && <CustomTooltip active={true} />}
+							</div>
 							
 							<div className="text-xs text-center mt-1 text-gray-500 dark:text-gray-400">
 								{totalMinutesToday > 0 ? `${totalMinutesToday} min total` : ''}
