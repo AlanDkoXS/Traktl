@@ -8,7 +8,8 @@ let notificationCache: Notification | null = null;
 // Cache for audio elements to improve performance
 const audioCache: Record<string, HTMLAudioElement> = {
   work: new Audio('/sounds/work.mp3'),
-  break: new Audio('/sounds/break.mp3')
+  break: new Audio('/sounds/break.mp3'),
+  complete: new Audio('/sounds/complete.mp3')
 };
 
 // Pre-load audio files
@@ -24,6 +25,7 @@ interface NotificationOptions {
   icon?: string;
   tag?: string;
   renotify?: boolean;
+  persistent?: boolean; // For notifications that should stay until user interaction
 }
 
 /**
@@ -63,17 +65,17 @@ export const requestNotificationPermission = async (): Promise<NotificationPermi
  * Show a notification with optimization to prevent UI blocking
  */
 export const showTimerNotification = (
-  type: 'work' | 'break',
+  type: 'work' | 'break' | 'complete' | 'timeEntry',
   options: NotificationOptions
 ): void => {
-  // Close any existing notification first
-  if (notificationCache) {
+  // Close any existing notification first (unless current is persistent)
+  if (notificationCache && !options.persistent) {
     notificationCache.close();
     notificationCache = null;
   }
 
   // Play the appropriate sound using the cached audio element
-  const audio = audioCache[type];
+  const audio = audioCache[type === 'timeEntry' ? 'complete' : type];
   if (audio) {
     // Reset audio to beginning if it was already playing
     audio.pause();
@@ -110,9 +112,12 @@ export const showTimerNotification = (
         };
 
         // Auto-close after 5 seconds to prevent notification buildup
-        setTimeout(() => {
-          notification.close();
-        }, 5000);
+        // Unless it's a persistent notification
+        if (!options.persistent) {
+          setTimeout(() => {
+            notification.close();
+          }, 5000);
+        }
 
         // Store notification reference for cleanup
         notificationCache = notification;

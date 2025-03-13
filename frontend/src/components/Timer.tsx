@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTimer } from '../hooks/useTimer';
 import { useTimeEntryStore } from '../store/timeEntryStore';
@@ -15,6 +15,7 @@ import { PresetSelector } from './timer/PresetSelector';
 import { ActivityHeatmap } from './timer/ActivityHeatmap';
 import { NotificationManager } from './timer/NotificationManager';
 import { TimerPreset } from '../types';
+import React from 'react';
 
 export const Timer = () => {
   const { t } = useTranslation();
@@ -52,6 +53,17 @@ export const Timer = () => {
   const { tasks, fetchTasks } = useTaskStore();
   const { tags, fetchTags } = useTagStore();
 
+  // Notification state
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | null>(null);
+  const [showNotification, setShowNotification] = useState(false);
+
+  // Request notification permission once
+  useEffect(() => {
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
+    }
+  }, []);
+
   // Load projects and tags only once
   useEffect(() => {
     Promise.all([
@@ -67,74 +79,13 @@ export const Timer = () => {
     }
   }, [projectId, fetchTasks]);
 
-  // Audio references
-  const workAudioRef = useRef<HTMLAudioElement | null>(null);
-  const breakAudioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Notification state
-  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | null>(null);
-  const [showNotification, setShowNotification] = useState(false);
-
-  // Initialize audio elements once
-  useEffect(() => {
-    workAudioRef.current = new Audio('/sounds/work.mp3');
-    breakAudioRef.current = new Audio('/sounds/break.mp3');
-    
-    return () => {
-      workAudioRef.current = null;
-      breakAudioRef.current = null;
-    };
-  }, []);
-
-  // Request notification permission once
-  useEffect(() => {
-    if ('Notification' in window) {
-      setNotificationPermission(Notification.permission);
-    }
-  }, []);
-
   // Play sound and show notification when timer completes
   useEffect(() => {
     if (progress >= 100) {
-      // Play sound
-      if (mode === 'work') {
-        breakAudioRef.current?.play().catch(e => console.error('Error playing break sound:', e));
-      } else {
-        workAudioRef.current?.play().catch(e => console.error('Error playing work sound:', e));
-      }
-
-      // Show notification if permission granted
-      if (notificationPermission === 'granted') {
-        const title = mode === 'work' ? t('timer.breakTime') : t('timer.workTime');
-        const body = mode === 'work' ? t('timer.workCompleted') : t('timer.breakCompleted');
-
-        try {
-          const notification = new Notification(title, {
-            body,
-            icon: '/favicon.ico',
-            silent: true, // We're playing our own sounds
-          });
-
-          notification.onclick = () => {
-            window.focus();
-            notification.close();
-          };
-        } catch (e) {
-          console.error('Notification error:', e);
-        }
-      }
-
       // Show in-app notification
       setShowNotification(true);
-      
-      // Auto-hide notification after 5 seconds
-      const timeout = setTimeout(() => {
-        setShowNotification(false);
-      }, 5000);
-      
-      return () => clearTimeout(timeout);
     }
-  }, [mode, progress, notificationPermission, t]);
+  }, [mode, progress]);
 
   // Request notification permission
   const requestNotificationPermission = async () => {
@@ -144,17 +95,40 @@ export const Timer = () => {
     }
   };
 
-  // Set up time entries display
-  const { timeEntries, fetchTimeEntries } = useTimeEntryStore();
-  const [startDate] = useState(subDays(new Date(), 28));
-  const [endDate] = useState(new Date());
+  // Close notification handler
+  const handleCloseNotification = () => {
+    setShowNotification(false);
+  };
 
-  // Fetch time entries only once
+  // Set up time entries display
+  const { timeEntries, fetchTimeEntries, isLoading: isLoadingTimeEntries } = useTimeEntryStore();
+  // Extend the date range to match the heatmap display
+  const [startDate] = useState(subDays(new Date(), 140)); // Match the 20 weeks in the heatmap
+  const [endDate] = useState(new Date());
+  const [hasLoadedEntries, setHasLoadedEntries] = useState(false);
+
+  // Fetch time entries with better retry mechanism
   useEffect(() => {
-    const controller = new AbortController();
-    fetchTimeEntries(undefined, undefined, startDate, endDate);
-    return () => controller.abort();
-  }, [fetchTimeEntries, startDate, endDate]);
+    const loadTimeEntries = async () => {
+      try {
+        console.log("Fetching time entries from", format(startDate, 'yyyy-MM-dd'), "to", format(endDate, 'yyyy-MM-dd'));
+        const entries = await fetchTimeEntries(undefined, undefined, startDate, endDate);
+        console.log("Fetched time entries:", entries?.length);
+        setHasLoadedEntries(true);
+      } catch (error) {
+        console.error("Error fetching time entries:", error);
+        // Add a retry after 2 seconds
+        setTimeout(() => {
+          if (!hasLoadedEntries) {
+            console.log("Retrying time entries fetch...");
+            fetchTimeEntries(undefined, undefined, startDate, endDate);
+          }
+        }, 2000);
+      }
+    };
+    
+    loadTimeEntries();
+  }, [fetchTimeEntries, startDate, endDate, hasLoadedEntries]);
 
   // Handle preset selection
   const handlePresetSelect = (preset: TimerPreset) => {
@@ -172,6 +146,7 @@ export const Timer = () => {
           mode={mode}
           onRequestPermission={requestNotificationPermission}
           notificationPermission={notificationPermission}
+          onCloseNotification={handleCloseNotification}
         />
 
         <div className="text-center mb-4">
@@ -240,7 +215,23 @@ export const Timer = () => {
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
           {t('dashboard.activityHeatmap')}
         </h3>
-        <ActivityHeatmap timeEntries={timeEntries || []} />
+        
+        {isLoadingTimeEntries ? (
+          <div className="flex justify-center items-center p-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
+            <span className="ml-2">{t('common.loading')}</span>
+          </div>
+        ) : (
+          <>
+            {timeEntries && timeEntries.length > 0 ? (
+              <ActivityHeatmap timeEntries={timeEntries} />
+            ) : (
+              <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                {t('timeEntries.noEntries')}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Recent Time Entries */}

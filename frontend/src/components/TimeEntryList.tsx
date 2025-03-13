@@ -7,6 +7,7 @@ import { useProjectStore } from '../store/projectStore';
 import { useTaskStore } from '../store/taskStore';
 import { useTagStore } from '../store/tagStore';
 import { TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { ConfirmModal } from './ui/ConfirmModal';
 
 interface TimeEntryListProps {
   projectId?: string;
@@ -22,8 +23,10 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
   const { projects, fetchProjects } = useProjectStore();
   const { tasks, fetchTasks } = useTaskStore();
   const { tags, fetchTags } = useTagStore();
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [fetchCounter, setFetchCounter] = useState(0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,7 +48,12 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
     const seconds = Math.floor(milliseconds / 1000);
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    return hours === 0 ? `${minutes}m` : `${hours}h ${minutes}m`;
+    
+    // Always show minutes, even if zero
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
   };
 
   const getProjectName = (projectId: string) => {
@@ -62,30 +70,30 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
     return tags.filter(tag => tagIds.includes(tag.id));
   };
 
-  const handleDelete = async (entryId: string, e: React.MouseEvent) => {
+  const handleDeleteClick = (entryId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setEntryToDelete(entryId);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!entryToDelete) return;
     
-    if (deleteConfirm === entryId) {
-      try {
-        await deleteTimeEntry(entryId);
-        setDeleteConfirm(null);
-      } catch (error) {
-        console.error("Failed to delete time entry:", error);
-      }
-    } else {
-      setDeleteConfirm(entryId);
+    setDeleteLoading(true);
+    try {
+      await deleteTimeEntry(entryToDelete);
+    } catch (error) {
+      console.error("Failed to delete time entry:", error);
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteModal(false);
+      setEntryToDelete(null);
     }
   };
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-  };
-
-  const cancelDelete = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDeleteConfirm(null);
   };
 
   if (isLoading) {
@@ -127,106 +135,116 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
   const displayEntries = limit ? timeEntries.slice(0, limit) : timeEntries;
 
   return (
-    <div className="space-y-2">
-      {displayEntries.map((entry, index) => (
-        <div key={entry.id} className="relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors">
-          <Link to={`/time-entries/${entry.id}`} className="block">
-            <div className="flex items-center justify-between pr-16">
-              <div className="flex items-center min-w-0">
-                <div className={`flex-shrink-0 h-7 w-7 ${entry.isRunning ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2`}>
-                  <svg 
-                    className={`h-3.5 w-3.5 ${entry.isRunning ? 'text-green-600 dark:text-green-300' : 'text-gray-600 dark:text-gray-300'}`} 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm truncate">
-                    <span className="font-bold text-gray-900 dark:text-white">
-                      {getProjectName(entry.project)}
-                    </span>
-                    {entry.task && (
-                      <span className="text-gray-600 dark:text-gray-400">
-                        : {getTaskName(entry.task)}
+    <>
+      <div className="space-y-2">
+        {displayEntries.map((entry, index) => (
+          <div key={entry.id} className="relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors">
+            <Link to={`/time-entries/${entry.id}`} className="block">
+              <div className="flex items-center justify-between pr-16">
+                <div className="flex items-center min-w-0">
+                  <div className={`flex-shrink-0 h-7 w-7 ${entry.isRunning ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2`}>
+                    <svg 
+                      className={`h-3.5 w-3.5 ${entry.isRunning ? 'text-green-600 dark:text-green-300' : 'text-gray-600 dark:text-gray-300'}`} 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm truncate">
+                      <span className="font-bold text-gray-900 dark:text-white">
+                        {getProjectName(entry.project)}
                       </span>
+                      {entry.task && (
+                        <span className="text-gray-600 dark:text-gray-400">
+                          : {getTaskName(entry.task)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      {format(new Date(entry.startTime), 'MMM d, h:mm a')}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className={`text-lg font-bold ${entry.isRunning ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
+                    {entry.isRunning ? (
+                      t('timeEntries.running')
+                    ) : (
+                      formatDuration(entry.duration)
                     )}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    {format(new Date(entry.startTime), 'MMM d, h:mm a')}
-                  </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className={`font-medium ${entry.isRunning ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
-                  {entry.isRunning ? (
-                    t('timeEntries.running')
-                  ) : (
-                    formatDuration(entry.duration)
-                  )}
+              
+              {entry.tags && entry.tags.length > 0 && (
+                <div className="mt-1 flex flex-wrap gap-1 ml-9">
+                  {getTagsForEntry(entry.tags).map(tag => (
+                    <span 
+                      key={tag.id} 
+                      className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs"
+                      style={{ 
+                        backgroundColor: `${tag.color}20`, 
+                        color: tag.color,
+                        border: `1px solid ${tag.color}`
+                      }}
+                    >
+                      {tag.name}
+                    </span>
+                  ))}
                 </div>
-              </div>
-            </div>
-            
-            {entry.tags && entry.tags.length > 0 && (
-              <div className="mt-1 flex flex-wrap gap-1 ml-9">
-                {getTagsForEntry(entry.tags).map(tag => (
-                  <span 
-                    key={tag.id} 
-                    className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs"
-                    style={{ 
-                      backgroundColor: `${tag.color}20`, 
-                      color: tag.color,
-                      border: `1px solid ${tag.color}`
-                    }}
-                  >
-                    {tag.name}
-                  </span>
-                ))}
-              </div>
-            )}
-          </Link>
-
-          <div className="absolute top-2 right-2 flex space-x-1">
-            <Link 
-              to={`/time-entries/${entry.id}`}
-              onClick={handleEditClick}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-white dark:bg-gray-800 rounded"
-              title={t('common.edit')}
-            >
-              <PencilIcon className="h-4 w-4" />
+              )}
             </Link>
-            <button
-              onClick={(e) => handleDelete(entry.id, e)}
-              className={`p-1 ${deleteConfirm === entry.id ? 'text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-300' : 'text-gray-400 hover:text-red-600 dark:hover:text-red-400 bg-white dark:bg-gray-800'} rounded`}
-              title={deleteConfirm === entry.id ? t('common.confirmDelete') : t('common.delete')}
-            >
-              <TrashIcon className="h-4 w-4" />
-            </button>
-            {deleteConfirm === entry.id && (
-              <button 
-                onClick={cancelDelete}
+
+            <div className="absolute top-2 right-2 flex space-x-1">
+              <Link 
+                to={`/time-entries/${entry.id}`}
+                onClick={handleEditClick}
                 className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-white dark:bg-gray-800 rounded"
-                title={t('common.cancel')}
+                title={t('common.edit')}
               >
-                ×
+                <PencilIcon className="h-4 w-4" />
+              </Link>
+              <button
+                onClick={(e) => handleDeleteClick(entry.id, e)}
+                className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded"
+                title={t('common.delete')}
+              >
+                <TrashIcon className="h-4 w-4" />
               </button>
-            )}
+            </div>
           </div>
-        </div>
-      ))}
-      
-      {limit && timeEntries.length > limit && (
-        <Link 
-          to="/time-entries" 
-          className="block text-center text-sm text-primary-600 dark:text-primary-400 hover:underline p-2"
-        >
-          {t('common.viewAll')} ({timeEntries.length})
-        </Link>
-      )}
-    </div>
+        ))}
+        
+        {limit && timeEntries.length > limit && (
+          <Link 
+            to="/time-entries" 
+            className="block text-center text-sm text-primary-600 dark:text-primary-400 hover:underline p-2"
+          >
+            {t('common.viewAll')} ({timeEntries.length})
+          </Link>
+        )}
+      </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title={t('common.confirmDelete')}
+        message={t('timeEntries.deleteConfirmation', {
+          name: entryToDelete 
+            ? format(new Date(timeEntries.find(e => e.id === entryToDelete)?.startTime || Date.now()), 'MMM d, h:mm a')
+            : '',
+          defaultValue: "Are you sure you want to delete this time entry? This action cannot be undone."
+        })}
+        confirmButtonText={t('common.delete')}
+        cancelButtonText={t('common.cancel')}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteModal(false)}
+        isLoading={deleteLoading}
+        danger={true}
+      />
+    </>
   );
 };

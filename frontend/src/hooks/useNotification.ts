@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import soundPlayer from '../utils/soundPlayer';
 
 interface NotificationOptions {
   title: string;
@@ -35,14 +36,9 @@ export const useNotification = () => {
   // Show notification
   const showNotification = useCallback(
     async ({ title, body, icon = '/favicon.ico', soundUrl }: NotificationOptions) => {
-      // Play sound if provided
+      // Play sound if provided (limited to 4 seconds)
       if (soundUrl) {
-        try {
-          const audio = new Audio(soundUrl);
-          await audio.play();
-        } catch (error) {
-          console.error('Error playing notification sound:', error);
-        }
+        soundPlayer.play(soundUrl, 4);
       }
       
       // Show browser notification if permission granted
@@ -58,6 +54,9 @@ export const useNotification = () => {
             window.focus();
             notification.close();
           };
+          
+          // Auto-close after 4 seconds
+          setTimeout(() => notification.close(), 4000);
           
           return true;
         } catch (error) {

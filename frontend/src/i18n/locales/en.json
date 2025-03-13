@@ -70,7 +70,9 @@
         "allowNotifications": "Allow Notifications",
         "selectProject": "Please select a project before starting the timer",
         "settings": "Timer Settings",
-        "presets": "Presets"
+        "presets": "Presets",
+        "sessionsCompleted": "All sessions completed",
+        "allSessionsCompleted": "Great job! You've completed all your work sessions."
     },
     "projects": {
         "title": "Projects",
@@ -142,7 +144,9 @@
         "endDate": "End Date",
         "allProjects": "All Projects",
         "details": "Session Details",
-        "session": "Session"
+        "session": "Session",
+        "created": "Time entry created",
+        "entryCreated": "Time entry of {{duration}} minutes has been recorded"
     },
     "tags": {
         "title": "Tags",

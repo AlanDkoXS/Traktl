@@ -70,7 +70,9 @@
         "allowNotifications": "Permitir Notificaciones",
         "selectProject": "Por favor selecciona un proyecto antes de iniciar el temporizador",
         "settings": "Configuración del Temporizador",
-        "presets": "Presets"
+        "presets": "Presets",
+        "sessionsCompleted": "Todas las sesiones completadas",
+        "allSessionsCompleted": "¡Buen trabajo! Has completado todas tus sesiones de trabajo."
     },
     "projects": {
         "title": "Proyectos",
@@ -142,7 +144,10 @@
         "endDate": "Fecha de Fin",
         "allProjects": "Todos los Proyectos",
         "details": "Detalles de la Sesión",
-        "session": "Sesión"
+        "session": "Sesión",
+        "created": "Registro de tiempo creado",
+        "entryCreated": "Se ha registrado una entrada de tiempo de {{duration}} minutos",
+        "deleteConfirmation": "¿Estás seguro de que quieres eliminar el registro de tiempo? Esta acción no se puede deshacer."
     },
     "tags": {
         "title": "Etiquetas",

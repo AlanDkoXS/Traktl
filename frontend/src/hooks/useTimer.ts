@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useTimerStore } from '../store/timerStore';
+import { useTranslation } from 'react-i18next';
+import { showTimerNotification } from '../utils/notifications/TimerNotifications';
 
 export const useTimer = () => {
+	const { t } = useTranslation();
 	const {
 		status,
 		mode,
@@ -84,6 +87,17 @@ export const useTimer = () => {
 
 	// Skip to next function (work -> break or break -> work)
 	const skipToNext = () => {
+		// Mostrar notificación antes de cambiar de fase
+		const notificationType = mode === 'work' ? 'break' : 'work';
+		const title = mode === 'work' ? t('timer.breakTime') : t('timer.workTime');
+		const body = mode === 'work' ? t('timer.workCompleted') : t('timer.breakCompleted');
+		
+		showTimerNotification(notificationType, {
+			title,
+			body,
+			persistent: false
+		});
+		
 		switchToNext();
 	};
 

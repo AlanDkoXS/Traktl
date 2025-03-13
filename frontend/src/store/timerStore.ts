@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useTimeEntryStore } from './timeEntryStore';
+import { showTimerNotification } from '../utils/notifications/TimerNotifications';
 
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'break';
 export type TimerMode = 'work' | 'break';
@@ -136,6 +137,13 @@ export const useTimerStore = create<TimerState>()(
                 // to avoid async operations here
                 setTimeout(() => {
                   get().createTimeEntryFromWorkSession();
+                  
+                  // Show notification for completed work session
+                  showTimerNotification('break', {
+                    title: "Break Time",
+                    body: "Work session completed! Time for a break.",
+                    persistent: false
+                  });
                 }, 0);
 
                 return {
@@ -149,6 +157,15 @@ export const useTimerStore = create<TimerState>()(
               else {
                 // If we haven't completed all repetitions, start a new work period
                 if (state.currentRepetition < state.repetitions) {
+                  // Show notification for completed break session
+                  setTimeout(() => {
+                    showTimerNotification('work', {
+                      title: "Work Time",
+                      body: "Break completed! Back to work.",
+                      persistent: false
+                    });
+                  }, 0);
+                  
                   return {
                     mode: 'work',
                     status: 'running',
@@ -159,6 +176,15 @@ export const useTimerStore = create<TimerState>()(
                 }
                 // If we've completed all repetitions, stop the timer
                 else {
+                  // Show notification for completed all sessions
+                  setTimeout(() => {
+                    showTimerNotification('complete', {
+                      title: "All Sessions Completed",
+                      body: "Great job! You've completed all your work sessions.",
+                      persistent: true
+                    });
+                  }, 0);
+                  
                   return {
                     mode: 'work',
                     status: 'idle',
@@ -198,6 +224,7 @@ export const useTimerStore = create<TimerState>()(
           const startTime = state.workStartTime || new Date(Date.now() - state.elapsed);
           const endTime = new Date();
           const duration = endTime.getTime() - startTime.getTime();
+          const durationMinutes = Math.floor(duration / 60000);
 
           console.log('Creating time entry from work session:', {
             project: state.projectId,
@@ -223,6 +250,13 @@ export const useTimerStore = create<TimerState>()(
             isRunning: false,
           });
 
+          // Show notification for created time entry
+          showTimerNotification('timeEntry', {
+            title: "Time Entry Created",
+            body: `Time entry of ${durationMinutes} minutes has been recorded`,
+            persistent: false
+          });
+
           console.log('Time entry created successfully');
         } catch (error) {
           console.error('Error creating time entry from work session:', error);
@@ -237,6 +271,13 @@ export const useTimerStore = create<TimerState>()(
             // Create time entry in the next tick
             setTimeout(() => {
               get().createTimeEntryFromWorkSession();
+              
+              // Show notification for switching to break
+              showTimerNotification('break', {
+                title: "Break Time",
+                body: "Work session completed! Time for a break.",
+                persistent: false
+              });
             }, 0);
 
             return {
@@ -248,6 +289,15 @@ export const useTimerStore = create<TimerState>()(
           }
           // If we're in break mode
           else {
+            // Show notification for switching to work
+            setTimeout(() => {
+              showTimerNotification('work', {
+                title: "Work Time",
+                body: "Break completed! Back to work.",
+                persistent: false
+              });
+            }, 0);
+            
             // If we haven't completed all repetitions, start a new work period
             if (state.currentRepetition < state.repetitions) {
               return {
