@@ -48,107 +48,110 @@ export const TimerSettings = ({
         {t('timer.settings')}
       </h3>
       
-      <div className="space-y-2">
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label
-              htmlFor="work-duration"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              {t('timer.workDuration')}
-            </label>
-            <div className="flex items-center">
-              <input
-                type="number"
-                min="1"
-                max="60"
-                value={workDuration}
-                onChange={handleWorkDurationChange}
-                disabled={status !== 'idle'}
-                className="w-16 h-8 text-center rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white text-sm timer-input"
-              />
-              <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">min</span>
-            </div>
+      <div className="space-y-4">
+        {/* Work Duration */}
+        <div className="flex items-center gap-3">
+          <label
+            htmlFor="work-duration-slider"
+            className="w-32 text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            {t('timer.workDuration')}
+          </label>
+          <div className="flex-1">
+            <input
+              id="work-duration-slider"
+              type="range"
+              min="1"
+              max="60"
+              step="1"
+              value={workDuration}
+              onChange={(e) => setWorkDuration(parseInt(e.target.value))}
+              disabled={status !== 'idle'}
+              className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+            />
           </div>
-          <input
-            id="work-duration-slider"
-            type="range"
-            min="1"
-            max="60"
-            step="1"
-            value={workDuration}
-            onChange={(e) => setWorkDuration(parseInt(e.target.value))}
-            disabled={status !== 'idle'}
-            className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
-          />
+          <div className="flex items-center">
+            <input
+              type="number"
+              min="1"
+              max="60"
+              value={workDuration}
+              onChange={handleWorkDurationChange}
+              disabled={status !== 'idle'}
+              className="w-16 h-8 text-center rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white text-sm timer-input"
+            />
+            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">min</span>
+          </div>
         </div>
 
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label
-              htmlFor="break-duration"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              {t('timer.breakDuration')}
-            </label>
-            <div className="flex items-center">
-              <input
-                type="number"
-                min="1"
-                max="30"
-                value={breakDuration}
-                onChange={handleBreakDurationChange}
-                disabled={status !== 'idle'}
-                className="w-16 h-8 text-center rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white text-sm timer-input"
-              />
-              <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">min</span>
-            </div>
+        {/* Break Duration */}
+        <div className="flex items-center gap-3">
+          <label
+            htmlFor="break-duration-slider"
+            className="w-32 text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            {t('timer.breakDuration')}
+          </label>
+          <div className="flex-1">
+            <input
+              id="break-duration-slider"
+              type="range"
+              min="1"
+              max="30"
+              step="1"
+              value={breakDuration}
+              onChange={(e) => setBreakDuration(parseInt(e.target.value))}
+              disabled={status !== 'idle'}
+              className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+            />
           </div>
-          <input
-            id="break-duration-slider"
-            type="range"
-            min="1"
-            max="30"
-            step="1"
-            value={breakDuration}
-            onChange={(e) => setBreakDuration(parseInt(e.target.value))}
-            disabled={status !== 'idle'}
-            className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
-          />
+          <div className="flex items-center">
+            <input
+              type="number"
+              min="1"
+              max="30"
+              value={breakDuration}
+              onChange={handleBreakDurationChange}
+              disabled={status !== 'idle'}
+              className="w-16 h-8 text-center rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white text-sm timer-input"
+            />
+            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">min</span>
+          </div>
         </div>
 
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label
-              htmlFor="repetitions"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              {t('timer.repetitions')}
-            </label>
-            <div className="flex items-center">
-              <input
-                type="number"
-                min="1"
-                max="10"
-                value={repetitions}
-                onChange={handleRepetitionsChange}
-                disabled={status !== 'idle'}
-                className="w-16 h-8 text-center rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white text-sm timer-input"
-              />
-              <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">{t('timerPresets.cycles')}</span>
-            </div>
+        {/* Repetitions */}
+        <div className="flex items-center gap-3">
+          <label
+            htmlFor="repetitions-slider"
+            className="w-32 text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            {t('timer.repetitions')}
+          </label>
+          <div className="flex-1">
+            <input
+              id="repetitions-slider"
+              type="range"
+              min="1"
+              max="10"
+              step="1"
+              value={repetitions}
+              onChange={(e) => setRepetitions(parseInt(e.target.value))}
+              disabled={status !== 'idle'}
+              className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+            />
           </div>
-          <input
-            id="repetitions-slider"
-            type="range"
-            min="1"
-            max="10"
-            step="1"
-            value={repetitions}
-            onChange={(e) => setRepetitions(parseInt(e.target.value))}
-            disabled={status !== 'idle'}
-            className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
-          />
+          <div className="flex items-center">
+            <input
+              type="number"
+              min="1"
+              max="10"
+              value={repetitions}
+              onChange={handleRepetitionsChange}
+              disabled={status !== 'idle'}
+              className="w-16 h-8 text-center rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white text-sm timer-input"
+            />
+            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">{t('timerPresets.cycles')}</span>
+          </div>
         </div>
       </div>
     </div>

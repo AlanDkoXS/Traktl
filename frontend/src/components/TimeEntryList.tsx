@@ -129,13 +129,13 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
   return (
     <div className="space-y-2">
       {displayEntries.map((entry, index) => (
-        <div key={entry.id} className="relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-3 transition-colors">
+        <div key={entry.id} className="relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors">
           <Link to={`/time-entries/${entry.id}`} className="block">
             <div className="flex items-center justify-between pr-16">
-              <div className="flex items-center">
-                <div className={`flex-shrink-0 h-8 w-8 ${entry.isRunning ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-3`}>
+              <div className="flex items-center min-w-0">
+                <div className={`flex-shrink-0 h-7 w-7 ${entry.isRunning ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2`}>
                   <svg 
-                    className={`h-4 w-4 ${entry.isRunning ? 'text-green-600 dark:text-green-300' : 'text-gray-600 dark:text-gray-300'}`} 
+                    className={`h-3.5 w-3.5 ${entry.isRunning ? 'text-green-600 dark:text-green-300' : 'text-gray-600 dark:text-gray-300'}`} 
                     xmlns="http://www.w3.org/2000/svg" 
                     fill="none" 
                     viewBox="0 0 24 24" 
@@ -144,13 +144,19 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <div>
-                  <div className="font-medium text-gray-900 dark:text-white">
-                    {getProjectName(entry.project)}
-                    {entry.task && `: ${getTaskName(entry.task)}`}
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm truncate">
+                    <span className="font-bold text-gray-900 dark:text-white">
+                      {getProjectName(entry.project)}
+                    </span>
+                    {entry.task && (
+                      <span className="text-gray-600 dark:text-gray-400">
+                        : {getTaskName(entry.task)}
+                      </span>
+                    )}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    {t('timeEntries.session')}: {index + 1}
+                    {format(new Date(entry.startTime), 'MMM d, h:mm a')}
                   </div>
                 </div>
               </div>
@@ -162,14 +168,11 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
                     formatDuration(entry.duration)
                   )}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  {format(new Date(entry.startTime), 'MMM d, h:mm a')}
-                </div>
               </div>
             </div>
             
             {entry.tags && entry.tags.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
+              <div className="mt-1 flex flex-wrap gap-1 ml-9">
                 {getTagsForEntry(entry.tags).map(tag => (
                   <span 
                     key={tag.id} 
@@ -185,15 +188,9 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
                 ))}
               </div>
             )}
-            
-            {entry.notes && (
-              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 truncate">
-                {entry.notes}
-              </div>
-            )}
           </Link>
 
-          <div className="absolute top-3 right-3 flex space-x-1">
+          <div className="absolute top-2 right-2 flex space-x-1">
             <Link 
               to={`/time-entries/${entry.id}`}
               onClick={handleEditClick}
