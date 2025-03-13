@@ -6,7 +6,7 @@ import { useTimeEntryStore } from '../store/timeEntryStore';
 import { useProjectStore } from '../store/projectStore';
 import { useTaskStore } from '../store/taskStore';
 import { useTagStore } from '../store/tagStore';
-import { TrashIcon, PencilIcon, PlayIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, PencilIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/outline';
 import { ConfirmModal } from './ui/ConfirmModal';
 import { useTimerStore } from '../store/timerStore';
 import { TimeEntry } from '../types';
@@ -27,20 +27,19 @@ export const TimeEntryList = ({
 	limit,
 }: TimeEntryListProps) => {
 	const { t } = useTranslation();
-	const { timeEntries, fetchTimeEntries, deleteTimeEntry, isLoading, error } =
+	const { timeEntries, fetchTimeEntries, deleteTimeEntry, updateTimeEntry, isLoading, error } =
 		useTimeEntryStore();
 	const { projects, fetchProjects } = useProjectStore();
 	const { tasks, fetchTasks } = useTaskStore();
 	const { tags, fetchTags } = useTagStore();
-	const timerStore = useTimerStore();
+	const { status: timerStatus } = useTimerStore();
 
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [showShortTimeModal, setShowShortTimeModal] = useState(false);
-	const [shortTimeEntry, setShortTimeEntry] = useState<TimeEntry | null>(null);
 	const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
 	const [deleteLoading, setDeleteLoading] = useState(false);
 	const [refreshKey, setRefreshKey] = useState(0);
 	const [dataInitialized, setDataInitialized] = useState(false);
+	const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
 
 	// Only load data once
 	useEffect(() => {
@@ -61,22 +60,26 @@ export const TimeEntryList = ({
 
 			loadData();
 		}
-	}, [refreshKey, projectId, taskId, startDate, endDate]);
+	}, [refreshKey, projectId, taskId, startDate, endDate, fetchTimeEntries, fetchProjects, fetchTasks, fetchTags]);
 
-	// Modificada para mostrar segundos
+	// Format duration with hours, minutes, and seconds
 	const formatDuration = (milliseconds: number) => {
+		if (milliseconds === 0) return '00:00:00';
+		
 		const seconds = Math.floor(milliseconds / 1000);
+		// Round up to a minute if between 59-60 seconds
+		if (seconds >= 59 && seconds < 60) {
+			const hours = 0;
+			const minutes = 1;
+			const remainingSeconds = 0;
+			return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+		}
+		
 		const hours = Math.floor(seconds / 3600);
 		const minutes = Math.floor((seconds % 3600) / 60);
 		const remainingSeconds = seconds % 60;
 
-		if (hours > 0) {
-			return `${hours}h ${minutes}m ${remainingSeconds}s`;
-		} else if (minutes > 0) {
-			return `${minutes}m ${remainingSeconds}s`;
-		} else {
-			return `${remainingSeconds}s`;
-		}
+		return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 	};
 
 	const getProjectName = (projectId: string) => {
@@ -114,37 +117,34 @@ export const TimeEntryList = ({
 		}
 	};
 
-	const handlePlayClick = (entry: TimeEntry, e: React.MouseEvent) => {
+	const handleEntryClick = async (entry: TimeEntry, e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
 
-		// Verificar si es un tiempo muy corto (menos de 60 segundos)
-		if (entry.duration < 60000) {
-			setShortTimeEntry(entry);
-			setShowShortTimeModal(true);
-			return;
+		// Toggle selection state
+		if (selectedEntryId === entry.id) {
+			setSelectedEntryId(null);
+			
+			// If it was running, update to stop running
+			if (entry.isRunning) {
+				await updateTimeEntry(entry.id, { isRunning: false });
+			}
+		} else {
+			// Set as selected
+			setSelectedEntryId(entry.id);
+			
+			// Set as running
+			if (!entry.isRunning) {
+				await updateTimeEntry(entry.id, { isRunning: true });
+			}
+			
+			// Mark other entries as not running if they were
+			for (const otherEntry of timeEntries) {
+				if (otherEntry.id !== entry.id && otherEntry.isRunning) {
+					await updateTimeEntry(otherEntry.id, { isRunning: false });
+				}
+			}
 		}
-
-		startTimer(entry);
-	};
-
-	const startTimer = (entry: TimeEntry) => {
-		// Configurar el temporizador con la información de la entrada
-		timerStore.setProjectId(entry.project);
-		if (entry.task) timerStore.setTaskId(entry.task);
-		if (entry.tags && entry.tags.length > 0) timerStore.setTags(entry.tags);
-		if (entry.notes) timerStore.setNotes(entry.notes);
-
-		// Iniciar el temporizador
-		timerStore.start();
-	};
-
-	const handleConfirmShortTime = () => {
-		if (shortTimeEntry) {
-			startTimer(shortTimeEntry);
-		}
-		setShowShortTimeModal(false);
-		setShortTimeEntry(null);
 	};
 
 	const handleRetry = () => {
@@ -186,13 +186,16 @@ export const TimeEntryList = ({
 		);
 	}
 
-	// Ordenar entradas por fecha (más recientes primero) y agrupar por proyecto
+	// Sort entries by date (newest first)
 	const sortedEntries = [...timeEntries].sort(
 		(a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
 	);
 
-	// Limitar la cantidad de entradas si se especifica
+	// Limit the number of entries if specified
 	const displayEntries = limit ? sortedEntries.slice(0, limit) : sortedEntries;
+
+	// Check if timer is active
+	const isTimerActive = timerStatus === 'running' || timerStatus === 'paused' || timerStatus === 'break';
 
 	return (
 		<>
@@ -200,30 +203,22 @@ export const TimeEntryList = ({
 				{displayEntries.map((entry) => (
 					<div
 						key={entry.id}
-						className="relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors"
+						className={`relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors ${isTimerActive ? 'opacity-60 pointer-events-none' : ''} ${selectedEntryId === entry.id ? 'bg-gray-50 dark:bg-gray-700 border-primary-300 dark:border-primary-700' : ''}`}
 					>
-						<Link to={`/time-entries/${entry.id}`} className="block">
-							<div className="flex items-center justify-between pr-24">
-								{' '}
-								{/* Aumentado el padding para dar espacio a los botones */}
+						<div 
+							className="block cursor-pointer" 
+							onClick={(e) => handleEntryClick(entry, e)}
+						>
+							<div className="flex items-center justify-between pr-16">
 								<div className="flex items-center min-w-0">
 									<div
 										className={`flex-shrink-0 h-7 w-7 ${entry.isRunning ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2`}
 									>
-										<svg
-											className={`h-3.5 w-3.5 ${entry.isRunning ? 'text-green-600 dark:text-green-300' : 'text-gray-600 dark:text-gray-300'}`}
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-												d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-											/>
-										</svg>
+										{selectedEntryId === entry.id ? (
+											<PlayIcon className="h-3.5 w-3.5 text-gray-600 dark:text-gray-300" />
+										) : (
+											<ClockIcon className="h-3.5 w-3.5 text-gray-600 dark:text-gray-300" />
+										)}
 									</div>
 									<div className="min-w-0 flex-1">
 										<div className="text-sm truncate">
@@ -269,22 +264,14 @@ export const TimeEntryList = ({
 									))}
 								</div>
 							)}
-						</Link>
+						</div>
 
 						<div className="absolute top-2 right-2 flex space-x-1">
-							{/* Botón de Play */}
-							<button
-								onClick={(e) => handlePlayClick(entry, e)}
-								className="p-1 text-gray-400 hover:text-green-600 dark:hover:text-green-400 bg-white dark:bg-gray-800 rounded"
-								title={t('timer.start')}
-							>
-								<PlayIcon className="h-4 w-4" />
-							</button>
-
 							<Link
 								to={`/time-entries/${entry.id}`}
 								className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-white dark:bg-gray-800 rounded"
 								title={t('common.edit')}
+								onClick={e => e.stopPropagation()}
 							>
 								<PencilIcon className="h-4 w-4" />
 							</Link>
@@ -309,7 +296,7 @@ export const TimeEntryList = ({
 				)}
 			</div>
 
-			{/* Modal de confirmación para eliminar */}
+			{/* Delete confirmation modal */}
 			<ConfirmModal
 				isOpen={showDeleteModal}
 				title={t('common.confirmDelete')}
@@ -332,22 +319,6 @@ export const TimeEntryList = ({
 				onCancel={() => setShowDeleteModal(false)}
 				isLoading={deleteLoading}
 				danger={true}
-			/>
-
-			{/* Modal para tiempo corto */}
-			<ConfirmModal
-				isOpen={showShortTimeModal}
-				title={t('timeEntries.shortTimeTitle', 'Short Time Entry')}
-				message={t(
-					'timeEntries.shortTimeMessage',
-					'This time entry is less than a minute. Do you still want to use it as a template for a new timer session?'
-				)}
-				confirmButtonText={t('common.yes')}
-				cancelButtonText={t('common.no')}
-				onConfirm={handleConfirmShortTime}
-				onCancel={() => setShowShortTimeModal(false)}
-				isLoading={false}
-				danger={false}
 			/>
 		</>
 	);

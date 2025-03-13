@@ -18,6 +18,8 @@ export const useTimer = () => {
 		notes,
 		tags,
 		workStartTime,
+		showCompletionModal,
+		closeCompletionModal,
 
 		tick,
 		start,
@@ -87,7 +89,7 @@ export const useTimer = () => {
 
 	// Skip to next function (work -> break or break -> work)
 	const skipToNext = () => {
-		// Mostrar notificación antes de cambiar de fase
+		// Show notification before changing phase
 		const notificationType = mode === 'work' ? 'break' : 'work';
 		const title = mode === 'work' ? t('timer.breakTime') : t('timer.workTime');
 		const body = mode === 'work' ? t('timer.workCompleted') : t('timer.breakCompleted');
@@ -117,6 +119,8 @@ export const useTimer = () => {
 		notes,
 		tags,
 		workStartTime,
+		showCompletionModal,
+		closeCompletionModal,
 
 		start,
 		pause,

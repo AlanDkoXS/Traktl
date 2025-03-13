@@ -21,7 +21,8 @@
             "fri": "Vie",
             "sat": "Sáb",
             "sun": "Dom"
-        }
+        },
+        "noDataToday": "No hay datos para hoy"
     },
     "nav": {
         "dashboard": "Panel",

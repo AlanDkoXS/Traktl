@@ -21,7 +21,8 @@
             "fri": "Fri",
             "sat": "Sat",
             "sun": "Sun"
-        }
+        },
+        "noDataToday": "There is no data for today"
     },
     "nav": {
         "dashboard": "Dashboard",

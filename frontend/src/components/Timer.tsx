@@ -15,6 +15,8 @@ import { NotificationManager } from './timer/NotificationManager';
 import { TimerPreset } from '../types';
 import { useTimeEntryStore } from '../store/timeEntryStore';
 import { requestNotificationPermission, checkNotificationPermission } from '../utils/notifications/TimerNotifications';
+import { ConfirmModal } from './ui/ConfirmModal';
+import { useTimerStore } from '../store/timerStore';
 
 export const Timer = () => {
   const { t } = useTranslation();
@@ -23,6 +25,7 @@ export const Timer = () => {
     mode,
     formattedTime,
     progress,
+    elapsed,
     workDuration,
     breakDuration,
     repetitions,
@@ -46,6 +49,8 @@ export const Timer = () => {
     setNotes,
     setTags,
   } = useTimer();
+  
+  const { showCompletionModal, closeCompletionModal } = useTimerStore();
 
   // State hooks
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | null>(null);
@@ -118,6 +123,7 @@ export const Timer = () => {
         {/* Timer Controls */}
         <TimerControls
           status={status}
+          elapsed={elapsed}
           start={start}
           pause={pause}
           resume={resume}
@@ -174,6 +180,19 @@ export const Timer = () => {
           limit={5}
         />
       </div>
+
+      {/* Sessions completed modal */}
+      <ConfirmModal
+        isOpen={showCompletionModal}
+        title={t('timer.sessionsCompleted', 'Sessions Completed')}
+        message={t('timer.allSessionsCompleted', "Great job! You've completed all your work sessions.")}
+        confirmButtonText={t('common.done')}
+        cancelButtonText=""
+        onConfirm={closeCompletionModal}
+        onCancel={closeCompletionModal}
+        isLoading={false}
+        danger={false}
+      />
     </div>
   );
 };

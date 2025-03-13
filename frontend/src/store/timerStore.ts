@@ -9,23 +9,25 @@ export type TimerMode = 'work' | 'break';
 interface TimerState {
 	status: TimerStatus;
 	mode: TimerMode;
-	elapsed: number; // Tiempo transcurrido en milisegundos
-	workDuration: number; // Duración en minutos
-	breakDuration: number; // Duración en minutos
+	elapsed: number; // Time elapsed in milliseconds
+	workDuration: number; // Duration in minutes
+	breakDuration: number; // Duration in minutes
 	repetitions: number;
 	currentRepetition: number;
 	projectId: string | null;
 	taskId: string | null;
 	notes: string;
 	tags: string[];
-	workStartTime: Date | null; // Seguimiento de cuándo comenzó el período de trabajo
+	workStartTime: Date | null; // Track when the work period started
+	showCompletionModal: boolean; // Flag for completion modal
 
-	// Acciones
+	// Actions
 	start: (projectId?: string | null, taskId?: string | null) => void;
 	pause: () => void;
 	resume: () => void;
 	stop: () => void;
 	reset: () => void;
+	closeCompletionModal: () => void;
 
 	tick: (delta: number) => void;
 	setWorkDuration: (minutes: number) => void;
@@ -38,9 +40,9 @@ interface TimerState {
 
 	switchToNext: () => void;
 	switchToBreak: () => void;
-	switchToWork: (nextRepetition?: number) => void; // Función modificada
+	switchToWork: (nextRepetition?: number) => void; // Modified function
 
-	// Helper para crear entradas de tiempo
+	// Helper to create time entries
 	createTimeEntryFromWorkSession: () => Promise<void>;
 }
 
@@ -50,15 +52,16 @@ export const useTimerStore = create<TimerState>()(
 			status: 'idle',
 			mode: 'work',
 			elapsed: 0,
-			workDuration: 25, // Por defecto 25 minutos
-			breakDuration: 5, // Por defecto 5 minutos
-			repetitions: 4, // Por defecto 4 repeticiones
+			workDuration: 25, // Default 25 minutes
+			breakDuration: 5, // Default 5 minutes
+			repetitions: 4, // Default 4 repetitions
 			currentRepetition: 1,
 			projectId: null,
 			taskId: null,
 			notes: '',
 			tags: [],
 			workStartTime: null,
+			showCompletionModal: false,
 
 			start: (projectId = null, taskId = null) =>
 				set((state) => {
@@ -69,6 +72,7 @@ export const useTimerStore = create<TimerState>()(
 							taskId: taskId || state.taskId,
 							elapsed: state.status === 'paused' ? state.elapsed : 0,
 							workStartTime: state.mode === 'work' ? new Date() : state.workStartTime,
+							showCompletionModal: false
 						};
 					}
 					return state;
@@ -91,15 +95,16 @@ export const useTimerStore = create<TimerState>()(
 				}),
 
 			stop: async () => {
-				// Acceder al estado actual en la devolución de llamada set
+				// Access current state in the callback
 				const state = get();
 
-				// Crear una entrada de tiempo si está en modo trabajo y tiene un proyecto seleccionado
-				if (state.mode === 'work' && state.projectId) {
+				// Only create a time entry if in work mode with a project selected
+				// and elapsed time is at least 1 second
+				if (state.mode === 'work' && state.projectId && state.elapsed >= 1000) {
 					await state.createTimeEntryFromWorkSession();
 				}
 
-				// Restablecer el estado del temporizador
+				// Reset timer state
 				set({
 					status: 'idle',
 					elapsed: 0,
@@ -118,7 +123,10 @@ export const useTimerStore = create<TimerState>()(
 					notes: '',
 					tags: [],
 					workStartTime: null,
+					showCompletionModal: false
 				})),
+
+			closeCompletionModal: () => set({ showCompletionModal: false }),
 
 			tick: (delta) =>
 				set((state) => {
@@ -129,22 +137,24 @@ export const useTimerStore = create<TimerState>()(
 								? state.workDuration * 60 * 1000
 								: state.breakDuration * 60 * 1000;
 
-						// Si el temporizador ha finalizado su fase actual
+						// If the timer has finished its current phase
 						if (newElapsed >= totalDuration) {
-							// Si estamos en modo trabajo, crear entrada de tiempo y cambiar a descanso
+							// If we're in work mode, create time entry and switch to break
 							if (state.mode === 'work') {
-								// Manejaremos la creación de entrada de tiempo en el siguiente tick
-								// para evitar operaciones asíncronas aquí
+								// We'll handle the time entry creation in the next tick
+								// to avoid async operations here
 								setTimeout(() => {
-									get().createTimeEntryFromWorkSession();
+									if (state.projectId) {
+										get().createTimeEntryFromWorkSession();
+									}
 
-									// Si el tiempo de descanso es 0, pasar directamente a la siguiente sesión de trabajo
+									// If break duration is 0, switch directly to the next work session
 									if (state.breakDuration === 0) {
-										// Si no hemos completado todas las repeticiones, comenzar un nuevo período de trabajo
+										// If we haven't completed all repetitions, start a new work period
 										if (state.currentRepetition < state.repetitions) {
 											get().switchToWork(state.currentRepetition + 1);
 										} else {
-											// Si hemos completado todas las repeticiones, detener el temporizador
+											// If we've completed all repetitions, stop the timer and show modal
 											setTimeout(() => {
 												showTimerNotification('complete', {
 													title: 'All Sessions Completed',
@@ -154,9 +164,10 @@ export const useTimerStore = create<TimerState>()(
 											}, 0);
 
 											get().reset();
+											set({ showCompletionModal: true });
 										}
 									} else {
-										// Mostrar notificación para cambiar a descanso
+										// Show notification for switching to break
 										showTimerNotification('break', {
 											title: 'Break Time',
 											body: 'Work session completed! Time for a break.',
@@ -165,9 +176,9 @@ export const useTimerStore = create<TimerState>()(
 									}
 								}, 0);
 
-								// Si el tiempo de descanso es 0, no cambiamos a estado de descanso
+								// If break duration is 0, don't change to break state
 								if (state.breakDuration === 0) {
-									return state; // El estado cambiará en el setTimeout
+									return state; // State will change in setTimeout
 								}
 
 								return {
@@ -177,11 +188,11 @@ export const useTimerStore = create<TimerState>()(
 									workStartTime: null,
 								};
 							}
-							// Si estamos en modo descanso
+							// If we're in break mode
 							else {
-								// Si no hemos completado todas las repeticiones, comenzar un nuevo período de trabajo
+								// If we haven't completed all repetitions, start a new work period
 								if (state.currentRepetition < state.repetitions) {
-									// Mostrar notificación para descanso completado
+									// Show notification for completed break
 									setTimeout(() => {
 										showTimerNotification('work', {
 											title: 'Work Time',
@@ -198,9 +209,9 @@ export const useTimerStore = create<TimerState>()(
 										workStartTime: new Date(),
 									};
 								}
-								// Si hemos completado todas las repeticiones, detener el temporizador
+								// If we've completed all repetitions, stop the timer and show modal
 								else {
-									// Mostrar notificación para todas las sesiones completadas
+									// Show notification for all sessions completed
 									setTimeout(() => {
 										showTimerNotification('complete', {
 											title: 'All Sessions Completed',
@@ -215,12 +226,13 @@ export const useTimerStore = create<TimerState>()(
 										elapsed: 0,
 										currentRepetition: 1,
 										workStartTime: null,
+										showCompletionModal: true
 									};
 								}
 							}
 						}
 
-						// De lo contrario, solo actualizar el tiempo transcurrido
+						// Otherwise, just update the elapsed time
 						return { elapsed: newElapsed };
 					}
 					return state;
@@ -234,25 +246,36 @@ export const useTimerStore = create<TimerState>()(
 			setNotes: (notes) => set(() => ({ notes })),
 			setTags: (tags) => set(() => ({ tags })),
 
-			// Función para crear una entrada de tiempo a partir de la sesión de trabajo actual
+			// Function to create a time entry from the current work session
 			createTimeEntryFromWorkSession: async () => {
 				const state = get();
 
-				// Omitir si no está en modo trabajo o no hay proyecto seleccionado
+				// Skip if not in work mode or no project selected
 				if (!state.projectId) {
-					console.log(
-						'No hay proyecto seleccionado, omitiendo la creación de entrada de tiempo'
-					);
+					console.log('No project selected, skipping time entry creation');
 					return;
 				}
 
 				try {
 					const startTime = state.workStartTime || new Date(Date.now() - state.elapsed);
 					const endTime = new Date();
-					const duration = endTime.getTime() - startTime.getTime();
+					let duration = endTime.getTime() - startTime.getTime();
+					
+					// Round up to a full minute if between 59-60 seconds
+					const seconds = Math.floor(duration / 1000);
+					if (seconds >= 59 && seconds < 60) {
+						duration = 60000; // Exactly one minute in milliseconds
+					}
+					
 					const durationMinutes = Math.floor(duration / 60000);
 
-					console.log('Creando entrada de tiempo a partir de la sesión de trabajo:', {
+					// Only create entries longer than 1 second
+					if (duration < 1000) {
+						console.log('Session too short, skipping time entry creation');
+						return;
+					}
+
+					console.log('Creating time entry from work session:', {
 						project: state.projectId,
 						task: state.taskId,
 						startTime,
@@ -262,7 +285,7 @@ export const useTimerStore = create<TimerState>()(
 						tags: state.tags,
 					});
 
-					// Usar el servicio de entrada de tiempo directamente
+					// Use the time entry store directly
 					await timeEntryService.createTimeEntry({
 						project: state.projectId,
 						task: state.taskId || undefined,
@@ -271,37 +294,37 @@ export const useTimerStore = create<TimerState>()(
 						duration,
 						notes:
 							state.notes ||
-							`Sesión de trabajo ${state.currentRepetition}/${state.repetitions}`,
+							`Work session ${state.currentRepetition}/${state.repetitions}`,
 						tags: state.tags,
 						isRunning: false,
 					});
 
-					// Mostrar notificación para entrada de tiempo creada
+					// Show notification for created time entry
 					showTimerNotification('timeEntry', {
 						title: 'Time Entry Created',
 						body: `Time entry of ${durationMinutes} minutes has been recorded`,
 						persistent: false,
 					});
 
-					console.log('Entrada de tiempo creada con éxito');
+					console.log('Time entry created successfully');
 				} catch (error) {
-					console.error(
-						'Error al crear entrada de tiempo desde la sesión de trabajo:',
-						error
-					);
+					console.error('Error creating time entry from work session:', error);
 				}
 			},
 
-			// Nueva función para cambiar manualmente a la siguiente fase (trabajo -> descanso o descanso -> trabajo)
+			// Function to manually switch to the next phase (work -> break or break -> work)
 			switchToNext: () =>
 				set((state) => {
-					// Si estamos en modo trabajo, crear entrada de tiempo y cambiar a descanso
+					// If we're in work mode, create time entry and switch to break
 					if (state.mode === 'work' && state.projectId) {
-						// Crear entrada de tiempo en el siguiente tick
+						// Create time entry in the next tick
 						setTimeout(() => {
-							get().createTimeEntryFromWorkSession();
+							// Only create entry if at least 1 second has passed
+							if (state.elapsed >= 1000) {
+								get().createTimeEntryFromWorkSession();
+							}
 
-							// Mostrar notificación para cambiar a descanso
+							// Show notification for switching to break
 							showTimerNotification('break', {
 								title: 'Break Time',
 								body: 'Work session completed! Time for a break.',
@@ -309,7 +332,7 @@ export const useTimerStore = create<TimerState>()(
 							});
 						}, 0);
 
-						// Si el tiempo de descanso es 0, cambiamos directamente a trabajo
+						// If break duration is 0, switch directly to work
 						if (state.breakDuration === 0) {
 							const nextRepetition =
 								state.currentRepetition < state.repetitions
@@ -332,9 +355,9 @@ export const useTimerStore = create<TimerState>()(
 							workStartTime: null,
 						};
 					}
-					// Si estamos en modo descanso
+					// If we're in break mode
 					else {
-						// Mostrar notificación para cambiar a trabajo
+						// Show notification for switching to work
 						setTimeout(() => {
 							showTimerNotification('work', {
 								title: 'Work Time',
@@ -343,7 +366,7 @@ export const useTimerStore = create<TimerState>()(
 							});
 						}, 0);
 
-						// Si no hemos completado todas las repeticiones, comenzar un nuevo período de trabajo
+						// If we haven't completed all repetitions, start a new work period
 						if (state.currentRepetition < state.repetitions) {
 							return {
 								mode: 'work',
@@ -353,14 +376,23 @@ export const useTimerStore = create<TimerState>()(
 								workStartTime: new Date(),
 							};
 						}
-						// Si hemos completado todas las repeticiones, comenzar de nuevo
+						// If we've completed all repetitions, stop and show modal
 						else {
+							setTimeout(() => {
+								showTimerNotification('complete', {
+									title: 'All Sessions Completed',
+									body: "Great job! You've completed all your work sessions.",
+									persistent: true,
+								});
+							}, 0);
+							
 							return {
 								mode: 'work',
-								status: 'running',
+								status: 'idle',
 								elapsed: 0,
 								currentRepetition: 1,
-								workStartTime: new Date(),
+								workStartTime: null,
+								showCompletionModal: true
 							};
 						}
 					}
@@ -368,8 +400,8 @@ export const useTimerStore = create<TimerState>()(
 
 			switchToBreak: () =>
 				set((state) => {
-					// Crear entrada de tiempo si se cambia del modo trabajo con un proyecto
-					if (state.mode === 'work' && state.projectId) {
+					// Create time entry if switching from work mode with a project
+					if (state.mode === 'work' && state.projectId && state.elapsed >= 1000) {
 						setTimeout(() => {
 							get().createTimeEntryFromWorkSession();
 						}, 0);
@@ -382,7 +414,7 @@ export const useTimerStore = create<TimerState>()(
 					};
 				}),
 
-			// Modificado para permitir establecer la repetición
+			// Modified to allow setting the repetition
 			switchToWork: (nextRepetition) =>
 				set(() => ({
 					mode: 'work',
