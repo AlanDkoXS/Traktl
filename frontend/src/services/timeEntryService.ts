@@ -48,11 +48,11 @@ export const timeEntryService = {
 
       // Extract data based on API response format
       let timeEntries = [];
-      if (response.data && response.data.data) {
-        // Handle {ok: true, data: [...]} format
+      if (response.data && Array.isArray(response.data.data)) {
+        timeEntries = response.data.data;
+      } else if (response.data && response.data.ok && Array.isArray(response.data.data)) {
         timeEntries = response.data.data;
       } else if (Array.isArray(response.data)) {
-        // Handle direct array format
         timeEntries = response.data;
       } else {
         console.error('Unexpected response format:', response.data);

@@ -26,8 +26,8 @@ interface TimeEntryState {
 	selectTimeEntry: (timeEntry: TimeEntry | null) => void;
 	clearSelectedTimeEntry: () => void;
 }
-// TODO: fix get value
-export const useTimeEntryStore = create<TimeEntryState>((set) => ({
+
+export const useTimeEntryStore = create<TimeEntryState>((set, get) => ({
 	timeEntries: [],
 	selectedTimeEntry: null,
 	isLoading: false,

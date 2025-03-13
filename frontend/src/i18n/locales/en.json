@@ -146,7 +146,8 @@
         "details": "Session Details",
         "session": "Session",
         "created": "Time entry created",
-        "entryCreated": "Time entry of {{duration}} minutes has been recorded"
+        "entryCreated": "Time entry of {{duration}} minutes has been recorded",
+        "deleteConfirmation": "Are you sure you want to delete the time entry? This action cannot be undone."
     },
     "tags": {
         "title": "Tags",

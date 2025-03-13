@@ -27,22 +27,31 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
+    if (dataLoaded) return;
+    
     const fetchData = async () => {
-      await Promise.all([
-        fetchProjects(),
-        fetchTasks(),
-        fetchTags()
-      ]).then(() => {
-        fetchTimeEntries(projectId, taskId, startDate, endDate);
-      }).catch(err => {
+      try {
+        // First load supporting data in parallel
+        await Promise.all([
+          fetchProjects(),
+          fetchTasks(),
+          fetchTags()
+        ]);
+        
+        // Then load time entries separately
+        await fetchTimeEntries(projectId, taskId, startDate, endDate);
+        setDataLoaded(true);
+      } catch (err) {
         console.error("Error fetching data:", err);
-      });
+        setDataLoaded(true);
+      }
     };
     
     fetchData();
-  }, [fetchCounter]);
+  }, [fetchCounter, projectId, taskId, startDate, endDate]);
 
   const formatDuration = (milliseconds: number) => {
     const seconds = Math.floor(milliseconds / 1000);
@@ -96,6 +105,11 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
     e.stopPropagation();
   };
 
+  const handleRetry = () => {
+    setDataLoaded(false);
+    setFetchCounter(prev => prev + 1);
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-4">
@@ -110,7 +124,7 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
       <div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm flex flex-col">
         <p>{error}</p>
         <button 
-          onClick={() => setFetchCounter(prev => prev + 1)} 
+          onClick={handleRetry} 
           className="mt-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 underline"
         >
           {t('common.retry')}
@@ -137,7 +151,7 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
   return (
     <>
       <div className="space-y-2">
-        {displayEntries.map((entry, index) => (
+        {displayEntries.map((entry) => (
           <div key={entry.id} className="relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors">
             <Link to={`/time-entries/${entry.id}`} className="block">
               <div className="flex items-center justify-between pr-16">

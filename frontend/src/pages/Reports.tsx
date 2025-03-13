@@ -19,12 +19,13 @@ export const Reports = () => {
 		const loadData = async () => {
 			try {
 				await fetchProjects();
-				await fetchTimeEntries(
+				const entries = await fetchTimeEntries(
 					projectId || undefined,
 					undefined,
 					startDate ? new Date(startDate) : undefined,
 					endDate ? new Date(endDate) : undefined
 				);
+                console.log('Fetched time entries for reports:', entries?.length);
 			} catch (err) {
 				console.error('Error loading reports data:', err);
 			}

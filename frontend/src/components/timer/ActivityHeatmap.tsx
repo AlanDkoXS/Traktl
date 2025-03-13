@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { TimeEntry } from '../../types';
-import { format, subDays, getDay, eachDayOfInterval, startOfWeek } from 'date-fns';
+import { format, subDays, getDay, eachDayOfInterval, startOfWeek, addDays } from 'date-fns';
 
 interface ActivityHeatmapProps {
   timeEntries?: TimeEntry[];
@@ -19,11 +19,14 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
     6: t('dashboard.days.sat')
   };
   
-  // Generate 20 weeks of data (140 days)
+  // Generate 12 weeks of data (84 days), centered on current date
   const generateCalendarGrid = () => {
     const today = new Date();
-    const endDate = today;
-    const startDate = subDays(today, 139); // 20 weeks - 1 day
+    
+    // Center the heatmap around today (6 weeks before, 6 weeks after)
+    const halfRange = 42; // 6 weeks * 7 days
+    const endDate = addDays(today, halfRange);
+    const startDate = subDays(today, halfRange);
     
     // Ensure we start with Sunday for consistency
     const gridStartDate = startOfWeek(startDate);
@@ -115,20 +118,20 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
   };
   
   // Number of columns (weeks)
-  const numCols = 20;
+  const numCols = 12; // For 12 weeks
   
   return (
     <div className="w-full overflow-x-auto">
       <div className="min-w-max pb-2">
         {/* Main grid with labels */}
-        <div className="grid grid-cols-[auto_repeat(20,1fr)] gap-1">
+        <div className="grid grid-cols-[auto_repeat(12,1fr)] gap-1">
           {/* Top left empty cell */}
           <div className="w-8"></div>
           
           {/* Date labels at top */}
           {Array.from({ length: numCols }).map((_, colIndex) => {
-            // Show date labels every fourth column
-            if (colIndex % 4 === 0 && calendarData[1] && calendarData[1][colIndex]) {
+            // Show date labels every second column
+            if (colIndex % 2 === 0 && calendarData[1] && calendarData[1][colIndex]) {
               return (
                 <div key={`date-${colIndex}`} className="text-xs text-center text-gray-500 dark:text-gray-400 mb-1">
                   {format(calendarData[1][colIndex].date, 'MMM d')}

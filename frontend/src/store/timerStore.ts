@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { useTimeEntryStore } from './timeEntryStore';
 import { showTimerNotification } from '../utils/notifications/TimerNotifications';
+import { timeEntryService } from '../services/timeEntryService';
 
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'break';
 export type TimerMode = 'work' | 'break';
@@ -90,22 +90,22 @@ export const useTimerStore = create<TimerState>()(
           return state;
         }),
 
-        stop: async () => {
-            // Access current state in set callback
-            set(state => {
-                // Create a time entry if in work mode and have a project selected
-                if (state.mode === 'work' && state.projectId) {
-                    state.createTimeEntryFromWorkSession();
-                }
+      stop: async () => {
+        // Access current state in set callback
+        const state = get();
+        
+        // Create a time entry if in work mode and have a project selected
+        if (state.mode === 'work' && state.projectId) {
+          await state.createTimeEntryFromWorkSession();
+        }
 
-                // Reset timer state
-                return {
-                    status: 'idle',
-                    elapsed: 0,
-                    workStartTime: null,
-                };
-            });
-        },
+        // Reset timer state
+        set({
+          status: 'idle',
+          elapsed: 0,
+          workStartTime: null,
+        });
+      },
 
       reset: () =>
         set(() => ({
@@ -236,10 +236,8 @@ export const useTimerStore = create<TimerState>()(
             tags: state.tags,
           });
 
-          // Use the time entry store to create the entry
-          const timeEntryStore = useTimeEntryStore.getState();
-
-          await timeEntryStore.createTimeEntry({
+          // Use the time entry service directly
+          await timeEntryService.createTimeEntry({
             project: state.projectId,
             task: state.taskId || undefined,
             startTime,
