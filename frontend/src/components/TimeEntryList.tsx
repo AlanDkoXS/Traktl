@@ -27,40 +27,62 @@ export const TimeEntryList = ({
 	limit,
 }: TimeEntryListProps) => {
 	const { t } = useTranslation();
-	const { timeEntries, fetchTimeEntries, deleteTimeEntry, updateTimeEntry, isLoading, error } =
+	const { timeEntries, fetchTimeEntries, deleteTimeEntry, isLoading, error } =
 		useTimeEntryStore();
 	const { projects, fetchProjects } = useProjectStore();
 	const { tasks, fetchTasks } = useTaskStore();
 	const { tags, fetchTags } = useTagStore();
-	const { status: timerStatus } = useTimerStore();
+	const { 
+		start, 
+		setProjectId, 
+		setTaskId, 
+		setNotes, 
+		setTags, 
+		status: timerStatus,
+		workStartTime 
+	} = useTimerStore();
 
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
 	const [deleteLoading, setDeleteLoading] = useState(false);
-	const [refreshKey, setRefreshKey] = useState(0);
 	const [dataInitialized, setDataInitialized] = useState(false);
 	const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
 
-	// Only load data once
+	// Initial data load
 	useEffect(() => {
 		if (!dataInitialized) {
 			const loadData = async () => {
 				try {
-					// Load data in sequence to avoid infinite loops
+					setDataInitialized(true); // Set this first to prevent loops
+					// Load data in sequence
 					await fetchTimeEntries(projectId, taskId, startDate, endDate);
 					await fetchProjects();
 					await fetchTasks();
 					await fetchTags();
-					setDataInitialized(true);
 				} catch (err) {
 					console.error('Error loading data:', err);
-					setDataInitialized(true); // Still mark as initialized to prevent loops
 				}
 			};
 
 			loadData();
 		}
-	}, [refreshKey, projectId, taskId, startDate, endDate, fetchTimeEntries, fetchProjects, fetchTasks, fetchTags]);
+	}, [projectId, taskId, startDate, endDate, dataInitialized]);
+
+	// Refresh time entries when timer stops
+	useEffect(() => {
+		if (timerStatus === 'idle' && workStartTime === null) {
+			// This means the timer has been stopped - refresh entries
+			const refreshData = async () => {
+				try {
+					await fetchTimeEntries(projectId, taskId, startDate, endDate);
+				} catch (err) {
+					console.error('Error refreshing time entries:', err);
+				}
+			};
+			
+			refreshData();
+		}
+	}, [timerStatus, workStartTime]);
 
 	// Format duration with hours, minutes, and seconds
 	const formatDuration = (milliseconds: number) => {
@@ -117,49 +139,39 @@ export const TimeEntryList = ({
 		}
 	};
 
-	const handleEntryClick = async (entry: TimeEntry, e: React.MouseEvent) => {
+	const handleEntryClick = (entry: TimeEntry, e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
 
-		// Toggle selection state
+		// Solo seleccionar la entrada (no iniciar el timer)
 		if (selectedEntryId === entry.id) {
 			setSelectedEntryId(null);
-			
-			// If it was running, update to stop running
-			if (entry.isRunning) {
-				await updateTimeEntry(entry.id, { isRunning: false });
-			}
 		} else {
-			// Set as selected
 			setSelectedEntryId(entry.id);
-			
-			// Set as running
-			if (!entry.isRunning) {
-				await updateTimeEntry(entry.id, { isRunning: true });
-			}
-			
-			// Mark other entries as not running if they were
-			for (const otherEntry of timeEntries) {
-				if (otherEntry.id !== entry.id && otherEntry.isRunning) {
-					await updateTimeEntry(otherEntry.id, { isRunning: false });
-				}
-			}
 		}
+	};
+	
+	// Maneja el clic en el botón de play específicamente
+	const handlePlayClick = (entry: TimeEntry, e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		
+		// Iniciar el temporizador con los datos de la entrada
+		setProjectId(entry.project);
+		if (entry.task) setTaskId(entry.task);
+		if (entry.notes) setNotes(entry.notes);
+		if (entry.tags) setTags(entry.tags);
+		
+		// Iniciar el temporizador
+		start();
+		
+		// Limpiar la selección
+		setSelectedEntryId(null);
 	};
 
 	const handleRetry = () => {
 		setDataInitialized(false);
-		setRefreshKey((prev) => prev + 1);
 	};
-
-	if (isLoading) {
-		return (
-			<div className="flex justify-center items-center py-4">
-				<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
-				<span className="ml-2">{t('common.loading')}</span>
-			</div>
-		);
-	}
 
 	if (error) {
 		return (
@@ -212,10 +224,11 @@ export const TimeEntryList = ({
 							<div className="flex items-center justify-between pr-16">
 								<div className="flex items-center min-w-0">
 									<div
-										className={`flex-shrink-0 h-7 w-7 ${entry.isRunning ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2`}
+										className={`flex-shrink-0 h-7 w-7 ${selectedEntryId === entry.id ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2 cursor-pointer`}
+										onClick={(e) => selectedEntryId === entry.id ? handlePlayClick(entry, e) : e.stopPropagation()}
 									>
 										{selectedEntryId === entry.id ? (
-											<PlayIcon className="h-3.5 w-3.5 text-gray-600 dark:text-gray-300" />
+											<PlayIcon className="h-3.5 w-3.5 text-green-600 dark:text-green-300" />
 										) : (
 											<ClockIcon className="h-3.5 w-3.5 text-gray-600 dark:text-gray-300" />
 										)}
@@ -238,11 +251,9 @@ export const TimeEntryList = ({
 								</div>
 								<div className="text-right">
 									<div
-										className={`text-lg font-bold ${entry.isRunning ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}
+										className={`text-lg font-bold text-gray-900 dark:text-white`}
 									>
-										{entry.isRunning
-											? t('timeEntries.running')
-											: formatDuration(entry.duration)}
+										{formatDuration(entry.duration)}
 									</div>
 								</div>
 							</div>

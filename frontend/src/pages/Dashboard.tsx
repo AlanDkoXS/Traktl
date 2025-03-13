@@ -7,13 +7,14 @@ import { useTimeEntryStore } from '../store/timeEntryStore';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
+import { TimeEntryList } from '../components/TimeEntryList';
 
 export const Dashboard = () => {
 	const { t } = useTranslation();
 	const { projects, fetchProjects } = useProjectStore();
 	const { clients, fetchClients } = useClientStore();
 	const { tasks, fetchTasks } = useTaskStore();
-	const { timeEntries, fetchTimeEntries, isLoading: entriesLoading } = useTimeEntryStore();
+	const { timeEntries, isLoading: entriesLoading } = useTimeEntryStore();
 	
 	const [isLoading, setIsLoading] = useState(true);
 	const [dataInitialized, setDataInitialized] = useState(false);
@@ -27,7 +28,6 @@ export const Dashboard = () => {
 					await fetchProjects();
 					await fetchClients();
 					await fetchTasks();
-					await fetchTimeEntries();
 					setDataInitialized(true);
 				} catch (err) {
 					console.error('Error loading dashboard data:', err);
