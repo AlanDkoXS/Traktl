@@ -22,8 +22,8 @@ export const Reports = () => {
 				const entries = await fetchTimeEntries(
 					projectId || undefined,
 					undefined,
-					startDate ? new Date(startDate) : undefined,
-					endDate ? new Date(endDate) : undefined
+					startDate ? new Date(startDate + 'T00:00:00') : undefined,
+					endDate ? new Date(endDate + 'T23:59:59.999') : undefined
 				);
                 console.log('Fetched time entries for reports:', entries?.length);
 			} catch (err) {

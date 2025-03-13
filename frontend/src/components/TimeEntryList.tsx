@@ -23,56 +23,48 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
   const { projects, fetchProjects } = useProjectStore();
   const { tasks, fetchTasks } = useTaskStore();
   const { tags, fetchTags } = useTagStore();
-  const [fetchCounter, setFetchCounter] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [dataInitialized, setDataInitialized] = useState(false);
 
+  // Only load data once
   useEffect(() => {
-    if (dataLoaded) return;
-    
-    const fetchData = async () => {
-      try {
-        // First load supporting data in parallel
-        await Promise.all([
-          fetchProjects(),
-          fetchTasks(),
-          fetchTags()
-        ]);
-        
-        // Then load time entries separately
-        await fetchTimeEntries(projectId, taskId, startDate, endDate);
-        setDataLoaded(true);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setDataLoaded(true);
-      }
-    };
-    
-    fetchData();
-  }, [fetchCounter, projectId, taskId, startDate, endDate]);
+    if (!dataInitialized) {
+      const loadData = async () => {
+        try {
+          // Load data in sequence to avoid infinite loops
+          await fetchTimeEntries(projectId, taskId, startDate, endDate);
+          await fetchProjects();
+          await fetchTasks();
+          await fetchTags();
+          setDataInitialized(true);
+        } catch (err) {
+          console.error("Error loading data:", err);
+          setDataInitialized(true); // Still mark as initialized to prevent loops
+        }
+      };
+      
+      loadData();
+    }
+  }, [refreshKey, projectId, taskId, startDate, endDate]);
 
   const formatDuration = (milliseconds: number) => {
     const seconds = Math.floor(milliseconds / 1000);
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
-    // Always show minutes, even if zero
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    }
-    return `${minutes}m`;
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
   };
 
   const getProjectName = (projectId: string) => {
     const project = projects.find(p => p.id === projectId);
-    return project ? project.name : projectId;
+    return project ? project.name : "Unknown Project";
   };
 
   const getTaskName = (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
-    return task ? task.name : taskId;
+    return task ? task.name : "Unknown Task";
   };
 
   const getTagsForEntry = (tagIds: string[]) => {
@@ -88,7 +80,6 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
 
   const handleConfirmDelete = async () => {
     if (!entryToDelete) return;
-    
     setDeleteLoading(true);
     try {
       await deleteTimeEntry(entryToDelete);
@@ -101,13 +92,9 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
     }
   };
 
-  const handleEditClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
   const handleRetry = () => {
-    setDataLoaded(false);
-    setFetchCounter(prev => prev + 1);
+    setDataInitialized(false);
+    setRefreshKey(prev => prev + 1);
   };
 
   if (isLoading) {
@@ -123,10 +110,7 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
     return (
       <div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm flex flex-col">
         <p>{error}</p>
-        <button 
-          onClick={handleRetry} 
-          className="mt-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 underline"
-        >
+        <button onClick={handleRetry} className="mt-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 underline">
           {t('common.retry')}
         </button>
       </div>
@@ -136,9 +120,7 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
   if (!timeEntries.length) {
     return (
       <div className="text-center py-4">
-        <p className="text-gray-500 dark:text-gray-400">
-          {t('timeEntries.noEntries')}
-        </p>
+        <p className="text-gray-500 dark:text-gray-400">{t('timeEntries.noEntries')}</p>
         <Link to="/time-entries/new" className="btn btn-primary mt-2 inline-flex">
           {t('timeEntries.new')}
         </Link>
@@ -157,13 +139,7 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
               <div className="flex items-center justify-between pr-16">
                 <div className="flex items-center min-w-0">
                   <div className={`flex-shrink-0 h-7 w-7 ${entry.isRunning ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2`}>
-                    <svg 
-                      className={`h-3.5 w-3.5 ${entry.isRunning ? 'text-green-600 dark:text-green-300' : 'text-gray-600 dark:text-gray-300'}`} 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      fill="none" 
-                      viewBox="0 0 24 24" 
-                      stroke="currentColor"
-                    >
+                    <svg className={`h-3.5 w-3.5 ${entry.isRunning ? 'text-green-600 dark:text-green-300' : 'text-gray-600 dark:text-gray-300'}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
@@ -185,11 +161,7 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
                 </div>
                 <div className="text-right">
                   <div className={`text-lg font-bold ${entry.isRunning ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}`}>
-                    {entry.isRunning ? (
-                      t('timeEntries.running')
-                    ) : (
-                      formatDuration(entry.duration)
-                    )}
+                    {entry.isRunning ? t('timeEntries.running') : formatDuration(entry.duration)}
                   </div>
                 </div>
               </div>
@@ -214,19 +186,10 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
             </Link>
 
             <div className="absolute top-2 right-2 flex space-x-1">
-              <Link 
-                to={`/time-entries/${entry.id}`}
-                onClick={handleEditClick}
-                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-white dark:bg-gray-800 rounded"
-                title={t('common.edit')}
-              >
+              <Link to={`/time-entries/${entry.id}`} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-white dark:bg-gray-800 rounded" title={t('common.edit')}>
                 <PencilIcon className="h-4 w-4" />
               </Link>
-              <button
-                onClick={(e) => handleDeleteClick(entry.id, e)}
-                className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded"
-                title={t('common.delete')}
-              >
+              <button onClick={(e) => handleDeleteClick(entry.id, e)} className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded" title={t('common.delete')}>
                 <TrashIcon className="h-4 w-4" />
               </button>
             </div>
@@ -234,10 +197,7 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
         ))}
         
         {limit && timeEntries.length > limit && (
-          <Link 
-            to="/time-entries" 
-            className="block text-center text-sm text-primary-600 dark:text-primary-400 hover:underline p-2"
-          >
+          <Link to="/time-entries" className="block text-center text-sm text-primary-600 dark:text-primary-400 hover:underline p-2">
             {t('common.viewAll')} ({timeEntries.length})
           </Link>
         )}
@@ -247,9 +207,7 @@ export const TimeEntryList = ({ projectId, taskId, startDate, endDate, limit }: 
         isOpen={showDeleteModal}
         title={t('common.confirmDelete')}
         message={t('timeEntries.deleteConfirmation', {
-          name: entryToDelete 
-            ? format(new Date(timeEntries.find(e => e.id === entryToDelete)?.startTime || Date.now()), 'MMM d, h:mm a')
-            : '',
+          name: entryToDelete ? format(new Date(timeEntries.find(e => e.id === entryToDelete)?.startTime || Date.now()), 'MMM d, h:mm a') : '',
           defaultValue: "Are you sure you want to delete this time entry? This action cannot be undone."
         })}
         confirmButtonText={t('common.delete')}

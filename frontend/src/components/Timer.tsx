@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTimer } from '../hooks/useTimer';
-import { useTimeEntryStore } from '../store/timeEntryStore';
 import { useProjectStore } from '../store/projectStore';
 import { useTaskStore } from '../store/taskStore';
 import { useTagStore } from '../store/tagStore';
-import { format, subDays } from 'date-fns';
 import { TimeEntryList } from './TimeEntryList';
 import { TimerDisplay } from './timer/TimerDisplay';
 import { TimerControls } from './timer/TimerControls';
@@ -15,7 +13,7 @@ import { PresetSelector } from './timer/PresetSelector';
 import { ActivityHeatmap } from './timer/ActivityHeatmap';
 import { NotificationManager } from './timer/NotificationManager';
 import { TimerPreset } from '../types';
-import React from 'react';
+import { useTimeEntryStore } from '../store/timeEntryStore';
 
 export const Timer = () => {
   const { t } = useTranslation();
@@ -48,12 +46,7 @@ export const Timer = () => {
     setTags,
   } = useTimer();
 
-  // Get projects, tasks and tags
-  const { projects, fetchProjects } = useProjectStore();
-  const { tasks, fetchTasks } = useTaskStore();
-  const { tags, fetchTags } = useTagStore();
-
-  // Notification state
+  // State hooks
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | null>(null);
   const [showNotification, setShowNotification] = useState(false);
 
@@ -63,21 +56,6 @@ export const Timer = () => {
       setNotificationPermission(Notification.permission);
     }
   }, []);
-
-  // Load projects and tags only once
-  useEffect(() => {
-    Promise.all([
-      fetchProjects(),
-      fetchTags()
-    ]);
-  }, [fetchProjects, fetchTags]);
-
-  // Load tasks when project changes
-  useEffect(() => {
-    if (projectId) {
-      fetchTasks(projectId);
-    }
-  }, [projectId, fetchTasks]);
 
   // Play sound and show notification when timer completes
   useEffect(() => {
@@ -99,36 +77,6 @@ export const Timer = () => {
   const handleCloseNotification = () => {
     setShowNotification(false);
   };
-
-  // Set up time entries display
-  const { timeEntries, fetchTimeEntries, isLoading: isLoadingTimeEntries } = useTimeEntryStore();
-  // Extend the date range to match the heatmap display
-  const [startDate] = useState(subDays(new Date(), 140)); // Match the 20 weeks in the heatmap
-  const [endDate] = useState(new Date());
-  const [hasLoadedEntries, setHasLoadedEntries] = useState(false);
-
-  // Fetch time entries with better retry mechanism
-  useEffect(() => {
-    const loadTimeEntries = async () => {
-      try {
-        console.log("Fetching time entries from", format(startDate, 'yyyy-MM-dd'), "to", format(endDate, 'yyyy-MM-dd'));
-        const entries = await fetchTimeEntries(undefined, undefined, startDate, endDate);
-        console.log("Fetched time entries:", entries?.length);
-        setHasLoadedEntries(true);
-      } catch (error) {
-        console.error("Error fetching time entries:", error);
-        // Add a retry after 2 seconds
-        setTimeout(() => {
-          if (!hasLoadedEntries) {
-            console.log("Retrying time entries fetch...");
-            fetchTimeEntries(undefined, undefined, startDate, endDate);
-          }
-        }, 2000);
-      }
-    };
-    
-    loadTimeEntries();
-  }, [fetchTimeEntries, startDate, endDate, hasLoadedEntries]);
 
   // Handle preset selection
   const handlePresetSelect = (preset: TimerPreset) => {
@@ -180,9 +128,9 @@ export const Timer = () => {
         {status === 'idle' && (
           <div className="mt-6">
             <ProjectTaskSelector
-              projects={projects}
-              tasks={tasks}
-              tags={tags}
+              projects={[]}
+              tasks={[]}
+              tags={[]}
               projectId={projectId}
               taskId={taskId}
               notes={notes}
@@ -215,23 +163,7 @@ export const Timer = () => {
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
           {t('dashboard.activityHeatmap')}
         </h3>
-        
-        {isLoadingTimeEntries ? (
-          <div className="flex justify-center items-center p-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
-            <span className="ml-2">{t('common.loading')}</span>
-          </div>
-        ) : (
-          <>
-            {timeEntries && timeEntries.length > 0 ? (
-              <ActivityHeatmap timeEntries={timeEntries} />
-            ) : (
-              <div className="text-center py-4 text-gray-500 dark:text-gray-400">
-                {t('timeEntries.noEntries')}
-              </div>
-            )}
-          </>
-        )}
+        <ActivityHeatmap timeEntries={[]} />
       </div>
 
       {/* Recent Time Entries */}

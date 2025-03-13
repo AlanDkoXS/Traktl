@@ -122,8 +122,8 @@ export const TimeEntries = () => {
       <TimeEntryList
         key={filterKey}
         projectId={projectId || undefined}
-        startDate={startDate ? new Date(startDate) : undefined}
-        endDate={endDate ? new Date(endDate) : undefined}
+        startDate={startDate ? new Date(startDate + 'T00:00:00') : undefined}
+        endDate={endDate ? new Date(endDate + 'T23:59:59.999') : undefined}
       />
     </div>
   );

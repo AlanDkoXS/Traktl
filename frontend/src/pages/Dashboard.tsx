@@ -3,6 +3,7 @@ import { Timer } from '../components/Timer';
 import { useProjectStore } from '../store/projectStore';
 import { useClientStore } from '../store/clientStore';
 import { useTaskStore } from '../store/taskStore';
+import { useTimeEntryStore } from '../store/timeEntryStore';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
@@ -12,32 +13,32 @@ export const Dashboard = () => {
 	const { projects, fetchProjects } = useProjectStore();
 	const { clients, fetchClients } = useClientStore();
 	const { tasks, fetchTasks } = useTaskStore();
+	const { timeEntries, fetchTimeEntries, isLoading: entriesLoading } = useTimeEntryStore();
 	
 	const [isLoading, setIsLoading] = useState(true);
-	const [refreshCounter, setRefreshCounter] = useState(0);
-
-	// Set up an interval to refresh the data periodically
-	useEffect(() => {
-		const interval = setInterval(() => {
-			setRefreshCounter(prev => prev + 1);
-		}, 30000); // Refresh every 30 seconds
-		
-		return () => clearInterval(interval);
-	}, []);
+	const [dataInitialized, setDataInitialized] = useState(false);
 
 	useEffect(() => {
-		const fetchData = async () => {
-			setIsLoading(true);
-			await Promise.all([
-				fetchProjects(),
-				fetchClients(),
-				fetchTasks()
-			]);
-			setIsLoading(false);
-		};
-		
-		fetchData();
-	}, [fetchProjects, fetchClients, fetchTasks, refreshCounter]);
+		if (!dataInitialized) {
+			const fetchData = async () => {
+				setIsLoading(true);
+				try {
+					// Load each type of data in sequence to avoid cycles
+					await fetchProjects();
+					await fetchClients();
+					await fetchTasks();
+					await fetchTimeEntries();
+					setDataInitialized(true);
+				} catch (err) {
+					console.error('Error loading dashboard data:', err);
+				} finally {
+					setIsLoading(false);
+				}
+			};
+			
+			fetchData();
+		}
+	}, [dataInitialized]);
 
 	return (
 		<div className="max-w-7xl mx-auto">
@@ -79,7 +80,7 @@ export const Dashboard = () => {
 								/>
 								<StatsCard
 									title={t('timeEntries.title')}
-									count={0} // This would come from your time entries store
+									count={timeEntries.length}
 									link="/time-entries"
 								/>
 							</div>
