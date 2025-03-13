@@ -13,7 +13,7 @@ import {
 } from 'date-fns';
 import { useTimeEntryStore } from '../../store/timeEntryStore';
 import { useProjectStore } from '../../store/projectStore';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface ActivityHeatmapProps {
 	timeEntries?: TimeEntry[];
@@ -41,7 +41,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	// Generate calendar grid
 	const calendarData = useMemo(() => {
 		const today = new Date();
-		const weeksToShow = 13;
+		const weeksToShow = 21; // Increased from 13 to 21 (4 more on each side)
 
 		const halfWeeks = Math.floor(weeksToShow / 2);
 		const startDate = subDays(today, halfWeeks * 7);
@@ -99,7 +99,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 
 	// Calculate number of columns
 	const numCols = useMemo(() => {
-		return Object.values(calendarData)[0]?.length || 13;
+		return Object.values(calendarData)[0]?.length || 21;
 	}, [calendarData]);
 
 	// Get today's pie data
@@ -208,71 +208,30 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		return null;
 	};
 
-	// Custom legend render for pie chart to prevent overflow
-	const renderLegend = (props: any) => {
-		const { payload } = props;
+	// Custom label for pie chart
+	const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }) => {
+		const RADIAN = Math.PI / 180;
+		const radius = outerRadius * 1.4;
+		const x = cx + radius * Math.cos(-midAngle * RADIAN);
+		const y = cy + radius * Math.sin(-midAngle * RADIAN);
+		
 		return (
-			<ul className="flex flex-wrap justify-center text-xs gap-2 mt-2">
-			  {payload.map((entry: any, index: number) => (
-				<li key={`item-${index}`} className="flex items-center">
-				  <div 
-					className="w-2 h-2 rounded-full mr-1"
-					style={{ backgroundColor: entry.color }}
-				  ></div>
-				  <span>{entry.name}</span>
-				</li>
-			  ))}
-			</ul>
+			<text 
+				x={x} 
+				y={y} 
+				fill="#888"
+				textAnchor={x > cx ? 'start' : 'end'} 
+				dominantBaseline="central"
+				className="text-xs"
+			>
+				{name} ({(percent * 100).toFixed(0)}%)
+			</text>
 		);
 	};
 
 	return (
 		<div className="w-full">
-			<div className="flex flex-col sm:flex-row gap-6">
-				{/* Today's Projects Pie Chart - Now first */}
-				<div className="w-full sm:w-1/3">
-					<h3 className="text-xs font-medium text-gray-900 dark:text-white mb-1 text-center">
-						{format(new Date(), 'MMM d')}
-					</h3>
-
-					{todaysPieData.length > 0 ? (
-						<>
-							<ResponsiveContainer width="100%" height={150}>
-								<PieChart>
-									<Pie
-										data={todaysPieData}
-										cx="50%"
-										cy="50%"
-										innerRadius={25}
-										outerRadius={45}
-										paddingAngle={2}
-										dataKey="value"
-										nameKey="name"
-										strokeWidth={0}
-									>
-										{todaysPieData.map((entry, index) => (
-											<Cell key={`cell-${index}`} fill={entry.color} />
-										))}
-									</Pie>
-									<Tooltip content={<CustomTooltip />} />
-								</PieChart>
-							</ResponsiveContainer>
-							
-							{renderLegend({ payload: todaysPieData })}
-							
-							<div className="text-xs text-center mt-1 text-gray-500 dark:text-gray-400">
-								{totalMinutesToday > 0 ? `${totalMinutesToday} min` : ''}
-							</div>
-						</>
-					) : (
-						<div className="flex items-center justify-center h-32 w-full bg-gray-50 dark:bg-gray-800 rounded-md">
-							<p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-								{t('dashboard.noDataToday')}
-							</p>
-						</div>
-					)}
-				</div>
-
+			<div className="flex flex-col-reverse sm:flex-row gap-6">
 				{/* Activity Heatmap */}
 				<div className="w-full sm:w-2/3">
 					<div className="flex flex-col items-center">
@@ -282,6 +241,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 								gridTemplateColumns: `auto repeat(${numCols}, ${cellSize}px)`,
 								gap: '2px',
 							}}
+							className="overflow-x-auto pb-4 max-w-full"
 						>
 							{/* Top left empty cell */}
 							<div className="w-6"></div>
@@ -338,10 +298,10 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 							))}
 						</div>
 
-						{/* Legend */}
+						{/* Legend - Centered horizontally */}
 						<div className="flex items-center mt-4 justify-center text-xs text-gray-500 dark:text-gray-400">
 							<span>{t('dashboard.less')}</span>
-							<div className="flex mx-2 space-x-1">
+							<div className="flex mx-2 space-x-1 items-center">
 								<div className="h-2 w-2 bg-gray-100 dark:bg-gray-700 rounded-sm"></div>
 								<div className="h-2.5 w-2.5 bg-green-100 dark:bg-green-900 rounded-sm"></div>
 								<div className="h-3 w-3 bg-green-300 dark:bg-green-700 rounded-sm"></div>
@@ -351,6 +311,50 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 							<span>{t('dashboard.more')}</span>
 						</div>
 					</div>
+				</div>
+
+				{/* Today's Projects Pie Chart - Now first on mobile */}
+				<div className="w-full sm:w-1/3">
+					<h3 className="text-xs font-medium text-gray-900 dark:text-white mb-1 text-center">
+						{format(new Date(), 'MMM d')}
+					</h3>
+
+					{todaysPieData.length > 0 ? (
+						<>
+							<ResponsiveContainer width="100%" height={180}>
+								<PieChart>
+									<Pie
+										data={todaysPieData}
+										cx="50%"
+										cy="50%"
+										innerRadius={25}
+										outerRadius={45}
+										paddingAngle={2}
+										dataKey="value"
+										nameKey="name"
+										strokeWidth={0}
+										label={renderCustomizedLabel}
+										labelLine={true}
+									>
+										{todaysPieData.map((entry, index) => (
+											<Cell key={`cell-${index}`} fill={entry.color} />
+										))}
+									</Pie>
+									<Tooltip content={<CustomTooltip />} />
+								</PieChart>
+							</ResponsiveContainer>
+							
+							<div className="text-xs text-center mt-1 text-gray-500 dark:text-gray-400">
+								{totalMinutesToday > 0 ? `${totalMinutesToday} min` : ''}
+							</div>
+						</>
+					) : (
+						<div className="flex items-center justify-center h-32 w-full bg-gray-50 dark:bg-gray-800 rounded-md">
+							<p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+								{t('dashboard.noDataToday')}
+							</p>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
