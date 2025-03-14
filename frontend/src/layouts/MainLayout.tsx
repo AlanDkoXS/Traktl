@@ -88,9 +88,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 						<Bars3Icon className="h-6 w-6" />
 					</button>
 
-					<div className="text-xl font-bold dynamic-color">
-						{t('app.name')}
-					</div>
+					<div className="text-xl font-bold dynamic-color">{t('app.name')}</div>
 
 					<UserMenu />
 				</div>
@@ -98,14 +96,12 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
 			{/* Sidebar for mobile */}
 			<div
-				className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
+				className={`fixed inset-y-0 left-0 z-50 w-64 bg-[rgb(var(--color-bg-inset))] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
 					isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
 				} border-r border-gray-200 dark:border-[rgb(var(--color-border-primary))]`}
 			>
 				<div className="h-16 flex items-center justify-between p-4 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-					<h1 className="text-xl font-bold dynamic-color">
-						{t('app.name')}
-					</h1>
+					<h1 className="text-xl font-bold dynamic-color">{t('app.name')}</h1>
 					<button
 						onClick={() => setIsMobileMenuOpen(false)}
 						className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-[rgb(var(--color-fg-muted))] dark:hover:text-[rgb(var(--color-fg-default))] dark:hover:bg-[rgb(var(--color-bg-overlay))]"
@@ -147,11 +143,10 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 			</div>
 
 			{/* Desktop sidebar */}
-			<div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-50 md:w-64 md:bg-white md:dark:bg-[rgb(var(--color-bg-inset))] md:shadow-md md:flex md:flex-col md:border-r md:border-gray-200 md:dark:border-[rgb(var(--color-border-primary))]">
+			<div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-50 md:w-64 md:bg-white md:dark:bg-[rgb(var(--color-bg-inset))] md:shadow-md md:flex md:flex-col">
 				<div className="h-16 flex items-center p-6 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-					<h1 className="text-xl font-bold dynamic-color">
-						{t('app.name')}
-					</h1>
+					<h1 className="text-xl font-bold dynamic-color">{t('app.name')}</h1>
+					<UserMenu />
 				</div>
 				<nav className="p-3 mt-6 flex-1">
 					<div className="space-y-1">
@@ -186,18 +181,12 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 			{/* Main content */}
 			<div className="flex-1 md:ml-64">
 				{/* Desktop header */}
-				<header className="hidden md:block bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-sm sticky top-0 z-10 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-					<div className="max-w-7xl mx-auto p-4">
-						<div className="flex justify-end items-center h-8">
-							<UserMenu />
-						</div>
-					</div>
-				</header>
+				<header className="hidden md:block bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-sm sticky top-0 z-10"></header>
 
 				{/* Page content */}
 				<main className="max-w-7xl mx-auto p-4 sm:p-6">{children}</main>
 			</div>
-			
+
 			{/* Sticky Timer */}
 			<StickyTimer />
 		</div>

@@ -161,7 +161,7 @@
         "notFound": "Tag not found",
         "deleteConfirmation": "Are you sure you want to delete the tag \"{{name}}\"? This action cannot be undone.",
         "shortTimeTitle": "Short Time Entry",
-        "shortTimeMessage": "This time entry is less than a minute. Do you still want to use it as a template for a new timer session?"
+        "shortTimeMessage": "This time entry is less than a minute. Do you still want to save?"
     },
     "timerPresets": {
         "title": "Timer Presets",

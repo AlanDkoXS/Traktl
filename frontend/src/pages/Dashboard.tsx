@@ -15,7 +15,7 @@ export const Dashboard = () => {
 	const { clients, fetchClients } = useClientStore();
 	const { tasks, fetchTasks } = useTaskStore();
 	const { timeEntries, isLoading: entriesLoading } = useTimeEntryStore();
-	
+
 	const [isLoading, setIsLoading] = useState(true);
 	const [dataInitialized, setDataInitialized] = useState(false);
 
@@ -35,7 +35,7 @@ export const Dashboard = () => {
 					setIsLoading(false);
 				}
 			};
-			
+
 			loadData();
 		}
 	}, [dataInitialized]);
@@ -95,22 +95,10 @@ export const Dashboard = () => {
 										href="/time-entries/new"
 										title={t('timeEntries.new')}
 									/>
-									<QuickLink
-										href="/projects/new"
-										title={t('projects.new')}
-									/>
-									<QuickLink
-										href="/tasks/new"
-										title={t('tasks.new')}
-									/>
-									<QuickLink
-										href="/clients/new"
-										title={t('clients.new')}
-									/>
-									<QuickLink
-										href="/reports"
-										title={t('reports.title')}
-									/>
+									<QuickLink href="/projects/new" title={t('projects.new')} />
+									<QuickLink href="/tasks/new" title={t('tasks.new')} />
+									<QuickLink href="/clients/new" title={t('clients.new')} />
+									<QuickLink href="/reports" title={t('reports.title')} />
 								</nav>
 							</div>
 						</>
@@ -124,19 +112,15 @@ export const Dashboard = () => {
 // Stats Card Component
 const StatsCard = ({ title, count, link }) => {
 	const { t } = useTranslation();
-	
+
 	return (
-		<Link 
-			to={link} 
+		<Link
+			to={link}
 			className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 hover:shadow-md transition-shadow flex flex-col h-full group rounded-lg shadow-sm"
 		>
 			<div className="flex flex-col h-full">
-				<div className="font-medium text-gray-500 dark:text-gray-400 text-sm">
-					{title}
-				</div>
-				<div className="mt-2 text-3xl font-semibold dynamic-color">
-					{count}
-				</div>
+				<div className="font-medium text-gray-500 dark:text-gray-400 text-sm">{title}</div>
+				<div className="mt-2 text-3xl font-semibold dynamic-color">{count}</div>
 				<div className="mt-auto pt-2 text-xs dynamic-color flex items-center">
 					{t('common.viewAll')}
 					<ArrowRightIcon className="ml-1 h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
@@ -151,7 +135,7 @@ const QuickLink = ({ href, title }) => {
 	return (
 		<Link
 			to={href}
-			className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:dynamic-bg-subtle hover:dynamic-color transition-colors group"
+			className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-500 hover:dynamic-bg-subtle hover:dynamic-color transition-colors group"
 		>
 			<span>{title}</span>
 			<ArrowRightIcon className="ml-auto h-4 w-4 text-gray-400 group-hover:dynamic-color group-hover:translate-x-0.5 transition-transform" />

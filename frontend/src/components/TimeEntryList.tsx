@@ -32,14 +32,15 @@ export const TimeEntryList = ({
 	const { projects, fetchProjects } = useProjectStore();
 	const { tasks, fetchTasks } = useTaskStore();
 	const { tags, fetchTags } = useTagStore();
-	const { 
-		start, 
-		setProjectId, 
-		setTaskId, 
-		setNotes, 
-		setTags, 
+	const {
+		start,
+		setProjectId,
+		setTaskId,
+		setNotes,
+		setTags,
 		status: timerStatus,
-		workStartTime 
+		workStartTime,
+		setInfiniteMode,
 	} = useTimerStore();
 
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -67,7 +68,17 @@ export const TimeEntryList = ({
 
 			loadData();
 		}
-	}, [projectId, taskId, startDate, endDate, dataInitialized]);
+	}, [
+		projectId,
+		taskId,
+		startDate,
+		endDate,
+		dataInitialized,
+		fetchTimeEntries,
+		fetchProjects,
+		fetchTasks,
+		fetchTags,
+	]);
 
 	// Refresh time entries when timer stops
 	useEffect(() => {
@@ -80,15 +91,15 @@ export const TimeEntryList = ({
 					console.error('Error refreshing time entries:', err);
 				}
 			};
-			
+
 			refreshData();
 		}
-	}, [timerStatus, workStartTime]);
+	}, [timerStatus, workStartTime, fetchTimeEntries, projectId, taskId, startDate, endDate]);
 
 	// Format duration with hours, minutes, and seconds
 	const formatDuration = (milliseconds: number) => {
 		if (milliseconds === 0) return '00:00:00';
-		
+
 		const seconds = Math.floor(milliseconds / 1000);
 		// Round up to a minute if between 59-60 seconds
 		if (seconds >= 59 && seconds < 60) {
@@ -97,7 +108,7 @@ export const TimeEntryList = ({
 			const remainingSeconds = 0;
 			return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 		}
-		
+
 		const hours = Math.floor(seconds / 3600);
 		const minutes = Math.floor((seconds % 3600) / 60);
 		const remainingSeconds = seconds % 60;
@@ -118,9 +129,9 @@ export const TimeEntryList = ({
 	const getTagsForEntry = (tagIds: string[]) => {
 		return tags.filter((tag) => tagIds.includes(tag.id));
 	};
-	
+
 	const getProjectColor = (projectId: string) => {
-		const project = projects.find(p => p.id === projectId);
+		const project = projects.find((p) => p.id === projectId);
 		return project?.color || '#3b82f6';
 	};
 
@@ -156,21 +167,29 @@ export const TimeEntryList = ({
 			setSelectedEntryId(entry.id);
 		}
 	};
-	
+
 	// Maneja el clic en el botón de play específicamente
 	const handlePlayClick = (entry: TimeEntry, e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
-		
+
+		console.log('Iniciando timer con modo infinito para entrada:', entry);
+
 		// Iniciar el temporizador con los datos de la entrada
 		setProjectId(entry.project);
 		if (entry.task) setTaskId(entry.task);
 		if (entry.notes) setNotes(entry.notes);
-		if (entry.tags) setTags(entry.tags);
-		
+		if (entry.tags && entry.tags.length > 0) setTags(entry.tags);
+
+		// Activar el modo infinito
+		setInfiniteMode(true);
+
 		// Iniciar el temporizador
-		start();
-		
+		setTimeout(() => {
+			console.log('Iniciando timer...');
+			start();
+		}, 100);
+
 		// Limpiar la selección
 		setSelectedEntryId(null);
 	};
@@ -213,7 +232,8 @@ export const TimeEntryList = ({
 	const displayEntries = limit ? sortedEntries.slice(0, limit) : sortedEntries;
 
 	// Check if timer is active
-	const isTimerActive = timerStatus === 'running' || timerStatus === 'paused' || timerStatus === 'break';
+	const isTimerActive =
+		timerStatus === 'running' || timerStatus === 'paused' || timerStatus === 'break';
 
 	return (
 		<>
@@ -222,120 +242,140 @@ export const TimeEntryList = ({
 					const isSelected = selectedEntryId === entry.id;
 					const isHovered = hoveredEntryId === entry.id;
 					const projectColor = getProjectColor(entry.project);
-					
+
 					// Create darker variant of project color for selected state
 					const getDarkerColor = (hexColor: string, factor = 0.85) => {
 						// Convert hex to RGB
 						const r = parseInt(hexColor.slice(1, 3), 16);
 						const g = parseInt(hexColor.slice(3, 5), 16);
 						const b = parseInt(hexColor.slice(5, 7), 16);
-						
+
 						// Apply darkening factor
 						const darkerR = Math.floor(r * factor);
 						const darkerG = Math.floor(g * factor);
 						const darkerB = Math.floor(b * factor);
-						
+
 						// Convert back to hex
 						return `#${darkerR.toString(16).padStart(2, '0')}${darkerG.toString(16).padStart(2, '0')}${darkerB.toString(16).padStart(2, '0')}`;
 					};
-					
+
 					const darkerProjectColor = getDarkerColor(projectColor);
-					
+
 					return (
-					<div
-						key={entry.id}
-						className={`relative block bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm transition-all ${isTimerActive ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow bg-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.6)] dark:bg-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.4)]' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''}`}
-						onMouseEnter={() => setHoveredEntryId(entry.id)}
-						onMouseLeave={() => setHoveredEntryId(null)}
-					>
-						<div 
-							className="block cursor-pointer" 
-							onClick={(e) => handleEntryClick(entry, e)}
+						<div
+							key={entry.id}
+							className={`relative block bg-[rgb(var(--color-bg-inset))] rounded-lg p-2 shadow-sm transition-all ${isTimerActive ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow bg-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.6)] dark:bg-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.4)]' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''}`}
+							onMouseEnter={() => setHoveredEntryId(entry.id)}
+							onMouseLeave={() => setHoveredEntryId(null)}
 						>
-							<div className="flex items-center justify-between pr-16">
-								<div className="flex items-center min-w-0">
-									<div
-										className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
-										onClick={(e) => isSelected ? handlePlayClick(entry, e) : e.stopPropagation()}
-										style={isSelected ? {} : {backgroundColor: `${projectColor}20`}}
-									>
-										{isSelected ? (
-											<PlayIcon className="h-3.5 w-3.5 text-green-600 dark:text-green-300" />
-										) : (
-											<ClockIcon className="h-3.5 w-3.5" style={{color: projectColor}} />
-										)}
-									</div>
-									<div className="min-w-0 flex-1">
-										<div className="text-sm truncate">
-											<span 
-												className="font-bold dynamic-color"
-												style={{ 
-													color: isSelected ? darkerProjectColor : (isHovered ? projectColor : '')
-												}}
-											>
-												{getProjectName(entry.project)}
-											</span>
-											{entry.task && (
-												<span className="text-gray-600 dark:text-gray-400">
-													: {getTaskName(entry.task)}
-												</span>
+							<div
+								className="block cursor-pointer"
+								onClick={(e) => handleEntryClick(entry, e)}
+							>
+								<div className="flex items-center justify-between pr-16">
+									<div className="flex items-center min-w-0">
+										<div
+											className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
+											onClick={(e) =>
+												isSelected
+													? handlePlayClick(entry, e)
+													: e.stopPropagation()
+											}
+											style={
+												isSelected
+													? {}
+													: { backgroundColor: `${projectColor}20` }
+											}
+										>
+											{isSelected ? (
+												<PlayIcon className="h-3.5 w-3.5 text-green-600 dark:text-green-300" />
+											) : (
+												<ClockIcon
+													className="h-3.5 w-3.5"
+													style={{ color: projectColor }}
+												/>
 											)}
 										</div>
-										<div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-											{format(new Date(entry.startTime), 'MMM d, h:mm a')}
+										<div className="min-w-0 flex-1">
+											<div className="text-sm truncate">
+												<span
+													className="font-bold dynamic-color"
+													style={{
+														color: isSelected
+															? darkerProjectColor
+															: isHovered
+																? projectColor
+																: '',
+													}}
+												>
+													{getProjectName(entry.project)}
+												</span>
+												{entry.task && (
+													<span className="text-gray-600 dark:text-gray-400">
+														: {getTaskName(entry.task)}
+													</span>
+												)}
+											</div>
+											<div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+												{format(new Date(entry.startTime), 'MMM d, h:mm a')}
+											</div>
+										</div>
+									</div>
+									<div className="text-right">
+										<div
+											className="text-lg font-bold dynamic-color"
+											style={{
+												color: isSelected
+													? darkerProjectColor
+													: isHovered
+														? projectColor
+														: '',
+											}}
+										>
+											{formatDuration(entry.duration)}
 										</div>
 									</div>
 								</div>
-								<div className="text-right">
-									<div
-										className="text-lg font-bold dynamic-color"
-										style={{ 
-											color: isSelected ? darkerProjectColor : (isHovered ? projectColor : '')
-										}}
-									>
-										{formatDuration(entry.duration)}
+
+								{entry.tags && entry.tags.length > 0 && (
+									<div className="mt-1 flex flex-wrap gap-1 ml-9">
+										{getTagsForEntry(entry.tags).map((tag) => (
+											<span
+												key={tag.id}
+												className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs"
+												style={{
+													backgroundColor: `${tag.color}20`,
+													color: tag.color,
+													border: `1px solid ${tag.color}`,
+												}}
+											>
+												{tag.name}
+											</span>
+										))}
 									</div>
-								</div>
+								)}
 							</div>
 
-							{entry.tags && entry.tags.length > 0 && (
-								<div className="mt-1 flex flex-wrap gap-1 ml-9">
-									{getTagsForEntry(entry.tags).map((tag) => (
-										<span
-											key={tag.id}
-											className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs"
-											style={{
-												backgroundColor: `${tag.color}20`,
-												color: tag.color,
-												border: `1px solid ${tag.color}`,
-											}}
-										>
-											{tag.name}
-										</span>
-									))}
-								</div>
-							)}
+							<div className="absolute top-2 right-2 flex space-x-1">
+								<Link
+									to={`/time-entries/${entry.id}`}
+									className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-white dark:bg-gray-800 rounded"
+									title={t('common.edit')}
+									onClick={(e) => e.stopPropagation()}
+								>
+									<PencilIcon className="h-4 w-4" />
+								</Link>
+								<button
+									onClick={(e) => handleDeleteClick(entry.id, e)}
+									className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded"
+									title={t('common.delete')}
+								>
+									<TrashIcon className="h-4 w-4" />
+								</button>
+							</div>
 						</div>
-
-						<div className="absolute top-2 right-2 flex space-x-1">
-							<Link
-								to={`/time-entries/${entry.id}`}
-								className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-white dark:bg-gray-800 rounded"
-								title={t('common.edit')}
-								onClick={e => e.stopPropagation()}
-							>
-								<PencilIcon className="h-4 w-4" />
-							</Link>
-							<button
-								onClick={(e) => handleDeleteClick(entry.id, e)}
-								className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded"
-								title={t('common.delete')}
-							>
-								<TrashIcon className="h-4 w-4" />
-							</button>
-						</div>
-					</div>
-				)})}
+					);
+				})}
 
 				{limit && timeEntries.length > limit && (
 					<Link

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { showTimerNotification } from '../utils/notifications/TimerNotifications';
 import { timeEntryService } from '../services/timeEntryService';
+import { useTimeEntryStore } from './timeEntryStore';
 
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'break';
 export type TimerMode = 'work' | 'break';
@@ -20,6 +21,7 @@ interface TimerState {
 	tags: string[];
 	workStartTime: Date | null; // Track when the work period started
 	showCompletionModal: boolean; // Flag for completion modal
+	isInfiniteMode: boolean; // Flag for infinite mode
 
 	// Actions
 	start: (projectId?: string | null, taskId?: string | null) => void;
@@ -28,6 +30,7 @@ interface TimerState {
 	stop: () => void;
 	reset: () => void;
 	closeCompletionModal: () => void;
+	setInfiniteMode: (isInfinite: boolean) => void;
 
 	tick: (delta: number) => void;
 	setWorkDuration: (minutes: number) => void;
@@ -62,8 +65,15 @@ export const useTimerStore = create<TimerState>()(
 			tags: [],
 			workStartTime: null,
 			showCompletionModal: false,
+			isInfiniteMode: false,
 
-			start: (projectId = null, taskId = null) =>
+			setInfiniteMode: (isInfinite) => set({ isInfiniteMode }),
+
+			start: (projectId = null, taskId = null) => {
+				// Registramos la hora actual para calcular correctamente la duración
+				const now = new Date();
+				console.log("Timer start:", now);
+				
 				set((state) => {
 					if (state.status === 'idle' || state.status === 'paused') {
 						return {
@@ -71,12 +81,13 @@ export const useTimerStore = create<TimerState>()(
 							projectId: projectId || state.projectId,
 							taskId: taskId || state.taskId,
 							elapsed: state.status === 'paused' ? state.elapsed : 0,
-							workStartTime: state.mode === 'work' ? new Date() : state.workStartTime,
+							workStartTime: state.mode === 'work' ? now : state.workStartTime,
 							showCompletionModal: false
 						};
 					}
 					return state;
-				}),
+				});
+			},
 
 			pause: () =>
 				set((state) => {
@@ -97,11 +108,16 @@ export const useTimerStore = create<TimerState>()(
 			stop: async () => {
 				// Access current state in the callback
 				const state = get();
+				console.log("Stopping timer, state:", state);
 
 				// Only create a time entry if in work mode with a project selected
 				// and elapsed time is at least 1 second
 				if (state.mode === 'work' && state.projectId && state.elapsed >= 1000) {
-					await state.createTimeEntryFromWorkSession();
+					try {
+						await state.createTimeEntryFromWorkSession();
+					} catch (err) {
+						console.error("Error creating time entry:", err);
+					}
 				}
 
 				// Reset timer state
@@ -109,6 +125,7 @@ export const useTimerStore = create<TimerState>()(
 					status: 'idle',
 					elapsed: 0,
 					workStartTime: null,
+					isInfiniteMode: false,
 				});
 			},
 
@@ -123,7 +140,8 @@ export const useTimerStore = create<TimerState>()(
 					notes: '',
 					tags: [],
 					workStartTime: null,
-					showCompletionModal: false
+					showCompletionModal: false,
+					isInfiniteMode: false
 				})),
 
 			closeCompletionModal: () => set({ showCompletionModal: false }),
@@ -132,6 +150,11 @@ export const useTimerStore = create<TimerState>()(
 				set((state) => {
 					if (state.status === 'running') {
 						const newElapsed = state.elapsed + delta;
+						// If infinite mode is active in work mode, just keep counting
+						if (state.isInfiniteMode && state.mode === 'work') {
+							return { elapsed: newElapsed };
+						}
+						
 						const totalDuration =
 							state.mode === 'work'
 								? state.workDuration * 60 * 1000
@@ -257,9 +280,14 @@ export const useTimerStore = create<TimerState>()(
 				}
 
 				try {
+					// Usamos workStartTime si existe o calculamos desde elapsed
 					const startTime = state.workStartTime || new Date(Date.now() - state.elapsed);
 					const endTime = new Date();
+					console.log("Creating time entry with start:", startTime, "end:", endTime);
+					
 					let duration = endTime.getTime() - startTime.getTime();
+					
+					console.log("Raw duration calculated:", duration, "ms");
 					
 					// Round up to a full minute if between 59-60 seconds
 					const seconds = Math.floor(duration / 1000);
@@ -285,8 +313,8 @@ export const useTimerStore = create<TimerState>()(
 						tags: state.tags,
 					});
 
-					// Use the time entry store directly
-					await timeEntryService.createTimeEntry({
+					// Use the time entry service directly
+					const newTimeEntry = await timeEntryService.createTimeEntry({
 						project: state.projectId,
 						task: state.taskId || undefined,
 						startTime,
@@ -298,6 +326,15 @@ export const useTimerStore = create<TimerState>()(
 						tags: state.tags,
 						isRunning: false,
 					});
+
+					// Add the new entry to the timeEntryStore
+					try {
+						const timeEntryStore = useTimeEntryStore.getState();
+						timeEntryStore.addNewTimeEntry(newTimeEntry);
+						console.log("Time entry added to store successfully");
+					} catch (err) {
+						console.error("Failed to update time entry store:", err);
+					}
 
 					// Show notification for created time entry
 					showTimerNotification('timeEntry', {
@@ -315,6 +352,9 @@ export const useTimerStore = create<TimerState>()(
 			// Function to manually switch to the next phase (work -> break or break -> work)
 			switchToNext: () =>
 				set((state) => {
+					// Skip the confirmation modal for breaks
+					const isShortSession = state.elapsed < 60000;
+
 					// If we're in work mode, create time entry and switch to break
 					if (state.mode === 'work' && state.projectId) {
 						// Create time entry in the next tick
@@ -345,6 +385,7 @@ export const useTimerStore = create<TimerState>()(
 								elapsed: 0,
 								currentRepetition: nextRepetition,
 								workStartTime: new Date(),
+								isInfiniteMode: false,
 							};
 						}
 
@@ -353,6 +394,7 @@ export const useTimerStore = create<TimerState>()(
 							status: 'running',
 							elapsed: 0,
 							workStartTime: null,
+							isInfiniteMode: false,
 						};
 					}
 					// If we're in break mode
@@ -374,9 +416,10 @@ export const useTimerStore = create<TimerState>()(
 								elapsed: 0,
 								currentRepetition: state.currentRepetition + 1,
 								workStartTime: new Date(),
+								isInfiniteMode: false,
 							};
 						}
-						// If we've completed all repetitions, stop and show modal
+						// If we've completed all repetitions, start over
 						else {
 							setTimeout(() => {
 								showTimerNotification('complete', {
@@ -392,7 +435,8 @@ export const useTimerStore = create<TimerState>()(
 								elapsed: 0,
 								currentRepetition: 1,
 								workStartTime: null,
-								showCompletionModal: true
+								showCompletionModal: true,
+								isInfiniteMode: false,
 							};
 						}
 					}
@@ -411,6 +455,7 @@ export const useTimerStore = create<TimerState>()(
 						mode: 'break',
 						elapsed: 0,
 						workStartTime: null,
+						isInfiniteMode: false,
 					};
 				}),
 
@@ -421,6 +466,7 @@ export const useTimerStore = create<TimerState>()(
 					elapsed: 0,
 					currentRepetition: nextRepetition || 1,
 					workStartTime: new Date(),
+					isInfiniteMode: false,
 				})),
 		}),
 		{

@@ -102,7 +102,7 @@ export const ProjectTaskSelector = ({
 		<>
 			<button
 				onClick={openModal}
-				className="w-full p-3 text-left flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
+				className="w-full p-3 text-left flex justify-between items-center bg-white bg-[rgb(var(--color-bg-inset))] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
 			>
 				<div>
 					<div className="font-medium dynamic-color">

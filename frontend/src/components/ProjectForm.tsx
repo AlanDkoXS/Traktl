@@ -5,7 +5,6 @@ import { useProjectStore } from '../store/projectStore';
 import { useClientStore } from '../store/clientStore';
 import { Project } from '../types';
 import { toObjectIdOrUndefined } from '../utils/validationHelpers';
-import { setProjectColor } from '../utils/dynamicColors';
 
 interface ProjectFormProps {
 	project?: Project;
@@ -25,25 +24,6 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 	const [status, setStatus] = useState<'active' | 'archived'>(project?.status || 'active');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState('');
-
-	// Set project color for dynamic theming when editing
-	useEffect(() => {
-		if (project?.color) {
-			setProjectColor(project.color);
-		} else {
-			setProjectColor('#3b82f6'); // Default color
-		}
-		
-		return () => {
-			// Reset to default when unmounting
-			setProjectColor('#3b82f6');
-		};
-	}, [project]);
-
-	// Update dynamic color when color changes in the form
-	useEffect(() => {
-		setProjectColor(color);
-	}, [color]);
 
 	useEffect(() => {
 		fetchClients();
@@ -145,7 +125,7 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 						id="color"
 						value={color}
 						onChange={(e) => setColor(e.target.value)}
-						className="h-8 w-8 rounded-md border-gray-300 dark:border-gray-600"
+						className="h-8 w-8 p-0 rounded-md"
 					/>
 					<input
 						title="color"

@@ -43,7 +43,9 @@ export const UserMenu = () => {
 							<button
 								onClick={() => logout()}
 								className={`${
-									active ? 'bg-gray-100 dark:bg-[rgb(var(--color-bg-overlay))]' : ''
+									active
+										? 'bg-gray-100 dark:bg-[rgb(var(--color-bg-overlay))]'
+										: ''
 								} block w-full text-left p-4 text-sm text-gray-700 dark:text-[rgb(var(--color-fg-default))]`}
 							>
 								{t('auth.signOut')}

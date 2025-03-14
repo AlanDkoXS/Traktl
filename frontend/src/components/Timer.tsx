@@ -13,7 +13,6 @@ import { PresetSelector } from './timer/PresetSelector';
 import { ActivityHeatmap } from './timer/ActivityHeatmap';
 import { NotificationManager } from './timer/NotificationManager';
 import { TimerPreset } from '../types';
-import { useTimeEntryStore } from '../store/timeEntryStore';
 import {
    requestNotificationPermission,
    checkNotificationPermission,
@@ -38,6 +37,7 @@ export const Timer = () => {
    	taskId,
    	notes,
    	tags: selectedTags,
+   	isInfiniteMode,
 
    	start,
    	pause,
@@ -124,13 +124,25 @@ export const Timer = () => {
    				<h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
    					{mode === 'work' ? t('timer.workTime') : t('timer.breakTime')}
    				</h2>
-   				<div className="text-sm text-gray-500 dark:text-gray-400">
-   					{t('timer.session')} {currentRepetition}/{repetitions}
-   				</div>
+   				{!isInfiniteMode && (
+   					<div className="text-sm text-gray-500 dark:text-gray-400">
+   						{t('timer.session')} {currentRepetition}/{repetitions}
+   					</div>
+   				)}
+   				{isInfiniteMode && (
+   					<div className="text-sm text-gray-500 dark:text-gray-400">
+   						{t('timer.infiniteMode', 'Infinite Mode')}
+   					</div>
+   				)}
    			</div>
 
    			{/* Timer Display */}
-   			<TimerDisplay progress={progress} formattedTime={formattedTime} mode={mode} />
+   			<TimerDisplay 
+          progress={progress} 
+          formattedTime={formattedTime} 
+          mode={mode}
+          isInfiniteMode={isInfiniteMode}
+        />
 
    			{/* Timer Controls */}
    			<TimerControls
@@ -142,6 +154,7 @@ export const Timer = () => {
    				stop={stop}
    				skipToNext={skipToNext}
    				projectId={projectId}
+   				isInfiniteMode={isInfiniteMode}
    			/>
 
    			{/* Project & Task Selection (only visible when idle) */}

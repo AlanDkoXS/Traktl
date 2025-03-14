@@ -11,6 +11,7 @@ interface TimerControlsProps {
   stop: () => void;
   skipToNext: () => void;
   projectId: string | null;
+  isInfiniteMode: boolean;
 }
 
 export const TimerControls = ({ 
@@ -21,52 +22,22 @@ export const TimerControls = ({
   resume, 
   stop, 
   skipToNext,
-  projectId
+  projectId,
+  isInfiniteMode
 }: TimerControlsProps) => {
   const { t } = useTranslation();
-  const [showShortSessionModal, setShowShortSessionModal] = useState(false);
   const [showShortStopModal, setShowShortStopModal] = useState(false);
-  const [modalAction, setModalAction] = useState<'next' | 'stop'>('next');
-
-  const handleSkipToNext = () => {
-    // If session is shorter than a minute, show confirmation modal
-    if (status === 'running' && elapsed < 60000) {
-      setModalAction('next');
-      setShowShortSessionModal(true);
-      return;
-    }
-    
-    // Otherwise proceed normally
-    skipToNext();
-  };
 
   const handleStop = () => {
-    // If session is shorter than a minute, show confirmation modal
-    if (status === 'running' && elapsed < 60000) {
-      setModalAction('stop');
-      setShowShortStopModal(true);
+    // Si estamos en modo infinito o si la sesión es más larga que un minuto,
+    // detenemos directamente sin mostrar confirmación
+    if (isInfiniteMode || elapsed >= 60000) {
+      stop();
       return;
     }
     
-    // Otherwise proceed normally
-    stop();
-  };
-
-  const handleConfirmShortSession = () => {
-    if (modalAction === 'next') {
-      skipToNext();
-    } else {
-      stop();
-    }
-    setShowShortSessionModal(false);
-  };
-
-  const handleCancelShortSession = () => {
-    if (modalAction === 'next') {
-      // If cancel on next, stop the timer
-      stop();
-    }
-    setShowShortSessionModal(false);
+    // Solo mostrar confirmación para sesiones cortas (no en modo infinito)
+    setShowShortStopModal(true);
   };
 
   const handleConfirmShortStop = () => {
@@ -109,16 +80,19 @@ export const TimerControls = ({
               </svg>
             </button>
 
-            <button
-              onClick={handleSkipToNext}
-              className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle hover:opacity-90 transition-opacity shadow-sm"
-              title={t('timer.skipToNext')}
-            >
-              {/* Simple Skip Icon */}
-              <svg className="w-7 h-7 dynamic-color" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
-              </svg>
-            </button>
+            {/* Mostrar el botón de "Siguiente" solo si NO estamos en modo infinito */}
+            {!isInfiniteMode && (
+              <button
+                onClick={skipToNext}
+                className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle hover:opacity-90 transition-opacity shadow-sm"
+                title={t('timer.skipToNext')}
+              >
+                {/* Simple Skip Icon */}
+                <svg className="w-7 h-7 dynamic-color" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+                </svg>
+              </button>
+            )}
             
             <button
               onClick={handleStop}
@@ -146,16 +120,19 @@ export const TimerControls = ({
               </svg>
             </button>
 
-            <button
-              onClick={handleSkipToNext}
-              className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle hover:opacity-90 transition-opacity shadow-sm"
-              title={t('timer.skipToNext')}
-            >
-              {/* Simple Skip Icon */}
-              <svg className="w-7 h-7 dynamic-color" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
-              </svg>
-            </button>
+            {/* Mostrar el botón de "Siguiente" solo si NO estamos en modo infinito */}
+            {!isInfiniteMode && (
+              <button
+                onClick={skipToNext}
+                className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle hover:opacity-90 transition-opacity shadow-sm"
+                title={t('timer.skipToNext')}
+              >
+                {/* Simple Skip Icon */}
+                <svg className="w-7 h-7 dynamic-color" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+                </svg>
+              </button>
+            )}
             
             <button
               onClick={handleStop}
@@ -183,8 +160,9 @@ export const TimerControls = ({
               </svg>
             </button>
 
+            {/* Siempre mostrar el botón de "Siguiente" en modo break */}
             <button
-              onClick={handleSkipToNext}
+              onClick={skipToNext}
               className="w-14 h-14 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 hover:opacity-90 transition-opacity shadow-sm"
               title={t('timer.skipToNext')}
             >
@@ -207,19 +185,6 @@ export const TimerControls = ({
           </>
         )}
       </div>
-
-      {/* Short session modal for Next button */}
-      <ConfirmModal
-        isOpen={showShortSessionModal}
-        title={t('timeEntries.shortTimeTitle', 'Short Session')}
-        message={t('timeEntries.shortTimeMessage', 'This session is less than a minute long. Do you still want to save it?')}
-        confirmButtonText={t('common.yes')}
-        cancelButtonText={t('common.no')}
-        onConfirm={handleConfirmShortSession}
-        onCancel={handleCancelShortSession}
-        isLoading={false}
-        danger={false}
-      />
 
       {/* Short session modal for Stop button */}
       <ConfirmModal

@@ -151,7 +151,7 @@
         "entryCreated": "Se ha registrado una entrada de tiempo de {{duration}} minutos",
         "deleteConfirmation": "¿Estás seguro de que quieres eliminar el registro de tiempo? Esta acción no se puede deshacer.",
         "shortTimeTitle": "Entrada de Tiempo Corta",
-        "shortTimeMessage": "Esta entrada de tiempo es menor a un minuto. ¿Aún deseas utilizarla como plantilla para una nueva sesión del temporizador?"
+        "shortTimeMessage": "Esta entrada de tiempo es menor a un minuto. ¿Aún deseas guardarla?"
     },
     "tags": {
         "title": "Etiquetas",

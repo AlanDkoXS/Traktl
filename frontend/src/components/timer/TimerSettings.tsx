@@ -44,7 +44,7 @@ export const TimerSettings = ({
 	};
 
 	return (
-		<div className="mt-8 p-5 rounded-lg shadow-sm">
+		<div className="mt-8 rounded-lg shadow-sm">
 			<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 				{t('timer.settings')}
 			</h3>

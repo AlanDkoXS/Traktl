@@ -20,6 +20,7 @@ export const useTimer = () => {
 		workStartTime,
 		showCompletionModal,
 		closeCompletionModal,
+		isInfiniteMode,
 
 		tick,
 		start,
@@ -28,6 +29,7 @@ export const useTimer = () => {
 		stop,
 		reset,
 		switchToNext,
+		setInfiniteMode,
 
 		setWorkDuration,
 		setBreakDuration,
@@ -67,14 +69,24 @@ export const useTimer = () => {
 		};
 	}, [status, tick]);
 
-	// Calculate remaining time
-	const remainingTime =
-		mode === 'work'
+	// Calculate remaining time - Si estamos en modo infinito, no hay tiempo restante
+	const remainingTime = isInfiniteMode && mode === 'work' 
+		? elapsed
+		: mode === 'work'
 			? Math.max(0, workDuration * 60 * 1000 - elapsed)
 			: Math.max(0, breakDuration * 60 * 1000 - elapsed);
 
 	// Format time for display (mm:ss)
 	const formatTime = (milliseconds: number): string => {
+		// En modo infinito, mostrar el tiempo transcurrido
+		if (isInfiniteMode && mode === 'work') {
+			const totalSeconds = Math.floor(milliseconds / 1000);
+			const minutes = Math.floor(totalSeconds / 60);
+			const seconds = totalSeconds % 60;
+			return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+		}
+		
+		// Normal mode - formato tiempo restante
 		const totalSeconds = Math.floor(milliseconds / 1000);
 		const minutes = Math.floor(totalSeconds / 60);
 		const seconds = totalSeconds % 60;
@@ -108,7 +120,7 @@ export const useTimer = () => {
 		mode,
 		elapsed,
 		remainingTime,
-		formattedTime: formatTime(remainingTime),
+		formattedTime: formatTime(isInfiniteMode && mode === 'work' ? elapsed : remainingTime),
 		progress,
 		workDuration,
 		breakDuration,
@@ -121,6 +133,7 @@ export const useTimer = () => {
 		workStartTime,
 		showCompletionModal,
 		closeCompletionModal,
+		isInfiniteMode,
 
 		start,
 		pause,
@@ -129,6 +142,7 @@ export const useTimer = () => {
 		reset,
 		skipToNext,
 		createTimeEntryOnCompletion: createTimeEntryFromWorkSession,
+		setInfiniteMode,
 
 		setWorkDuration,
 		setBreakDuration,

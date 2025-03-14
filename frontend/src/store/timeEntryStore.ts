@@ -25,6 +25,7 @@ interface TimeEntryState {
 	deleteTimeEntry: (id: string) => Promise<void>;
 	selectTimeEntry: (timeEntry: TimeEntry | null) => void;
 	clearSelectedTimeEntry: () => void;
+	addNewTimeEntry: (timeEntry: TimeEntry) => void;
 }
 
 export const useTimeEntryStore = create<TimeEntryState>((set, get) => ({
@@ -36,19 +37,6 @@ export const useTimeEntryStore = create<TimeEntryState>((set, get) => ({
 	fetchTimeEntries: async (projectId, taskId, startDate, endDate) => {
 	  console.log('fetchTimeEntries called with params:', { projectId, taskId, startDate, endDate });
     try {
-      // Avoid redundant API calls by checking if we already have entries
-      // Only fetch if certain conditions (like new filters) are applied
-      const shouldFetch = projectId !== undefined || 
-                       taskId !== undefined || 
-                       startDate !== undefined || 
-                       endDate !== undefined || 
-                       get().timeEntries.length === 0;
-                       
-      if (!shouldFetch && !get().isLoading) {
-        console.log('Skipping fetch as we already have time entries and no filters applied');
-        return get().timeEntries;
-      }
-      
       set({ isLoading: true, error: null });
 
       // Ensure dates are properly formatted
@@ -165,5 +153,12 @@ export const useTimeEntryStore = create<TimeEntryState>((set, get) => ({
 
 	clearSelectedTimeEntry: () => {
 		set({ selectedTimeEntry: null });
+	},
+	
+	// Nuevo método para añadir una entrada directamente al store sin fetch
+	addNewTimeEntry: (timeEntry) => {
+		set((state) => ({
+			timeEntries: [timeEntry, ...state.timeEntries]
+		}));
 	},
 }));
