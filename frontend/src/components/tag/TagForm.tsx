@@ -65,7 +65,7 @@ export const TagForm = ({ tag, isEditing = false }: TagFormProps) => {
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
           required
         />
       </div>
@@ -90,7 +90,7 @@ export const TagForm = ({ tag, isEditing = false }: TagFormProps) => {
             type="text"
             value={color}
             onChange={(e) => setColor(e.target.value)}
-            className="ml-2 block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+            className="ml-2 block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
           />
         </div>
       </div>

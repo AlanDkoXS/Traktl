@@ -10,8 +10,8 @@ export const CreateProject = () => {
 				{t('projects.new')}
 			</h1>
 
-			<div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-				<div className="padding-x-4 py-5 sm:p-6">
+			<div className="card-project">
+				<div className="px-4 py-5 sm:p-6">
 					<ProjectForm />
 				</div>
 			</div>

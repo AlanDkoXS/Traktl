@@ -26,6 +26,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	const [cellSize, setCellSize] = useState(10);
 	const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 	const [tooltipData, setTooltipData] = useState<{x: number, y: number, data: any} | null>(null);
+	const [hoveredDay, setHoveredDay] = useState<string | null>(null);
 
 	// Handle responsive behavior
 	useEffect(() => {
@@ -144,30 +145,37 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	const totalMinutesToday = todaysPieData.reduce((sum, item) => sum + item.value, 0);
 
 	// Get color based on activity level (GitHub style)
-	const getActivityColor = (minutes: number) => {
-		if (minutes === 0) return 'bg-gray-100 dark:bg-gray-700';
+	const getActivityColor = (minutes: number, isHovered: boolean) => {
+		if (minutes === 0) return isHovered 
+			? 'bg-gray-200 dark:bg-gray-600' 
+			: 'bg-gray-100 dark:bg-gray-700';
 
-		if (minutes <= maxActivity * 0.15) return 'bg-green-100 dark:bg-green-900';
-		if (minutes <= maxActivity * 0.4) return 'bg-green-300 dark:bg-green-700';
-		if (minutes <= maxActivity * 0.7) return 'bg-green-500 dark:bg-green-500';
-		return 'bg-green-700 dark:bg-green-300';
+		const baseColor = 'var(--color-project-hue), var(--color-project-saturation)';
+		
+		if (minutes <= maxActivity * 0.15) return isHovered 
+			? `bg-[hsl(${baseColor},85%)] dark:bg-[hsl(${baseColor},25%)]` 
+			: `bg-[hsl(${baseColor},90%)] dark:bg-[hsl(${baseColor},20%)]`;
+			
+		if (minutes <= maxActivity * 0.4) return isHovered 
+			? `bg-[hsl(${baseColor},65%)] dark:bg-[hsl(${baseColor},40%)]` 
+			: `bg-[hsl(${baseColor},75%)] dark:bg-[hsl(${baseColor},35%)]`;
+			
+		if (minutes <= maxActivity * 0.7) return isHovered 
+			? `bg-[hsl(${baseColor},50%)] dark:bg-[hsl(${baseColor},45%)]` 
+			: `bg-[hsl(${baseColor},60%)] dark:bg-[hsl(${baseColor},40%)]`;
+			
+		return isHovered 
+			? `bg-[hsl(${baseColor},35%)] dark:bg-[hsl(${baseColor},60%)]` 
+			: `bg-[hsl(${baseColor},40%)] dark:bg-[hsl(${baseColor},55%)]`;
 	};
 	
 	// Get color based on position in the array (highest gets lightest color)
-	const getPieColorForIndex = (index: number, totalItems: number) => {
-		// Colors from least percentage to most percentage
-		const colors = [
-			'#6B7280',  // gray-500 (medium gray, for smallest percentages)
-			'#047857',  // green-700 (darkest green)
-			'#10B981',  // green-500 (medium green)
-			'#6EE7B7',  // green-300
-			'#D1FAE5'   // green-100 (lightest green, for highest percentages)
-		];
+	const getPieColorForIndex = (index: number, totalItems: number, color: string) => {
+		// Use project color if available
+		if (color && color !== '#ccc') return color;
 		
-		// Invert the index to get darkest for lowest and lightest for highest
-		const invertedIndex = totalItems - index - 1;
-		const colorIndex = Math.min(Math.floor((invertedIndex / totalItems) * colors.length), colors.length - 1);
-		return colors[colorIndex];
+		// Otherwise use dynamic color
+		return `hsl(var(--color-project-hue), var(--color-project-saturation), ${40 + (index * 30 / totalItems)}%)`;
 	};
 
 	const daysTranslation = {
@@ -205,11 +213,11 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		});
 		
 		return (
-			<div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md border border-gray-200 dark:border-gray-700 text-xs">
+			<div className="bg-white dark:bg-[rgb(var(--color-bg-overlay))] p-2 rounded-md shadow-md border border-gray-200 dark:border-[rgb(var(--color-border-primary))] text-xs">
 				<div className="font-medium">{date}</div>
-				<div className="text-gray-700 dark:text-gray-300">{minutes} min total</div>
+				<div className="text-gray-700 dark:text-[rgb(var(--color-fg-default))]">{minutes} min total</div>
 				{Object.entries(dayProjects).length > 0 && (
-					<div className="mt-1 border-t border-gray-200 dark:border-gray-700 pt-1">
+					<div className="mt-1 border-t border-gray-200 dark:border-[rgb(var(--color-border-primary))] pt-1">
 						{Object.entries(dayProjects).map(([project, mins]) => (
 							<div key={project} className="flex justify-between">
 								<span>{project}:</span>
@@ -245,11 +253,11 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 				
 			return (
 				<div 
-					className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md border border-gray-200 dark:border-gray-700 text-xs" 
+					className="bg-white dark:bg-[rgb(var(--color-bg-overlay))] p-2 rounded-md shadow-md border border-gray-200 dark:border-[rgb(var(--color-border-primary))] text-xs" 
 					style={style}
 				>
-					<p className="font-medium">{data.name}</p>
-					<p className="text-gray-700 dark:text-gray-300">
+					<p className="font-medium dynamic-color">{data.name}</p>
+					<p className="text-gray-700 dark:text-[rgb(var(--color-fg-default))]">
 						{data.value} min ({Math.round(data.percent * 100)}%)
 					</p>
 				</div>
@@ -317,7 +325,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			<div className="flex flex-col sm:flex-row gap-6">
 				{/* Today's Projects Pie Chart - Now first */}
 				<div className="w-full sm:w-1/3">
-					<h3 className="text-xs font-medium text-gray-900 dark:text-white mb-1 text-center">
+					<h3 className="text-xs font-medium text-gray-900 dark:text-white mb-1 text-center dynamic-color">
 						{format(new Date(), 'MMM d')}
 					</h3>
 
@@ -342,7 +350,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 											{todaysPieData.map((entry, index) => (
 												<Cell 
 													key={`cell-${index}`} 
-													fill={getPieColorForIndex(index, todaysPieData.length)} 
+													fill={getPieColorForIndex(index, todaysPieData.length, entry.color)} 
 												/>
 											))}
 										</Pie>
@@ -357,7 +365,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 							</div>
 						</>
 					) : (
-						<div className="flex items-center justify-center h-32 w-full bg-gray-50 dark:bg-gray-800 rounded-md">
+						<div className="flex items-center justify-center h-32 w-full bg-gray-50 dark:bg-[rgb(var(--color-bg-inset))] rounded-md">
 							<p className="text-xs text-gray-500 dark:text-gray-400 text-center">
 								{t('dashboard.noDataToday')}
 							</p>
@@ -423,14 +431,18 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 												/>
 											);
 											
+											const isHovered = hoveredDay === `${dayOfWeek}-${colIndex}`;
 											return (
 												<div
 													key={`cell-${dayOfWeek}-${colIndex}`}
-													className={`${getActivityColor(day.activity)} rounded-sm relative group`}
+													className={`${getActivityColor(day.activity, isHovered)} rounded-sm relative group transition-colors`}
 													style={{
 														width: `${cellSize}px`,
 														height: `${cellSize}px`,
+														outline: day.isToday ? '2px solid var(--color-primary-500)' : 'none',
 													}}
+													onMouseEnter={() => setHoveredDay(`${dayOfWeek}-${colIndex}`)}
+													onMouseLeave={() => setHoveredDay(null)}
 												>
 													<div className="hidden group-hover:block absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 whitespace-nowrap">
 														{renderTooltip(day)}
@@ -443,15 +455,15 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 							</div>
 						</div>
 
-						{/* Legend - Centered horizontally */}
+						{/* Legend - Modified to use dynamic colors */}
 						<div className="flex items-center mt-4 justify-center text-gray-500 dark:text-gray-400" style={{ fontSize: '9px' }}>
 							<span>{t('dashboard.less')}</span>
 							<div className="flex mx-2 space-x-1 items-center">
 								<div className="h-2 w-2 bg-gray-100 dark:bg-gray-700 rounded-sm"></div>
-								<div className="h-2.5 w-2.5 bg-green-100 dark:bg-green-900 rounded-sm"></div>
-								<div className="h-3 w-3 bg-green-300 dark:bg-green-700 rounded-sm"></div>
-								<div className="h-3.5 w-3.5 bg-green-500 dark:bg-green-500 rounded-sm"></div>
-								<div className="h-4 w-4 bg-green-700 dark:bg-green-300 rounded-sm"></div>
+								<div className="h-2.5 w-2.5 bg-[hsl(var(--color-project-hue),var(--color-project-saturation),90%)] dark:bg-[hsl(var(--color-project-hue),var(--color-project-saturation),20%)] rounded-sm"></div>
+								<div className="h-3 w-3 bg-[hsl(var(--color-project-hue),var(--color-project-saturation),75%)] dark:bg-[hsl(var(--color-project-hue),var(--color-project-saturation),35%)] rounded-sm"></div>
+								<div className="h-3.5 w-3.5 bg-[hsl(var(--color-project-hue),var(--color-project-saturation),60%)] dark:bg-[hsl(var(--color-project-hue),var(--color-project-saturation),40%)] rounded-sm"></div>
+								<div className="h-4 w-4 bg-[hsl(var(--color-project-hue),var(--color-project-saturation),40%)] dark:bg-[hsl(var(--color-project-hue),var(--color-project-saturation),55%)] rounded-sm"></div>
 							</div>
 							<span>{t('dashboard.more')}</span>
 						</div>

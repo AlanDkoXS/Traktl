@@ -55,7 +55,7 @@ export const EditClient = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 dynamic-border"></div>
         <span className="ml-2">{t('common.loading')}</span>
       </div>
     );
@@ -77,7 +77,7 @@ export const EditClient = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
           {t('clients.edit')}
         </h1>
         <button
@@ -89,7 +89,7 @@ export const EditClient = () => {
         </button>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+      <div className="card-project">
         <div className="px-4 py-5 sm:p-6">
           <ClientForm client={selectedClient} isEditing />
         </div>

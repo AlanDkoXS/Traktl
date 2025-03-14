@@ -61,7 +61,7 @@ export const StickyTimer = () => {
 			style={{
 				transform: 'translateX(-50%)',
 				width: 'min(800px, 90vw)',
-				top: '10vh',
+				bottom: '5vh',
 			}}
 		>
 			<div className="flex flex-col w-full">
@@ -75,7 +75,7 @@ export const StickyTimer = () => {
 									: t('timer.paused')
 								: t('timer.breakTime')}
 						</span>
-						<span className="text-2xl font-mono font-bold ml-6 text-gray-800 dark:text-white">
+						<span className="text-2xl font-mono font-bold ml-6 dynamic-color">
 							{formattedTime}
 						</span>
 					</div>

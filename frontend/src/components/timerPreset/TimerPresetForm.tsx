@@ -77,7 +77,7 @@ export const TimerPresetForm = ({ timerPreset, isEditing = false }: TimerPresetF
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
           required
         />
       </div>
@@ -95,7 +95,7 @@ export const TimerPresetForm = ({ timerPreset, isEditing = false }: TimerPresetF
           value={workDuration}
           onChange={(e) => setWorkDuration(parseInt(e.target.value))}
           min={1}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
           required
         />
       </div>
@@ -112,8 +112,8 @@ export const TimerPresetForm = ({ timerPreset, isEditing = false }: TimerPresetF
           id="breakDuration"
           value={breakDuration}
           onChange={(e) => setBreakDuration(parseInt(e.target.value))}
-          min={1}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+          min={0}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
           required
         />
       </div>
@@ -131,7 +131,7 @@ export const TimerPresetForm = ({ timerPreset, isEditing = false }: TimerPresetF
           value={repetitions}
           onChange={(e) => setRepetitions(parseInt(e.target.value))}
           min={1}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
           required
         />
       </div>

@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useClientStore } from '../store/clientStore';
 import { Link } from 'react-router-dom';
+import { PencilIcon } from '@heroicons/react/24/outline';
+import { setProjectColor, resetProjectColor } from '../utils/dynamicColors';
 
 export const ClientList = () => {
   const { t } = useTranslation();
   const { clients, isLoading, error, fetchClients } = useClientStore();
   const [retryCount, setRetryCount] = useState(0);
+  const [hoveredClientId, setHoveredClientId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadClients = async () => {
@@ -18,7 +21,22 @@ export const ClientList = () => {
     };
     
     loadClients();
+    
+    // Reset color on unmount
+    return () => resetProjectColor();
   }, [fetchClients, retryCount]);
+  
+  // Handle hover effect with dynamic colors
+  useEffect(() => {
+    if (hoveredClientId) {
+      const client = clients.find(c => c.id === hoveredClientId);
+      if (client?.color) {
+        setProjectColor(client.color);
+      }
+    } else {
+      resetProjectColor();
+    }
+  }, [hoveredClientId, clients]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
@@ -61,38 +79,45 @@ export const ClientList = () => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-      <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-        {clients.map((client) => (
-          <li key={client.id}>
-            <Link
-              to={`/clients/${client.id}`}
-              className="block hover:bg-gray-50 dark:hover:bg-gray-700"
-            >
-              <div className="px-4 py-4 flex items-center sm:px-6">
-                <div className="min-w-0 flex-1 flex items-center">
-                  <div
-                    className="flex-shrink-0 h-4 w-4 rounded-full"
-                    style={{ backgroundColor: client.color }}
-                  />
-                  <div className="min-w-0 flex-1 px-4">
-                    <div>
-                      <p className="text-sm font-medium text-primary-600 dark:text-primary-400 truncate">
-                        {client.name}
-                      </p>
-                      {client.contactInfo && (
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 truncate">
-                          {client.contactInfo}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {clients.map((client) => (
+        <Link
+          key={client.id}
+          to={`/clients/${client.id}`}
+          className="block transition-all duration-200 hover:shadow-md group"
+          onMouseEnter={() => setHoveredClientId(client.id)}
+          onMouseLeave={() => setHoveredClientId(null)}
+        >
+          <div className="card h-full border border-gray-200 dark:border-[rgb(var(--color-border-primary))] flex flex-col">
+            <div 
+              className="h-3 w-full rounded-t-lg" 
+              style={{ backgroundColor: client.color }}
+            ></div>
+            <div className="p-4 flex-1 flex flex-col">
+              <div className="flex items-start justify-between">
+                <h3 className={`text-lg font-medium ${hoveredClientId === client.id ? 'dynamic-color' : 'text-gray-900 dark:text-white'}`}>
+                  {client.name}
+                </h3>
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <PencilIcon className="h-4 w-4 text-gray-400" />
                 </div>
               </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
+              {client.contactInfo && (
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 flex-1">
+                  {client.contactInfo.length > 100 
+                    ? client.contactInfo.substring(0, 97) + '...' 
+                    : client.contactInfo}
+                </p>
+              )}
+              <div className="mt-4 pt-2 border-t border-gray-100 dark:border-gray-700">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('projects.title')}: {client.projects?.length || 0}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
+      ))}
     </div>
   );
 };

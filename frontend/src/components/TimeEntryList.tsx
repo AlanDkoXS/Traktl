@@ -10,6 +10,7 @@ import { TrashIcon, PencilIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/
 import { ConfirmModal } from './ui/ConfirmModal';
 import { useTimerStore } from '../store/timerStore';
 import { TimeEntry } from '../types';
+import { setProjectColor, resetProjectColor } from '../utils/dynamicColors';
 
 interface TimeEntryListProps {
 	projectId?: string;
@@ -47,6 +48,7 @@ export const TimeEntryList = ({
 	const [deleteLoading, setDeleteLoading] = useState(false);
 	const [dataInitialized, setDataInitialized] = useState(false);
 	const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
+	const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
 
 	// Initial data load
 	useEffect(() => {
@@ -83,6 +85,34 @@ export const TimeEntryList = ({
 			refreshData();
 		}
 	}, [timerStatus, workStartTime]);
+	
+	// Set project color on hover
+	useEffect(() => {
+		if (hoveredEntryId) {
+			const entry = timeEntries.find(e => e.id === hoveredEntryId);
+			if (entry) {
+				const project = projects.find(p => p.id === entry.project);
+				if (project?.color) {
+					setProjectColor(project.color);
+				}
+			}
+		} else {
+			// Reset to default when not hovering over any entry
+			if (projectId) {
+				const project = projects.find(p => p.id === projectId);
+				if (project?.color) {
+					setProjectColor(project.color);
+				}
+			} else {
+				resetProjectColor();
+			}
+		}
+		
+		return () => {
+			// Clean up on unmount
+			resetProjectColor();
+		};
+	}, [hoveredEntryId, timeEntries, projects, projectId]);
 
 	// Format duration with hours, minutes, and seconds
 	const formatDuration = (milliseconds: number) => {
@@ -116,6 +146,11 @@ export const TimeEntryList = ({
 
 	const getTagsForEntry = (tagIds: string[]) => {
 		return tags.filter((tag) => tagIds.includes(tag.id));
+	};
+	
+	const getProjectColor = (projectId: string) => {
+		const project = projects.find(p => p.id === projectId);
+		return project?.color || '#3b82f6';
 	};
 
 	const handleDeleteClick = (entryId: string, e: React.MouseEvent) => {
@@ -212,10 +247,17 @@ export const TimeEntryList = ({
 	return (
 		<>
 			<div className="space-y-2">
-				{displayEntries.map((entry) => (
+				{displayEntries.map((entry) => {
+					const isHovered = hoveredEntryId === entry.id;
+					const isSelected = selectedEntryId === entry.id;
+					const projectColor = getProjectColor(entry.project);
+					
+					return (
 					<div
 						key={entry.id}
-						className={`relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors ${isTimerActive ? 'opacity-60 pointer-events-none' : ''} ${selectedEntryId === entry.id ? 'bg-gray-50 dark:bg-gray-700 border-primary-300 dark:border-primary-700' : ''}`}
+						className={`relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors ${isTimerActive ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'bg-gray-50 dark:bg-gray-700 border-primary-300 dark:border-primary-700' : ''}`}
+						onMouseEnter={() => setHoveredEntryId(entry.id)}
+						onMouseLeave={() => setHoveredEntryId(null)}
 					>
 						<div 
 							className="block cursor-pointer" 
@@ -224,18 +266,19 @@ export const TimeEntryList = ({
 							<div className="flex items-center justify-between pr-16">
 								<div className="flex items-center min-w-0">
 									<div
-										className={`flex-shrink-0 h-7 w-7 ${selectedEntryId === entry.id ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2 cursor-pointer`}
-										onClick={(e) => selectedEntryId === entry.id ? handlePlayClick(entry, e) : e.stopPropagation()}
+										className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
+										onClick={(e) => isSelected ? handlePlayClick(entry, e) : e.stopPropagation()}
+										style={isSelected ? {} : isHovered ? {backgroundColor: `${projectColor}20`} : {}}
 									>
-										{selectedEntryId === entry.id ? (
+										{isSelected ? (
 											<PlayIcon className="h-3.5 w-3.5 text-green-600 dark:text-green-300" />
 										) : (
-											<ClockIcon className="h-3.5 w-3.5 text-gray-600 dark:text-gray-300" />
+											<ClockIcon className="h-3.5 w-3.5 text-gray-600 dark:text-gray-300" style={isHovered ? {color: projectColor} : {}} />
 										)}
 									</div>
 									<div className="min-w-0 flex-1">
 										<div className="text-sm truncate">
-											<span className="font-bold text-gray-900 dark:text-white">
+											<span className={`font-bold ${isHovered || isSelected ? 'dynamic-color' : 'text-gray-900 dark:text-white'}`}>
 												{getProjectName(entry.project)}
 											</span>
 											{entry.task && (
@@ -251,7 +294,7 @@ export const TimeEntryList = ({
 								</div>
 								<div className="text-right">
 									<div
-										className={`text-lg font-bold text-gray-900 dark:text-white`}
+										className={`text-lg font-bold ${isHovered || isSelected ? 'dynamic-color' : 'text-gray-900 dark:text-white'}`}
 									>
 										{formatDuration(entry.duration)}
 									</div>
@@ -295,12 +338,12 @@ export const TimeEntryList = ({
 							</button>
 						</div>
 					</div>
-				))}
+				)})}
 
 				{limit && timeEntries.length > limit && (
 					<Link
 						to="/time-entries"
-						className="block text-center text-sm text-primary-600 dark:text-primary-400 hover:underline p-2"
+						className="block text-center text-sm dynamic-color hover:underline p-2"
 					>
 						{t('common.viewAll')} ({timeEntries.length})
 					</Link>

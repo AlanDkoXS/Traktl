@@ -42,7 +42,7 @@ export const Dashboard = () => {
 
 	return (
 		<div className="max-w-7xl mx-auto">
-			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6 dynamic-color">
 				{t('nav.dashboard')}
 			</h1>
 
@@ -86,8 +86,8 @@ export const Dashboard = () => {
 							</div>
 
 							{/* Quick links */}
-							<div className="card">
-								<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+							<div className="card-project">
+								<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 									{t('dashboard.quickLinks')}
 								</h3>
 								<nav className="space-y-1">
@@ -128,13 +128,23 @@ const StatsCard = ({ title, count, link }) => {
 	return (
 		<Link 
 			to={link} 
-			className="card p-4 hover:shadow-md transition-shadow flex flex-col h-full group"
+			className="card p-4 hover:shadow-md transition-shadow flex flex-col h-full group rounded-lg 
+				dark:bg-none dark:bg-gradient-to-br dark:from-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.4),15%)] 
+				dark:to-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),8%)]"
+			style={{
+                background: `linear-gradient(135deg, 
+                    hsl(var(--color-project-hue), calc(var(--color-project-saturation) * 0.4), 95%) 0%, 
+                    hsl(var(--color-project-hue), calc(var(--color-project-saturation) * 0.6), 98%) 100%)`,
+                backgroundImage: `linear-gradient(135deg, 
+                    hsl(var(--color-project-hue), calc(var(--color-project-saturation) * 0.4), 95%) 0%, 
+                    hsl(var(--color-project-hue), calc(var(--color-project-saturation) * 0.6), 98%) 100%)`,
+            }}
 		>
 			<div className="flex flex-col h-full">
 				<div className="font-medium text-gray-500 dark:text-gray-400 text-sm">
 					{title}
 				</div>
-				<div className="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">
+				<div className="mt-2 text-3xl font-semibold text-gray-900 dark:text-white dynamic-color">
 					{count}
 				</div>
 				<div className="mt-auto pt-2 text-xs dynamic-color flex items-center">

@@ -32,14 +32,14 @@ export const PresetSelector = ({ onSelectPreset }: PresetSelectorProps) => {
           <button
             key={preset.id}
             onClick={() => onSelectPreset(preset)}
-            className="px-3 py-2 bg-primary-100 dark:bg-primary-900 hover:bg-primary-200 dark:hover:bg-primary-800 rounded-md text-sm whitespace-nowrap flex-shrink-0 text-primary-600 dark:text-primary-400"
+            className="px-3 py-2 dynamic-bg-subtle hover:brightness-95 dark:hover:brightness-110 rounded-md text-sm whitespace-nowrap flex-shrink-0 dynamic-color"
           >
             {preset.name}
           </button>
         ))}
         <button
           onClick={() => navigate('/timer-presets/new')}
-          className="px-3 py-2 bg-primary-100 dark:bg-primary-900 hover:bg-primary-200 dark:hover:bg-primary-800 rounded-md text-sm whitespace-nowrap flex-shrink-0 text-primary-600 dark:text-primary-400"
+          className="px-3 py-2 dynamic-bg-subtle hover:brightness-95 dark:hover:brightness-110 rounded-md text-sm whitespace-nowrap flex-shrink-0 dynamic-color"
         >
           <PlusIcon className="h-5 w-5" />
         </button>

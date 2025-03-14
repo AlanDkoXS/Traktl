@@ -11,7 +11,7 @@ export const UserMenu = () => {
 	return (
 		<Menu as="div" className="relative ml-3">
 			<div>
-				<Menu.Button className="flex max-w-xs items-center rounded-full bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+				<Menu.Button className="flex max-w-xs items-center rounded-full bg-white dark:bg-[rgb(var(--color-bg-inset))] text-sm focus:outline-none focus:ring-2 focus:dynamic-border focus:ring-offset-2">
 					<span className="sr-only">Open user menu</span>
 					{user?.picture ? (
 						<img className="h-8 w-8 rounded-full" src={user.picture} alt={user.name} />
@@ -29,12 +29,12 @@ export const UserMenu = () => {
 				leaveFrom="transform opacity-100 scale-100"
 				leaveTo="transform opacity-0 scale-95"
 			>
-				<Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-					<div className="border-b border-gray-200 dark:border-gray-700 p-4">
-						<p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+				<Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-[rgb(var(--color-bg-inset))] py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none border dark:border-[rgb(var(--color-border-primary))]">
+					<div className="border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))] p-4">
+						<p className="text-sm font-medium text-gray-700 dark:text-[rgb(var(--color-fg-default))]">
 							{user?.name}
 						</p>
-						<p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+						<p className="text-xs text-gray-500 dark:text-[rgb(var(--color-fg-muted))] truncate">
 							{user?.email}
 						</p>
 					</div>
@@ -43,8 +43,8 @@ export const UserMenu = () => {
 							<button
 								onClick={() => logout()}
 								className={`${
-									active ? 'bg-gray-100 dark:bg-gray-700' : ''
-								} block w-full text-left p-4 text-sm text-gray-700 dark:text-gray-200`}
+									active ? 'bg-gray-100 dark:bg-[rgb(var(--color-bg-overlay))]' : ''
+								} block w-full text-left p-4 text-sm text-gray-700 dark:text-[rgb(var(--color-fg-default))]`}
 							>
 								{t('auth.signOut')}
 							</button>

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ClientList } from '../components/ClientList';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useClientStore } from '../store/clientStore';
+import { resetProjectColor } from '../utils/dynamicColors';
 
 export const Clients = () => {
   const { t } = useTranslation();
@@ -12,12 +13,17 @@ export const Clients = () => {
   // Clear selected client when entering the clients list
   useEffect(() => {
     clearSelectedClient();
+    resetProjectColor(); // Ensure colors are reset when entering page
+    
+    return () => {
+      resetProjectColor(); // Also reset on unmount
+    };
   }, [clearSelectedClient]);
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-semibold dynamic-color">
           {t('clients.title')}
         </h1>
         <Link to="/clients/new" className="btn btn-primary">

@@ -45,7 +45,7 @@ export const TimerSettings = ({
 
 	return (
 		<div className="mt-8 p-5 rounded-lg bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-sm">
-			<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+			<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 				{t('timer.settings')}
 			</h3>
 
@@ -79,7 +79,7 @@ export const TimerSettings = ({
 							value={workDuration}
 							onChange={handleWorkDurationChange}
 							disabled={status !== 'idle'}
-							className="w-16 h-8 text-center rounded-md shadow-sm text-gray-900 dark:text-white text-sm timer-input bg-white dark:bg-[rgb(var(--color-bg-inset))]"
+							className="w-16 h-8 text-center rounded-md shadow-sm text-gray-900 dark:text-white text-sm timer-input bg-white dark:bg-[rgb(var(--color-bg-inset))] focus:dynamic-border focus:ring-0"
 						/>
 						<span className="ml-2 text-sm text-gray-500 dark:text-gray-400">min</span>
 					</div>
@@ -114,7 +114,7 @@ export const TimerSettings = ({
 							value={breakDuration}
 							onChange={handleBreakDurationChange}
 							disabled={status !== 'idle'}
-							className="w-16 h-8 text-center rounded-md shadow-sm text-gray-900 dark:text-white text-sm timer-input bg-white dark:bg-[rgb(var(--color-bg-inset))]"
+							className="w-16 h-8 text-center rounded-md shadow-sm text-gray-900 dark:text-white text-sm timer-input bg-white dark:bg-[rgb(var(--color-bg-inset))] focus:dynamic-border focus:ring-0"
 						/>
 						<span className="ml-2 text-sm text-gray-500 dark:text-gray-400">min</span>
 					</div>
@@ -149,7 +149,7 @@ export const TimerSettings = ({
 							value={repetitions}
 							onChange={handleRepetitionsChange}
 							disabled={status !== 'idle'}
-							className="w-16 h-8 text-center rounded-md shadow-sm text-gray-900 dark:text-white text-sm timer-input bg-white dark:bg-[rgb(var(--color-bg-inset))]"
+							className="w-16 h-8 text-center rounded-md shadow-sm text-gray-900 dark:text-white text-sm timer-input bg-white dark:bg-[rgb(var(--color-bg-inset))] focus:dynamic-border focus:ring-0"
 						/>
 						<span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
 							{t('timerPresets.cycles')}

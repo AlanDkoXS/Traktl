@@ -7,6 +7,7 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 import { useProjectStore } from '../../store/projectStore';
 import { useTaskStore } from '../../store/taskStore';
 import { useTagStore } from '../../store/tagStore';
+import { setProjectColor } from '../../utils/dynamicColors';
 
 interface ProjectTaskSelectorProps {
   projectId: string | null;
@@ -51,12 +52,27 @@ export const ProjectTaskSelector = ({
     loadData();
   }, [fetchProjects, fetchTags, fetchTasks, projectId]);
 
+  // Update project color when project changes
+  useEffect(() => {
+    if (projectId) {
+      const project = projects.find(p => p.id === projectId);
+      if (project?.color) {
+        setProjectColor(project.color);
+      }
+    }
+  }, [projectId, projects]);
+
   const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newProjectId = e.target.value || null;
     setProjectId(newProjectId);
     setTaskId(null); // Reset task when project changes
     
+    // Update dynamic color
     if (newProjectId) {
+      const project = projects.find(p => p.id === newProjectId);
+      if (project?.color) {
+        setProjectColor(project.color);
+      }
       fetchTasks(newProjectId);
     }
   };
@@ -90,7 +106,7 @@ export const ProjectTaskSelector = ({
         className="w-full p-3 text-left flex justify-between items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
       >
         <div>
-          <div className="font-medium text-gray-800 dark:text-white">
+          <div className="font-medium dynamic-color">
             {selectedProject ? selectedProject.name : t('timeEntries.selectProject')}
           </div>
           {selectedTask && (
@@ -139,7 +155,7 @@ export const ProjectTaskSelector = ({
                   
                   {isLoading ? (
                     <div className="flex justify-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 dynamic-border"></div>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -155,7 +171,7 @@ export const ProjectTaskSelector = ({
                             id="project-select"
                             value={projectId || ''}
                             onChange={handleProjectChange}
-                            className="flex-1 rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:bg-white dark:focus:bg-gray-800 dark:border-gray-600 dark:text-white sm:text-sm"
+                            className="flex-1 rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm focus:dynamic-border focus:bg-white dark:focus:bg-gray-800 dark:border-gray-600 dark:text-white sm:text-sm"
                           >
                             <option value="">{t('timeEntries.selectProject')}</option>
                             {projects.map(project => (
@@ -187,7 +203,7 @@ export const ProjectTaskSelector = ({
                             id="task-select"
                             value={taskId || ''}
                             onChange={(e) => setTaskId(e.target.value || null)}
-                            className="flex-1 rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:bg-white dark:focus:bg-gray-800 dark:border-gray-600 dark:text-white sm:text-sm"
+                            className="flex-1 rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm focus:dynamic-border focus:bg-white dark:focus:bg-gray-800 dark:border-gray-600 dark:text-white sm:text-sm"
                             disabled={!projectId}
                           >
                             <option value="">{t('timeEntries.selectTask')}</option>
@@ -221,7 +237,7 @@ export const ProjectTaskSelector = ({
                           id="notes"
                           value={notes}
                           onChange={(e) => setNotes(e.target.value)}
-                          className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm focus:border-primary-500 focus:bg-white dark:focus:bg-gray-800 dark:border-gray-600 dark:text-white sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm focus:dynamic-border focus:bg-white dark:focus:bg-gray-800 dark:border-gray-600 dark:text-white sm:text-sm"
                           placeholder={t('timeEntries.notes')}
                           rows={2}
                         />
@@ -262,7 +278,7 @@ export const ProjectTaskSelector = ({
                               closeModal();
                               navigate('/tags/new');
                             }}
-                            className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900 hover:bg-primary-200 dark:hover:bg-primary-800 text-primary-600 dark:text-primary-400"
+                            className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium dynamic-bg-subtle dynamic-color"
                           >
                             <PlusIcon className="h-3 w-3 mr-1" />
                             {t('tags.new')}
@@ -275,7 +291,7 @@ export const ProjectTaskSelector = ({
                   <div className="mt-6 flex justify-end">
                     <button
                       type="button"
-                      className="bg-primary-600 dark:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      className="dynamic-bg text-white px-4 py-2 rounded-md text-sm font-medium"
                       onClick={closeModal}
                     >
                       {t('common.done')}
