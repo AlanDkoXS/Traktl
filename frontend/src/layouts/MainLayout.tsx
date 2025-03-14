@@ -15,8 +15,6 @@ import {
 	ClockIcon as TimerIcon,
 } from '@heroicons/react/24/outline';
 import { StickyTimer } from '../components/timer/StickyTimer';
-import { ThemeToggle } from '../components/ThemeToggle';
-import { LanguageSelector } from '../components/LanguageSelector';
 
 interface MainLayoutProps {
 	children: ReactNode;
@@ -26,8 +24,6 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 	const { t } = useTranslation();
 	const location = useLocation();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-	// No resetear los colores aquí - cada página debe manejar sus propios colores
 
 	// Close mobile menu when location changes
 	useEffect(() => {
@@ -71,20 +67,20 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 	];
 
 	return (
-		<div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[rgb(var(--color-bg-canvas))]">
-			{/* Mobile menu overlay */}
+		<div className="flex h-full bg-gray-50 dark:bg-[rgb(var(--color-bg-canvas))]">
+			{/* Mobile overlay when menu is open */}
 			{isMobileMenuOpen && (
 				<div
-					className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+					className="fixed inset-0 z-20 bg-black/50 backdrop-blur-sm md:hidden"
 					onClick={() => setIsMobileMenuOpen(false)}
 				/>
 			)}
 
-			{/* Mobile header */}
-			<header className="md:hidden bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] shadow-sm sticky top-0 z-20 px-4 py-2 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-				<div className="flex items-center justify-between h-12">
+			{/* Mobile header - Only visible on mobile */}
+			<header className="fixed top-0 left-0 right-0 z-10 md:hidden bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] shadow-sm border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+				<div className="flex items-center justify-between h-14 px-4">
 					<button
-						onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+						onClick={() => setIsMobileMenuOpen(true)}
 						className="p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-[rgb(var(--color-fg-muted))] dark:hover:text-[rgb(var(--color-fg-default))] dark:hover:bg-[rgb(var(--color-bg-overlay))]"
 						aria-label="Open menu"
 					>
@@ -97,25 +93,32 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 				</div>
 			</header>
 
-			{/* Sidebar for mobile */}
-			<div
-				className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
-					isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-				} border-r border-gray-200 dark:border-[rgb(var(--color-border-primary))]`}
+			{/* Sidebar - Hidden on mobile unless menu is open */}
+			<aside
+				className={`fixed inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out
+					${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+					md:translate-x-0 md:static md:z-0
+					bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)]
+					dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)]
+					shadow-lg border-r border-gray-200 dark:border-[rgb(var(--color-border-primary))]`}
 			>
 				<div className="h-16 flex items-center justify-between p-4 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 					<h1 className="text-xl font-bold dynamic-color">{t('app.name')}</h1>
-					<button
-						onClick={() => setIsMobileMenuOpen(false)}
-						className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-[rgb(var(--color-fg-muted))] dark:hover:text-[rgb(var(--color-fg-default))] dark:hover:bg-[rgb(var(--color-bg-overlay))]"
-						aria-label="Close menu"
-					>
-						<XMarkIcon className="h-5 w-5" />
-					</button>
+					<div className="flex items-center">
+						<button
+							onClick={() => setIsMobileMenuOpen(false)}
+							className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-[rgb(var(--color-fg-muted))] dark:hover:text-[rgb(var(--color-fg-default))] dark:hover:bg-[rgb(var(--color-bg-overlay))]"
+							aria-label="Close menu"
+						>
+							<XMarkIcon className="h-5 w-5" />
+						</button>
+						<div className="hidden md:block">
+							<UserMenu />
+						</div>
+					</div>
 				</div>
 
-				{/* Navigation links */}
-				<nav className="p-3 mt-2">
+				<nav className="p-3 mt-6 h-[calc(100%-4rem)] overflow-y-auto">
 					<div className="space-y-1">
 						{navigation.map((item) => {
 							const isActive = location.pathname === item.href;
@@ -143,73 +146,18 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 						})}
 					</div>
 				</nav>
+			</aside>
 
-				{/* Theme and language toggles in mobile menu */}
-				<div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-[rgb(var(--color-border-primary))] flex items-center justify-between">
-					<ThemeToggle />
-					<LanguageSelector />
-				</div>
-			</div>
+			{/* Main content area */}
+			<div className="flex-1 flex flex-col min-h-screen pt-14 md:pt-0">
+				{/* Main content */}
+				<main className="flex-1 max-w-7xl mx-auto p-4 sm:p-6 w-full">{children}</main>
 
-			{/* Desktop sidebar */}
-			<div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-50 md:w-64 md:bg-gradient-to-br md:from-white md:to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] md:dark:from-[rgb(var(--color-bg-inset))] md:dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] md:shadow-md md:flex md:flex-col md:border-r md:border-gray-200 md:dark:border-[rgb(var(--color-border-primary))]">
-				<div className="h-16 flex items-center justify-between p-4 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-					<h1 className="text-xl font-bold dynamic-color">{t('app.name')}</h1>
-					<div className="flex items-center">
-						<ThemeToggle />
-						<UserMenu />
-					</div>
-				</div>
-				<nav className="p-3 mt-6 flex-1">
-					<div className="space-y-1">
-						{navigation.map((item) => {
-							const isActive = location.pathname === item.href;
-							return (
-								<Link
-									key={item.name}
-									to={item.href}
-									className={`group flex items-center p-3 text-sm font-medium rounded-md transition-colors ${
-										isActive
-											? 'bg-[hsla(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness),0.15)] text-[hsl(var(--color-project-hue),var(--color-project-saturation),35%)] dark:text-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.8),70%)]'
-											: 'text-gray-700 hover:bg-[hsla(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness),0.08)] hover:text-[hsl(var(--color-project-hue),var(--color-project-saturation),45%)] dark:text-[rgb(var(--color-fg-default))] dark:hover:text-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.8),65%)]'
-									}`}
-								>
-									<item.icon
-										className={`mr-3 h-6 w-6 ${
-											isActive
-												? 'text-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]'
-												: 'text-gray-400 group-hover:text-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] dark:text-[rgb(var(--color-fg-muted))]'
-										}`}
-										aria-hidden="true"
-									/>
-									{item.name}
-								</Link>
-							);
-						})}
-					</div>
-				</nav>
-
-				{/* Language selector in desktop sidebar footer */}
-				<div className="p-4 border-t border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-					<LanguageSelector />
-				</div>
-			</div>
-
-			{/* Main content */}
-			<div className="flex-1 md:ml-64">
-				{/* Desktop header */}
-				<header className="hidden md:block bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] shadow-sm sticky top-0 z-10 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-					<div className="h-12 px-6 flex items-center justify-end">
-						{/* Podríamos poner algunos elementos aquí si se necesitan */}
-					</div>
-				</header>
-
-				{/* Page content */}
-				<main className="max-w-7xl mx-auto p-4 sm:p-6">{children}</main>
-
-				{/* Footer con información adicional */}
-				<footer className="mt-auto py-4 px-6 text-center text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-					<p>{t('app.name')} © {new Date().getFullYear()}</p>
+				{/* Footer */}
+				<footer className="py-4 px-6 text-center text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+					<p>
+						{t('app.name')} © {new Date().getFullYear()}
+					</p>
 				</footer>
 			</div>
 

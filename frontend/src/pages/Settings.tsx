@@ -37,12 +37,11 @@ export const Settings = () => {
 
 		try {
 			// Update user settings with valid theme value
-			// Note: only 'light' or 'dark' are valid for the backend
 			await updateUser({
 				name,
 				email,
 				preferredLanguage,
-				theme: userTheme, // This is already constrained to 'light' or 'dark'
+				theme: userTheme,
 				defaultTimerPreset,
 			});
 
@@ -72,11 +71,11 @@ export const Settings = () => {
 
 	return (
 		<div>
-			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6 dynamic-color">
 				{t('nav.settings')}
 			</h1>
 
-			<div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] shadow-sm rounded-lg overflow-hidden border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 				<form onSubmit={handleSubmit} className="p-6 space-y-6">
 					{error && (
 						<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-4 rounded-md">
@@ -91,7 +90,7 @@ export const Settings = () => {
 					)}
 
 					<div>
-						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 							{t('settings.profile')}
 						</h2>
 
@@ -108,7 +107,7 @@ export const Settings = () => {
 									id="name"
 									value={name}
 									onChange={(e) => setName(e.target.value)}
-									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								/>
 							</div>
 
@@ -124,14 +123,14 @@ export const Settings = () => {
 									id="email"
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								/>
 							</div>
 						</div>
 					</div>
 
 					<div>
-						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 							{t('settings.appearance')}
 						</h2>
 
@@ -147,7 +146,7 @@ export const Settings = () => {
 									id="language"
 									value={preferredLanguage}
 									onChange={handleLanguageChange}
-									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								>
 									<option value="en">English</option>
 									<option value="es">Español</option>
@@ -165,7 +164,7 @@ export const Settings = () => {
 									id="theme"
 									value={userTheme}
 									onChange={handleThemeChange}
-									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								>
 									<option value="light">{t('theme.light')}</option>
 									<option value="dark">{t('theme.dark')}</option>
@@ -175,7 +174,7 @@ export const Settings = () => {
 					</div>
 
 					<div>
-						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 							{t('settings.timers')}
 						</h2>
 
@@ -190,12 +189,13 @@ export const Settings = () => {
 								id="defaultTimerPreset"
 								value={defaultTimerPreset}
 								onChange={(e) => setDefaultTimerPreset(e.target.value)}
-								className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+								className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 							>
 								<option value="">{t('settings.noDefaultPreset')}</option>
 								{timerPresets.map((preset) => (
 									<option key={preset.id} value={preset.id}>
-										{preset.name} ({preset.workDuration}m/{preset.breakDuration}m)
+										{preset.name} ({preset.workDuration}m/{preset.breakDuration}
+										m)
 									</option>
 								))}
 							</select>
@@ -203,7 +203,11 @@ export const Settings = () => {
 					</div>
 
 					<div className="flex justify-end">
-						<button type="submit" disabled={isSubmitting} className="btn btn-primary">
+						<button
+							type="submit"
+							disabled={isSubmitting}
+							className="btn btn-primary dynamic-bg text-white hover:brightness-110"
+						>
 							{isSubmitting ? t('common.loading') : t('common.save')}
 						</button>
 					</div>
