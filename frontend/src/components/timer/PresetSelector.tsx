@@ -1,25 +1,50 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTimerPresetStore } from '../../store/timerPresetStore';
 import { TimerPreset } from '../../types';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { useNavigate } from 'react-router-dom';
+import { PresetCreateModal } from './modals/PresetCreateModal';
 
 interface PresetSelectorProps {
 	onSelectPreset: (preset: TimerPreset) => void;
+	currentSettings?: {
+		workDuration: number;
+		breakDuration: number;
+		repetitions: number;
+	};
 }
 
-export const PresetSelector = ({ onSelectPreset }: PresetSelectorProps) => {
+export const PresetSelector = ({ onSelectPreset, currentSettings }: PresetSelectorProps) => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const { timerPresets, fetchTimerPresets, isLoading } = useTimerPresetStore();
+	const [showCreatePresetModal, setShowCreatePresetModal] = useState(false);
 
 	useEffect(() => {
 		fetchTimerPresets();
 	}, [fetchTimerPresets]);
 
+	const handlePresetCreated = (presetId: string) => {
+		// Find the newly created preset and select it
+		const newPreset = timerPresets.find(preset => preset.id === presetId);
+		if (newPreset) {
+			onSelectPreset(newPreset);
+		}
+		// Re-fetch presets to ensure we have the latest list
+		fetchTimerPresets();
+	};
+
 	if (isLoading || timerPresets.length === 0) {
-		return null;
+		return (
+			<div className="mt-2 mb-6 flex justify-center">
+				<button
+					onClick={() => setShowCreatePresetModal(true)}
+					className="px-5 py-4 dynamic-bg-subtle hover:brightness-95 dark:hover:brightness-110 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 dynamic-color"
+				>
+					<PlusIcon className="h-5 w-5" />
+					<span className="ml-1">{t('timerPresets.new')}</span>
+				</button>
+			</div>
+		);
 	}
 
 	return (
@@ -38,13 +63,21 @@ export const PresetSelector = ({ onSelectPreset }: PresetSelectorProps) => {
 					</button>
 				))}
 				<button
-					title="Create new timer preset"
-					onClick={() => navigate('/timer-presets/new')}
+					title={t('timerPresets.new')}
+					onClick={() => setShowCreatePresetModal(true)}
 					className="px-5 py-4 dynamic-bg-subtle hover:brightness-95 dark:hover:brightness-110 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 dynamic-color"
 				>
 					<PlusIcon className="h-5 w-5" />
 				</button>
 			</div>
+
+			{/* Save current settings as preset modal */}
+			<PresetCreateModal
+				isOpen={showCreatePresetModal}
+				onClose={() => setShowCreatePresetModal(false)}
+				onPresetCreated={handlePresetCreated}
+				initialValues={currentSettings}
+			/>
 		</div>
 	);
 };

@@ -122,6 +122,13 @@ export const Timer = () => {
 		setRepetitions(preset.repetitions);
 	};
 
+	// Current timer settings to pass to preset creator
+	const currentSettings = {
+		workDuration,
+		breakDuration, 
+		repetitions
+	};
+
 	return (
 		<div className="flex flex-col space-y-6 dashboard-timer">
 			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
@@ -187,7 +194,10 @@ export const Timer = () => {
 						/>
 
 						{/* Timer Presets */}
-						<PresetSelector onSelectPreset={handlePresetSelect} />
+						<PresetSelector 
+							onSelectPreset={handlePresetSelect} 
+							currentSettings={currentSettings}
+						/>
 					</div>
 				)}
 

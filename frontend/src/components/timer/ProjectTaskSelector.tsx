@@ -1,12 +1,14 @@
 import { Fragment, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useProjectStore } from '../../store/projectStore';
 import { useTaskStore } from '../../store/taskStore';
 import { useTagStore } from '../../store/tagStore';
 import { setProjectColor } from '../../utils/dynamicColors';
+import { ProjectCreateModal } from './modals/ProjectCreateModal';
+import { TaskCreateModal } from './modals/TaskCreateModal';
+import { TagCreateModal } from './modals/TagCreateModal';
 
 interface ProjectTaskSelectorProps {
 	projectId: string | null;
@@ -30,10 +32,10 @@ export const ProjectTaskSelector = ({
 	setSelectedTags,
 }: ProjectTaskSelectorProps) => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const [isOpen, setIsOpen] = useState(false);
 	const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
 	const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+	const [showCreateTagModal, setShowCreateTagModal] = useState(false);
 
 	// Get data from stores
 	const { projects, fetchProjects, isLoading: projectsLoading } = useProjectStore();
@@ -94,18 +96,24 @@ export const ProjectTaskSelector = ({
 		setIsOpen(false);
 	};
 
-	const handleCreateProject = () => {
-		closeModal();
-		navigate('/projects/new');
+	// Handle creation callbacks
+	const handleProjectCreated = (newProjectId: string) => {
+		setProjectId(newProjectId);
+		fetchProjects();
+		// Refetch tasks for the new project
+		fetchTasks(newProjectId);
 	};
 
-	const handleCreateTask = () => {
-		closeModal();
+	const handleTaskCreated = (newTaskId: string) => {
 		if (projectId) {
-			navigate(`/tasks/new?projectId=${projectId}`);
-		} else {
-			navigate('/tasks/new');
+			fetchTasks(projectId);
+			setTaskId(newTaskId);
 		}
+	};
+
+	const handleTagCreated = (newTagId: string) => {
+		fetchTags();
+		setSelectedTags([...selectedTags, newTagId]);
 	};
 
 	// Find selected project and task names
@@ -211,7 +219,9 @@ export const ProjectTaskSelector = ({
 														))}
 													</select>
 													<button
-														onClick={handleCreateProject}
+														onClick={() =>
+															setShowCreateProjectModal(true)
+														}
 														className="ml-2 p-2 w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center"
 														title={t('projects.new')}
 													>
@@ -248,7 +258,9 @@ export const ProjectTaskSelector = ({
 													</select>
 													{projectId && (
 														<button
-															onClick={handleCreateTask}
+															onClick={() =>
+																setShowCreateTaskModal(true)
+															}
 															className="ml-2 p-2 w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center"
 															title={t('tasks.new')}
 														>
@@ -312,10 +324,7 @@ export const ProjectTaskSelector = ({
 														</button>
 													))}
 													<button
-														onClick={() => {
-															closeModal();
-															navigate('/tags/new');
-														}}
+														onClick={() => setShowCreateTagModal(true)}
 														className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium dynamic-bg-subtle dynamic-color"
 													>
 														<PlusIcon className="h-3 w-3 mr-1" />
@@ -341,6 +350,28 @@ export const ProjectTaskSelector = ({
 					</div>
 				</Dialog>
 			</Transition>
+
+			{/* Project Create Modal */}
+			<ProjectCreateModal
+				isOpen={showCreateProjectModal}
+				onClose={() => setShowCreateProjectModal(false)}
+				onProjectCreated={handleProjectCreated}
+			/>
+
+			{/* Task Create Modal */}
+			<TaskCreateModal
+				isOpen={showCreateTaskModal}
+				onClose={() => setShowCreateTaskModal(false)}
+				onTaskCreated={handleTaskCreated}
+				projectId={projectId}
+			/>
+
+			{/* Tag Create Modal */}
+			<TagCreateModal
+				isOpen={showCreateTagModal}
+				onClose={() => setShowCreateTagModal(false)}
+				onTagCreated={handleTagCreated}
+			/>
 		</>
 	);
 };
