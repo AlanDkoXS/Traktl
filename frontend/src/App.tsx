@@ -28,11 +28,17 @@ import { useTheme } from './hooks/useTheme';
 import { useAuthStore } from './store/authStore';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { checkCurrentToken } from './utils/tokenHelper';
+import { setProjectColor } from './utils/dynamicColors';
 
 function App() {
 	// Initialize theme
 	useTheme();
 	const { loadUser } = useAuthStore();
+
+	// Set default app color
+	useEffect(() => {
+		setProjectColor('#0284c7'); // Default color
+	}, []);
 
 	useEffect(() => {
 		console.log('App mounted, checking token and loading user...');

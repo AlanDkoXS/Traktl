@@ -44,7 +44,7 @@ export const TimerSettings = ({
 	};
 
 	return (
-		<div className="mt-8 p-5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
+		<div className="mt-8 p-5 rounded-lg bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-sm">
 			<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
 				{t('timer.settings')}
 			</h3>
@@ -68,7 +68,7 @@ export const TimerSettings = ({
 							value={workDuration}
 							onChange={(e) => setWorkDuration(parseInt(e.target.value))}
 							disabled={status !== 'idle'}
-							className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+							className="w-full"
 						/>
 					</div>
 					<div className="flex items-center">
@@ -79,7 +79,7 @@ export const TimerSettings = ({
 							value={workDuration}
 							onChange={handleWorkDurationChange}
 							disabled={status !== 'idle'}
-							className="w-16 h-8 text-center rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white text-sm timer-input"
+							className="w-16 h-8 text-center rounded-md shadow-sm text-gray-900 dark:text-white text-sm timer-input bg-white dark:bg-[rgb(var(--color-bg-inset))]"
 						/>
 						<span className="ml-2 text-sm text-gray-500 dark:text-gray-400">min</span>
 					</div>
@@ -103,7 +103,7 @@ export const TimerSettings = ({
 							value={breakDuration}
 							onChange={(e) => setBreakDuration(parseInt(e.target.value))}
 							disabled={status !== 'idle'}
-							className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+							className="w-full"
 						/>
 					</div>
 					<div className="flex items-center">
@@ -114,7 +114,7 @@ export const TimerSettings = ({
 							value={breakDuration}
 							onChange={handleBreakDurationChange}
 							disabled={status !== 'idle'}
-							className="w-16 h-8 text-center rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white text-sm timer-input"
+							className="w-16 h-8 text-center rounded-md shadow-sm text-gray-900 dark:text-white text-sm timer-input bg-white dark:bg-[rgb(var(--color-bg-inset))]"
 						/>
 						<span className="ml-2 text-sm text-gray-500 dark:text-gray-400">min</span>
 					</div>
@@ -138,7 +138,7 @@ export const TimerSettings = ({
 							value={repetitions}
 							onChange={(e) => setRepetitions(parseInt(e.target.value))}
 							disabled={status !== 'idle'}
-							className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+							className="w-full"
 						/>
 					</div>
 					<div className="flex items-center">
@@ -149,7 +149,7 @@ export const TimerSettings = ({
 							value={repetitions}
 							onChange={handleRepetitionsChange}
 							disabled={status !== 'idle'}
-							className="w-16 h-8 text-center rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white text-sm timer-input"
+							className="w-16 h-8 text-center rounded-md shadow-sm text-gray-900 dark:text-white text-sm timer-input bg-white dark:bg-[rgb(var(--color-bg-inset))]"
 						/>
 						<span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
 							{t('timerPresets.cycles')}

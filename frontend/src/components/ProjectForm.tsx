@@ -5,6 +5,7 @@ import { useProjectStore } from '../store/projectStore';
 import { useClientStore } from '../store/clientStore';
 import { Project } from '../types';
 import { toObjectIdOrUndefined } from '../utils/validationHelpers';
+import { setProjectColor } from '../utils/dynamicColors';
 
 interface ProjectFormProps {
 	project?: Project;
@@ -24,6 +25,25 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 	const [status, setStatus] = useState<'active' | 'archived'>(project?.status || 'active');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState('');
+
+	// Set project color for dynamic theming when editing
+	useEffect(() => {
+		if (project?.color) {
+			setProjectColor(project.color);
+		} else {
+			setProjectColor('#3b82f6'); // Default color
+		}
+		
+		return () => {
+			// Reset to default when unmounting
+			setProjectColor('#3b82f6');
+		};
+	}, [project]);
+
+	// Update dynamic color when color changes in the form
+	useEffect(() => {
+		setProjectColor(color);
+	}, [color]);
 
 	useEffect(() => {
 		fetchClients();
@@ -91,7 +111,7 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 					id="name"
 					value={name}
 					onChange={(e) => setName(e.target.value)}
-					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 					required
 				/>
 			</div>
@@ -108,7 +128,7 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}
 					rows={3}
-					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 				/>
 			</div>
 
@@ -132,7 +152,7 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 						type="text"
 						value={color}
 						onChange={(e) => setColor(e.target.value)}
-						className="ml-2 block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+						className="ml-2 block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 					/>
 				</div>
 			</div>
@@ -148,7 +168,7 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 					id="client"
 					value={clientId}
 					onChange={(e) => setClientId(e.target.value)}
-					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 				>
 					<option value="">{t('projects.noClient')}</option>
 					{clients.map((client) => (
@@ -170,7 +190,7 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 					id="status"
 					value={status}
 					onChange={(e) => setStatus(e.target.value as 'active' | 'archived')}
-					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 				>
 					<option value="active">{t('projects.status.active')}</option>
 					<option value="archived">{t('projects.status.archived')}</option>

@@ -57,7 +57,7 @@ export const StickyTimer = () => {
 
 	return (
 		<div
-			className={`fixed left-1/2 z-50 shadow-xl rounded-lg overflow-hidden transition-all duration-500 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 ${animateIn ? 'opacity-100 translate-y-[50px]' : 'opacity-0 -translate-y-full'}`}
+			className={`fixed left-1/2 z-50 rounded-lg overflow-hidden transition-all duration-500 bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-lg ${animateIn ? 'opacity-100 translate-y-[50px]' : 'opacity-0 -translate-y-full'}`}
 			style={{
 				transform: 'translateX(-50%)',
 				width: 'min(800px, 90vw)',
@@ -67,7 +67,7 @@ export const StickyTimer = () => {
 			<div className="flex flex-col w-full">
 				<div className="flex w-full">
 					{/* Timer Status */}
-					<div className="px-5 py-3 flex-1 flex items-center bg-white dark:bg-gray-800">
+					<div className="px-5 py-3 flex-1 flex items-center bg-white dark:bg-[rgb(var(--color-bg-inset))]">
 						<span className="font-medium text-lg text-gray-800 dark:text-white">
 							{mode === 'work'
 								? status === 'running'
@@ -81,11 +81,11 @@ export const StickyTimer = () => {
 					</div>
 
 					{/* Controls */}
-					<div className="flex border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+					<div className="flex bg-white dark:bg-[rgb(var(--color-bg-inset))]">
 						{status === 'running' ? (
 							<button
 								onClick={pause}
-								className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-yellow-500"
+								className="p-3 hover:dynamic-bg-subtle text-yellow-500 transition-colors"
 								title={t('timer.pause')}
 							>
 								<PauseIcon className="h-6 w-6" />
@@ -93,7 +93,7 @@ export const StickyTimer = () => {
 						) : (
 							<button
 								onClick={resume}
-								className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-green-500"
+								className="p-3 hover:dynamic-bg-subtle text-green-500 transition-colors"
 								title={t('timer.resume')}
 							>
 								<PlayIcon className="h-6 w-6" />
@@ -102,7 +102,7 @@ export const StickyTimer = () => {
 
 						<button
 							onClick={stop}
-							className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500"
+							className="p-3 hover:dynamic-bg-subtle text-red-500 transition-colors"
 							title={t('timer.stop')}
 						>
 							<StopIcon className="h-6 w-6" />
@@ -111,14 +111,14 @@ export const StickyTimer = () => {
 				</div>
 
 				{/* Progress bar */}
-				<div className="h-2 w-full bg-gray-200 dark:bg-gray-700">
+				<div className="h-2 w-full bg-gray-200 dark:bg-[rgb(var(--color-border-primary))]">
 					<div
 						className={`h-full transition-all duration-300 ${
 							mode === 'work'
 								? status === 'running'
-									? 'bg-green-500'
+									? 'dynamic-bg'
 									: 'bg-yellow-500'
-								: 'bg-blue-500'
+								: 'bg-green-500'
 						}`}
 						style={{ width: `${progress}%` }}
 					/>

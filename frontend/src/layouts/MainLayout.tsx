@@ -15,6 +15,7 @@ import {
 	ClockIcon as TimerIcon,
 } from '@heroicons/react/24/outline';
 import { StickyTimer } from '../components/timer/StickyTimer';
+import { resetProjectColor } from '../utils/dynamicColors';
 
 interface MainLayoutProps {
 	children: ReactNode;
@@ -39,10 +40,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 		};
 
 		window.addEventListener('keydown', handleEsc);
-
-		return () => {
-			window.removeEventListener('keydown', handleEsc);
-		};
+		return () => window.removeEventListener('keydown', handleEsc);
 	}, []);
 
 	// Prevent scrolling when mobile menu is open
@@ -70,27 +68,27 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 	];
 
 	return (
-		<div className="min-h-screen flex flex-col">
+		<div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[rgb(var(--color-bg-canvas))]">
 			{/* Mobile menu overlay */}
 			{isMobileMenuOpen && (
 				<div
-					className="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 md:hidden"
+					className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
 					onClick={() => setIsMobileMenuOpen(false)}
 				/>
 			)}
 
 			{/* Mobile header */}
-			<header className="md:hidden bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-20 px-4 py-2">
+			<header className="md:hidden bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-sm sticky top-0 z-20 px-4 py-2 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 				<div className="flex items-center justify-between h-12">
 					<button
 						onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-						className="p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
+						className="p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-[rgb(var(--color-fg-muted))] dark:hover:text-[rgb(var(--color-fg-default))] dark:hover:bg-[rgb(var(--color-bg-overlay))]"
 						aria-label="Open menu"
 					>
 						<Bars3Icon className="h-6 w-6" />
 					</button>
 
-					<div className="text-xl font-bold text-primary-600 dark:text-primary-400">
+					<div className="text-xl font-bold dynamic-color">
 						{t('app.name')}
 					</div>
 
@@ -100,17 +98,17 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
 			{/* Sidebar for mobile */}
 			<div
-				className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
+				className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
 					isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-				}`}
+				} border-r border-gray-200 dark:border-[rgb(var(--color-border-primary))]`}
 			>
-				<div className="h-16 flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-					<h1 className="text-xl font-bold text-primary-600 dark:text-primary-400">
+				<div className="h-16 flex items-center justify-between p-4 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+					<h1 className="text-xl font-bold dynamic-color">
 						{t('app.name')}
 					</h1>
 					<button
 						onClick={() => setIsMobileMenuOpen(false)}
-						className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
+						className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-[rgb(var(--color-fg-muted))] dark:hover:text-[rgb(var(--color-fg-default))] dark:hover:bg-[rgb(var(--color-bg-overlay))]"
 						aria-label="Close menu"
 					>
 						<XMarkIcon className="h-5 w-5" />
@@ -126,17 +124,17 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 								<Link
 									key={item.name}
 									to={item.href}
-									className={`group flex items-center p-3 text-sm font-medium rounded-md ${
+									className={`group flex items-center p-3 text-sm font-medium rounded-md transition-colors ${
 										isActive
-											? 'bg-primary-50 text-primary-600 dark:bg-primary-900 dark:text-primary-200'
-											: 'text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700'
+											? 'bg-[hsla(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness),0.15)] text-[hsl(var(--color-project-hue),var(--color-project-saturation),35%)] dark:text-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.8),70%)]'
+											: 'text-gray-700 hover:bg-[hsla(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness),0.08)] hover:text-[hsl(var(--color-project-hue),var(--color-project-saturation),45%)] dark:text-[rgb(var(--color-fg-default))] dark:hover:text-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.8),65%)]'
 									}`}
 								>
 									<item.icon
 										className={`mr-3 h-5 w-5 ${
 											isActive
-												? 'text-primary-500 dark:text-primary-400'
-												: 'text-gray-400 group-hover:text-gray-500 dark:text-gray-400 dark:group-hover:text-gray-300'
+												? 'text-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]'
+												: 'text-gray-400 group-hover:text-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] dark:text-[rgb(var(--color-fg-muted))]'
 										}`}
 										aria-hidden="true"
 									/>
@@ -149,9 +147,9 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 			</div>
 
 			{/* Desktop sidebar */}
-			<div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-50 md:w-64 md:bg-white md:dark:bg-gray-800 md:shadow-md md:flex md:flex-col">
-				<div className="h-16 flex items-center p-6 border-b border-gray-200 dark:border-gray-700">
-					<h1 className="text-xl font-bold text-primary-600 dark:text-primary-400">
+			<div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-50 md:w-64 md:bg-white md:dark:bg-[rgb(var(--color-bg-inset))] md:shadow-md md:flex md:flex-col md:border-r md:border-gray-200 md:dark:border-[rgb(var(--color-border-primary))]">
+				<div className="h-16 flex items-center p-6 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+					<h1 className="text-xl font-bold dynamic-color">
 						{t('app.name')}
 					</h1>
 				</div>
@@ -163,17 +161,17 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 								<Link
 									key={item.name}
 									to={item.href}
-									className={`group flex items-center p-3 text-sm font-medium rounded-md ${
+									className={`group flex items-center p-3 text-sm font-medium rounded-md transition-colors ${
 										isActive
-											? 'bg-primary-50 text-primary-600 dark:bg-primary-900 dark:text-primary-200'
-											: 'text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700'
+											? 'bg-[hsla(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness),0.15)] text-[hsl(var(--color-project-hue),var(--color-project-saturation),35%)] dark:text-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.8),70%)]'
+											: 'text-gray-700 hover:bg-[hsla(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness),0.08)] hover:text-[hsl(var(--color-project-hue),var(--color-project-saturation),45%)] dark:text-[rgb(var(--color-fg-default))] dark:hover:text-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.8),65%)]'
 									}`}
 								>
 									<item.icon
 										className={`mr-3 h-6 w-6 ${
 											isActive
-												? 'text-primary-500 dark:text-primary-400'
-												: 'text-gray-400 group-hover:text-gray-500 dark:text-gray-400 dark:group-hover:text-gray-300'
+												? 'text-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]'
+												: 'text-gray-400 group-hover:text-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] dark:text-[rgb(var(--color-fg-muted))]'
 										}`}
 										aria-hidden="true"
 									/>
@@ -188,7 +186,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 			{/* Main content */}
 			<div className="flex-1 md:ml-64">
 				{/* Desktop header */}
-				<header className="hidden md:block bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
+				<header className="hidden md:block bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-sm sticky top-0 z-10 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 					<div className="max-w-7xl mx-auto p-4">
 						<div className="flex justify-end items-center h-8">
 							<UserMenu />

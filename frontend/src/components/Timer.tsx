@@ -20,6 +20,7 @@ import {
 } from '../utils/notifications/TimerNotifications';
 import { ConfirmModal } from './ui/ConfirmModal';
 import { useTimerStore } from '../store/timerStore';
+import { setProjectColor } from '../utils/dynamicColors';
 
 export const Timer = () => {
 	const { t } = useTranslation();
@@ -54,6 +55,7 @@ export const Timer = () => {
 	} = useTimer();
 
 	const { showCompletionModal, closeCompletionModal } = useTimerStore();
+	const { projects } = useProjectStore();
 
 	// State hooks
 	const [notificationPermission, setNotificationPermission] =
@@ -69,6 +71,16 @@ export const Timer = () => {
 
 		checkPermission();
 	}, []);
+	
+	// Apply project color when project changes
+	useEffect(() => {
+		if (projectId) {
+			const project = projects.find(p => p.id === projectId);
+			if (project?.color) {
+				setProjectColor(project.color);
+			}
+		}
+	}, [projectId, projects]);
 
 	// Play sound and show notification when timer completes
 	useEffect(() => {
@@ -98,7 +110,7 @@ export const Timer = () => {
 
 	return (
 		<div className="flex flex-col space-y-6 dashboard-timer">
-			<div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6 w-full mx-auto">
+			<div className="card-project">
 				{/* Notification Manager */}
 				<NotificationManager
 					showNotification={showNotification}
@@ -164,7 +176,7 @@ export const Timer = () => {
 			</div>
 
 			{/* Activity Heatmap */}
-			<div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6">
+			<div className="card">
 				<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
 					{t('dashboard.activityHeatmap')}
 				</h3>
@@ -172,7 +184,7 @@ export const Timer = () => {
 			</div>
 
 			{/* Recent Time Entries */}
-			<div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6">
+			<div className="card">
 				<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
 					{t('dashboard.recentEntries')}
 				</h3>

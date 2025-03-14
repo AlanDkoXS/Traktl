@@ -57,7 +57,7 @@ export const Dashboard = () => {
 				<div className="lg:col-span-4 space-y-6">
 					{isLoading ? (
 						<div className="flex items-center justify-center h-32">
-							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+							<div className="animate-spin rounded-full h-8 w-8 dynamic-border"></div>
 						</div>
 					) : (
 						<>
@@ -86,34 +86,32 @@ export const Dashboard = () => {
 							</div>
 
 							{/* Quick links */}
-							<div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-								<div className="px-4 py-5 sm:p-6">
-									<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-										{t('dashboard.quickLinks')}
-									</h3>
-									<nav className="space-y-1">
-										<QuickLink
-											href="/time-entries/new"
-											title={t('timeEntries.new')}
-										/>
-										<QuickLink
-											href="/projects/new"
-											title={t('projects.new')}
-										/>
-										<QuickLink
-											href="/tasks/new"
-											title={t('tasks.new')}
-										/>
-										<QuickLink
-											href="/clients/new"
-											title={t('clients.new')}
-										/>
-										<QuickLink
-											href="/reports"
-											title={t('reports.title')}
-										/>
-									</nav>
-								</div>
+							<div className="card">
+								<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+									{t('dashboard.quickLinks')}
+								</h3>
+								<nav className="space-y-1">
+									<QuickLink
+										href="/time-entries/new"
+										title={t('timeEntries.new')}
+									/>
+									<QuickLink
+										href="/projects/new"
+										title={t('projects.new')}
+									/>
+									<QuickLink
+										href="/tasks/new"
+										title={t('tasks.new')}
+									/>
+									<QuickLink
+										href="/clients/new"
+										title={t('clients.new')}
+									/>
+									<QuickLink
+										href="/reports"
+										title={t('reports.title')}
+									/>
+								</nav>
 							</div>
 						</>
 					)}
@@ -130,7 +128,7 @@ const StatsCard = ({ title, count, link }) => {
 	return (
 		<Link 
 			to={link} 
-			className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+			className="card p-4 hover:shadow-md transition-shadow flex flex-col h-full group"
 		>
 			<div className="flex flex-col h-full">
 				<div className="font-medium text-gray-500 dark:text-gray-400 text-sm">
@@ -139,9 +137,9 @@ const StatsCard = ({ title, count, link }) => {
 				<div className="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">
 					{count}
 				</div>
-				<div className="mt-auto pt-2 text-xs text-primary-600 dark:text-primary-400 flex items-center">
+				<div className="mt-auto pt-2 text-xs dynamic-color flex items-center">
 					{t('common.viewAll')}
-					<ArrowRightIcon className="ml-1 h-3 w-3" />
+					<ArrowRightIcon className="ml-1 h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
 				</div>
 			</div>
 		</Link>
@@ -153,10 +151,10 @@ const QuickLink = ({ href, title }) => {
 	return (
 		<Link
 			to={href}
-			className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+			className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:dynamic-bg-subtle hover:dynamic-color transition-colors group"
 		>
 			<span>{title}</span>
-			<ArrowRightIcon className="ml-auto h-4 w-4 text-gray-400" />
+			<ArrowRightIcon className="ml-auto h-4 w-4 text-gray-400 group-hover:dynamic-color group-hover:translate-x-0.5 transition-transform" />
 		</Link>
 	);
 };

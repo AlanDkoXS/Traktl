@@ -4,15 +4,24 @@ import { Link } from 'react-router-dom';
 import { ProjectList } from '../components/ProjectList';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useProjectStore } from '../store/projectStore';
+import { setProjectColor } from '../utils/dynamicColors';
 
 export const Projects = () => {
   const { t } = useTranslation();
-  const { clearSelectedProject } = useProjectStore();
+  const { clearSelectedProject, projects } = useProjectStore();
   
   // Clear selected project when entering the projects list
   useEffect(() => {
     clearSelectedProject();
-  }, [clearSelectedProject]);
+    
+    // Set default project color - don't reset it
+    if (projects.length > 0) {
+      // Use first project color as default for this page
+      setProjectColor(projects[0].color);
+    } else {
+      setProjectColor('#0284c7'); // Default blue
+    }
+  }, [clearSelectedProject, projects]);
 
   return (
     <div>

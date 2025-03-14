@@ -3,159 +3,225 @@
 @tailwind utilities;
 
 @layer base {
-	:root {
-		--color-primary-50: 240, 249, 255;
-		--color-primary-100: 224, 242, 254;
-		--color-primary-200: 186, 230, 253;
-		--color-primary-300: 125, 211, 252;
-		--color-primary-400: 56, 189, 248;
-		--color-primary-500: 14, 165, 233;
-		--color-primary-600: 2, 132, 199;
-		--color-primary-700: 3, 105, 161;
-		--color-primary-800: 7, 89, 133;
-		--color-primary-900: 12, 74, 110;
-		--color-primary-950: 8, 47, 73;
-	}
+  :root {
+    /* Base color palette - sky blue */
+    --color-primary-50: 240, 249, 255;
+    --color-primary-100: 224, 242, 254;
+    --color-primary-200: 186, 230, 253;
+    --color-primary-300: 125, 211, 252;
+    --color-primary-400: 56, 189, 248;
+    --color-primary-500: 14, 165, 233;
+    --color-primary-600: 2, 132, 199;
+    --color-primary-700: 3, 105, 161;
+    --color-primary-800: 7, 89, 133;
+    --color-primary-900: 12, 74, 110;
+    --color-primary-950: 8, 47, 73;
+    
+    /* Dynamic project color - initialized with primary color */
+    --color-project-hue: 204;
+    --color-project-saturation: 94%;
+    --color-project-lightness: 46%;
+    
+    --color-project-50: 204, 94%, 97%;
+    --color-project-100: 204, 94%, 94%;
+    --color-project-200: 204, 94%, 86%;
+    --color-project-300: 204, 94%, 74%;
+    --color-project-400: 204, 94%, 60%;
+    --color-project-500: 204, 94%, 48%;
+    --color-project-600: 204, 94%, 39%;
+    --color-project-700: 204, 94%, 32%;
+    --color-project-800: 204, 94%, 27%;
+    --color-project-900: 204, 94%, 22%;
+    --color-project-950: 204, 94%, 16%;
+  }
 
-	.dark {
-		--color-primary-50: 8, 47, 73;
-		--color-primary-100: 12, 74, 110;
-		--color-primary-200: 7, 89, 133;
-		--color-primary-300: 3, 105, 161;
-		--color-primary-400: 2, 132, 199;
-		--color-primary-500: 14, 165, 233;
-		--color-primary-600: 56, 189, 248;
-		--color-primary-700: 125, 211, 252;
-		--color-primary-800: 186, 230, 253;
-		--color-primary-900: 224, 242, 254;
-		--color-primary-950: 240, 249, 255;
-	}
-	
-	/* Improved input and select styles - with fill instead of outline */
-	input, select, textarea {
-		@apply mt-2 mb-4 px-3 py-2 rounded-md border shadow-sm;
-		@apply bg-white dark:bg-gray-800;
-		@apply border-gray-300 dark:border-gray-600;
-		@apply text-gray-900 dark:text-white;
-		@apply placeholder-gray-500 dark:placeholder-gray-400;
-		@apply focus:border-primary-500 focus:bg-white dark:focus:bg-gray-800;
-	}
+  /* GitHub-like dark mode colors */
+  .dark {
+    --color-bg-canvas: 13, 17, 23;
+    --color-bg-inset: 22, 27, 34;
+    --color-bg-overlay: 36, 41, 46;
+    --color-border-primary: 48, 54, 61;
+    --color-border-secondary: 68, 76, 86;
+    --color-fg-default: 201, 209, 217;
+    --color-fg-muted: 139, 148, 158;
+    
+    /* Invert some of the color scale for dark mode */
+    --color-primary-950: 240, 249, 255;
+    --color-primary-900: 224, 242, 254;
+    --color-primary-800: 186, 230, 253;
+    --color-primary-700: 125, 211, 252;
+    --color-primary-600: 56, 189, 248;
+    --color-primary-500: 14, 165, 233;
+    --color-primary-400: 2, 132, 199;
+    --color-primary-300: 3, 105, 161;
+    --color-primary-200: 7, 89, 133;
+    --color-primary-100: 12, 74, 110;
+    --color-primary-50: 8, 47, 73;
+    
+    /* Project colors in dark mode */
+    --color-project-950: var(--color-project-50);
+    --color-project-900: var(--color-project-100);
+    --color-project-800: var(--color-project-200);
+    --color-project-700: var(--color-project-300);
+    --color-project-600: var(--color-project-400);
+    --color-project-500: var(--color-project-500);
+    --color-project-400: var(--color-project-600);
+    --color-project-300: var(--color-project-700);
+    --color-project-200: var(--color-project-800);
+    --color-project-100: var(--color-project-900);
+    --color-project-50: var(--color-project-950);
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900 dark:bg-[rgb(var(--color-bg-canvas))] dark:text-[rgb(var(--color-fg-default))];
+  }
+  
+  /* Fill styles instead of outlines for inputs */
+  input, select, textarea {
+    @apply mt-2 mb-4 px-3 py-2 rounded-md shadow-sm;
+    @apply bg-white dark:bg-[rgb(var(--color-bg-inset))];
+    @apply border-gray-300 dark:border-[rgb(var(--color-border-primary))];
+    @apply text-gray-900 dark:text-[rgb(var(--color-fg-default))];
+    @apply placeholder-gray-500 dark:placeholder-[rgb(var(--color-fg-muted))];
+    @apply focus:ring-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] 
+           focus:bg-white dark:focus:bg-[rgb(var(--color-bg-inset))];
+  }
+  
+  /* Remove default focus outlines and use fill instead */
+  :focus {
+    @apply outline-none;
+  }
+  
+  /* Use system font stack similar to GitHub */
+  html {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
 }
 
 /* Custom component styles */
 @layer components {
-	.btn {
-		@apply rounded-md text-sm font-medium focus:outline-none transition-colors disabled:opacity-50 inline-flex items-center px-4 py-2 m-1;
-	}
+  .btn {
+    @apply rounded-md text-sm font-medium transition-colors disabled:opacity-50 inline-flex items-center px-4 py-2 m-1;
+    @apply focus:ring-0 focus:outline-none shadow-sm;
+  }
 
-	.btn-primary {
-		@apply bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 shadow-sm;
-	}
+  .btn-primary {
+    @apply bg-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] 
+           text-white hover:brightness-110 dark:hover:brightness-125;
+  }
 
-	.btn-secondary {
-		@apply bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 shadow-sm;
-	}
+  .btn-secondary {
+    @apply bg-gray-100 text-gray-800 hover:bg-gray-200 
+           dark:bg-[rgb(var(--color-bg-overlay))] dark:text-[rgb(var(--color-fg-default))] 
+           dark:hover:bg-[rgb(var(--color-border-primary))];
+  }
 
-	.form-input {
-		@apply block w-full rounded-md shadow-sm focus:border-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm;
-	}
+  .form-input {
+    @apply block w-full rounded-md shadow-sm border-gray-300 dark:border-[rgb(var(--color-border-primary))] 
+           dark:bg-[rgb(var(--color-bg-inset))] dark:text-[rgb(var(--color-fg-default))] text-sm;
+  }
 
-	.form-label {
-		@apply block text-sm font-medium text-gray-700 dark:text-gray-300;
-	}
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 dark:text-[rgb(var(--color-fg-default))];
+  }
     
-    /* Mobile-first container */
-    .container-mobile {
-        @apply w-full px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
-    }
+  /* Container */
+  .container-mobile {
+    @apply w-full px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+  }
     
-    /* Card styles */
-    .card {
-        @apply bg-white dark:bg-gray-800 shadow rounded-lg p-4 sm:p-6;
-    }
+  /* Card styles with subtle project color influence */
+  .card {
+    @apply bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow rounded-lg p-4 sm:p-6;
+  }
     
-    /* Page heading */
-    .page-heading {
-        @apply text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6;
-    }
-}
-
-/* Dark mode overrides */
-.dark {
-	background-color: rgb(17 24 39 / 1);
-	color: rgb(229 231 235 / 1);
+  /* Card with project color influence */
+  .card-project {
+    @apply card bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.3)] 
+           dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),var(--color-project-saturation),15%,0.2)];
+  }
+    
+  /* Page heading */
+  .page-heading {
+    @apply text-xl sm:text-2xl font-semibold text-gray-900 dark:text-[rgb(var(--color-fg-default))] mb-4 sm:mb-6;
+  }
+  
+  /* Alert modal for notifications instead of toasts */
+  .alert-modal {
+    @apply fixed inset-0 z-50 flex items-center justify-center;
+  }
+  
+  .alert-modal-overlay {
+    @apply absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm;
+  }
+  
+  .alert-modal-content {
+    @apply relative bg-white dark:bg-[rgb(var(--color-bg-overlay))] rounded-lg shadow-xl p-6 max-w-md w-full;
+  }
 }
 
 /* Fix for full height layouts */
 html,
 body,
 #root {
-	height: 100%;
-	width: 100%;
-	overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
 }
 
-/* Mobile-first layout adjustments */
-body {
-    @apply text-base;
+/* Dynamic color system */
+.dynamic-color {
+  color: hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness));
 }
 
-/* Dynamic color system for light/dark modes */
-.dynamic-color-primary {
-	color: rgb(var(--color-primary-600));
+.dynamic-bg {
+  background-color: hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness));
 }
 
-.dark .dynamic-color-primary {
-	color: rgb(var(--color-primary-400));
+.dynamic-border {
+  border-color: hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness));
 }
 
-.dynamic-bg-primary {
-	background-color: rgb(var(--color-primary-600));
+.dynamic-fill {
+  fill: hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness));
 }
 
-.dark .dynamic-bg-primary {
-	background-color: rgb(var(--color-primary-400));
+/* Dynamic translucent backgrounds */
+.dynamic-bg-subtle {
+  background-color: hsla(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness), 0.1);
 }
 
-.dynamic-border-primary {
-	border-color: rgb(var(--color-primary-600));
-}
-
-.dark .dynamic-border-primary {
-	border-color: rgb(var(--color-primary-400));
+.dark .dynamic-bg-subtle {
+  background-color: hsla(var(--color-project-hue), var(--color-project-saturation), 30%, 0.2);
 }
 
 /* Mobile navigation improvements */
 @media (max-width: 768px) {
-    .main-layout {
-        margin-left: 0;
-    }
+  .main-layout {
+    margin-left: 0;
+  }
     
-    .sidebar-open .main-layout {
-        margin-left: 240px;
-    }
-}
-
-/* Improved focus styles for accessibility */
-a:focus, button:focus, input:focus, select:focus, textarea:focus {
-    @apply outline-none border-primary-500;
+  .sidebar-open .main-layout {
+    margin-left: 240px;
+  }
 }
 
 /* Better spacing for mobile */
 .m-responsive {
-    @apply m-2 sm:m-4;
+  @apply m-2 sm:m-4;
 }
 
 .p-responsive {
-    @apply p-2 sm:p-4;
+  @apply p-2 sm:p-4;
 }
 
-/* Custom range input styles with fill instead of outline */
+/* Custom range input styles with solid fill */
 input[type=range] {
   height: 8px;
   -webkit-appearance: none;
   margin: 10px 0;
   width: 100%;
+  background: transparent;
 }
 
 input[type=range]:focus {
@@ -168,9 +234,13 @@ input[type=range]::-webkit-slider-runnable-track {
   cursor: pointer;
   animate: 0.2s;
   box-shadow: none;
-  background: rgb(var(--color-primary-100));
+  background: hsla(var(--color-project-hue), var(--color-project-saturation), 90%, 1);
   border-radius: 6px;
   border: 0px solid transparent;
+}
+
+.dark input[type=range]::-webkit-slider-runnable-track {
+  background: hsla(var(--color-project-hue), var(--color-project-saturation), 20%, 1);
 }
 
 input[type=range]::-webkit-slider-thumb {
@@ -179,14 +249,18 @@ input[type=range]::-webkit-slider-thumb {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: rgb(var(--color-primary-500));
+  background: hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness));
   cursor: pointer;
   -webkit-appearance: none;
   margin-top: -6px;
 }
 
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: rgb(var(--color-primary-200));
+  background: hsla(var(--color-project-hue), var(--color-project-saturation), 85%, 1);
+}
+
+.dark input[type=range]:focus::-webkit-slider-runnable-track {
+  background: hsla(var(--color-project-hue), var(--color-project-saturation), 25%, 1);
 }
 
 input[type=range]::-moz-range-track {
@@ -195,9 +269,13 @@ input[type=range]::-moz-range-track {
   cursor: pointer;
   animate: 0.2s;
   box-shadow: none;
-  background: rgb(var(--color-primary-100));
+  background: hsla(var(--color-project-hue), var(--color-project-saturation), 90%, 1);
   border-radius: 6px;
   border: 0px solid transparent;
+}
+
+.dark input[type=range]::-moz-range-track {
+  background: hsla(var(--color-project-hue), var(--color-project-saturation), 20%, 1);
 }
 
 input[type=range]::-moz-range-thumb {
@@ -206,51 +284,8 @@ input[type=range]::-moz-range-thumb {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: rgb(var(--color-primary-500));
+  background: hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness));
   cursor: pointer;
-}
-
-input[type=range]::-ms-track {
-  width: 100%;
-  height: 8px;
-  cursor: pointer;
-  animate: 0.2s;
-  background: transparent;
-  border-color: transparent;
-  color: transparent;
-}
-
-input[type=range]::-ms-fill-lower {
-  background: rgb(var(--color-primary-100));
-  border: 0px solid transparent;
-  border-radius: 12px;
-  box-shadow: none;
-}
-
-input[type=range]::-ms-fill-upper {
-  background: rgb(var(--color-primary-100));
-  border: 0px solid transparent;
-  border-radius: 12px;
-  box-shadow: none;
-}
-
-input[type=range]::-ms-thumb {
-  margin-top: 1px;
-  box-shadow: none;
-  border: 0px solid transparent;
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  background: rgb(var(--color-primary-500));
-  cursor: pointer;
-}
-
-input[type=range]:focus::-ms-fill-lower {
-  background: rgb(var(--color-primary-200));
-}
-
-input[type=range]:focus::-ms-fill-upper {
-  background: rgb(var(--color-primary-200));
 }
 
 /* Ensure that number inputs for the timer settings are better styled */
@@ -263,4 +298,31 @@ input[type=number].timer-input::-webkit-inner-spin-button,
 input[type=number].timer-input::-webkit-outer-spin-button { 
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* GitHub-like scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 5px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-border-primary));
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-border-secondary));
 }

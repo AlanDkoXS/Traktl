@@ -5,6 +5,7 @@ import { ProjectForm } from '../components/ProjectForm';
 import { useProjectStore } from '../store/projectStore';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { TrashIcon } from '@heroicons/react/24/outline';
+import { setProjectColor, resetProjectColor } from '../utils/dynamicColors';
 
 export const EditProject = () => {
   const { t } = useTranslation();
@@ -34,7 +35,19 @@ export const EditProject = () => {
     };
     
     loadProject();
+    
+    // Cleanup on unmount - reset to default color
+    return () => {
+      resetProjectColor();
+    };
   }, [id, fetchProject]);
+  
+  // Set project color when selected project changes
+  useEffect(() => {
+    if (selectedProject?.color) {
+      setProjectColor(selectedProject.color);
+    }
+  }, [selectedProject]);
 
   // Handle project deletion
   const handleDelete = async () => {
@@ -43,6 +56,7 @@ export const EditProject = () => {
     setDeleteLoading(true);
     try {
       await deleteProject(id);
+      resetProjectColor();
       navigate('/projects');
     } catch (err) {
       console.error('Error deleting project:', err);
@@ -82,14 +96,14 @@ export const EditProject = () => {
         </h1>
         <button
           onClick={() => setShowDeleteModal(true)}
-          className="btn btn-secondary bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800"
+          className="btn btn-secondary bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-800/50"
         >
           <TrashIcon className="h-5 w-5 mr-1" />
           {t('common.delete')}
         </button>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+      <div className="card-project">
         <div className="px-4 py-5 sm:p-6">
           <ProjectForm project={selectedProject} isEditing />
         </div>
