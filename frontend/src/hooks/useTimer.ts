@@ -20,7 +20,10 @@ export const useTimer = () => {
 		workStartTime,
 		showCompletionModal,
 		closeCompletionModal,
-		isInfiniteMode,
+		infiniteMode,
+		selectedEntryId,
+		setInfiniteMode,
+		setSelectedEntryId,
 
 		tick,
 		start,
@@ -29,7 +32,6 @@ export const useTimer = () => {
 		stop,
 		reset,
 		switchToNext,
-		setInfiniteMode,
 
 		setWorkDuration,
 		setBreakDuration,
@@ -69,33 +71,36 @@ export const useTimer = () => {
 		};
 	}, [status, tick]);
 
-	// Calculate remaining time - Si estamos en modo infinito, no hay tiempo restante
-	const remainingTime = isInfiniteMode && mode === 'work' 
-		? elapsed
-		: mode === 'work'
-			? Math.max(0, workDuration * 60 * 1000 - elapsed)
+	// Calculate remaining time
+	const remainingTime =
+		mode === 'work'
+			? infiniteMode 
+				? elapsed // For infinite mode, just show elapsed time
+				: Math.max(0, workDuration * 60 * 1000 - elapsed)
 			: Math.max(0, breakDuration * 60 * 1000 - elapsed);
 
-	// Format time for display (mm:ss)
+	// Format time for display (mm:ss or hh:mm:ss for longer times)
 	const formatTime = (milliseconds: number): string => {
-		// En modo infinito, mostrar el tiempo transcurrido
-		if (isInfiniteMode && mode === 'work') {
+		if (infiniteMode && mode === 'work') {
+			// For infinite mode, format elapsed time as hh:mm:ss
+			const totalSeconds = Math.floor(milliseconds / 1000);
+			const hours = Math.floor(totalSeconds / 3600);
+			const minutes = Math.floor((totalSeconds % 3600) / 60);
+			const seconds = totalSeconds % 60;
+			return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+		} else {
+			// For normal mode, format remaining time
 			const totalSeconds = Math.floor(milliseconds / 1000);
 			const minutes = Math.floor(totalSeconds / 60);
 			const seconds = totalSeconds % 60;
 			return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 		}
-		
-		// Normal mode - formato tiempo restante
-		const totalSeconds = Math.floor(milliseconds / 1000);
-		const minutes = Math.floor(totalSeconds / 60);
-		const seconds = totalSeconds % 60;
-		return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 	};
 
-	// Progress percentage
-	const progress =
-		mode === 'work'
+	// Progress percentage - for infinite mode, keep it at 50%
+	const progress = infiniteMode && mode === 'work'
+		? 50 // Keep at middle for infinite
+		: mode === 'work'
 			? (elapsed / (workDuration * 60 * 1000)) * 100
 			: (elapsed / (breakDuration * 60 * 1000)) * 100;
 
@@ -120,7 +125,9 @@ export const useTimer = () => {
 		mode,
 		elapsed,
 		remainingTime,
-		formattedTime: formatTime(isInfiniteMode && mode === 'work' ? elapsed : remainingTime),
+		formattedTime: infiniteMode && mode === 'work'
+			? formatTime(elapsed) // Show elapsed time for infinite mode
+			: formatTime(remainingTime), // Show remaining time for regular mode
 		progress,
 		workDuration,
 		breakDuration,
@@ -133,7 +140,8 @@ export const useTimer = () => {
 		workStartTime,
 		showCompletionModal,
 		closeCompletionModal,
-		isInfiniteMode,
+		infiniteMode,
+		selectedEntryId,
 
 		start,
 		pause,
@@ -143,6 +151,7 @@ export const useTimer = () => {
 		skipToNext,
 		createTimeEntryOnCompletion: createTimeEntryFromWorkSession,
 		setInfiniteMode,
+		setSelectedEntryId,
 
 		setWorkDuration,
 		setBreakDuration,

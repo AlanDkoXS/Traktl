@@ -6,7 +6,13 @@ import { useTimeEntryStore } from '../store/timeEntryStore';
 import { useProjectStore } from '../store/projectStore';
 import { useTaskStore } from '../store/taskStore';
 import { useTagStore } from '../store/tagStore';
-import { TrashIcon, PencilIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/outline';
+import {
+	TrashIcon,
+	PencilIcon,
+	ClockIcon,
+	PlayIcon,
+	InfinityIcon,
+} from '@heroicons/react/24/outline';
 import { ConfirmModal } from './ui/ConfirmModal';
 import { useTimerStore } from '../store/timerStore';
 import { TimeEntry } from '../types';
@@ -40,14 +46,16 @@ export const TimeEntryList = ({
 		setTags,
 		status: timerStatus,
 		workStartTime,
+		infiniteMode,
 		setInfiniteMode,
+		selectedEntryId,
+		setSelectedEntryId,
 	} = useTimerStore();
 
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
 	const [deleteLoading, setDeleteLoading] = useState(false);
 	const [dataInitialized, setDataInitialized] = useState(false);
-	const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
 	const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null);
 
 	// Initial data load
@@ -68,17 +76,7 @@ export const TimeEntryList = ({
 
 			loadData();
 		}
-	}, [
-		projectId,
-		taskId,
-		startDate,
-		endDate,
-		dataInitialized,
-		fetchTimeEntries,
-		fetchProjects,
-		fetchTasks,
-		fetchTags,
-	]);
+	}, [projectId, taskId, startDate, endDate, dataInitialized]);
 
 	// Refresh time entries when timer stops
 	useEffect(() => {
@@ -94,7 +92,7 @@ export const TimeEntryList = ({
 
 			refreshData();
 		}
-	}, [timerStatus, workStartTime, fetchTimeEntries, projectId, taskId, startDate, endDate]);
+	}, [timerStatus, workStartTime]);
 
 	// Format duration with hours, minutes, and seconds
 	const formatDuration = (milliseconds: number) => {
@@ -147,6 +145,12 @@ export const TimeEntryList = ({
 		setDeleteLoading(true);
 		try {
 			await deleteTimeEntry(entryToDelete);
+
+			// If we're deleting the selected entry, clear selection
+			if (selectedEntryId === entryToDelete) {
+				setSelectedEntryId(null);
+				setInfiniteMode(false);
+			}
 		} catch (error) {
 			console.error('Failed to delete time entry:', error);
 		} finally {
@@ -160,37 +164,32 @@ export const TimeEntryList = ({
 		e.preventDefault();
 		e.stopPropagation();
 
-		// Solo seleccionar la entrada (no iniciar el timer)
+		// If we're clicking the currently selected entry, unselect it and turn off infinite mode
 		if (selectedEntryId === entry.id) {
 			setSelectedEntryId(null);
+			setInfiniteMode(false);
 		} else {
 			setSelectedEntryId(entry.id);
+			setInfiniteMode(true); // Enable infinite mode when selecting an entry
 		}
 	};
 
-	// Maneja el clic en el botón de play específicamente
+	// Handle click on the play button specifically
 	const handlePlayClick = (entry: TimeEntry, e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
 
-		console.log('Iniciando timer con modo infinito para entrada:', entry);
-
-		// Iniciar el temporizador con los datos de la entrada
+		// Set up timer with the entry data
 		setProjectId(entry.project);
 		if (entry.task) setTaskId(entry.task);
 		if (entry.notes) setNotes(entry.notes);
-		if (entry.tags && entry.tags.length > 0) setTags(entry.tags);
+		if (entry.tags) setTags(entry.tags);
 
-		// Activar el modo infinito
-		setInfiniteMode(true);
+		// Start timer with infinite mode if this entry is selected
+		setInfiniteMode(selectedEntryId === entry.id);
+		start();
 
-		// Iniciar el temporizador
-		setTimeout(() => {
-			console.log('Iniciando timer...');
-			start();
-		}, 100);
-
-		// Limpiar la selección
+		// Clear selection (timer is now running with this data)
 		setSelectedEntryId(null);
 	};
 
@@ -264,7 +263,7 @@ export const TimeEntryList = ({
 					return (
 						<div
 							key={entry.id}
-							className={`relative block bg-[rgb(var(--color-bg-inset))] rounded-lg p-2 shadow-sm transition-all ${isTimerActive ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow bg-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.6)] dark:bg-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.4)]' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''}`}
+							className={`relative block bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg p-2 shadow-sm transition-all ${isTimerActive ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow bg-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.6)] dark:bg-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.4)]' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''}`}
 							onMouseEnter={() => setHoveredEntryId(entry.id)}
 							onMouseLeave={() => setHoveredEntryId(null)}
 						>
@@ -323,7 +322,7 @@ export const TimeEntryList = ({
 									</div>
 									<div className="text-right">
 										<div
-											className="text-lg font-bold dynamic-color"
+											className={`text-lg font-bold dynamic-color ${isSelected ? 'flex items-center flex-col' : ''}`}
 											style={{
 												color: isSelected
 													? darkerProjectColor

@@ -59,6 +59,7 @@
         "paused": "Pausa",
         "resume": "Reanudar",
         "reset": "Reiniciar",
+        "infiniteMode": "Modo Infinito",
         "skipToNext": "Saltar al Siguiente",
         "workTime": "Tiempo de trabajo",
         "breakTime": "Tiempo de descanso",
