@@ -32,6 +32,8 @@ export const ProjectTaskSelector = ({
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [isOpen, setIsOpen] = useState(false);
+	const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
+	const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
 
 	// Get data from stores
 	const { projects, fetchProjects, isLoading: projectsLoading } = useProjectStore();
@@ -90,6 +92,20 @@ export const ProjectTaskSelector = ({
 
 	const closeModal = () => {
 		setIsOpen(false);
+	};
+
+	const handleCreateProject = () => {
+		closeModal();
+		navigate('/projects/new');
+	};
+
+	const handleCreateTask = () => {
+		closeModal();
+		if (projectId) {
+			navigate(`/tasks/new?projectId=${projectId}`);
+		} else {
+			navigate('/tasks/new');
+		}
 	};
 
 	// Find selected project and task names
@@ -154,10 +170,10 @@ export const ProjectTaskSelector = ({
 								leaveFrom="opacity-100 scale-100"
 								leaveTo="opacity-0 scale-95"
 							>
-								<Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
+								<Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-lg bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-6 text-left align-middle shadow-xl transition-all border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 									<Dialog.Title
 										as="h3"
-										className="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4"
+										className="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4 dynamic-color"
 									>
 										{t('timeEntries.details')}
 									</Dialog.Title>
@@ -180,7 +196,7 @@ export const ProjectTaskSelector = ({
 														id="project-select"
 														value={projectId || ''}
 														onChange={handleProjectChange}
-														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0"
+														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
 													>
 														<option value="">
 															{t('timeEntries.selectProject')}
@@ -195,11 +211,8 @@ export const ProjectTaskSelector = ({
 														))}
 													</select>
 													<button
-														onClick={() => {
-															closeModal();
-															navigate('/projects/new');
-														}}
-														className="ml-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600"
+														onClick={handleCreateProject}
+														className="ml-2 p-2 w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center"
 														title={t('projects.new')}
 													>
 														<PlusIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -221,7 +234,7 @@ export const ProjectTaskSelector = ({
 														onChange={(e) =>
 															setTaskId(e.target.value || null)
 														}
-														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0"
+														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
 														disabled={!projectId}
 													>
 														<option value="">
@@ -235,13 +248,8 @@ export const ProjectTaskSelector = ({
 													</select>
 													{projectId && (
 														<button
-															onClick={() => {
-																closeModal();
-																navigate(
-																	`/tasks/new?projectId=${projectId}`
-																);
-															}}
-															className="ml-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600"
+															onClick={handleCreateTask}
+															className="ml-2 p-2 w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center"
 															title={t('tasks.new')}
 														>
 															<PlusIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -261,7 +269,7 @@ export const ProjectTaskSelector = ({
 													id="notes"
 													value={notes}
 													onChange={(e) => setNotes(e.target.value)}
-													className="mt-1 block w-full rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0"
+													className="mt-1 block w-full rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
 													placeholder={t('timeEntries.notes')}
 													rows={2}
 												/>
@@ -286,6 +294,12 @@ export const ProjectTaskSelector = ({
 																color: selectedTags.includes(tag.id)
 																	? tag.color
 																	: '#374151',
+																borderColor: tag.color,
+																borderWidth: selectedTags.includes(
+																	tag.id
+																)
+																	? '1px'
+																	: '0',
 															}}
 														>
 															<div

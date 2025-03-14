@@ -6,7 +6,7 @@ import { useTaskStore } from '../store/taskStore';
 import { useTimeEntryStore } from '../store/timeEntryStore';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { TimeEntryList } from '../components/TimeEntryList';
 
 export const Dashboard = () => {
@@ -24,7 +24,7 @@ export const Dashboard = () => {
 			const loadData = async () => {
 				setIsLoading(true);
 				try {
-					// Load each type of data in sequence to avoid cycles
+					// Load data in sequence to avoid cycles
 					await fetchProjects();
 					await fetchClients();
 					await fetchTasks();
@@ -90,7 +90,7 @@ export const Dashboard = () => {
 								<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 									{t('dashboard.quickLinks')}
 								</h3>
-								<nav className="space-y-1">
+								<nav className="space-y-2">
 									<QuickLink
 										href="/time-entries/new"
 										title={t('timeEntries.new')}
@@ -135,8 +135,9 @@ const QuickLink = ({ href, title }) => {
 	return (
 		<Link
 			to={href}
-			className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-500 hover:dynamic-bg-subtle hover:dynamic-color transition-colors group"
+			className="flex items-center py-2 px-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:dynamic-bg-subtle hover:dynamic-color transition-colors group"
 		>
+			<PlusIcon className="h-5 w-5 mr-2" />
 			<span>{title}</span>
 			<ArrowRightIcon className="ml-auto h-4 w-4 text-gray-400 group-hover:dynamic-color group-hover:translate-x-0.5 transition-transform" />
 		</Link>
