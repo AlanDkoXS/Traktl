@@ -21,7 +21,7 @@ export const Dashboard = () => {
 
 	useEffect(() => {
 		if (!dataInitialized) {
-			const fetchData = async () => {
+			const loadData = async () => {
 				setIsLoading(true);
 				try {
 					// Load each type of data in sequence to avoid cycles
@@ -36,7 +36,7 @@ export const Dashboard = () => {
 				}
 			};
 			
-			fetchData();
+			loadData();
 		}
 	}, [dataInitialized]);
 
@@ -86,7 +86,7 @@ export const Dashboard = () => {
 							</div>
 
 							{/* Quick links */}
-							<div className="card-project">
+							<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4">
 								<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 									{t('dashboard.quickLinks')}
 								</h3>
@@ -128,23 +128,13 @@ const StatsCard = ({ title, count, link }) => {
 	return (
 		<Link 
 			to={link} 
-			className="card p-4 hover:shadow-md transition-shadow flex flex-col h-full group rounded-lg 
-				dark:bg-none dark:bg-gradient-to-br dark:from-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.4),15%)] 
-				dark:to-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),8%)]"
-			style={{
-                background: `linear-gradient(135deg, 
-                    hsl(var(--color-project-hue), calc(var(--color-project-saturation) * 0.4), 95%) 0%, 
-                    hsl(var(--color-project-hue), calc(var(--color-project-saturation) * 0.6), 98%) 100%)`,
-                backgroundImage: `linear-gradient(135deg, 
-                    hsl(var(--color-project-hue), calc(var(--color-project-saturation) * 0.4), 95%) 0%, 
-                    hsl(var(--color-project-hue), calc(var(--color-project-saturation) * 0.6), 98%) 100%)`,
-            }}
+			className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 hover:shadow-md transition-shadow flex flex-col h-full group rounded-lg shadow-sm"
 		>
 			<div className="flex flex-col h-full">
 				<div className="font-medium text-gray-500 dark:text-gray-400 text-sm">
 					{title}
 				</div>
-				<div className="mt-2 text-3xl font-semibold text-gray-900 dark:text-white dynamic-color">
+				<div className="mt-2 text-3xl font-semibold dynamic-color">
 					{count}
 				</div>
 				<div className="mt-auto pt-2 text-xs dynamic-color flex items-center">

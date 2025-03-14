@@ -2,7 +2,6 @@ import { Fragment, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { Project, Task, Tag } from '../../types';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useProjectStore } from '../../store/projectStore';
 import { useTaskStore } from '../../store/taskStore';
@@ -103,7 +102,7 @@ export const ProjectTaskSelector = ({
     <>
       <button
         onClick={openModal}
-        className="w-full p-3 text-left flex justify-between items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+        className="w-full p-3 text-left flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
       >
         <div>
           <div className="font-medium dynamic-color">
@@ -171,7 +170,7 @@ export const ProjectTaskSelector = ({
                             id="project-select"
                             value={projectId || ''}
                             onChange={handleProjectChange}
-                            className="flex-1 rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm focus:dynamic-border focus:bg-white dark:focus:bg-gray-800 dark:border-gray-600 dark:text-white sm:text-sm"
+                            className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0"
                           >
                             <option value="">{t('timeEntries.selectProject')}</option>
                             {projects.map(project => (
@@ -203,7 +202,7 @@ export const ProjectTaskSelector = ({
                             id="task-select"
                             value={taskId || ''}
                             onChange={(e) => setTaskId(e.target.value || null)}
-                            className="flex-1 rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm focus:dynamic-border focus:bg-white dark:focus:bg-gray-800 dark:border-gray-600 dark:text-white sm:text-sm"
+                            className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0"
                             disabled={!projectId}
                           >
                             <option value="">{t('timeEntries.selectTask')}</option>
@@ -237,7 +236,7 @@ export const ProjectTaskSelector = ({
                           id="notes"
                           value={notes}
                           onChange={(e) => setNotes(e.target.value)}
-                          className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 dark:bg-gray-700 shadow-sm focus:dynamic-border focus:bg-white dark:focus:bg-gray-800 dark:border-gray-600 dark:text-white sm:text-sm"
+                          className="mt-1 block w-full rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0"
                           placeholder={t('timeEntries.notes')}
                           rows={2}
                         />
@@ -255,15 +254,10 @@ export const ProjectTaskSelector = ({
                               key={tag.id}
                               type="button"
                               onClick={() => handleTagToggle(tag.id)}
-                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
-                                selectedTags.includes(tag.id)
-                                  ? 'bg-opacity-20 border-opacity-60'
-                                  : 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'
-                              }`}
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium`}
                               style={{
-                                backgroundColor: selectedTags.includes(tag.id) ? `${tag.color}20` : undefined,
-                                color: selectedTags.includes(tag.id) ? tag.color : undefined,
-                                borderColor: selectedTags.includes(tag.id) ? tag.color : undefined
+                                backgroundColor: selectedTags.includes(tag.id) ? `${tag.color}20` : '#f3f4f6',
+                                color: selectedTags.includes(tag.id) ? tag.color : '#374151',
                               }}
                             >
                               <div

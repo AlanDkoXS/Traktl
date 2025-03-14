@@ -25,7 +25,7 @@ export const PresetSelector = ({ onSelectPreset }: PresetSelectorProps) => {
   return (
     <div className="mt-2 mb-6">
       <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        {t('timer.presets')}:
+        {t('timer.presets')}
       </div>
       <div className="flex flex-wrap justify-center gap-2">
         {timerPresets.map((preset) => (

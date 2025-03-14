@@ -25,7 +25,9 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	const { projects } = useProjectStore();
 	const [cellSize, setCellSize] = useState(10);
 	const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
-	const [tooltipData, setTooltipData] = useState<{x: number, y: number, data: any} | null>(null);
+	const [tooltipData, setTooltipData] = useState<{ x: number; y: number; data: any } | null>(
+		null
+	);
 	const [hoveredDay, setHoveredDay] = useState<string | null>(null);
 
 	// Handle responsive behavior
@@ -44,7 +46,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	// Generate calendar grid
 	const calendarData = useMemo(() => {
 		const today = new Date();
-		const weeksToShow = 21; 
+		const weeksToShow = 21;
 
 		const halfWeeks = Math.floor(weeksToShow / 2);
 		const startDate = subDays(today, halfWeeks * 7);
@@ -124,11 +126,11 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 
 		// Calculate total to determine percentages
 		const total = Object.values(projectTimeMap).reduce((sum, mins) => sum + mins, 0);
-		
+
 		const result = Object.entries(projectTimeMap).map(([projectId, duration]) => {
 			const project = projects.find((p) => p.id === projectId);
-			const percent = total > 0 ? (duration / total) : 0;
-			
+			const percent = total > 0 ? duration / total : 0;
+
 			return {
 				id: projectId,
 				name: project?.name || 'Unknown Project',
@@ -137,45 +139,45 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 				color: project?.color || '#ccc',
 			};
 		});
-		
+
 		// Sort by percentage (highest first to assign colors)
 		return result.sort((a, b) => b.percent - a.percent);
 	}, [timeEntries, storeTimeEntries, projects]);
 
 	const totalMinutesToday = todaysPieData.reduce((sum, item) => sum + item.value, 0);
 
-	// Get color based on activity level (GitHub style)
-	const getActivityColor = (minutes: number, isHovered: boolean) => {
-		if (minutes === 0) return isHovered 
-			? 'bg-gray-200 dark:bg-gray-600' 
-			: 'bg-gray-100 dark:bg-gray-700';
+	// GitHub-style activity colors
+	const getGitHubActivityColor = (minutes: number, isHovered: boolean) => {
+		if (minutes === 0)
+			return isHovered ? 'bg-gray-200 dark:bg-gray-600' : 'bg-gray-100 dark:bg-gray-700';
 
-		const baseColor = 'var(--color-project-hue), var(--color-project-saturation)';
-		
-		if (minutes <= maxActivity * 0.15) return isHovered 
-			? `bg-[hsl(${baseColor},85%)] dark:bg-[hsl(${baseColor},25%)]` 
-			: `bg-[hsl(${baseColor},90%)] dark:bg-[hsl(${baseColor},20%)]`;
-			
-		if (minutes <= maxActivity * 0.4) return isHovered 
-			? `bg-[hsl(${baseColor},65%)] dark:bg-[hsl(${baseColor},40%)]` 
-			: `bg-[hsl(${baseColor},75%)] dark:bg-[hsl(${baseColor},35%)]`;
-			
-		if (minutes <= maxActivity * 0.7) return isHovered 
-			? `bg-[hsl(${baseColor},50%)] dark:bg-[hsl(${baseColor},45%)]` 
-			: `bg-[hsl(${baseColor},60%)] dark:bg-[hsl(${baseColor},40%)]`;
-			
-		return isHovered 
-			? `bg-[hsl(${baseColor},35%)] dark:bg-[hsl(${baseColor},60%)]` 
-			: `bg-[hsl(${baseColor},40%)] dark:bg-[hsl(${baseColor},55%)]`;
+		// GitHub color palette
+		if (minutes <= maxActivity * 0.15)
+			return isHovered ? 'bg-[#9be9a8] dark:bg-[#0e4429]' : 'bg-[#ebedf0] dark:bg-[#0e4429]';
+
+		if (minutes <= maxActivity * 0.4)
+			return isHovered ? 'bg-[#40c463] dark:bg-[#006d32]' : 'bg-[#9be9a8] dark:bg-[#006d32]';
+
+		if (minutes <= maxActivity * 0.7)
+			return isHovered ? 'bg-[#30a14e] dark:bg-[#26a641]' : 'bg-[#40c463] dark:bg-[#26a641]';
+
+		return isHovered ? 'bg-[#216e39] dark:bg-[#39d353]' : 'bg-[#30a14e] dark:bg-[#39d353]';
 	};
-	
-	// Get color based on position in the array (highest gets lightest color)
-	const getPieColorForIndex = (index: number, totalItems: number, color: string) => {
-		// Use project color if available
-		if (color && color !== '#ccc') return color;
-		
-		// Otherwise use dynamic color
-		return `hsl(var(--color-project-hue), var(--color-project-saturation), ${40 + (index * 30 / totalItems)}%)`;
+
+	// Get GitHub-style colors for pie chart (grayscale to green)
+	const getGitHubPieColor = (index: number, totalItems: number) => {
+		// GitHub-inspired color palette for the pie chart
+		const GITHUB_COLORS = [
+			'#216e39', // darkest green
+			'#30a14e',
+			'#40c463',
+			'#9be9a8', // lightest green
+			'#ebedf0', // gray
+		];
+
+		// For less important slices (low percentage), use gray
+		if (index >= 4) return '#ebedf0';
+		return GITHUB_COLORS[index];
 	};
 
 	const daysTranslation = {
@@ -193,31 +195,31 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		if (!day) return null;
 		const date = format(day.date, 'MMM d, yyyy');
 		const minutes = Math.round(day.activity);
-		
+
 		// Find projects for this day
 		const dayProjects: Record<string, number> = {};
 		const entriesToUse = timeEntries.length > 0 ? timeEntries : storeTimeEntries;
-		
-		entriesToUse.forEach(entry => {
+
+		entriesToUse.forEach((entry) => {
 			const entryDate = format(new Date(entry.startTime), 'yyyy-MM-dd');
 			if (entryDate === day.dateString) {
 				const projectId = entry.project;
-				const project = projects.find(p => p.id === projectId);
+				const project = projects.find((p) => p.id === projectId);
 				const projectName = project?.name || 'Unknown Project';
-				
+
 				if (!dayProjects[projectName]) {
 					dayProjects[projectName] = 0;
 				}
 				dayProjects[projectName] += entry.duration / (1000 * 60);
 			}
 		});
-		
+
 		return (
-			<div className="bg-white dark:bg-[rgb(var(--color-bg-overlay))] p-2 rounded-md shadow-md border border-gray-200 dark:border-[rgb(var(--color-border-primary))] text-xs">
+			<div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md text-xs">
 				<div className="font-medium">{date}</div>
-				<div className="text-gray-700 dark:text-[rgb(var(--color-fg-default))]">{minutes} min total</div>
+				<div className="text-gray-700 dark:text-gray-300">{minutes} min total</div>
 				{Object.entries(dayProjects).length > 0 && (
-					<div className="mt-1 border-t border-gray-200 dark:border-[rgb(var(--color-border-primary))] pt-1">
+					<div className="mt-1 pt-1">
 						{Object.entries(dayProjects).map(([project, mins]) => (
 							<div key={project} className="flex justify-between">
 								<span>{project}:</span>
@@ -233,31 +235,31 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	// Custom tooltip for pie chart
 	const CustomTooltip = ({ active, payload }: any) => {
 		if ((active && payload && payload.length) || hoveredLabel || tooltipData) {
-			const data = hoveredLabel 
-				? todaysPieData.find(item => item.id === hoveredLabel) 
-				: tooltipData 
+			const data = hoveredLabel
+				? todaysPieData.find((item) => item.id === hoveredLabel)
+				: tooltipData
 					? tooltipData.data
 					: payload?.[0]?.payload;
-				
+
 			if (!data) return null;
-				
-			const style = tooltipData 
-				? {
-					position: 'absolute', 
-					left: `${tooltipData.x}px`, 
-					top: `${tooltipData.y}px`, 
-					transform: 'translate(-50%, -100%)',
-					zIndex: 100
-				} as React.CSSProperties
+
+			const style = tooltipData
+				? ({
+						position: 'absolute',
+						left: `${tooltipData.x}px`,
+						top: `${tooltipData.y}px`,
+						transform: 'translate(-50%, -100%)',
+						zIndex: 100,
+					} as React.CSSProperties)
 				: {};
-				
+
 			return (
-				<div 
-					className="bg-white dark:bg-[rgb(var(--color-bg-overlay))] p-2 rounded-md shadow-md border border-gray-200 dark:border-[rgb(var(--color-border-primary))] text-xs" 
+				<div
+					className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md text-xs"
 					style={style}
 				>
-					<p className="font-medium dynamic-color">{data.name}</p>
-					<p className="text-gray-700 dark:text-[rgb(var(--color-fg-default))]">
+					<p className="font-medium text-gray-900 dark:text-white">{data.name}</p>
+					<p className="text-gray-700 dark:text-gray-300">
 						{data.value} min ({Math.round(data.percent * 100)}%)
 					</p>
 				</div>
@@ -267,50 +269,61 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	};
 
 	// Custom label for pie chart
-	const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name, value, payload }) => {
+	const renderCustomizedLabel = ({
+		cx,
+		cy,
+		midAngle,
+		innerRadius,
+		outerRadius,
+		percent,
+		index,
+		name,
+		value,
+		payload,
+	}) => {
 		const RADIAN = Math.PI / 180;
 		const radius = outerRadius * 1.3;
 		const x = cx + radius * Math.cos(-midAngle * RADIAN);
 		const y = cy + radius * Math.sin(-midAngle * RADIAN);
-		
+
 		// Truncate to 5 characters
 		const shortName = name.length > 5 ? name.substring(0, 5) + '...' : name;
-		
+
 		const handleMouseMove = (e: React.MouseEvent) => {
 			setTooltipData({
 				x: e.clientX,
 				y: e.clientY,
-				data: payload
+				data: payload,
 			});
 		};
-		
+
 		const handleMouseLeave = () => {
 			setTooltipData(null);
 		};
-		
+
 		return (
-			<g 
+			<g
 				onMouseEnter={() => setHoveredLabel(payload.id)}
 				onMouseLeave={() => setHoveredLabel(null)}
 				onMouseMove={handleMouseMove}
 				onMouseOut={handleMouseLeave}
-				style={{cursor: 'pointer'}}
+				style={{ cursor: 'pointer' }}
 			>
-				<text 
-					x={x} 
-					y={y} 
+				<text
+					x={x}
+					y={y}
 					fill="#666"
-					textAnchor={x > cx ? 'start' : 'end'} 
+					textAnchor={x > cx ? 'start' : 'end'}
 					dominantBaseline="central"
 					style={{ fontSize: '8px' }}
 				>
 					{shortName}
 				</text>
-				<text 
-					x={x} 
-					y={y + 10} 
+				<text
+					x={x}
+					y={y + 10}
 					fill="#666"
-					textAnchor={x > cx ? 'start' : 'end'} 
+					textAnchor={x > cx ? 'start' : 'end'}
 					dominantBaseline="central"
 					style={{ fontSize: '8px', fontWeight: 'bold' }}
 				>
@@ -325,7 +338,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			<div className="flex flex-col sm:flex-row gap-6">
 				{/* Today's Projects Pie Chart - Now first */}
 				<div className="w-full sm:w-1/3">
-					<h3 className="text-xs font-medium text-gray-900 dark:text-white mb-1 text-center dynamic-color">
+					<h3 className="text-xs font-medium text-gray-900 dark:text-white mb-1 text-center">
 						{format(new Date(), 'MMM d')}
 					</h3>
 
@@ -343,14 +356,19 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 											paddingAngle={2}
 											dataKey="value"
 											nameKey="name"
+											stroke="none"
 											strokeWidth={0}
 											label={renderCustomizedLabel}
 											labelLine={true}
 										>
 											{todaysPieData.map((entry, index) => (
-												<Cell 
-													key={`cell-${index}`} 
-													fill={getPieColorForIndex(index, todaysPieData.length, entry.color)} 
+												<Cell
+													key={`cell-${index}`}
+													fill={getGitHubPieColor(
+														index,
+														todaysPieData.length
+													)}
+													stroke="none"
 												/>
 											))}
 										</Pie>
@@ -359,13 +377,13 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 								</ResponsiveContainer>
 								{tooltipData && <CustomTooltip active={true} />}
 							</div>
-							
+
 							<div className="text-xs text-center mt-1 text-gray-500 dark:text-gray-400">
 								{totalMinutesToday > 0 ? `${totalMinutesToday} min total` : ''}
 							</div>
 						</>
 					) : (
-						<div className="flex items-center justify-center h-32 w-full bg-gray-50 dark:bg-[rgb(var(--color-bg-inset))] rounded-md">
+						<div className="flex items-center justify-center h-32 w-full bg-gray-50 dark:bg-gray-800 rounded-md">
 							<p className="text-xs text-gray-500 dark:text-gray-400 text-center">
 								{t('dashboard.noDataToday')}
 							</p>
@@ -377,12 +395,12 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 				<div className="w-full sm:w-2/3">
 					<div className="flex flex-col items-center">
 						<div className="overflow-x-auto pb-4 max-w-full">
-							<div 
-								className="inline-grid" 
+							<div
+								className="inline-grid"
 								style={{
 									gridTemplateColumns: `auto repeat(${numCols}, ${cellSize}px)`,
 									gridTemplateRows: `auto repeat(7, ${cellSize}px)`,
-									gap: '2px'
+									gap: '2px',
 								}}
 							>
 								{/* Top left empty cell */}
@@ -411,7 +429,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 								{/* Day rows with labels */}
 								{[0, 1, 2, 3, 4, 5, 6].map((dayOfWeek) => (
 									<React.Fragment key={`row-${dayOfWeek}`}>
-										<div 
+										<div
 											className="flex items-center justify-end pr-1 text-gray-500 dark:text-gray-400"
 											style={{ fontSize: '9px' }}
 										>
@@ -422,26 +440,32 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 											const day =
 												calendarData[dayOfWeek] &&
 												calendarData[dayOfWeek][colIndex];
-												
-											if (!day) return (
-												<div 
-													key={`cell-${dayOfWeek}-${colIndex}`} 
-													className="bg-transparent" 
-													style={{ width: `${cellSize}px`, height: `${cellSize}px` }} 
-												/>
-											);
-											
-											const isHovered = hoveredDay === `${dayOfWeek}-${colIndex}`;
+
+											if (!day)
+												return (
+													<div
+														key={`cell-${dayOfWeek}-${colIndex}`}
+														className="bg-transparent"
+														style={{
+															width: `${cellSize}px`,
+															height: `${cellSize}px`,
+														}}
+													/>
+												);
+
+											const isHovered =
+												hoveredDay === `${dayOfWeek}-${colIndex}`;
 											return (
 												<div
 													key={`cell-${dayOfWeek}-${colIndex}`}
-													className={`${getActivityColor(day.activity, isHovered)} rounded-sm relative group transition-colors`}
+													className={`${getGitHubActivityColor(day.activity, isHovered)} rounded-sm relative group transition-colors`}
 													style={{
 														width: `${cellSize}px`,
 														height: `${cellSize}px`,
-														outline: day.isToday ? '2px solid var(--color-primary-500)' : 'none',
 													}}
-													onMouseEnter={() => setHoveredDay(`${dayOfWeek}-${colIndex}`)}
+													onMouseEnter={() =>
+														setHoveredDay(`${dayOfWeek}-${colIndex}`)
+													}
 													onMouseLeave={() => setHoveredDay(null)}
 												>
 													<div className="hidden group-hover:block absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 whitespace-nowrap">
@@ -455,15 +479,18 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 							</div>
 						</div>
 
-						{/* Legend - Modified to use dynamic colors */}
-						<div className="flex items-center mt-4 justify-center text-gray-500 dark:text-gray-400" style={{ fontSize: '9px' }}>
+						{/* Legend - GitHub style */}
+						<div
+							className="flex items-center mt-4 justify-center text-gray-500 dark:text-gray-400"
+							style={{ fontSize: '9px' }}
+						>
 							<span>{t('dashboard.less')}</span>
 							<div className="flex mx-2 space-x-1 items-center">
 								<div className="h-2 w-2 bg-gray-100 dark:bg-gray-700 rounded-sm"></div>
-								<div className="h-2.5 w-2.5 bg-[hsl(var(--color-project-hue),var(--color-project-saturation),90%)] dark:bg-[hsl(var(--color-project-hue),var(--color-project-saturation),20%)] rounded-sm"></div>
-								<div className="h-3 w-3 bg-[hsl(var(--color-project-hue),var(--color-project-saturation),75%)] dark:bg-[hsl(var(--color-project-hue),var(--color-project-saturation),35%)] rounded-sm"></div>
-								<div className="h-3.5 w-3.5 bg-[hsl(var(--color-project-hue),var(--color-project-saturation),60%)] dark:bg-[hsl(var(--color-project-hue),var(--color-project-saturation),40%)] rounded-sm"></div>
-								<div className="h-4 w-4 bg-[hsl(var(--color-project-hue),var(--color-project-saturation),40%)] dark:bg-[hsl(var(--color-project-hue),var(--color-project-saturation),55%)] rounded-sm"></div>
+								<div className="h-2.5 w-2.5 bg-[#ebedf0] dark:bg-[#0e4429] rounded-sm"></div>
+								<div className="h-3 w-3 bg-[#9be9a8] dark:bg-[#006d32] rounded-sm"></div>
+								<div className="h-3.5 w-3.5 bg-[#40c463] dark:bg-[#26a641] rounded-sm"></div>
+								<div className="h-4 w-4 bg-[#30a14e] dark:bg-[#39d353] rounded-sm"></div>
 							</div>
 							<span>{t('dashboard.more')}</span>
 						</div>

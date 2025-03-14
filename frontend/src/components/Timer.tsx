@@ -15,197 +15,197 @@ import { NotificationManager } from './timer/NotificationManager';
 import { TimerPreset } from '../types';
 import { useTimeEntryStore } from '../store/timeEntryStore';
 import {
-	requestNotificationPermission,
-	checkNotificationPermission,
+   requestNotificationPermission,
+   checkNotificationPermission,
 } from '../utils/notifications/TimerNotifications';
 import { ConfirmModal } from './ui/ConfirmModal';
 import { useTimerStore } from '../store/timerStore';
 import { setProjectColor } from '../utils/dynamicColors';
 
 export const Timer = () => {
-	const { t } = useTranslation();
-	const {
-		status,
-		mode,
-		formattedTime,
-		progress,
-		elapsed,
-		workDuration,
-		breakDuration,
-		repetitions,
-		currentRepetition,
-		projectId,
-		taskId,
-		notes,
-		tags: selectedTags,
+   const { t } = useTranslation();
+   const {
+   	status,
+   	mode,
+   	formattedTime,
+   	progress,
+   	elapsed,
+   	workDuration,
+   	breakDuration,
+   	repetitions,
+   	currentRepetition,
+   	projectId,
+   	taskId,
+   	notes,
+   	tags: selectedTags,
 
-		start,
-		pause,
-		resume,
-		stop,
-		skipToNext,
+   	start,
+   	pause,
+   	resume,
+   	stop,
+   	skipToNext,
 
-		setWorkDuration,
-		setBreakDuration,
-		setRepetitions,
-		setProjectId,
-		setTaskId,
-		setNotes,
-		setTags,
-	} = useTimer();
+   	setWorkDuration,
+   	setBreakDuration,
+   	setRepetitions,
+   	setProjectId,
+   	setTaskId,
+   	setNotes,
+   	setTags,
+   } = useTimer();
 
-	const { showCompletionModal, closeCompletionModal } = useTimerStore();
-	const { projects } = useProjectStore();
+   const { showCompletionModal, closeCompletionModal } = useTimerStore();
+   const { projects } = useProjectStore();
 
-	// State hooks
-	const [notificationPermission, setNotificationPermission] =
-		useState<NotificationPermission | null>(null);
-	const [showNotification, setShowNotification] = useState(false);
+   // State hooks
+   const [notificationPermission, setNotificationPermission] =
+   	useState<NotificationPermission | null>(null);
+   const [showNotification, setShowNotification] = useState(false);
 
-	// Request notification permission once
-	useEffect(() => {
-		const checkPermission = async () => {
-			const permission = checkNotificationPermission();
-			setNotificationPermission(permission);
-		};
+   // Request notification permission once
+   useEffect(() => {
+   	const checkPermission = async () => {
+   		const permission = checkNotificationPermission();
+   		setNotificationPermission(permission);
+   	};
 
-		checkPermission();
-	}, []);
-	
-	// Apply project color when project changes
-	useEffect(() => {
-		if (projectId) {
-			const project = projects.find(p => p.id === projectId);
-			if (project?.color) {
-				setProjectColor(project.color);
-			}
-		}
-	}, [projectId, projects]);
+   	checkPermission();
+   }, []);
+   
+   // Apply project color when project changes
+   useEffect(() => {
+   	if (projectId) {
+   		const project = projects.find(p => p.id === projectId);
+   		if (project?.color) {
+   			setProjectColor(project.color);
+   		}
+   	}
+   }, [projectId, projects]);
 
-	// Play sound and show notification when timer completes
-	useEffect(() => {
-		if (progress >= 100) {
-			// Show in-app notification
-			setShowNotification(true);
-		}
-	}, [mode, progress]);
+   // Play sound and show notification when timer completes
+   useEffect(() => {
+   	if (progress >= 100) {
+   		// Show in-app notification
+   		setShowNotification(true);
+   	}
+   }, [mode, progress]);
 
-	// Request notification permission
-	const handleRequestPermission = async () => {
-		const permission = await requestNotificationPermission();
-		setNotificationPermission(permission);
-	};
+   // Request notification permission
+   const handleRequestPermission = async () => {
+   	const permission = await requestNotificationPermission();
+   	setNotificationPermission(permission);
+   };
 
-	// Close notification handler
-	const handleCloseNotification = () => {
-		setShowNotification(false);
-	};
+   // Close notification handler
+   const handleCloseNotification = () => {
+   	setShowNotification(false);
+   };
 
-	// Handle preset selection
-	const handlePresetSelect = (preset: TimerPreset) => {
-		setWorkDuration(preset.workDuration);
-		setBreakDuration(preset.breakDuration);
-		setRepetitions(preset.repetitions);
-	};
+   // Handle preset selection
+   const handlePresetSelect = (preset: TimerPreset) => {
+   	setWorkDuration(preset.workDuration);
+   	setBreakDuration(preset.breakDuration);
+   	setRepetitions(preset.repetitions);
+   };
 
-	return (
-		<div className="flex flex-col space-y-6 dashboard-timer">
-			<div className="card-project">
-				{/* Notification Manager */}
-				<NotificationManager
-					showNotification={showNotification}
-					mode={mode}
-					onRequestPermission={handleRequestPermission}
-					notificationPermission={notificationPermission}
-					onCloseNotification={handleCloseNotification}
-				/>
+   return (
+   	<div className="flex flex-col space-y-6 dashboard-timer">
+   		<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6">
+   			{/* Notification Manager */}
+   			<NotificationManager
+   				showNotification={showNotification}
+   				mode={mode}
+   				onRequestPermission={handleRequestPermission}
+   				notificationPermission={notificationPermission}
+   				onCloseNotification={handleCloseNotification}
+   			/>
 
-				<div className="text-center mb-4">
-					<h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-						{mode === 'work' ? t('timer.workTime') : t('timer.breakTime')}
-					</h2>
-					<div className="text-sm text-gray-500 dark:text-gray-400">
-						{t('timer.session')} {currentRepetition}/{repetitions}
-					</div>
-				</div>
+   			<div className="text-center mb-4">
+   				<h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+   					{mode === 'work' ? t('timer.workTime') : t('timer.breakTime')}
+   				</h2>
+   				<div className="text-sm text-gray-500 dark:text-gray-400">
+   					{t('timer.session')} {currentRepetition}/{repetitions}
+   				</div>
+   			</div>
 
-				{/* Timer Display */}
-				<TimerDisplay progress={progress} formattedTime={formattedTime} mode={mode} />
+   			{/* Timer Display */}
+   			<TimerDisplay progress={progress} formattedTime={formattedTime} mode={mode} />
 
-				{/* Timer Controls */}
-				<TimerControls
-					status={status}
-					elapsed={elapsed}
-					start={start}
-					pause={pause}
-					resume={resume}
-					stop={stop}
-					skipToNext={skipToNext}
-					projectId={projectId}
-				/>
+   			{/* Timer Controls */}
+   			<TimerControls
+   				status={status}
+   				elapsed={elapsed}
+   				start={start}
+   				pause={pause}
+   				resume={resume}
+   				stop={stop}
+   				skipToNext={skipToNext}
+   				projectId={projectId}
+   			/>
 
-				{/* Project & Task Selection (only visible when idle) */}
-				{status === 'idle' && (
-					<div className="mt-6">
-						<ProjectTaskSelector
-							projectId={projectId}
-							taskId={taskId}
-							notes={notes}
-							selectedTags={selectedTags}
-							setProjectId={setProjectId}
-							setTaskId={setTaskId}
-							setNotes={setNotes}
-							setSelectedTags={setTags}
-						/>
+   			{/* Project & Task Selection (only visible when idle) */}
+   			{status === 'idle' && (
+   				<div className="mt-6">
+   					<ProjectTaskSelector
+   						projectId={projectId}
+   						taskId={taskId}
+   						notes={notes}
+   						selectedTags={selectedTags}
+   						setProjectId={setProjectId}
+   						setTaskId={setTaskId}
+   						setNotes={setNotes}
+   						setSelectedTags={setTags}
+   					/>
 
-						{/* Timer Presets */}
-						<PresetSelector onSelectPreset={handlePresetSelect} />
-					</div>
-				)}
+   					{/* Timer Presets */}
+   					<PresetSelector onSelectPreset={handlePresetSelect} />
+   				</div>
+   			)}
 
-				{/* Settings */}
-				<TimerSettings
-					workDuration={workDuration}
-					breakDuration={breakDuration}
-					repetitions={repetitions}
-					status={status}
-					setWorkDuration={setWorkDuration}
-					setBreakDuration={setBreakDuration}
-					setRepetitions={setRepetitions}
-				/>
-			</div>
+   			{/* Settings */}
+   			<TimerSettings
+   				workDuration={workDuration}
+   				breakDuration={breakDuration}
+   				repetitions={repetitions}
+   				status={status}
+   				setWorkDuration={setWorkDuration}
+   				setBreakDuration={setBreakDuration}
+   				setRepetitions={setRepetitions}
+   			/>
+   		</div>
 
-			{/* Activity Heatmap */}
-			<div className="card">
-				<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-					{t('dashboard.activityHeatmap')}
-				</h3>
-				<ActivityHeatmap />
-			</div>
+   		{/* Activity Heatmap */}
+   		<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6">
+   			<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
+   				{t('dashboard.activityHeatmap')}
+   			</h3>
+   			<ActivityHeatmap />
+   		</div>
 
-			{/* Recent Time Entries */}
-			<div className="card">
-				<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-					{t('dashboard.recentEntries')}
-				</h3>
-				<TimeEntryList limit={5} />
-			</div>
+   		{/* Recent Time Entries */}
+   		<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6">
+   			<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
+   				{t('dashboard.recentEntries')}
+   			</h3>
+   			<TimeEntryList limit={5} />
+   		</div>
 
-			{/* Sessions completed modal */}
-			<ConfirmModal
-				isOpen={showCompletionModal}
-				title={t('timer.sessionsCompleted', 'Sessions Completed')}
-				message={t(
-					'timer.allSessionsCompleted',
-					"Great job! You've completed all your work sessions."
-				)}
-				confirmButtonText={t('common.done')}
-				cancelButtonText=""
-				onConfirm={closeCompletionModal}
-				onCancel={closeCompletionModal}
-				isLoading={false}
-				danger={false}
-			/>
-		</div>
-	);
+   		{/* Sessions completed modal */}
+   		<ConfirmModal
+   			isOpen={showCompletionModal}
+   			title={t('timer.sessionsCompleted', 'Sessions Completed')}
+   			message={t(
+   				'timer.allSessionsCompleted',
+   				"Great job! You've completed all your work sessions."
+   			)}
+   			confirmButtonText={t('common.done')}
+   			cancelButtonText=""
+   			onConfirm={closeCompletionModal}
+   			onCancel={closeCompletionModal}
+   			isLoading={false}
+   			danger={false}
+   		/>
+   	</div>
+   );
 };

@@ -10,7 +10,6 @@ import { TrashIcon, PencilIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/
 import { ConfirmModal } from './ui/ConfirmModal';
 import { useTimerStore } from '../store/timerStore';
 import { TimeEntry } from '../types';
-import { setProjectColor, resetProjectColor } from '../utils/dynamicColors';
 
 interface TimeEntryListProps {
 	projectId?: string;
@@ -85,34 +84,6 @@ export const TimeEntryList = ({
 			refreshData();
 		}
 	}, [timerStatus, workStartTime]);
-	
-	// Set project color on hover
-	useEffect(() => {
-		if (hoveredEntryId) {
-			const entry = timeEntries.find(e => e.id === hoveredEntryId);
-			if (entry) {
-				const project = projects.find(p => p.id === entry.project);
-				if (project?.color) {
-					setProjectColor(project.color);
-				}
-			}
-		} else {
-			// Reset to default when not hovering over any entry
-			if (projectId) {
-				const project = projects.find(p => p.id === projectId);
-				if (project?.color) {
-					setProjectColor(project.color);
-				}
-			} else {
-				resetProjectColor();
-			}
-		}
-		
-		return () => {
-			// Clean up on unmount
-			resetProjectColor();
-		};
-	}, [hoveredEntryId, timeEntries, projects, projectId]);
 
 	// Format duration with hours, minutes, and seconds
 	const formatDuration = (milliseconds: number) => {
@@ -248,14 +219,32 @@ export const TimeEntryList = ({
 		<>
 			<div className="space-y-2">
 				{displayEntries.map((entry) => {
-					const isHovered = hoveredEntryId === entry.id;
 					const isSelected = selectedEntryId === entry.id;
+					const isHovered = hoveredEntryId === entry.id;
 					const projectColor = getProjectColor(entry.project);
+					
+					// Create darker variant of project color for selected state
+					const getDarkerColor = (hexColor: string, factor = 0.85) => {
+						// Convert hex to RGB
+						const r = parseInt(hexColor.slice(1, 3), 16);
+						const g = parseInt(hexColor.slice(3, 5), 16);
+						const b = parseInt(hexColor.slice(5, 7), 16);
+						
+						// Apply darkening factor
+						const darkerR = Math.floor(r * factor);
+						const darkerG = Math.floor(g * factor);
+						const darkerB = Math.floor(b * factor);
+						
+						// Convert back to hex
+						return `#${darkerR.toString(16).padStart(2, '0')}${darkerG.toString(16).padStart(2, '0')}${darkerB.toString(16).padStart(2, '0')}`;
+					};
+					
+					const darkerProjectColor = getDarkerColor(projectColor);
 					
 					return (
 					<div
 						key={entry.id}
-						className={`relative block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors ${isTimerActive ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'bg-gray-50 dark:bg-gray-700 border-primary-300 dark:border-primary-700' : ''}`}
+						className={`relative block bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm transition-all ${isTimerActive ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow bg-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.6)] dark:bg-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.4)]' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''}`}
 						onMouseEnter={() => setHoveredEntryId(entry.id)}
 						onMouseLeave={() => setHoveredEntryId(null)}
 					>
@@ -268,17 +257,22 @@ export const TimeEntryList = ({
 									<div
 										className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
 										onClick={(e) => isSelected ? handlePlayClick(entry, e) : e.stopPropagation()}
-										style={isSelected ? {} : isHovered ? {backgroundColor: `${projectColor}20`} : {}}
+										style={isSelected ? {} : {backgroundColor: `${projectColor}20`}}
 									>
 										{isSelected ? (
 											<PlayIcon className="h-3.5 w-3.5 text-green-600 dark:text-green-300" />
 										) : (
-											<ClockIcon className="h-3.5 w-3.5 text-gray-600 dark:text-gray-300" style={isHovered ? {color: projectColor} : {}} />
+											<ClockIcon className="h-3.5 w-3.5" style={{color: projectColor}} />
 										)}
 									</div>
 									<div className="min-w-0 flex-1">
 										<div className="text-sm truncate">
-											<span className={`font-bold ${isHovered || isSelected ? 'dynamic-color' : 'text-gray-900 dark:text-white'}`}>
+											<span 
+												className="font-bold dynamic-color"
+												style={{ 
+													color: isSelected ? darkerProjectColor : (isHovered ? projectColor : '')
+												}}
+											>
 												{getProjectName(entry.project)}
 											</span>
 											{entry.task && (
@@ -294,7 +288,10 @@ export const TimeEntryList = ({
 								</div>
 								<div className="text-right">
 									<div
-										className={`text-lg font-bold ${isHovered || isSelected ? 'dynamic-color' : 'text-gray-900 dark:text-white'}`}
+										className="text-lg font-bold dynamic-color"
+										style={{ 
+											color: isSelected ? darkerProjectColor : (isHovered ? projectColor : '')
+										}}
 									>
 										{formatDuration(entry.duration)}
 									</div>
