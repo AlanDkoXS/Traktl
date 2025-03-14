@@ -122,26 +122,19 @@ export const Reports = () => {
 		return result;
 	}, [timeEntries, startDate, endDate]);
 
-	// COLORS for pie chart
-	const COLORS = [
-		'#0088FE',
-		'#00C49F',
-		'#FFBB28',
-		'#FF8042',
-		'#A569BD',
-		'#5DADE2',
-		'#58D68D',
-		'#F4D03F',
-	];
+	// Use the project colors for pie chart where available
+	const getPieColors = () => {
+		return timeByProjectData.map(entry => entry.color || '#cccccc');
+	};
 
 	return (
 		<div>
-			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6 dynamic-color">
 				{t('reports.title')}
 			</h1>
 
 			{/* Filters */}
-			<div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow mb-6">
+			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 rounded-md shadow-sm mb-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
 					<div>
 						<label
@@ -199,16 +192,16 @@ export const Reports = () => {
 				</div>
 
 				<div className="mt-4 flex justify-end">
-					<button onClick={applyFilters} className="btn btn-primary">
+					<button onClick={applyFilters} className="btn btn-primary dynamic-bg text-white">
 						{t('common.filter')}
 					</button>
 				</div>
 			</div>
 
 			{isLoading ? (
-				<div className="text-center py-4">
-					<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mx-auto"></div>
-					<span className="block mt-2">{t('common.loading')}</span>
+				<div className="flex justify-center items-center py-4 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+					<div className="animate-spin rounded-full h-6 w-6 border-b-2 dynamic-border"></div>
+					<span className="ml-2 dynamic-color">{t('common.loading')}</span>
 				</div>
 			) : error ? (
 				<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-4 rounded-md">
@@ -217,32 +210,32 @@ export const Reports = () => {
 			) : (
 				<div className="space-y-6">
 					{/* Summary */}
-					<div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow">
-						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+					<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 rounded-lg shadow-sm border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 							{t('reports.summary')}
 						</h2>
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-							<div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+							<div className="dynamic-bg-subtle p-4 rounded-md">
 								<p className="text-sm text-gray-500 dark:text-gray-400">
 									{t('reports.totalTime')}
 								</p>
-								<p className="text-2xl font-semibold text-gray-900 dark:text-white">
+								<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
 									{formatTime(totalTime)}
 								</p>
 							</div>
-							<div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+							<div className="dynamic-bg-subtle p-4 rounded-md">
 								<p className="text-sm text-gray-500 dark:text-gray-400">
 									{t('reports.entries')}
 								</p>
-								<p className="text-2xl font-semibold text-gray-900 dark:text-white">
+								<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
 									{timeEntries.length}
 								</p>
 							</div>
-							<div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+							<div className="dynamic-bg-subtle p-4 rounded-md">
 								<p className="text-sm text-gray-500 dark:text-gray-400">
 									{t('reports.avgDaily')}
 								</p>
-								<p className="text-2xl font-semibold text-gray-900 dark:text-white">
+								<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
 									{timeByDayData.length > 0
 										? formatTime(totalTime / timeByDayData.length)
 										: '0h 0m'}
@@ -252,8 +245,8 @@ export const Reports = () => {
 					</div>
 
 					{/* Time by Project Chart */}
-					<div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow">
-						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+					<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 rounded-lg shadow-sm border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 							{t('reports.timeByProject')}
 						</h2>
 						{timeByProjectData.length > 0 ? (
@@ -277,10 +270,7 @@ export const Reports = () => {
 												{timeByProjectData.map((entry, index) => (
 													<Cell
 														key={`cell-${index}`}
-														fill={
-															entry.color ||
-															COLORS[index % COLORS.length]
-														}
+														fill={entry.color}
 													/>
 												))}
 											</Pie>
@@ -324,11 +314,7 @@ export const Reports = () => {
 																	className="w-3 h-3 rounded-full mr-2"
 																	style={{
 																		backgroundColor:
-																			entry.color ||
-																			COLORS[
-																				index %
-																					COLORS.length
-																			],
+																			entry.color
 																	}}
 																/>
 																{entry.name}
@@ -355,8 +341,8 @@ export const Reports = () => {
 					</div>
 
 					{/* Time by Day Chart */}
-					<div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow">
-						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+					<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 rounded-lg shadow-sm border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 							{t('reports.timeByDay')}
 						</h2>
 						{timeByDayData.length > 0 ? (
@@ -389,7 +375,7 @@ export const Reports = () => {
 										<Bar
 											dataKey="minutes"
 											name="Time (minutes)"
-											fill="#0284c7"
+											fill="hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness))"
 											radius={[4, 4, 0, 0]}
 										/>
 									</BarChart>

@@ -124,7 +124,7 @@ export const Timer = () => {
 
 	return (
 		<div className="flex flex-col space-y-6 dashboard-timer">
-			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6">
+			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 				{/* Notification Manager */}
 				<NotificationManager
 					showNotification={showNotification}
@@ -135,7 +135,7 @@ export const Timer = () => {
 				/>
 
 				<div className="text-center mb-4">
-					<h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+					<h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white dynamic-color">
 						{mode === 'work' ? t('timer.workTime') : t('timer.breakTime')}
 					</h2>
 					<div className="text-sm text-gray-500 dark:text-gray-400">
@@ -204,7 +204,7 @@ export const Timer = () => {
 			</div>
 
 			{/* Activity Heatmap */}
-			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6">
+			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 				<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 					{t('dashboard.activityHeatmap')}
 				</h3>
@@ -212,7 +212,7 @@ export const Timer = () => {
 			</div>
 
 			{/* Recent Time Entries */}
-			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6">
+			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 				<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 					{t('dashboard.recentEntries')}
 				</h3>

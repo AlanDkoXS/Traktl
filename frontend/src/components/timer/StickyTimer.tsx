@@ -57,7 +57,7 @@ export const StickyTimer = () => {
 
 	return (
 		<div
-			className={`fixed left-1/2 z-50 rounded-lg overflow-hidden transition-all duration-500 bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-lg ${animateIn ? 'opacity-100 translate-y-[50px]' : 'opacity-0 -translate-y-full'}`}
+			className={`fixed left-1/2 z-50 rounded-lg overflow-hidden transition-all duration-500 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] shadow-lg border border-gray-200 dark:border-[rgb(var(--color-border-primary))] ${animateIn ? 'opacity-100 translate-y-[50px]' : 'opacity-0 -translate-y-full'}`}
 			style={{
 				transform: 'translateX(-50%)',
 				width: 'min(800px, 90vw)',
@@ -67,8 +67,8 @@ export const StickyTimer = () => {
 			<div className="flex flex-col w-full">
 				<div className="flex w-full">
 					{/* Timer Status */}
-					<div className="px-5 py-3 flex-1 flex items-center bg-white dark:bg-[rgb(var(--color-bg-inset))]">
-						<span className="font-medium text-lg text-gray-800 dark:text-white">
+					<div className="px-5 py-3 flex-1 flex items-center">
+						<span className="font-medium text-lg text-gray-800 dark:text-white dynamic-color">
 							{mode === 'work'
 								? status === 'running'
 									? t('timer.workTime')
@@ -81,7 +81,7 @@ export const StickyTimer = () => {
 					</div>
 
 					{/* Controls */}
-					<div className="flex bg-white dark:bg-[rgb(var(--color-bg-inset))]">
+					<div className="flex">
 						{status === 'running' ? (
 							<button
 								onClick={pause}

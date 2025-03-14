@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { TaskList } from '../components/TaskList';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useTaskStore } from '../store/taskStore';
+import { setProjectColor } from '../utils/dynamicColors';
 
 export const Tasks = () => {
 	const { t } = useTranslation();
@@ -12,12 +13,16 @@ export const Tasks = () => {
 	// Clear selected task when entering the tasks list
 	useEffect(() => {
 		clearSelectedTask();
+		
+		// Usar el color por defecto para tareas
+		const defaultColor = window.localStorage.getItem('default-task-color') || '#0284c7';
+		setProjectColor(defaultColor);
 	}, [clearSelectedTask]);
 
 	return (
 		<div>
 			<div className="flex justify-between items-center mb-6">
-				<h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+				<h1 className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
 					{t('tasks.title')}
 				</h1>
 				<Link to="/tasks/new" className="btn btn-primary">

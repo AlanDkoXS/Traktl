@@ -6,13 +6,7 @@ import { useTimeEntryStore } from '../store/timeEntryStore';
 import { useProjectStore } from '../store/projectStore';
 import { useTaskStore } from '../store/taskStore';
 import { useTagStore } from '../store/tagStore';
-import {
-	TrashIcon,
-	PencilIcon,
-	ClockIcon,
-	PlayIcon,
-	InfinityIcon,
-} from '@heroicons/react/24/outline';
+import { TrashIcon, PencilIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/outline';
 import { ConfirmModal } from './ui/ConfirmModal';
 import { useTimerStore } from '../store/timerStore';
 import { TimeEntry } from '../types';
@@ -33,8 +27,7 @@ export const TimeEntryList = ({
 	limit,
 }: TimeEntryListProps) => {
 	const { t } = useTranslation();
-	const { timeEntries, fetchTimeEntries, deleteTimeEntry, isLoading, error } =
-		useTimeEntryStore();
+	const { timeEntries, fetchTimeEntries, deleteTimeEntry, error } = useTimeEntryStore();
 	const { projects, fetchProjects } = useProjectStore();
 	const { tasks, fetchTasks } = useTaskStore();
 	const { tags, fetchTags } = useTagStore();
@@ -46,7 +39,6 @@ export const TimeEntryList = ({
 		setTags,
 		status: timerStatus,
 		workStartTime,
-		infiniteMode,
 		setInfiniteMode,
 		selectedEntryId,
 		setSelectedEntryId,

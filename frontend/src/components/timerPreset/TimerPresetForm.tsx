@@ -144,7 +144,7 @@ export const TimerPresetForm = ({ timerPreset, isEditing = false }: TimerPresetF
         >
           {t('common.cancel')}
         </button>
-        <button type="submit" disabled={isSubmitting} className="btn btn-primary">
+        <button type="submit" disabled={isSubmitting} className="btn btn-primary dynamic-bg text-white">
           {isSubmitting
             ? t('common.loading')
             : isEditing

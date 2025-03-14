@@ -2,13 +2,17 @@
  * Utility to handle dynamic project colors throughout the application
  */
 
+// Almacena el último color para poder recuperarlo
+let lastUsedColor = '#0284c7';
+
 /**
  * Convert hex color to HSL components and set CSS variables
  * @param hexColor - Hex color string (e.g., "#ff0000")
  */
 export const setProjectColor = (hexColor: string = '#0284c7'): void => {
   // Default to a nice blue if no color provided
-  const color = hexColor || '#0284c7';
+  const color = hexColor || lastUsedColor || '#0284c7';
+  lastUsedColor = color; // Guarda el último color usado
   
   // Convert hex to RGB
   const r = parseInt(color.slice(1, 3), 16) / 255;
@@ -99,12 +103,19 @@ function generateColorScale(h: number, s: number, l: number) {
 
 /**
  * Reset project color to default primary blue
+ * Ahora permite personalizar el color de reset
  */
-export const resetProjectColor = (): void => {
-  setProjectColor('#0284c7'); // Default sky blue
+export const resetProjectColor = (defaultColor: string = '#0284c7'): void => {
+  setProjectColor(defaultColor);
+}
+
+// Función para almacenar un color por defecto para secciones específicas
+export const setDefaultColorForSection = (section: string, color: string): void => {
+  window.localStorage.setItem(`default-${section}-color`, color);
 }
 
 export default {
   setProjectColor,
-  resetProjectColor
+  resetProjectColor,
+  setDefaultColorForSection
 };

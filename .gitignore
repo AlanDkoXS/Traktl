@@ -67,10 +67,11 @@ temp
 eslint.config.mjs
 
 # Custom files
-.notes
+.notes.txt
 .commits_list
 TODO.md
 NOTES.md
+notes.txt
 
 # Config files
 

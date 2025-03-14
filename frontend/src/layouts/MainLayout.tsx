@@ -15,7 +15,8 @@ import {
 	ClockIcon as TimerIcon,
 } from '@heroicons/react/24/outline';
 import { StickyTimer } from '../components/timer/StickyTimer';
-import { resetProjectColor } from '../utils/dynamicColors';
+import { ThemeToggle } from '../components/ThemeToggle';
+import { LanguageSelector } from '../components/LanguageSelector';
 
 interface MainLayoutProps {
 	children: ReactNode;
@@ -25,6 +26,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 	const { t } = useTranslation();
 	const location = useLocation();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+	// No resetear los colores aquí - cada página debe manejar sus propios colores
 
 	// Close mobile menu when location changes
 	useEffect(() => {
@@ -78,7 +81,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 			)}
 
 			{/* Mobile header */}
-			<header className="md:hidden bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-sm sticky top-0 z-20 px-4 py-2 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+			<header className="md:hidden bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] shadow-sm sticky top-0 z-20 px-4 py-2 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 				<div className="flex items-center justify-between h-12">
 					<button
 						onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -96,7 +99,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
 			{/* Sidebar for mobile */}
 			<div
-				className={`fixed inset-y-0 left-0 z-50 w-64 bg-[rgb(var(--color-bg-inset))] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
+				className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
 					isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
 				} border-r border-gray-200 dark:border-[rgb(var(--color-border-primary))]`}
 			>
@@ -140,13 +143,22 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 						})}
 					</div>
 				</nav>
+
+				{/* Theme and language toggles in mobile menu */}
+				<div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-[rgb(var(--color-border-primary))] flex items-center justify-between">
+					<ThemeToggle />
+					<LanguageSelector />
+				</div>
 			</div>
 
 			{/* Desktop sidebar */}
-			<div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-50 md:w-64 md:bg-white md:dark:bg-[rgb(var(--color-bg-inset))] md:shadow-md md:flex md:flex-col">
-				<div className="h-16 flex items-center p-6 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+			<div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-50 md:w-64 md:bg-gradient-to-br md:from-white md:to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] md:dark:from-[rgb(var(--color-bg-inset))] md:dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] md:shadow-md md:flex md:flex-col md:border-r md:border-gray-200 md:dark:border-[rgb(var(--color-border-primary))]">
+				<div className="h-16 flex items-center justify-between p-4 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 					<h1 className="text-xl font-bold dynamic-color">{t('app.name')}</h1>
-					<UserMenu />
+					<div className="flex items-center">
+						<ThemeToggle />
+						<UserMenu />
+					</div>
 				</div>
 				<nav className="p-3 mt-6 flex-1">
 					<div className="space-y-1">
@@ -176,15 +188,29 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 						})}
 					</div>
 				</nav>
+
+				{/* Language selector in desktop sidebar footer */}
+				<div className="p-4 border-t border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+					<LanguageSelector />
+				</div>
 			</div>
 
 			{/* Main content */}
 			<div className="flex-1 md:ml-64">
 				{/* Desktop header */}
-				<header className="hidden md:block bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-sm sticky top-0 z-10"></header>
+				<header className="hidden md:block bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] shadow-sm sticky top-0 z-10 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+					<div className="h-12 px-6 flex items-center justify-end">
+						{/* Podríamos poner algunos elementos aquí si se necesitan */}
+					</div>
+				</header>
 
 				{/* Page content */}
 				<main className="max-w-7xl mx-auto p-4 sm:p-6">{children}</main>
+
+				{/* Footer con información adicional */}
+				<footer className="mt-auto py-4 px-6 text-center text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+					<p>{t('app.name')} © {new Date().getFullYear()}</p>
+				</footer>
 			</div>
 
 			{/* Sticky Timer */}

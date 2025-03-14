@@ -11,8 +11,8 @@ interface TimerControlsProps {
   stop: () => void;
   skipToNext: () => void;
   projectId: string | null;
-  infiniteMode: boolean; // New prop for infinite mode
-  mode: 'work' | 'break'; // Mode to know if we're in work or break
+  infiniteMode: boolean;
+  mode: 'work' | 'break';
 }
 
 export const TimerControls = ({ 
@@ -34,8 +34,8 @@ export const TimerControls = ({
 
   const handleSkipToNext = () => {
     // When in infinite mode or in break mode, don't show the warning modal
-    if ((status === 'running' && elapsed < 60000 && !infiniteMode && mode === 'work') ||
-        (status === 'paused' && elapsed < 60000 && !infiniteMode && mode === 'work')) {
+    if ((status === 'running' && elapsed < 60 && !infiniteMode && mode === 'work') ||
+        (status === 'paused' && elapsed < 60 && !infiniteMode && mode === 'work')) {
       setModalAction('next');
       setShowShortSessionModal(true);
       return;
@@ -47,8 +47,8 @@ export const TimerControls = ({
 
   const handleStop = () => {
     // If session is shorter than a minute and in work mode, show confirmation modal
-    if ((status === 'running' && elapsed < 60000 && mode === 'work') || 
-        (status === 'paused' && elapsed < 60000 && mode === 'work')) {
+    if ((status === 'running' && elapsed < 60 && mode === 'work') || 
+        (status === 'paused' && elapsed < 60 && mode === 'work')) {
       setModalAction('stop');
       setShowShortStopModal(true);
       return;
@@ -250,7 +250,7 @@ export const TimerControls = ({
       <ConfirmModal
         isOpen={showShortSessionModal}
         title={t('timeEntries.shortTimeTitle', 'Short Session')}
-        message={t('timeEntries.shortTimeMessage', 'This session is less than a minute long. Do you still want to save it?')}
+        message={t('timeEntries.shortTimeMessage', 'This session is less than a minute. Do you still want to save it?')}
         confirmButtonText={t('common.yes')}
         cancelButtonText={t('common.no')}
         onConfirm={handleConfirmShortSession}
@@ -263,7 +263,7 @@ export const TimerControls = ({
       <ConfirmModal
         isOpen={showShortStopModal}
         title={t('timeEntries.shortTimeTitle', 'Short Session')}
-        message={t('timeEntries.shortTimeMessage', 'This session is less than a minute long. Do you still want to save it?')}
+        message={t('timeEntries.shortTimeMessage', 'This session is less than a minute. Do you still want to save it?')}
         confirmButtonText={t('common.yes')}
         cancelButtonText={t('common.no')}
         onConfirm={handleConfirmShortStop}

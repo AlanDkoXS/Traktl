@@ -43,57 +43,55 @@ export const useTimer = () => {
 		createTimeEntryFromWorkSession,
 	} = useTimerStore();
 
-	const lastTickTimeRef = useRef<number | null>(null);
+	const timerIntervalRef = useRef<number | null>(null);
 
-	// Handle the timer tick using requestAnimationFrame
+	// Handle the timer tick using setInterval
 	useEffect(() => {
-		let animationFrameId: number;
-
-		const updateTimer = (currentTime: number) => {
-			if (status === 'running') {
-				if (lastTickTimeRef.current) {
-					const delta = currentTime - lastTickTimeRef.current;
-					tick(delta);
-				}
-				lastTickTimeRef.current = currentTime;
-				animationFrameId = requestAnimationFrame(updateTimer);
-			} else {
-				lastTickTimeRef.current = null;
-			}
-		};
-
 		if (status === 'running') {
-			animationFrameId = requestAnimationFrame(updateTimer);
+			// Clear any existing interval
+			if (timerIntervalRef.current) {
+				clearInterval(timerIntervalRef.current);
+			}
+
+			// Set up 1-second interval for the timer
+			timerIntervalRef.current = window.setInterval(() => {
+				tick();
+			}, 1000);
+		} else if (timerIntervalRef.current) {
+			// Clear interval when not running
+			clearInterval(timerIntervalRef.current);
+			timerIntervalRef.current = null;
 		}
 
+		// Cleanup on unmount
 		return () => {
-			cancelAnimationFrame(animationFrameId);
+			if (timerIntervalRef.current) {
+				clearInterval(timerIntervalRef.current);
+			}
 		};
 	}, [status, tick]);
 
-	// Calculate remaining time
+	// Calculate remaining time in seconds
 	const remainingTime =
 		mode === 'work'
-			? infiniteMode 
-				? elapsed // For infinite mode, just show elapsed time
-				: Math.max(0, workDuration * 60 * 1000 - elapsed)
-			: Math.max(0, breakDuration * 60 * 1000 - elapsed);
+			? infiniteMode
+				? 0 // For infinite mode, no remaining time
+				: Math.max(0, workDuration * 60 - elapsed)
+			: Math.max(0, breakDuration * 60 - elapsed);
 
-	// Format time for display (mm:ss or hh:mm:ss for longer times)
-	const formatTime = (milliseconds: number): string => {
+	// Format time as mm:ss or hh:mm:ss for longer times
+	const formatTime = (seconds: number): string => {
 		if (infiniteMode && mode === 'work') {
 			// For infinite mode, format elapsed time as hh:mm:ss
-			const totalSeconds = Math.floor(milliseconds / 1000);
-			const hours = Math.floor(totalSeconds / 3600);
-			const minutes = Math.floor((totalSeconds % 3600) / 60);
-			const seconds = totalSeconds % 60;
-			return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+			const hours = Math.floor(seconds / 3600);
+			const minutes = Math.floor((seconds % 3600) / 60);
+			const secs = seconds % 60;
+			return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 		} else {
 			// For normal mode, format remaining time
-			const totalSeconds = Math.floor(milliseconds / 1000);
-			const minutes = Math.floor(totalSeconds / 60);
-			const seconds = totalSeconds % 60;
-			return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+			const minutes = Math.floor(seconds / 60);
+			const secs = seconds % 60;
+			return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 		}
 	};
 
@@ -101,8 +99,8 @@ export const useTimer = () => {
 	const progress = infiniteMode && mode === 'work'
 		? 50 // Keep at middle for infinite
 		: mode === 'work'
-			? (elapsed / (workDuration * 60 * 1000)) * 100
-			: (elapsed / (breakDuration * 60 * 1000)) * 100;
+			? (elapsed / (workDuration * 60)) * 100
+			: (elapsed / (breakDuration * 60)) * 100;
 
 	// Skip to next function (work -> break or break -> work)
 	const skipToNext = () => {
@@ -110,13 +108,13 @@ export const useTimer = () => {
 		const notificationType = mode === 'work' ? 'break' : 'work';
 		const title = mode === 'work' ? t('timer.breakTime') : t('timer.workTime');
 		const body = mode === 'work' ? t('timer.workCompleted') : t('timer.breakCompleted');
-		
+
 		showTimerNotification(notificationType, {
 			title,
 			body,
 			persistent: false
 		});
-		
+
 		switchToNext();
 	};
 

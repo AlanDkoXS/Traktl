@@ -28,16 +28,26 @@ import { useTheme } from './hooks/useTheme';
 import { useAuthStore } from './store/authStore';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { checkCurrentToken } from './utils/tokenHelper';
-import { setProjectColor } from './utils/dynamicColors';
+import { setProjectColor, setDefaultColorForSection } from './utils/dynamicColors';
 
 function App() {
 	// Initialize theme
 	useTheme();
 	const { loadUser } = useAuthStore();
 
-	// Set default app color
+	// Set up default colors for different sections
 	useEffect(() => {
-		setProjectColor('#0284c7'); // Default color
+		// Configuración de colores por defecto para cada sección
+		setDefaultColorForSection('app', '#0284c7'); // Azul por defecto para la app en general
+		setDefaultColorForSection('project', '#0284c7'); // Azul para la sección de proyectos
+		setDefaultColorForSection('client', '#0284c7'); // Azul para clientes
+		setDefaultColorForSection('task', '#0284c7'); // Azul para tareas
+		setDefaultColorForSection('timer', '#0284c7'); // Azul para temporizador
+		setDefaultColorForSection('tag', '#0284c7'); // Azul para etiquetas
+
+		// Establecer color inicial de la aplicación
+		const defaultAppColor = localStorage.getItem('default-app-color') || '#0284c7';
+		setProjectColor(defaultAppColor);
 	}, []);
 
 	useEffect(() => {

@@ -8,25 +8,21 @@ import { setProjectColor } from '../utils/dynamicColors';
 
 export const Projects = () => {
   const { t } = useTranslation();
-  const { clearSelectedProject, projects } = useProjectStore();
+  const { clearSelectedProject } = useProjectStore();
   
   // Clear selected project when entering the projects list
   useEffect(() => {
     clearSelectedProject();
     
-    // Set default project color - don't reset it
-    if (projects.length > 0) {
-      // Use first project color as default for this page
-      setProjectColor(projects[0].color);
-    } else {
-      setProjectColor('#0284c7'); // Default blue
-    }
-  }, [clearSelectedProject, projects]);
+    // Usar un color azul estándar para la página de proyectos
+    // Este color no debería cambiar al hacer hover
+    setProjectColor('#0284c7');
+  }, [clearSelectedProject]);
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
           {t('projects.title')}
         </h1>
         <Link to="/projects/new" className="btn btn-primary">

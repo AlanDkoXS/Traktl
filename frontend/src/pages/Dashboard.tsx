@@ -56,7 +56,7 @@ export const Dashboard = () => {
 				{/* Right column - Stats */}
 				<div className="lg:col-span-4 space-y-6">
 					{isLoading ? (
-						<div className="flex items-center justify-center h-32">
+						<div className="flex items-center justify-center h-32 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 							<div className="animate-spin rounded-full h-8 w-8 dynamic-border"></div>
 						</div>
 					) : (
@@ -86,7 +86,7 @@ export const Dashboard = () => {
 							</div>
 
 							{/* Quick links */}
-							<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4">
+							<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 								<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 									{t('dashboard.quickLinks')}
 								</h3>
@@ -116,7 +116,7 @@ const StatsCard = ({ title, count, link }) => {
 	return (
 		<Link
 			to={link}
-			className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 hover:shadow-md transition-shadow flex flex-col h-full group rounded-lg shadow-sm"
+			className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 hover:shadow-md transition-shadow flex flex-col h-full group rounded-lg shadow-sm border border-gray-200 dark:border-[rgb(var(--color-border-primary))]"
 		>
 			<div className="flex flex-col h-full">
 				<div className="font-medium text-gray-500 dark:text-gray-400 text-sm">{title}</div>

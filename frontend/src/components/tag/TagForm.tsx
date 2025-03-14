@@ -83,7 +83,7 @@ export const TagForm = ({ tag, isEditing = false }: TagFormProps) => {
 						id="color"
 						value={color}
 						onChange={(e) => setColor(e.target.value)}
-						className="h-8 w-8 p-0 rounded-md"
+						className="h-8 w-8 p-0 rounded-md border border-gray-300 dark:border-gray-600"
 					/>
 					<input
 						title="color"
@@ -103,7 +103,7 @@ export const TagForm = ({ tag, isEditing = false }: TagFormProps) => {
 				>
 					{t('common.cancel')}
 				</button>
-				<button type="submit" disabled={isSubmitting} className="btn btn-primary">
+				<button type="submit" disabled={isSubmitting} className="btn btn-primary dynamic-bg text-white">
 					{isSubmitting
 						? t('common.loading')
 						: isEditing

@@ -38,6 +38,7 @@ export const PresetSelector = ({ onSelectPreset }: PresetSelectorProps) => {
 					</button>
 				))}
 				<button
+					title="Create new timer preset"
 					onClick={() => navigate('/timer-presets/new')}
 					className="px-5 py-4 dynamic-bg-subtle hover:brightness-95 dark:hover:brightness-110 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 dynamic-color"
 				>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectStore } from '../store/projectStore';
 import { Link } from 'react-router-dom';
-import { setProjectColor, resetProjectColor } from '../utils/dynamicColors';
+import { setProjectColor } from '../utils/dynamicColors';
 
 export const ProjectList = () => {
 	const { t } = useTranslation();
@@ -21,27 +21,16 @@ export const ProjectList = () => {
 
 		loadProjects();
 
-		// Reset color on unmount
-		return () => resetProjectColor();
+		// No resetear el color en cleanup
 	}, [fetchProjects, retryCount]);
 
 	const handleRetry = () => {
 		setRetryCount((prev) => prev + 1);
 	};
 
-	// Set project color on hover
+	// Esta función ya no cambia el color, solo registra cuál está siendo hover
 	const handleProjectHover = (projectId: string | null) => {
-		if (projectId === null) {
-			resetProjectColor();
-			setHoveredProjectId(null);
-			return;
-		}
-
-		const project = projects.find((p) => p.id === projectId);
-		if (project) {
-			setProjectColor(project.color);
-			setHoveredProjectId(projectId);
-		}
+		setHoveredProjectId(projectId);
 	};
 
 	if (isLoading) {
@@ -85,11 +74,13 @@ export const ProjectList = () => {
 					<li key={project.id}>
 						<Link
 							to={`/projects/${project.id}`}
-							className={`block hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-bg-overlay))] transition-colors duration-150 ${
+							className={`block hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-bg-overlay))] transition-colors ${
 								hoveredProjectId === project.id
 									? 'bg-gray-50 dark:bg-[rgb(var(--color-bg-overlay))]'
 									: ''
 							}`}
+							onMouseEnter={() => handleProjectHover(project.id)}
+							onMouseLeave={() => handleProjectHover(null)}
 						>
 							<div className="px-4 py-4 flex items-center sm:px-6">
 								<div className="min-w-0 flex-1 flex items-center">
@@ -99,13 +90,7 @@ export const ProjectList = () => {
 									/>
 									<div className="min-w-0 flex-1 px-4">
 										<div>
-											<p
-												className={`text-sm font-medium truncate ${
-													hoveredProjectId === project.id
-														? 'dynamic-color'
-														: 'text-gray-700 dark:text-gray-300'
-												}`}
-											>
+											<p className="text-sm font-medium truncate text-gray-700 dark:text-gray-300">
 												{project.name}
 											</p>
 											<p className="mt-1 text-sm text-gray-500 dark:text-gray-400 truncate">
