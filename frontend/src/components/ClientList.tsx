@@ -19,15 +19,12 @@ export const ClientList = () => {
 		};
 
 		loadClients();
-		
-		// No resetear colores aquí
 	}, [fetchClients, retryCount]);
 
 	const handleRetry = () => {
 		setRetryCount((prev) => prev + 1);
 	};
 
-	// Esta función ya no cambia el color, solo registra cuál está siendo hover
 	const handleClientHover = (clientId: string | null) => {
 		setHoveredClientId(clientId);
 	};

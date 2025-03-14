@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectStore } from '../store/projectStore';
 import { Link } from 'react-router-dom';
-import { setProjectColor } from '../utils/dynamicColors';
 
 export const ProjectList = () => {
 	const { t } = useTranslation();
@@ -20,15 +19,12 @@ export const ProjectList = () => {
 		};
 
 		loadProjects();
-
-		// No resetear el color en cleanup
 	}, [fetchProjects, retryCount]);
 
 	const handleRetry = () => {
 		setRetryCount((prev) => prev + 1);
 	};
 
-	// Esta función ya no cambia el color, solo registra cuál está siendo hover
 	const handleProjectHover = (projectId: string | null) => {
 		setHoveredProjectId(projectId);
 	};

@@ -5,7 +5,6 @@ import { ClientForm } from '../components/ClientForm';
 import { useClientStore } from '../store/clientStore';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { TrashIcon } from '@heroicons/react/24/outline';
-import { setProjectColor, resetProjectColor } from '../utils/dynamicColors';
 
 export const EditClient = () => {
   const { t } = useTranslation();
@@ -35,19 +34,7 @@ export const EditClient = () => {
     };
     
     loadClient();
-    
-    // Cleanup on unmount
-    return () => {
-      resetProjectColor();
-    };
   }, [id, fetchClient]);
-
-  // Set client color when selected client changes
-  useEffect(() => {
-    if (selectedClient?.color) {
-      setProjectColor(selectedClient.color);
-    }
-  }, [selectedClient]);
 
   // Handle client deletion
   const handleDelete = async () => {

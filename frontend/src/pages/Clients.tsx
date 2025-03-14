@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { ClientList } from '../components/ClientList';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useClientStore } from '../store/clientStore';
-import { setProjectColor } from '../utils/dynamicColors';
 
 export const Clients = () => {
   const { t } = useTranslation();
@@ -13,10 +12,6 @@ export const Clients = () => {
   // Clear selected client when entering the clients list
   useEffect(() => {
     clearSelectedClient();
-    
-    // Usar un color azul estándar para la página de clientes
-    // Este color no debería cambiar al hacer hover
-    setProjectColor('#0284c7');
   }, [clearSelectedClient]);
 
   return (

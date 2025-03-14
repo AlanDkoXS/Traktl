@@ -5,7 +5,7 @@ import { ProjectForm } from '../components/ProjectForm';
 import { useProjectStore } from '../store/projectStore';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { TrashIcon } from '@heroicons/react/24/outline';
-import { setProjectColor, resetProjectColor } from '../utils/dynamicColors';
+import { setProjectColor } from '../utils/dynamicColors';
 
 export const EditProject = () => {
   const { t } = useTranslation();
@@ -35,16 +35,11 @@ export const EditProject = () => {
     };
     
     loadProject();
-    
-    // Cleanup on unmount - reset to default color
-    return () => {
-      resetProjectColor();
-    };
   }, [id, fetchProject]);
   
-  // Set project color when selected project changes
+  // Set project color when selected project changes (solo en dashboard)
   useEffect(() => {
-    if (selectedProject?.color) {
+    if (selectedProject?.color && window.location.pathname === '/') {
       setProjectColor(selectedProject.color);
     }
   }, [selectedProject]);
@@ -56,7 +51,6 @@ export const EditProject = () => {
     setDeleteLoading(true);
     try {
       await deleteProject(id);
-      resetProjectColor();
       navigate('/projects');
     } catch (err) {
       console.error('Error deleting project:', err);
