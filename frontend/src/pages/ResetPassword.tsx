@@ -1,30 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { useAuthStore } from '../store/authStore';
-import { GoogleLoginButton } from '../components/auth/GoogleLoginButton';
+import api from '../services/api';
 
-export const Register = () => {
+export const ResetPassword = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { register, isAuthenticated } = useAuthStore();
-	const [name, setName] = useState('');
-	const [email, setEmail] = useState('');
+	const { token } = useParams<{ token: string }>();
+	const location = useLocation();
+	
+	// Get email from query params if available
+	const queryParams = new URLSearchParams(location.search);
+	const email = queryParams.get('email') || '';
+	
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState('');
 	const [passwordError, setPasswordError] = useState('');
 	const [confirmError, setConfirmError] = useState('');
-	const [loading, setIsSubmitting] = useState(false);
-
-	// Check if already authenticated
-	useEffect(() => {
-		if (isAuthenticated) {
-			navigate('/');
-		}
-	}, [isAuthenticated, navigate]);
+	const [successMessage, setSuccessMessage] = useState('');
 
 	// Password validation
 	useEffect(() => {
@@ -50,11 +47,11 @@ export const Register = () => {
 		}
 	}, [password, confirmPassword, t]);
 
-	const handleRegister = async (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		// Validate required fields
-		if (!name || !email || !password || !confirmPassword) {
+		if (!password || !confirmPassword) {
 			setError(t('errors.required'));
 			return;
 		}
@@ -74,18 +71,23 @@ export const Register = () => {
 			setIsSubmitting(true);
 			setError('');
 
-			// Note: changed 'system' to 'light' here to match backend validation
-			await register(
-				name,
-				email,
-				password,
-				'en',
-				'light'
-			);
+			// Send password reset request
+			await api.post('/users/reset-password', { token, password });
 
-			navigate('/');
+			// Show success message and redirect to login after a delay
+			setSuccessMessage(
+				t(
+					'auth.passwordResetSuccess',
+					'Your password has been reset successfully. You can now login with your new password.'
+				)
+			);
+			
+			setTimeout(() => {
+				navigate('/login');
+			}, 3000);
 		} catch (err: any) {
-			setError(err.message || t('errors.serverError'));
+			const errorMessage = err.response?.data?.message || t('errors.serverError');
+			setError(errorMessage);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -104,73 +106,27 @@ export const Register = () => {
 						{t('app.name')}
 					</h1>
 					<h2 className="mt-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-						{t('auth.signUp')}
+						{t('auth.resetPassword', 'Reset Password')}
 					</h2>
 					<p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-						{t('auth.alreadyHaveAccount')}{' '}
-						<Link
-							to="/login"
-							className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
-						>
-							{t('auth.signIn')}
-						</Link>
+						{t('auth.resetPasswordInstructions', 'Enter your new password below.')}
 					</p>
 				</div>
 
-				<GoogleLoginButton isLogin={false} />
-
-				<div className="mt-6 flex items-center justify-center">
-					<div className="border-t flex-grow border-gray-300 dark:border-gray-700"></div>
-					<div className="mx-4 text-sm text-gray-500 dark:text-gray-400">{t('auth.orSignUpWith')}</div>
-					<div className="border-t flex-grow border-gray-300 dark:border-gray-700"></div>
-				</div>
-
-				<form className="mt-6 space-y-6" onSubmit={handleRegister}>
+				<form className="mt-8 space-y-6" onSubmit={handleSubmit}>
 					{error && (
 						<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm">
 							{error}
 						</div>
 					)}
 
+					{successMessage && (
+						<div className="bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 p-3 rounded-md text-sm">
+							{successMessage}
+						</div>
+					)}
+
 					<div className="rounded-md shadow-sm space-y-4">
-						<div>
-							<label
-								htmlFor="name"
-								className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-							>
-								{t('auth.name')}
-							</label>
-							<input
-								id="name"
-								name="name"
-								type="text"
-								autoComplete="name"
-								required
-								value={name}
-								onChange={(e) => setName(e.target.value)}
-								className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm mt-1"
-								placeholder={t('auth.name')}
-							/>
-						</div>
-						<div>
-							<label
-								htmlFor="email-address"
-								className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-							>
-								{t('auth.email')}
-							</label>
-							<input
-								id="email-address"
-								name="email"
-								type="email"
-								autoComplete="email"
-								required
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm mt-1"
-								placeholder={t('auth.email')}
-							/>
-						</div>
 						<div>
 							<label
 								htmlFor="password"
@@ -224,11 +180,20 @@ export const Register = () => {
 					<div>
 						<button
 							type="submit"
-							disabled={loading || !!passwordError || !!confirmError}
+							disabled={isSubmitting}
 							className="btn btn-primary w-full py-2 justify-center"
 						>
-							{loading ? t('common.loading') : t('auth.signUp')}
+							{isSubmitting ? t('common.loading') : t('auth.resetPassword', 'Reset Password')}
 						</button>
+					</div>
+					
+					<div className="flex items-center justify-between mt-4">
+						<Link
+							to="/login"
+							className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+						>
+							{t('auth.backToLogin', 'Back to Login')}
+						</Link>
 					</div>
 				</form>
 			</div>

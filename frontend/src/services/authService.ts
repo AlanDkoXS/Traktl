@@ -43,6 +43,35 @@ export const authService = {
     }
   },
 
+  // Google Login
+  loginWithGoogle: async (tokenId: string): Promise<LoginResponse> => {
+    try {
+      console.log('Sending Google login request with token');
+      const response = await api.post('/users/google', { token: tokenId });
+
+      console.log('Google login API response:', response.data);
+
+      // Extract token and user data
+      let token, user;
+
+      if (response.data.token) {
+        token = response.data.token;
+        user = response.data.user || response.data.data;
+      } else if (response.data.data?.token) {
+        token = response.data.data.token;
+        user = response.data.data.user || response.data.data;
+      } else {
+        console.error('Unexpected response format:', response.data);
+        throw new Error('Invalid response format from server');
+      }
+
+      return { token, user };
+    } catch (error) {
+      console.error('Google login error in service:', error);
+      throw error;
+    }
+  },
+
   // Register
   register: async (
     name: string,

@@ -46,7 +46,12 @@
         "passwordConfirm": "Confirm Password",
         "passwordMismatch": "Passwords do not match",
         "passwordRequirements": "Password must be at least 8 characters long and contain at least one number, one uppercase letter, and one special character",
-        "invalidCredentials": "Invalid email or password"
+        "invalidCredentials": "Invalid email or password",
+        "signInWithGoogle": "Sign in with Google",
+        "signUpWithGoogle": "Sign up with Google",
+        "orSignInWith": "Or sign in with",
+        "orSignUpWith": "Or sign up with",
+        "googleAuthError": "Error signing in with Google"
     },
     "theme": {
         "title": "Theme",

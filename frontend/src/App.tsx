@@ -18,6 +18,8 @@ import { Reports } from './pages/Reports';
 import { Settings } from './pages/Settings';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from './pages/ResetPassword';
 import { Tags } from './pages/Tags';
 import { CreateTag } from './pages/CreateTag';
 import { EditTag } from './pages/EditTag';
@@ -68,6 +70,8 @@ function App() {
 				{/* Public routes */}
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
+				<Route path="/forgot-password" element={<ForgotPassword />} />
+				<Route path="/reset-password/:token" element={<ResetPassword />} />
 
 				{/* Protected routes */}
 				<Route

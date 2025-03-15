@@ -69,9 +69,10 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		entriesToUse.forEach((entry) => {
 			try {
 				// Ensure startTime is properly parsed to a Date object
-				const startTimeDate = entry.startTime instanceof Date
-					? entry.startTime
-					: parseISO(entry.startTime.toString());
+				const startTimeDate =
+					entry.startTime instanceof Date
+						? entry.startTime
+						: parseISO(entry.startTime.toString());
 
 				const dateString = format(startTimeDate, 'yyyy-MM-dd');
 				if (!activityByDate[dateString]) activityByDate[dateString] = 0;
@@ -119,22 +120,26 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	}, [calendarData]);
 
 	// GitHub-style colors (from gray to green)
-	const GITHUB_COLORS = useMemo(() => [
-		'#ebedf0', // light gray
-		'#9be9a8', // light green
-		'#40c463', // medium green
-		'#30a14e', // darker green
-		'#216e39'  // darkest green
-	], []);
+	const GITHUB_COLORS = useMemo(
+		() => [
+			'#9be9a8', // light green
+			'#40c463', // medium green
+			'#30a14e', // darker green
+			'#216e39', // darkest green
+		],
+		[]
+	);
 
 	// Dark mode GitHub-style colors
-	const GITHUB_COLORS_DARK = useMemo(() => [
-		'#161b22', // darkest background
-		'#0e4429', // dark green
-		'#006d32', // medium green
-		'#26a641', // lighter green
-		'#39d353'  // lightest green
-	], []);
+	const GITHUB_COLORS_DARK = useMemo(
+		() => [
+			'#39d353', // lightest green
+			'#26a641', // lighter green
+			'#006d32', // medium green
+			'#0e4429', // darkest green
+		],
+		[]
+	);
 
 	// Get today's pie data - completely rewritten to ensure correctness
 	const todaysPieData = useMemo(() => {
@@ -142,11 +147,10 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		const todayStr = format(new Date(), 'yyyy-MM-dd');
 
 		// Filter entries for today only
-		const todayEntries = entriesToUse.filter(entry => {
+		const todayEntries = entriesToUse.filter((entry) => {
 			try {
-				const startDate = entry.startTime instanceof Date
-					? entry.startTime
-					: new Date(entry.startTime);
+				const startDate =
+					entry.startTime instanceof Date ? entry.startTime : new Date(entry.startTime);
 
 				const entryDateStr = format(startDate, 'yyyy-MM-dd');
 				return entryDateStr === todayStr;
@@ -157,19 +161,22 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		});
 
 		// Group entries by project
-		const projectMap: Record<string, {
-			id: string,
-			duration: number,
-			name: string
-		}> = {};
+		const projectMap: Record<
+			string,
+			{
+				id: string;
+				duration: number;
+				name: string;
+			}
+		> = {};
 
 		// Process each entry to accumulate time by project
-		todayEntries.forEach(entry => {
+		todayEntries.forEach((entry) => {
 			const projectId = entry.project;
 
 			if (!projectMap[projectId]) {
 				// Find the project details
-				const project = projects.find(p => p.id === projectId);
+				const project = projects.find((p) => p.id === projectId);
 
 				projectMap[projectId] = {
 					id: projectId,
@@ -189,7 +196,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		const totalDuration = projectTimeArray.reduce((sum, project) => sum + project.duration, 0);
 
 		// Format the data for the pie chart
-		const formattedData = projectTimeArray.map(project => ({
+		const formattedData = projectTimeArray.map((project) => ({
 			id: project.id,
 			name: project.name,
 			value: Math.round(project.duration), // Round to nearest minute
@@ -205,45 +212,44 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	}, [todaysPieData]);
 
 	// GitHub-style activity colors - converted to memoized function
-	const getGitHubActivityColor = useCallback((minutes: number, isHovered: boolean) => {
-		if (minutes === 0)
-			return isHovered ? 'bg-gray-200 dark:bg-gray-600' : 'bg-gray-100 dark:bg-gray-700';
+	const getGitHubActivityColor = useCallback(
+		(minutes: number, isHovered: boolean) => {
+			if (minutes === 0)
+				return isHovered ? 'bg-gray-200 dark:bg-gray-600' : 'bg-gray-100 dark:bg-gray-700';
 
-		// GitHub color palette
-		if (minutes <= maxActivity * 0.15)
-			return isHovered ? 'bg-[#9be9a8] dark:bg-[#0e4429]' : 'bg-[#ebedf0] dark:bg-[#0e4429]';
+			// GitHub color palette
+			if (minutes <= maxActivity * 0.15)
+				return isHovered
+					? 'bg-[#9be9a8] dark:bg-[#0e4429]'
+					: 'bg-[#ebedf0] dark:bg-[#0e4429]';
 
-		if (minutes <= maxActivity * 0.4)
-			return isHovered ? 'bg-[#40c463] dark:bg-[#006d32]' : 'bg-[#9be9a8] dark:bg-[#006d32]';
+			if (minutes <= maxActivity * 0.4)
+				return isHovered
+					? 'bg-[#40c463] dark:bg-[#006d32]'
+					: 'bg-[#9be9a8] dark:bg-[#006d32]';
 
-		if (minutes <= maxActivity * 0.7)
-			return isHovered ? 'bg-[#30a14e] dark:bg-[#26a641]' : 'bg-[#40c463] dark:bg-[#26a641]';
+			if (minutes <= maxActivity * 0.7)
+				return isHovered
+					? 'bg-[#30a14e] dark:bg-[#26a641]'
+					: 'bg-[#40c463] dark:bg-[#26a641]';
 
-		return isHovered ? 'bg-[#216e39] dark:bg-[#39d353]' : 'bg-[#30a14e] dark:bg-[#39d353]';
-	}, [maxActivity]);
+			return isHovered ? 'bg-[#216e39] dark:bg-[#39d353]' : 'bg-[#30a14e] dark:bg-[#39d353]';
+		},
+		[maxActivity]
+	);
 
 	// Get GitHub-style color for pie chart slice based on index
-	// CORREGIDO: Invertir los colores para que el mayor porcentaje tenga el verde más claro
-	const getPieChartColor = useCallback((index: number, totalItems: number, isDarkMode: boolean) => {
-		const colors = isDarkMode ? GITHUB_COLORS_DARK : GITHUB_COLORS;
+	const getPieChartColor = useCallback(
+		(index: number, totalItems: number, isDarkMode: boolean) => {
+			const colors = isDarkMode ? GITHUB_COLORS_DARK : GITHUB_COLORS;
 
-		// Invertir el orden para que el elemento con mayor índice (menor porcentaje)
-		// obtenga el color más oscuro (o menos brillante en modo oscuro)
-		// y el elemento con menor índice (mayor porcentaje) obtenga el verde más claro
-
-		// Calcular el índice inverso
-		let invertedIndex;
-		if (totalItems <= 1) {
-			// Si solo hay un elemento, usar el color verde más claro
-			invertedIndex = isDarkMode ? colors.length - 1 : 1;
-		} else {
-			// Escalar el índice para que se distribuya por el array de colores
-			const maxIndex = Math.min(totalItems - 1, colors.length - 1);
-			invertedIndex = Math.max(0, maxIndex - index);
-		}
-
-		return colors[invertedIndex];
-	}, [GITHUB_COLORS, GITHUB_COLORS_DARK]);
+			// Para valores de mayor porcentaje (índice más bajo), usar el verde más claro
+			// Para valores de menor porcentaje (índice más alto), usar el verde más oscuro
+			const colorIndex = Math.min(index, colors.length - 1);
+			return colors[colorIndex];
+		},
+		[GITHUB_COLORS, GITHUB_COLORS_DARK]
+	);
 
 	const daysTranslation = {
 		0: t('dashboard.days.sun'),
@@ -256,54 +262,58 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	};
 
 	// Custom tooltip for heatmap
-	const renderTooltip = useCallback((day: any) => {
-		if (!day) return null;
-		const date = format(day.date, 'MMM d, yyyy');
-		const minutes = Math.round(day.activity);
+	const renderTooltip = useCallback(
+		(day: any) => {
+			if (!day) return null;
+			const date = format(day.date, 'MMM d, yyyy');
+			const minutes = Math.round(day.activity);
 
-		// Find projects for this day
-		const dayProjects: Record<string, number> = {};
+			// Find projects for this day
+			const dayProjects: Record<string, number> = {};
 
-		entriesToUse.forEach((entry) => {
-			try {
-				const entryStartTime = entry.startTime instanceof Date
-					? entry.startTime
-					: parseISO(entry.startTime.toString());
+			entriesToUse.forEach((entry) => {
+				try {
+					const entryStartTime =
+						entry.startTime instanceof Date
+							? entry.startTime
+							: parseISO(entry.startTime.toString());
 
-				const entryDate = format(entryStartTime, 'yyyy-MM-dd');
+					const entryDate = format(entryStartTime, 'yyyy-MM-dd');
 
-				if (entryDate === day.dateString) {
-					const projectId = entry.project;
-					const project = projects.find((p) => p.id === projectId);
-					const projectName = project?.name || 'Unknown Project';
+					if (entryDate === day.dateString) {
+						const projectId = entry.project;
+						const project = projects.find((p) => p.id === projectId);
+						const projectName = project?.name || 'Unknown Project';
 
-					if (!dayProjects[projectName]) {
-						dayProjects[projectName] = 0;
+						if (!dayProjects[projectName]) {
+							dayProjects[projectName] = 0;
+						}
+						dayProjects[projectName] += entry.duration / (1000 * 60);
 					}
-					dayProjects[projectName] += entry.duration / (1000 * 60);
+				} catch (error) {
+					console.error('Error processing entry for tooltip:', error);
 				}
-			} catch (error) {
-				console.error('Error processing entry for tooltip:', error);
-			}
-		});
+			});
 
-		return (
-			<div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md text-xs">
-				<div className="font-medium">{date}</div>
-				<div className="text-gray-700 dark:text-gray-300">{minutes} min total</div>
-				{Object.entries(dayProjects).length > 0 && (
-					<div className="mt-1 pt-1 border-t border-gray-100 dark:border-gray-700">
-						{Object.entries(dayProjects).map(([project, mins]) => (
-							<div key={project} className="flex justify-between">
-								<span className="mr-2">{project}:</span>
-								<span className="font-medium">{Math.round(mins)} min</span>
-							</div>
-						))}
-					</div>
-				)}
-			</div>
-		);
-	}, [entriesToUse, projects]);
+			return (
+				<div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md text-xs">
+					<div className="font-medium">{date}</div>
+					<div className="text-gray-700 dark:text-gray-300">{minutes} min total</div>
+					{Object.entries(dayProjects).length > 0 && (
+						<div className="mt-1 pt-1 border-t border-gray-100 dark:border-gray-700">
+							{Object.entries(dayProjects).map(([project, mins]) => (
+								<div key={project} className="flex justify-between">
+									<span className="mr-2">{project}:</span>
+									<span className="font-medium">{Math.round(mins)} min</span>
+								</div>
+							))}
+						</div>
+					)}
+				</div>
+			);
+		},
+		[entriesToUse, projects]
+	);
 
 	// Custom tooltip for pie chart
 	const CustomTooltip = useCallback(({ active, payload }: any) => {
@@ -334,9 +344,8 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	}, []);
 
 	// Detect dark mode for pie chart colors
-	const isDarkMode = typeof window !== 'undefined'
-		? document.documentElement.classList.contains('dark')
-		: false;
+	const isDarkMode =
+		typeof window !== 'undefined' ? document.documentElement.classList.contains('dark') : false;
 
 	return (
 		<div className="w-full">
@@ -355,7 +364,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 										<Pie
 											data={todaysPieData}
 											dataKey="value"
-											h-6eKey="name"
+											nameKey="name"
 											cx="50%"
 											cy="50%"
 											innerRadius={45}
@@ -366,7 +375,11 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 											{todaysPieData.map((entry, index) => (
 												<Cell
 													key={`cell-${entry.id}`}
-													fill={getPieChartColor(index, todaysPieData.length, isDarkMode)}
+													fill={getPieChartColor(
+														index,
+														todaysPieData.length,
+														isDarkMode
+													)}
 													stroke="none"
 												/>
 											))}
@@ -377,21 +390,34 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 							</div>
 
 							<div className="text-xs text-center mt-1 text-gray-500 dark:text-gray-400">
-								{totalMinutesToday > 0 ? formatTime(totalMinutesToday) : 'No time recorded'}
+								{totalMinutesToday > 0
+									? formatTime(totalMinutesToday)
+									: 'No time recorded'}
 							</div>
 
 							{/* Simple legend */}
 							<div className="mt-2 text-xs space-y-1 max-h-40 overflow-y-auto">
 								{todaysPieData.map((entry, index) => (
-									<div key={entry.id} className="flex items-center justify-between">
+									<div
+										key={entry.id}
+										className="flex items-center justify-between"
+									>
 										<div className="flex items-center truncate max-w-[70%]">
 											<div
 												className="w-2 h-2 rounded-full mr-1 flex-shrink-0"
-												style={{ backgroundColor: getPieChartColor(index, todaysPieData.length, isDarkMode) }}
+												style={{
+													backgroundColor: getPieChartColor(
+														index,
+														todaysPieData.length,
+														isDarkMode
+													),
+												}}
 											/>
 											<span className="truncate">{entry.name}</span>
 										</div>
-										<span className="flex-shrink-0">{formatTime(entry.value)}</span>
+										<span className="flex-shrink-0">
+											{formatTime(entry.value)}
+										</span>
 									</div>
 								))}
 							</div>

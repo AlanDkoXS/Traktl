@@ -4,11 +4,10 @@ import { useProjectStore } from '../store/projectStore';
 import { useTimeEntryStore } from '../store/timeEntryStore';
 import { format, subDays, parseISO, differenceInDays } from 'date-fns';
 import {
-	BarChart,
-	Bar,
+	LineChart,
+	Line,
 	XAxis,
 	YAxis,
-	CartesianGrid,
 	Tooltip,
 	Legend,
 	ResponsiveContainer,
@@ -86,45 +85,95 @@ export const Reports = () => {
 			.sort((a, b) => b.value - a.value); // Sort by duration (descending)
 	}, [timeEntries, projects]);
 
-	// Group time entries by day for bar chart
-	const timeByDayData = useMemo(() => {
-		if (!startDate || !endDate) return [];
+	// Group time entries by day and project for line chart
+	const timeByDayAndProjectData = useMemo(() => {
+		if (!startDate || !endDate) return { dayData: [], projectsData: [] };
 
-		const start = new Date(startDate);
-		const end = new Date(endDate);
+		const start = new Date(startDate + 'T00:00:00');
+		const end = new Date(endDate + 'T23:59:59');
 		const days = differenceInDays(end, start) + 1;
-		const result = [];
 
-		// Group by day
-		const timeByDay = timeEntries.reduce((acc: Record<string, number>, entry) => {
-			const day = format(new Date(entry.startTime), 'yyyy-MM-dd');
-			if (!acc[day]) {
-				acc[day] = 0;
-			}
-			acc[day] += entry.duration;
-			return acc;
-		}, {});
-
-		// Create array of dates with values
+		// Initialize day data structure
+		const daysArray = [];
 		for (let i = 0; i < days; i++) {
 			const currentDate = new Date(start);
 			currentDate.setDate(start.getDate() + i);
 			const dateString = format(currentDate, 'yyyy-MM-dd');
 			const displayDate = format(currentDate, 'MMM dd');
 
-			result.push({
+			daysArray.push({
 				date: dateString,
-				displayDate: displayDate,
-				minutes: Math.round((timeByDay[dateString] || 0) / (1000 * 60)), // Convert to minutes
+				displayDate,
+				// We'll add project data here later
 			});
 		}
 
-		return result;
-	}, [timeEntries, startDate, endDate]);
+		// Track projects and their time per day
+		const projectTimeByDay: Record<string, Record<string, number>> = {};
+		const projectInfo: Record<string, { name: string; color: string }> = {};
 
-	// Use the project colors for pie chart where available
-	const getPieColors = () => {
-		return timeByProjectData.map(entry => entry.color || '#cccccc');
+		// Group time entries by project and day
+		timeEntries.forEach((entry) => {
+			const projectId = entry.project;
+			const day = format(new Date(entry.startTime), 'yyyy-MM-dd');
+			const project = projects.find((p) => p.id === projectId);
+
+			// Store project info for later use
+			if (project && !projectInfo[projectId]) {
+				projectInfo[projectId] = {
+					name: project.name,
+					color: project.color,
+				};
+			}
+
+			// Initialize project object if needed
+			if (!projectTimeByDay[projectId]) {
+				projectTimeByDay[projectId] = {};
+			}
+
+			// Add time to the appropriate day
+			if (!projectTimeByDay[projectId][day]) {
+				projectTimeByDay[projectId][day] = 0;
+			}
+
+			projectTimeByDay[projectId][day] += entry.duration;
+		});
+
+		// For each day, add all project data
+		const result = daysArray.map((day) => {
+			const dayData: any = {
+				date: day.date,
+				displayDate: day.displayDate,
+				// For total minutes across all projects
+				totalMinutes: 0,
+			};
+
+			// Add data for each project
+			Object.entries(projectTimeByDay).forEach(([projectId, projectDays]) => {
+				const projectMinutes = Math.round((projectDays[day.date] || 0) / (1000 * 60));
+				dayData[projectId] = projectMinutes;
+				dayData.totalMinutes += projectMinutes;
+			});
+
+			return dayData;
+		});
+
+		// Create project metadata for creating lines
+		const projectsData = Object.entries(projectInfo).map(([id, info]) => ({
+			id,
+			name: info.name,
+			color: info.color,
+		}));
+
+		return {
+			dayData: result,
+			projectsData,
+		};
+	}, [timeEntries, startDate, endDate, projects]);
+
+	// Create a fallback color for the line chart
+	const getDefaultLineColor = () => {
+		return 'hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness))';
 	};
 
 	return (
@@ -192,7 +241,10 @@ export const Reports = () => {
 				</div>
 
 				<div className="mt-4 flex justify-end">
-					<button onClick={applyFilters} className="btn btn-primary dynamic-bg text-white">
+					<button
+						onClick={applyFilters}
+						className="btn btn-primary dynamic-bg text-white"
+					>
 						{t('common.filter')}
 					</button>
 				</div>
@@ -236,8 +288,10 @@ export const Reports = () => {
 									{t('reports.avgDaily')}
 								</p>
 								<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
-									{timeByDayData.length > 0
-										? formatTime(totalTime / timeByDayData.length)
+									{timeByDayAndProjectData.dayData.length > 0
+										? formatTime(
+												totalTime / timeByDayAndProjectData.dayData.length
+											)
 										: '0h 0m'}
 								</p>
 							</div>
@@ -266,6 +320,8 @@ export const Reports = () => {
 												outerRadius={80}
 												fill="#8884d8"
 												dataKey="value"
+												paddingAngle={3}
+												stroke="none"
 											>
 												{timeByProjectData.map((entry, index) => (
 													<Cell
@@ -314,7 +370,7 @@ export const Reports = () => {
 																	className="w-3 h-3 rounded-full mr-2"
 																	style={{
 																		backgroundColor:
-																			entry.color
+																			entry.color,
 																	}}
 																/>
 																{entry.name}
@@ -345,40 +401,97 @@ export const Reports = () => {
 						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
 							{t('reports.timeByDay')}
 						</h2>
-						{timeByDayData.length > 0 ? (
+						{timeByDayAndProjectData.dayData.length > 0 ? (
 							<div className="h-80">
 								<ResponsiveContainer width="100%" height="100%">
-									<BarChart
-										data={timeByDayData}
-										margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+									<LineChart
+										data={timeByDayAndProjectData.dayData}
+										margin={{ top: 20, right: 30, left: 0, bottom: 60 }}
 									>
-										<CartesianGrid strokeDasharray="3 3" />
 										<XAxis
 											dataKey="displayDate"
 											angle={-45}
 											textAnchor="end"
 											height={60}
 											interval={0}
+											axisLine={false}
+											tickLine={false}
 										/>
 										<YAxis
+											axisLine={false}
+											tickLine={false}
 											label={{
 												value: 'Minutes',
 												angle: -90,
 												position: 'insideLeft',
+												style: { textAnchor: 'middle' },
 											}}
 										/>
 										<Tooltip
-											formatter={(value) => [`${value} min`, 'Time']}
+											formatter={(value, name, props) => {
+												if (name === 'totalMinutes')
+													return [`${value} min`, 'Total'];
+												// Find project name for this id
+												const project =
+													timeByDayAndProjectData.projectsData.find(
+														(p) => p.id === name
+													);
+												return [`${value} min`, project?.name || name];
+											}}
 											labelFormatter={(label) => `Date: ${label}`}
 										/>
-										<Legend />
-										<Bar
-											dataKey="minutes"
-											name="Time (minutes)"
-											fill="hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness))"
-											radius={[4, 4, 0, 0]}
+										<Legend
+											verticalAlign="top"
+											formatter={(value, entry) => {
+												if (value === 'totalMinutes') return 'Total';
+												// Find project name for this dataKey
+												const project =
+													timeByDayAndProjectData.projectsData.find(
+														(p) => p.id === value
+													);
+												return project?.name || value;
+											}}
 										/>
-									</BarChart>
+
+										{/* First show total line if not filtering by project */}
+										{!projectId && (
+											<Line
+												name="totalMinutes"
+												type="monotone"
+												dataKey="totalMinutes"
+												stroke={getDefaultLineColor()}
+												strokeWidth={3}
+												dot={{
+													stroke: getDefaultLineColor(),
+													strokeWidth: 2,
+													r: 4,
+												}}
+												activeDot={{ r: 6 }}
+											/>
+										)}
+
+										{/* Then show individual project lines */}
+										{timeByDayAndProjectData.projectsData
+											.filter(
+												(project) => !projectId || project.id === projectId
+											)
+											.map((project) => (
+												<Line
+													key={project.id}
+													name={project.id}
+													type="monotone"
+													dataKey={project.id}
+													stroke={project.color}
+													strokeWidth={2}
+													dot={{
+														stroke: project.color,
+														strokeWidth: 2,
+														r: 3,
+													}}
+													activeDot={{ r: 5 }}
+												/>
+											))}
+									</LineChart>
 								</ResponsiveContainer>
 							</div>
 						) : (

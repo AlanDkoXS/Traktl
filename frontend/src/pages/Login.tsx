@@ -5,6 +5,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { useAuthStore } from '../store/authStore';
 import { checkCurrentToken } from '../utils/tokenHelper';
+import { GoogleLoginButton } from '../components/auth/GoogleLoginButton';
 
 export const Login = () => {
   const { t } = useTranslation();
@@ -91,7 +92,15 @@ export const Login = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <GoogleLoginButton isLogin={true} />
+
+        <div className="mt-6 flex items-center justify-center">
+          <div className="border-t flex-grow border-gray-300 dark:border-gray-700"></div>
+          <div className="mx-4 text-sm text-gray-500 dark:text-gray-400">{t('auth.orSignInWith')}</div>
+          <div className="border-t flex-grow border-gray-300 dark:border-gray-700"></div>
+        </div>
+
+        <form className="mt-6 space-y-6" onSubmit={handleLogin}>
           {error && (
             <div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm">
               {error}

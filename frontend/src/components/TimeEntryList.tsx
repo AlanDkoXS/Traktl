@@ -185,10 +185,10 @@ export const TimeEntryList = ({
 
 		// Make sure this entry is selected for infinite mode
 		setSelectedEntryId(entry.id);
-		
+
 		// Explicitly set infinite mode to true before starting
 		setInfiniteMode(true);
-		
+
 		// Start timer with infinite mode
 		start();
 	};
@@ -242,7 +242,7 @@ export const TimeEntryList = ({
 					const isHovered = hoveredEntryId === entry.id;
 					const projectColor = getProjectColor(entry.project);
 
-					// Create darker variant of project color for selected state
+					// Create darker and lighter variants of project color for selected state
 					const getDarkerColor = (hexColor: string, factor = 0.85) => {
 						// Convert hex to RGB
 						const r = parseInt(hexColor.slice(1, 3), 16);
@@ -260,12 +260,23 @@ export const TimeEntryList = ({
 
 					const darkerProjectColor = getDarkerColor(projectColor);
 
+					// Create entry background style that adapts to project colors
+					let entryBgStyle = {};
+					if (isSelected) {
+						// Use a subtle background based on project color
+						entryBgStyle = {
+							background: `linear-gradient(to right, ${projectColor}15, ${projectColor}05)`,
+							borderLeft: `3px solid ${projectColor}`,
+						};
+					}
+
 					return (
 						<div
 							key={entry.id}
-							className={`relative block bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg p-2 shadow-sm transition-all ${isTimerActive && !isSelected ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow bg-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.6)] dark:bg-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.4)]' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''}`}
+							className={`relative block bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg p-2 shadow-sm transition-all ${isTimerActive && !isSelected ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow-md' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''}`}
 							onMouseEnter={() => setHoveredEntryId(entry.id)}
 							onMouseLeave={() => setHoveredEntryId(null)}
+							style={entryBgStyle}
 						>
 							<div
 								className="block cursor-pointer"
@@ -275,9 +286,7 @@ export const TimeEntryList = ({
 									<div className="flex items-center min-w-0">
 										<div
 											className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
-											onClick={(e) =>
-												handlePlayClick(entry, e)
-											}
+											onClick={(e) => handlePlayClick(entry, e)}
 											style={
 												isSelected
 													? {}

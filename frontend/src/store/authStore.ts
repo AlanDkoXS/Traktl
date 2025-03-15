@@ -10,6 +10,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (tokenId: string) => Promise<void>;
   register: (
     name: string,
     email: string,
@@ -55,6 +56,42 @@ export const useAuthStore = create<AuthState>()(
         } catch (err: any) {
           const errorMessage = err.response?.data?.message || 'Login failed';
           console.error('Login error:', errorMessage);
+
+          set({
+            error: errorMessage,
+            isLoading: false,
+            isAuthenticated: false,
+            token: null,
+            user: null,
+          });
+          throw new Error(errorMessage);
+        }
+      },
+
+      loginWithGoogle: async (tokenId) => {
+        try {
+          set({ isLoading: true, error: null });
+
+          const { token, user } = await authService.loginWithGoogle(tokenId);
+
+          console.log('Google login successful, token received:', token);
+
+          // Save token to localStorage
+          if (token) {
+            localStorage.setItem('auth-token', token);
+
+            set({
+              token,
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } else {
+            throw new Error('No token received from server');
+          }
+        } catch (err: any) {
+          const errorMessage = err.response?.data?.message || 'Google login failed';
+          console.error('Google login error:', errorMessage);
 
           set({
             error: errorMessage,
