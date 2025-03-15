@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TimerAlertModal } from './TimerAlertModal';
 
 interface NotificationManagerProps {
@@ -16,55 +16,62 @@ export const NotificationManager = ({
   onCloseNotification
 }: NotificationManagerProps) => {
   const { t } = useTranslation();
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   
-  // Handle sound effects
+  // Use refs to keep stable references to audio objects across renders
+  const workSoundRef = useRef<HTMLAudioElement | null>(null);
+  const breakSoundRef = useRef<HTMLAudioElement | null>(null);
+  
+  // Initialize audio elements only once
   useEffect(() => {
-    // Create audio elements for work and break sounds
-    const workSound = new Audio('/sounds/work.mp3');
-    const breakSound = new Audio('/sounds/break.mp3');
+    // Create audio elements only if they don't exist yet
+    if (!workSoundRef.current) {
+      workSoundRef.current = new Audio('/sounds/work.mp3');
+      workSoundRef.current.load();
+    }
     
-    // Preload sounds
-    workSound.load();
-    breakSound.load();
+    if (!breakSoundRef.current) {
+      breakSoundRef.current = new Audio('/sounds/break.mp3');
+      breakSoundRef.current.load();
+    }
     
-    // Set the appropriate sound based on mode
-    setAudioElement(mode === 'work' ? breakSound : workSound);
-    
-    // Cleanup
+    // Cleanup function
     return () => {
-      if (workSound) {
-        workSound.pause();
-        workSound.currentTime = 0;
+      // Pause and reset audio when component unmounts
+      if (workSoundRef.current) {
+        workSoundRef.current.pause();
+        workSoundRef.current.currentTime = 0;
       }
-      if (breakSound) {
-        breakSound.pause();
-        breakSound.currentTime = 0;
+      if (breakSoundRef.current) {
+        breakSoundRef.current.pause();
+        breakSoundRef.current.currentTime = 0;
       }
     };
-  }, [mode]);
+  }, []); // Empty dependency array ensures this only runs once
   
   // Play sound when notification shows
   useEffect(() => {
-    if (showNotification && audioElement) {
-      audioElement.currentTime = 0;
-      audioElement.play().catch(e => console.error('Error playing sound:', e));
+    if (showNotification) {
+      // Select the appropriate sound based on mode
+      const audioToPlay = mode === 'work' ? breakSoundRef.current : workSoundRef.current;
       
-      const timeout = setTimeout(() => {
-        if (audioElement) {
-          audioElement.pause();
-          audioElement.currentTime = 0;
-        }
-      }, 3000);
+      if (audioToPlay) {
+        audioToPlay.currentTime = 0;
+        audioToPlay.play().catch(e => console.error('Error playing sound:', e));
       
-      return () => clearTimeout(timeout);
+        const timeout = setTimeout(() => {
+          if (audioToPlay) {
+            audioToPlay.pause();
+            audioToPlay.currentTime = 0;
+          }
+        }, 3000);
+      
+        return () => clearTimeout(timeout);
+      }
     }
-  }, [showNotification, audioElement]);
+  }, [showNotification, mode]);
 
   return (
     <>
-      {/* No in-app toast notification anymore */}
-      
       {/* Alert modal */}
       <TimerAlertModal
         isOpen={showNotification}

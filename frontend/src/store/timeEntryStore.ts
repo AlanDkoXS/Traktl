@@ -28,6 +28,34 @@ interface TimeEntryState {
 	addNewTimeEntry: (timeEntry: TimeEntry) => void;
 }
 
+// Helper function to safely format date strings or Date objects without blocking UI
+const formatDateSafely = (date: Date | string | undefined, isEndDate = false): Date | undefined => {
+	if (!date) return undefined;
+	
+	// If already a valid Date object, return it
+	if (date instanceof Date && !isNaN(date.getTime())) {
+		return date;
+	}
+	
+	// If it's a string without time portion
+	if (typeof date === 'string') {
+		try {
+			// Add time portion based on whether it's start or end date
+			const timeString = isEndDate ? 'T23:59:59.999Z' : 'T00:00:00.000Z';
+			if (!date.includes('T')) {
+				return new Date(date + timeString);
+			}
+			// Already has time portion
+			return new Date(date);
+		} catch (err) {
+			console.warn('Invalid date format:', date);
+			return undefined;
+		}
+	}
+	
+	return undefined;
+};
+
 export const useTimeEntryStore = create<TimeEntryState>((set, get) => ({
 	timeEntries: [],
 	selectedTimeEntry: null,
@@ -35,44 +63,32 @@ export const useTimeEntryStore = create<TimeEntryState>((set, get) => ({
 	error: null,
 
 	fetchTimeEntries: async (projectId, taskId, startDate, endDate) => {
-	  console.log('fetchTimeEntries called with params:', { projectId, taskId, startDate, endDate });
-    try {
-      set({ isLoading: true, error: null });
+		console.log('fetchTimeEntries called with params:', { projectId, taskId, startDate, endDate });
+		try {
+			set({ isLoading: true, error: null });
 
-      // Ensure dates are properly formatted
-      let formattedStartDate = startDate;
-      let formattedEndDate = endDate;
-      
-      if (startDate && !(startDate instanceof Date && !isNaN(startDate.getTime()))) {
-        if (typeof startDate === 'string' && !startDate.includes('T')) {
-          formattedStartDate = new Date(startDate + 'T00:00:00');
-        }
-      }
-      
-      if (endDate && !(endDate instanceof Date && !isNaN(endDate.getTime()))) {
-        if (typeof endDate === 'string' && !endDate.includes('T')) {
-          formattedEndDate = new Date(endDate + 'T23:59:59.999');
-        }
-      }
+			// Format dates without blocking UI
+			const formattedStartDate = formatDateSafely(startDate);
+			const formattedEndDate = formatDateSafely(endDate, true);
 
-      const timeEntries = await timeEntryService.getTimeEntries(
-        projectId,
-        taskId,
-        formattedStartDate,
-        formattedEndDate
-      );
+			const timeEntries = await timeEntryService.getTimeEntries(
+				projectId,
+				taskId,
+				formattedStartDate,
+				formattedEndDate
+			);
 
-      console.log('Fetched time entries:', timeEntries.length);
-      set({ timeEntries, isLoading: false });
-      return timeEntries;
-    } catch (error: any) {
-      console.error('Error fetching time entries:', error);
-      set({
-        error: error.message || 'Failed to fetch time entries',
-        isLoading: false,
-      });
-      return [];
-    }
+			console.log('Fetched time entries:', timeEntries.length);
+			set({ timeEntries, isLoading: false });
+			return timeEntries;
+		} catch (error: any) {
+			console.error('Error fetching time entries:', error);
+			set({
+				error: error.message || 'Failed to fetch time entries',
+				isLoading: false,
+			});
+			return [];
+		}
 	},
 
 	fetchTimeEntry: async (id: string) => {
@@ -155,7 +171,7 @@ export const useTimeEntryStore = create<TimeEntryState>((set, get) => ({
 		set({ selectedTimeEntry: null });
 	},
 	
-	// Nuevo método para añadir una entrada directamente al store sin fetch
+	// Método para añadir una entrada directamente al store sin fetch
 	addNewTimeEntry: (timeEntry) => {
 		set((state) => ({
 			timeEntries: [timeEntry, ...state.timeEntries]
