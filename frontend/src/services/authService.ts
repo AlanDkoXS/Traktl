@@ -46,15 +46,8 @@ export const authService = {
   // Google Login
   loginWithGoogle: async (tokenId: string): Promise<LoginResponse> => {
     try {
-      console.log('Sending Google login request with token ID of length:', tokenId?.length);
-      
-      // Verificar formato de token esperado por el backend:
-      // Intentamos varios formatos de parámetros comunes
-      const response = await api.post('/users/google', { 
-        credential: tokenId,
-        id_token: tokenId,
-        idToken: tokenId
-      });
+      console.log('Sending Google login request with token');
+      const response = await api.post('/users/google', { token: tokenId });
 
       console.log('Google login API response:', response.data);
 
@@ -176,4 +169,35 @@ export const authService = {
       throw error;
     }
   },
+
+  // Change password
+  changePassword: async (currentPassword: string, newPassword: string): Promise<void> => {
+    try {
+      await api.put('/users/change-password', { currentPassword, newPassword });
+    } catch (error) {
+      console.error('Change password error in service:', error);
+      throw error;
+    }
+  },
+
+  // Request password reset
+  requestPasswordReset: async (email: string): Promise<void> => {
+    try {
+      await api.post('/users/forgot-password', { email });
+    } catch (error) {
+      // Do not throw an error here for security reasons
+      // Even if the email doesn't exist, we don't want to reveal that
+      console.log('Request password reset completed');
+    }
+  },
+
+  // Reset password with token
+  resetPassword: async (token: string, password: string): Promise<void> => {
+    try {
+      await api.post('/users/reset-password', { token, password });
+    } catch (error) {
+      console.error('Reset password error in service:', error);
+      throw error;
+    }
+  }
 };

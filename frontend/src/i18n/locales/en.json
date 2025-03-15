@@ -51,7 +51,20 @@
         "signUpWithGoogle": "Sign up with Google",
         "orSignInWith": "Or sign in with",
         "orSignUpWith": "Or sign up with",
-        "googleAuthError": "Error signing in with Google"
+        "googleAuthError": "Error signing in with Google",
+        "passwordResetSent": "If an account with that email exists, we have sent password reset instructions.",
+        "passwordResetSuccess": "Your password has been reset successfully. You can now login with your new password.",
+        "resetPassword": "Reset Password",
+        "forgotPasswordInstructions": "Enter your email to receive password reset instructions.",
+        "backToLogin": "Back to Login",
+        "passwordChanged": "Your password has been changed successfully.",
+        "emailVerification": "Email Verification",
+        "emailVerified": "Your email has been verified successfully.",
+        "emailVerificationSent": "A verification email has been sent to your email address.",
+        "verifyEmail": "Verify Email",
+        "emailVerificationInstructions": "Please check your email and click on the verification link.",
+        "emailVerificationExpired": "The verification link has expired. Please request a new one.",
+        "resendVerification": "Resend Verification Email"
     },
     "theme": {
         "title": "Theme",
@@ -208,7 +221,16 @@
         "saved": "Settings saved successfully",
         "timers": "Timers",
         "defaultTimerPreset": "Default Timer Preset",
-        "noDefaultPreset": "No default preset"
+        "noDefaultPreset": "No default preset",
+        "changePassword": "Change Password",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "passwordChanged": "Password changed successfully",
+        "verifyEmail": "Verify Email",
+        "emailVerificationStatus": "Email Verification Status",
+        "verified": "Verified",
+        "notVerified": "Not Verified",
+        "requestVerification": "Request Verification Email"
     },
     "common": {
         "save": "Save",

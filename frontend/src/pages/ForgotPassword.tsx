@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
-import api from '../services/api';
+import { authService } from '../services/authService';
 
 export const ForgotPassword = () => {
 	const { t } = useTranslation();
@@ -26,7 +26,7 @@ export const ForgotPassword = () => {
 			setSuccessMessage('');
 
 			// API call to request password reset
-			await api.post('/users/forgot-password', { email });
+			await authService.requestPasswordReset(email);
 
 			// Show success message even if the email doesn't exist for security reasons
 			setSuccessMessage(
