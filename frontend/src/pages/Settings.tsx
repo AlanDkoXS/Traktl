@@ -12,8 +12,8 @@ export const Settings = () => {
 
 	const [name, setName] = useState(user?.name || '');
 	const [email, setEmail] = useState(user?.email || '');
-	const [preferredLanguage, setPreferredLanguage] = useState<'es' | 'en'>(
-		(user?.preferredLanguage as 'es' | 'en') || 'en'
+	const [preferredLanguage, setPreferredLanguage] = useState<'es' | 'en' | 'tr'>(
+		(user?.preferredLanguage as 'es' | 'en' | 'tr') || 'en'
 	);
 	const [userTheme, setUserTheme] = useState<'light' | 'dark'>(
 		(user?.theme as 'light' | 'dark') || 'light'
@@ -58,7 +58,7 @@ export const Settings = () => {
 	};
 
 	const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newLang = e.target.value as 'es' | 'en';
+		const newLang = e.target.value as 'es' | 'en' | 'tr';
 		setPreferredLanguage(newLang);
 		i18n.changeLanguage(newLang);
 	};
@@ -148,8 +148,9 @@ export const Settings = () => {
 									onChange={handleLanguageChange}
 									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								>
-									<option value="en">English</option>
-									<option value="es">Español</option>
+									<option value="en">{t('languages.english')}</option>
+									<option value="es">{t('languages.spanish')}</option>
+									<option value="tr">{t('languages.turkish')}</option>
 								</select>
 							</div>
 

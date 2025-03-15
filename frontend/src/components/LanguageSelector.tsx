@@ -15,6 +15,7 @@ export const LanguageSelector = () => {
 	const languages = [
 		{ code: 'en', name: t('languages.english', 'English') },
 		{ code: 'es', name: t('languages.spanish', 'Español') },
+		{ code: 'tr', name: t('languages.turkish', 'Türkçe') },
 	];
 
 	const changeLanguage = (lng: string) => {

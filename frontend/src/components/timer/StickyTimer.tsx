@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTimer } from '../../hooks/useTimer';
 import { useLocation } from 'react-router-dom';
@@ -11,61 +11,58 @@ export const StickyTimer = () => {
 
 	const [isVisible, setIsVisible] = useState(false);
 	const [animateIn, setAnimateIn] = useState(false);
-	const prevPathRef = useRef(location.pathname);
 
-	// Handle visibility based on route changes and timer status
+	// Simplified logic for visibility
 	useEffect(() => {
 		const isTimerActive = status === 'running' || status === 'paused' || status === 'break';
 		const isDashboard = location.pathname === '/';
-		const wasOnDashboard = prevPathRef.current === '/';
-		const routeChanged = prevPathRef.current !== location.pathname;
 
-		// Update prev path ref
-		prevPathRef.current = location.pathname;
-
-		// Case 1: Timer is not active - always hide
-		if (!isTimerActive) {
-			setAnimateIn(false);
-			setTimeout(() => setIsVisible(false), 500);
-			return;
-		}
-
-		// Case 2: Just navigated to dashboard - hide with animation
-		if (isDashboard && routeChanged) {
-			setAnimateIn(false);
-			setTimeout(() => setIsVisible(false), 500);
-			return;
-		}
-
-		// Case 3: On non-dashboard page with active timer - show
-		if (!isDashboard && isTimerActive) {
+		// Simple rule: show if timer is active and not on dashboard
+		if (isTimerActive && !isDashboard) {
 			setIsVisible(true);
-			// Only trigger animation if newly visible
-			setTimeout(() => setAnimateIn(true), 50);
-			return;
-		}
-
-		// Case 4: Just left dashboard with active timer - show
-		if (!isDashboard && wasOnDashboard && isTimerActive) {
-			setIsVisible(true);
-			setTimeout(() => setAnimateIn(true), 50);
-			return;
+			// Add slight delay for animation
+			const animTimeout = setTimeout(() => {
+				setAnimateIn(true);
+			}, 50);
+			return () => clearTimeout(animTimeout);
+		} else {
+			// Hide with animation
+			setAnimateIn(false);
+			const hideTimeout = setTimeout(() => {
+				setIsVisible(false);
+			}, 500); // Match the transition duration in the className
+			return () => clearTimeout(hideTimeout);
 		}
 	}, [status, location.pathname]);
 
+	// Early return if not visible at all
 	if (!isVisible) return null;
+
+	// Get button color classes based on mode
+	const getButtonClasses = (buttonType: 'play' | 'pause' | 'stop') => {
+		if (buttonType === 'stop') {
+			return 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800/50';
+		}
+		
+		if (mode === 'break') {
+			return 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800/50';
+		}
+		
+		// Use dynamic colors for work mode
+		return 'dynamic-bg-subtle dynamic-color hover:brightness-110 dark:hover:brightness-125';
+	};
 
 	return (
 		<div
-			className={`fixed left-1/2 z-50 rounded-lg overflow-hidden transition-all duration-500 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] shadow-lg border border-gray-200 dark:border-[rgb(var(--color-border-primary))] ${animateIn ? 'opacity-100 translate-y-[50px]' : 'opacity-0 -translate-y-full'}`}
+			className={`fixed left-1/2 z-50 rounded-lg overflow-hidden transition-all duration-500 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] shadow-lg border border-gray-200 dark:border-[rgb(var(--color-border-primary))] ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
 			style={{
 				transform: 'translateX(-50%)',
 				width: 'min(800px, 90vw)',
-				bottom: '5vh',
+				bottom: '20px',
 			}}
 		>
 			<div className="flex flex-col w-full">
-				<div className="flex w-full">
+				<div className="flex w-full items-center">
 					{/* Timer Status */}
 					<div className="px-5 py-3 flex-1 flex items-center">
 						<span className="font-medium text-lg text-gray-800 dark:text-white dynamic-color">
@@ -80,12 +77,12 @@ export const StickyTimer = () => {
 						</span>
 					</div>
 
-					{/* Controls */}
-					<div className="flex">
+					{/* Controls - using same style as dashboard */}
+					<div className="flex items-center mr-3 space-x-3">
 						{status === 'running' ? (
 							<button
 								onClick={pause}
-								className="p-3 hover:dynamic-bg-subtle text-yellow-500 transition-colors"
+								className={`w-12 h-12 flex items-center justify-center rounded-full ${getButtonClasses('pause')} transition-colors shadow-sm`}
 								title={t('timer.pause')}
 							>
 								<PauseIcon className="h-6 w-6" />
@@ -93,7 +90,7 @@ export const StickyTimer = () => {
 						) : (
 							<button
 								onClick={resume}
-								className="p-3 hover:dynamic-bg-subtle text-green-500 transition-colors"
+								className={`w-12 h-12 flex items-center justify-center rounded-full ${getButtonClasses('play')} transition-colors shadow-sm`}
 								title={t('timer.resume')}
 							>
 								<PlayIcon className="h-6 w-6" />
@@ -102,7 +99,7 @@ export const StickyTimer = () => {
 
 						<button
 							onClick={stop}
-							className="p-3 hover:dynamic-bg-subtle text-red-500 transition-colors"
+							className={`w-12 h-12 flex items-center justify-center rounded-full ${getButtonClasses('stop')} transition-colors shadow-sm`}
 							title={t('timer.stop')}
 						>
 							<StopIcon className="h-6 w-6" />

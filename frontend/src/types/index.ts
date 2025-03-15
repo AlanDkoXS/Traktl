@@ -2,7 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  preferredLanguage: 'es' | 'en';
+  preferredLanguage: 'es' | 'en' | 'tr';
   theme: 'light' | 'dark';
   defaultTimerPreset?: string;
   picture?: string;
@@ -77,4 +77,4 @@ export interface TimerPreset {
 }
 
 export type ThemeType = 'light' | 'dark' | 'system';
-export type LanguageType = 'en' | 'es';
+export type LanguageType = 'en' | 'es' | 'tr';
