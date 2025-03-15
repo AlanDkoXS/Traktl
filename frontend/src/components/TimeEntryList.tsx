@@ -156,11 +156,15 @@ export const TimeEntryList = ({
 		e.preventDefault();
 		e.stopPropagation();
 
+		console.log('Entry clicked:', entry.id, 'current selectedEntryId:', selectedEntryId);
+
 		// If we're clicking the currently selected entry, unselect it and turn off infinite mode
 		if (selectedEntryId === entry.id) {
+			console.log('Unselecting entry');
 			setSelectedEntryId(null);
 			setInfiniteMode(false);
 		} else {
+			console.log('Selecting entry');
 			setSelectedEntryId(entry.id);
 			setInfiniteMode(true); // Enable infinite mode when selecting an entry
 		}
@@ -171,18 +175,22 @@ export const TimeEntryList = ({
 		e.preventDefault();
 		e.stopPropagation();
 
+		console.log('Play clicked, setting up timer with entry:', entry.id);
+
 		// Set up timer with the entry data
 		setProjectId(entry.project);
 		if (entry.task) setTaskId(entry.task);
 		if (entry.notes) setNotes(entry.notes);
 		if (entry.tags) setTags(entry.tags);
 
-		// Start timer with infinite mode if this entry is selected
-		setInfiniteMode(selectedEntryId === entry.id);
+		// Make sure this entry is selected for infinite mode
+		setSelectedEntryId(entry.id);
+		
+		// Explicitly set infinite mode to true before starting
+		setInfiniteMode(true);
+		
+		// Start timer with infinite mode
 		start();
-
-		// Clear selection (timer is now running with this data)
-		setSelectedEntryId(null);
 	};
 
 	const handleRetry = () => {
@@ -255,7 +263,7 @@ export const TimeEntryList = ({
 					return (
 						<div
 							key={entry.id}
-							className={`relative block bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg p-2 shadow-sm transition-all ${isTimerActive ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow bg-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.6)] dark:bg-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.4)]' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''}`}
+							className={`relative block bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg p-2 shadow-sm transition-all ${isTimerActive && !isSelected ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow bg-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.6)] dark:bg-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.4)]' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''}`}
 							onMouseEnter={() => setHoveredEntryId(entry.id)}
 							onMouseLeave={() => setHoveredEntryId(null)}
 						>
@@ -268,9 +276,7 @@ export const TimeEntryList = ({
 										<div
 											className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
 											onClick={(e) =>
-												isSelected
-													? handlePlayClick(entry, e)
-													: e.stopPropagation()
+												handlePlayClick(entry, e)
 											}
 											style={
 												isSelected

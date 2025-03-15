@@ -158,7 +158,7 @@ export const TimerControls = ({
 						{/* Show infinite icon instead of skip when in infinite mode */}
 						{infiniteMode && (
 							<div
-								className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle shadow-sm opacity-70"
+								className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle shadow-sm"
 								title={t('timer.infiniteMode')}
 							>
 								{/* Simple Infinity Icon */}
@@ -231,7 +231,7 @@ export const TimerControls = ({
 						{/* Show infinite icon instead of skip when in infinite mode */}
 						{infiniteMode && (
 							<div
-								className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle shadow-sm opacity-70"
+								className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle shadow-sm"
 								title={t('timer.infiniteMode')}
 							>
 								{/* Simple Infinity Icon */}

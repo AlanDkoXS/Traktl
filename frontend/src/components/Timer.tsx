@@ -160,9 +160,10 @@ export const Timer = () => {
 
 				{/* Timer Display */}
 				<TimerDisplay
-					progress={infiniteMode ? 50 : progress}
+					progress={progress}
 					formattedTime={formattedTime}
 					mode={mode}
+					isInfiniteMode={infiniteMode}
 				/>
 
 				{/* Timer Controls */}

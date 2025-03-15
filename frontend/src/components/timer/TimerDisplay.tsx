@@ -49,7 +49,8 @@ export const TimerDisplay = ({
 		};
 	}, [progress]); // Depend on progress to restart animation when it changes
 
-	// Calculate the circle offset based on progress
+	// For infinite mode, we show a 50% static circle
+	// Otherwise we calculate it normally
 	const progressOffset = isInfiniteMode
 		? circleLength / 2 // Always show half circle for infinite mode
 		: circleLength - (circleLength * displayProgress) / 100;

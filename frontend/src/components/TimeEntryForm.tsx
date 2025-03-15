@@ -50,7 +50,7 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 		// Load projects, tasks, and tags
 		fetchProjects();
 		fetchTags();
-		
+
 		// If we have a project ID, fetch tasks for that project
 		if (projectId) {
 			fetchTasks(projectId);
@@ -61,7 +61,7 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 		const newProjectId = e.target.value;
 		setProjectId(newProjectId);
 		setTaskId(''); // Reset task when project changes
-		
+
 		// If this project changes, fetch tasks for the new project
 		if (newProjectId) {
 			fetchTasks(newProjectId);
@@ -69,10 +69,8 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 	};
 
 	const handleTagToggle = (tagId: string) => {
-		setSelectedTags(prev => 
-			prev.includes(tagId) 
-				? prev.filter(id => id !== tagId) 
-				: [...prev, tagId]
+		setSelectedTags((prev) =>
+			prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
 		);
 	};
 
@@ -104,7 +102,7 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 		setError('');
 
 		try {
-			console.log("Preparing time entry data...");
+			console.log('Preparing time entry data...');
 			const timeEntryData = {
 				project: projectId,
 				task: taskId || undefined,
@@ -115,22 +113,22 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 				isRunning,
 				tags: selectedTags,
 			};
-			
-			console.log("Time entry data:", timeEntryData);
+
+			console.log('Time entry data:', timeEntryData);
 
 			if (isEditing && timeEntry) {
 				console.log(`Updating time entry ${timeEntry.id}`);
 				await updateTimeEntry(timeEntry.id, timeEntryData);
-				console.log("Time entry updated successfully");
+				console.log('Time entry updated successfully');
 			} else {
-				console.log("Creating new time entry");
+				console.log('Creating new time entry');
 				await createTimeEntry(timeEntryData);
-				console.log("Time entry created successfully");
+				console.log('Time entry created successfully');
 			}
 
 			navigate('/time-entries');
 		} catch (err: any) {
-			console.error("Error submitting time entry:", err);
+			console.error('Error submitting time entry:', err);
 			setError(err.message || t('errors.serverError'));
 		} finally {
 			setIsSubmitting(false);
@@ -275,13 +273,11 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 			</div>
 
 			<div>
-				<label
-					className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-				>
+				<label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
 					{t('timeEntries.tags')}
 				</label>
 				<div className="mt-2 flex flex-wrap gap-2">
-					{tags.map(tag => (
+					{tags.map((tag) => (
 						<button
 							key={tag.id}
 							type="button"
@@ -301,7 +297,13 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 					))}
 					{tags.length === 0 && (
 						<span className="text-sm text-gray-500 dark:text-gray-400">
-							{t('tags.noTags')} <Link to="/tags/new" className="text-primary-600 dark:text-primary-400 underline">{t('tags.new')}</Link>
+							{t('tags.noTags')}{' '}
+							<Link
+								to="/tags/new"
+								className="text-primary-600 dark:text-primary-400 underline"
+							>
+								{t('tags.new')}
+							</Link>
 						</span>
 					)}
 				</div>
