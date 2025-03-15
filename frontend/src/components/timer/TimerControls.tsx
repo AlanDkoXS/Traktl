@@ -48,11 +48,11 @@ export const TimerControls = ({
 	};
 
 	const handleStop = () => {
-		if (mode === 'work' && elapsed > 0) {
-			// Always show the save confirmation when stopping a work session with time recorded
+		if (elapsed > 0) {
+			// Always show confirmation when stopping with time recorded (work or break)
 			setShowStopConfirmationModal(true);
 		} else {
-			// For break mode or empty timer, just stop
+			// For empty timer, just stop and reset
 			stop();
 		}
 	};
@@ -307,7 +307,7 @@ export const TimerControls = ({
 						</button>
 
 						<button
-							onClick={stop}
+							onClick={handleStop}
 							className="w-14 h-14 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 hover:opacity-90 transition-opacity shadow-sm"
 							title={t('timer.stop')}
 						>
@@ -349,9 +349,9 @@ export const TimerControls = ({
 				title={t('timer.saveSessionTitle', 'Save Session')}
 				message={t(
 					'timer.stopSessionMessage',
-					'Do you want to save this timer session? This will stop the timer and reset it to the beginning.'
+					'Do you want to save this timer session? This will reset the timer and return to Session 1.'
 				)}
-				confirmButtonText={t('common.save')}
+				confirmButtonText={t('common.yes')}
 				cancelButtonText={t('common.no')}
 				onConfirm={handleConfirmSave}
 				onCancel={handleDontSave}

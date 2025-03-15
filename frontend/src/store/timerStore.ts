@@ -149,10 +149,12 @@ export const useTimerStore = create<TimerState>()(
 				// Clear the interval when stopping
 				setupGlobalInterval(get().tick, 'idle');
 
-				// Reset timer state
+				// Reset timer state - ALWAYS RESET TO SESSION 1 WHEN STOPPING
 				set({
 					status: 'idle',
+					mode: 'work',
 					elapsed: 0,
+					currentRepetition: 1, // Explicitly set to 1 here
 					workStartTime: null,
 					infiniteMode: false,
 					selectedEntryId: null,

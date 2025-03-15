@@ -154,7 +154,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 				<main className="flex-1 max-w-7xl mx-auto p-4 sm:p-6 w-full">{children}</main>
 
 				{/* Footer */}
-				<footer className="py-4 px-6 text-center text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+				<footer className="py-4 px-6 text-center text-xs text-gray-500 dark:text-gray-400">
 					<p>
 						{t('app.name')} © {new Date().getFullYear()}
 					</p>

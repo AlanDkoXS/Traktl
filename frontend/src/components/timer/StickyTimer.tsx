@@ -50,10 +50,11 @@ export const StickyTimer = () => {
 
 	// Handle stop confirmation
 	const handleStop = () => {
-		if (mode === 'work' && elapsed > 0) {
+		if (elapsed > 0) {
+			// Always show confirmation when stopping with time recorded (work or break)
 			setShowStopConfirmationModal(true);
 		} else {
-			// For break mode or empty timer, just stop
+			// For empty timer, just stop and reset
 			stop();
 		}
 	};
@@ -166,9 +167,9 @@ export const StickyTimer = () => {
 				title={t('timer.saveSessionTitle', 'Save Session')}
 				message={t(
 					'timer.stopSessionMessage',
-					'Do you want to save this timer session? This will stop the timer and reset it to the beginning.'
+					'Do you want to save this timer session? This will reset the timer and return to Session 1.'
 				)}
-				confirmButtonText={t('common.save')}
+				confirmButtonText={t('common.yes')}
 				cancelButtonText={t('common.no')}
 				onConfirm={handleConfirmSave}
 				onCancel={handleDontSave}
