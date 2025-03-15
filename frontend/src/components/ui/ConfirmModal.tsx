@@ -1,6 +1,7 @@
 import { Fragment, useRef } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 interface ConfirmModalProps {
 	isOpen: boolean;
@@ -12,6 +13,8 @@ interface ConfirmModalProps {
 	onCancel: () => void;
 	isLoading?: boolean;
 	danger?: boolean;
+	showCancelButton?: boolean;
+	onCancelButtonClick?: () => void;
 }
 
 export const ConfirmModal = ({
@@ -24,7 +27,10 @@ export const ConfirmModal = ({
 	onCancel,
 	isLoading = false,
 	danger = true,
+	showCancelButton = false,
+	onCancelButtonClick,
 }: ConfirmModalProps) => {
+	const { t } = useTranslation();
 	const cancelButtonRef = useRef(null);
 
 	return (
@@ -33,7 +39,7 @@ export const ConfirmModal = ({
 				as="div"
 				className="relative z-50"
 				initialFocus={cancelButtonRef}
-				onClose={onCancel}
+				onClose={onCancelButtonClick || onCancel}
 			>
 				<Transition.Child
 					as={Fragment}
@@ -111,6 +117,16 @@ export const ConfirmModal = ({
 											disabled={isLoading}
 										>
 											{cancelButtonText}
+										</button>
+									)}
+									{showCancelButton && onCancelButtonClick && (
+										<button
+											type="button"
+											className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-[rgb(var(--color-border-secondary))] bg-white dark:bg-[rgb(var(--color-bg-overlay))] px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-border-primary))] focus:outline-none sm:mt-0 sm:mx-3 sm:w-auto sm:text-sm"
+											onClick={onCancelButtonClick}
+											disabled={isLoading}
+										>
+											{t('common.cancel')}
 										</button>
 									)}
 								</div>

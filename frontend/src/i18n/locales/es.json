@@ -79,7 +79,8 @@
         "sessionsCompleted": "Todas las sesiones completadas",
         "allSessionsCompleted": "¡Buen trabajo! Has completado todas tus sesiones de trabajo.",
         "saveSessionTitle": "Guardar Sesión",
-        "saveSessionMessage": "¿Quieres guardar esta sesión del temporizador?"
+        "saveSessionMessage": "¿Quieres guardar esta sesión del temporizador?",
+        "stopSessionMessage": "¿Quieres guardar esta sesión del temporizador? Esto detendrá el temporizador y lo reiniciará al principio."
     },
     "projects": {
         "title": "Proyectos",

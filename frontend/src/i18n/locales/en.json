@@ -79,7 +79,8 @@
         "sessionsCompleted": "All sessions completed",
         "allSessionsCompleted": "Great job! You've completed all your work sessions.",
         "saveSessionTitle": "Save Session",
-        "saveSessionMessage": "Do you want to save this timer session?"
+        "saveSessionMessage": "Do you want to save this timer session?",
+        "stopSessionMessage": "Do you want to save this timer session? This will stop the timer and reset it to the beginning."
     },
     "projects": {
         "title": "Projects",

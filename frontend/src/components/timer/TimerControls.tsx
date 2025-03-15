@@ -29,7 +29,6 @@ export const TimerControls = ({
 }: TimerControlsProps) => {
 	const { t } = useTranslation();
 	const [showShortSessionModal, setShowShortSessionModal] = useState(false);
-	const [showShortStopModal, setShowShortStopModal] = useState(false);
 	const [showStopConfirmationModal, setShowStopConfirmationModal] = useState(false);
 	const [modalAction, setModalAction] = useState<'next' | 'stop'>('next');
 
@@ -58,14 +57,20 @@ export const TimerControls = ({
 		}
 	};
 
-	const handleConfirmStop = () => {
+	const handleConfirmSave = () => {
 		// Save and stop the timer
 		stop();
 		setShowStopConfirmationModal(false);
 	};
 
-	const handleCancelStop = () => {
-		// Just close the modal without saving
+	const handleDontSave = () => {
+		// Clear timer without saving
+		stop();
+		setShowStopConfirmationModal(false);
+	}
+
+	const handleCancelStopModal = () => {
+		// Just close the modal without any action
 		setShowStopConfirmationModal(false);
 	}
 
@@ -78,17 +83,20 @@ export const TimerControls = ({
 		setShowShortSessionModal(false);
 	};
 
-	const handleCancelShortSession = () => {
+	const handleDontSaveShortSession = () => {
 		if (modalAction === 'next') {
-			// If cancel on next, stop the timer
+			// Don't save but still advance to next phase
+			skipToNext();
+		} else {
+			// Don't save and stop timer
 			stop();
 		}
 		setShowShortSessionModal(false);
 	};
 
-	const handleConfirmShortStop = () => {
-		stop();
-		setShowShortStopModal(false);
+	const handleCancelShortSession = () => {
+		// Just close the modal without any action
+		setShowShortSessionModal(false);
 	};
 
 	return (
@@ -283,7 +291,7 @@ export const TimerControls = ({
 						</button>
 
 						<button
-							onClick={handleSkipToNext}
+							onClick={skipToNext}
 							className="w-14 h-14 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 hover:opacity-90 transition-opacity shadow-sm"
 							title={t('timer.skipToNext')}
 						>
@@ -299,7 +307,7 @@ export const TimerControls = ({
 						</button>
 
 						<button
-							onClick={handleStop}
+							onClick={stop}
 							className="w-14 h-14 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 hover:opacity-90 transition-opacity shadow-sm"
 							title={t('timer.stop')}
 						>
@@ -317,7 +325,7 @@ export const TimerControls = ({
 				)}
 			</div>
 
-			{/* Short session modal for Next button (only for work mode) */}
+			{/* Short session modal for Next/Skip button */}
 			<ConfirmModal
 				isOpen={showShortSessionModal}
 				title={t('timeEntries.shortTimeTitle', 'Short Session')}
@@ -328,25 +336,11 @@ export const TimerControls = ({
 				confirmButtonText={t('common.yes')}
 				cancelButtonText={t('common.no')}
 				onConfirm={handleConfirmShortSession}
-				onCancel={handleCancelShortSession}
+				onCancel={handleDontSaveShortSession}
 				isLoading={false}
 				danger={false}
-			/>
-
-			{/* Short session modal for Stop button */}
-			<ConfirmModal
-				isOpen={showShortStopModal}
-				title={t('timeEntries.shortTimeTitle', 'Short Session')}
-				message={t(
-					'timeEntries.shortTimeMessage',
-					'This session is less than a minute. Do you still want to save it?'
-				)}
-				confirmButtonText={t('common.yes')}
-				cancelButtonText={t('common.no')}
-				onConfirm={handleConfirmShortStop}
-				onCancel={() => setShowShortStopModal(false)}
-				isLoading={false}
-				danger={false}
+				showCancelButton={true}
+				onCancelButtonClick={handleCancelShortSession}
 			/>
 
 			{/* Stop confirmation modal */}
@@ -354,15 +348,17 @@ export const TimerControls = ({
 				isOpen={showStopConfirmationModal}
 				title={t('timer.saveSessionTitle', 'Save Session')}
 				message={t(
-					'timer.saveSessionMessage',
-					'Do you want to save this timer session?'
+					'timer.stopSessionMessage',
+					'Do you want to save this timer session? This will stop the timer and reset it to the beginning.'
 				)}
 				confirmButtonText={t('common.save')}
-				cancelButtonText={t('common.cancel')}
-				onConfirm={handleConfirmStop}
-				onCancel={handleCancelStop}
+				cancelButtonText={t('common.no')}
+				onConfirm={handleConfirmSave}
+				onCancel={handleDontSave}
 				isLoading={false}
 				danger={false}
+				showCancelButton={true}
+				onCancelButtonClick={handleCancelStopModal}
 			/>
 		</>
 	);
