@@ -46,8 +46,15 @@ export const authService = {
   // Google Login
   loginWithGoogle: async (tokenId: string): Promise<LoginResponse> => {
     try {
-      console.log('Sending Google login request with token');
-      const response = await api.post('/users/google', { token: tokenId });
+      console.log('Sending Google login request with token ID of length:', tokenId?.length);
+      
+      // Verificar formato de token esperado por el backend:
+      // Intentamos varios formatos de parámetros comunes
+      const response = await api.post('/users/google', { 
+        credential: tokenId,
+        id_token: tokenId,
+        idToken: tokenId
+      });
 
       console.log('Google login API response:', response.data);
 

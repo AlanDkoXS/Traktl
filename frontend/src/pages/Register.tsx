@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { useAuthStore } from '../store/authStore';
-import { GoogleLoginButton } from '../components/auth/GoogleLoginButton';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 
 export const Register = () => {
 	const { t } = useTranslation();
@@ -117,7 +117,7 @@ export const Register = () => {
 					</p>
 				</div>
 
-				<GoogleLoginButton isLogin={false} />
+				<GoogleAuthButton isLogin={false} />
 
 				<div className="mt-6 flex items-center justify-center">
 					<div className="border-t flex-grow border-gray-300 dark:border-gray-700"></div>

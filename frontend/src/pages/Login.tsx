@@ -5,7 +5,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { useAuthStore } from '../store/authStore';
 import { checkCurrentToken } from '../utils/tokenHelper';
-import { GoogleLoginButton } from '../components/auth/GoogleLoginButton';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 
 export const Login = () => {
   const { t } = useTranslation();
@@ -92,7 +92,7 @@ export const Login = () => {
           </p>
         </div>
 
-        <GoogleLoginButton isLogin={true} />
+        <GoogleAuthButton isLogin={true} />
 
         <div className="mt-6 flex items-center justify-center">
           <div className="border-t flex-grow border-gray-300 dark:border-gray-700"></div>
