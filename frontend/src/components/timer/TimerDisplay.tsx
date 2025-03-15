@@ -119,14 +119,16 @@ export const TimerDisplay = ({
 				}`}>
 					{formattedTime}
 				</span>
-				<span className={`text-sm mt-1 font-medium ${
-					mode === 'work'
-						? 'dynamic-color'
-						: 'text-[hsl(var(--color-project-hue),var(--color-project-saturation),50%)]'
-				}`}>
-					{mode === 'work' ? t('timer.workTime') : t('timer.breakTime')}
-				</span>
-				{isInfiniteMode && <span className="text-2xl dynamic-color mt-1">∞</span>}
+				
+				{!isInfiniteMode && (
+					<span className={`text-sm mt-1 font-medium ${
+						mode === 'work'
+							? 'dynamic-color'
+							: 'text-[hsl(var(--color-project-hue),var(--color-project-saturation),50%)]'
+					}`}>
+						{mode === 'work' ? t('timer.workTime') : t('timer.breakTime')}
+					</span>
+				)}
 			</div>
 		</div>
 	);
