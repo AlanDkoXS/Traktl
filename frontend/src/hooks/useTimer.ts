@@ -36,22 +36,23 @@ export const useTimer = () => {
 		setTaskId,
 		setNotes,
 		setTags,
+		setInfiniteMode,
 		createTimeEntryFromWorkSession,
 	} = useTimerStore();
 
-	// Mantener nuestro propio conteo de tiempo transcurrido
+	// Track our own elapsed time
 	const [localElapsed, setLocalElapsed] = useState(0);
 	const startTimeRef = useRef<number | null>(null);
 	const intervalRef = useRef<number | null>(null);
 
-	// Sincronizar local elapsed con el estado del temporizador cuando cambia el estado
+	// Synchronize local elapsed with timer state when state changes
 	useEffect(() => {
 		if (status === 'running') {
 			if (!startTimeRef.current) {
 				startTimeRef.current = Date.now() - (localElapsed * 1000);
 			}
 
-			// Iniciar el intervalo solo si no existe
+			// Start the interval only if it doesn't exist
 			if (!intervalRef.current) {
 				intervalRef.current = window.setInterval(() => {
 					if (startTimeRef.current) {
@@ -59,28 +60,28 @@ export const useTimer = () => {
 						const newElapsed = Math.floor((now - startTimeRef.current) / 1000);
 						setLocalElapsed(newElapsed);
 					}
-				}, 100); // Actualizar más frecuentemente para mayor precisión
+				}, 100); // Update more frequently for better precision
 			}
 		} else {
-			// Detener el intervalo si el temporizador no está en ejecución
+			// Stop the interval if timer is not running
 			if (intervalRef.current) {
 				clearInterval(intervalRef.current);
 				intervalRef.current = null;
 			}
 
-			// Si está pausado, mantener el tiempo actual
+			// If paused, keep the current time
 			if (status === 'paused') {
 				startTimeRef.current = null;
 			}
 
-			// Si está inactivo, reiniciar el contador
+			// If idle, reset the counter
 			if (status === 'idle') {
 				startTimeRef.current = null;
 				setLocalElapsed(0);
 			}
 		}
 
-		// Limpieza
+		// Cleanup
 		return () => {
 			if (intervalRef.current) {
 				clearInterval(intervalRef.current);
@@ -89,27 +90,27 @@ export const useTimer = () => {
 		};
 	}, [status, localElapsed]);
 
-	// Comprobar si debemos cambiar al siguiente modo o detener el temporizador
+	// Check if we should move to the next mode or stop the timer
 	useEffect(() => {
 		if (status === 'running' && !infiniteMode) {
 			const totalDuration = mode === 'work' ? workDuration * 60 : breakDuration * 60;
 
 			if (localElapsed >= totalDuration) {
-				// Cambiar al siguiente modo o detener
+				// Change to next mode or stop
 				if (mode === 'work') {
-					// Crear entrada de tiempo y cambiar a descanso
+					// Create time entry and switch to break
 					if (projectId) {
 						createTimeEntryFromWorkSession();
 					}
 
 					if (breakDuration === 0) {
-						// Si la duración del descanso es 0, ir directamente al siguiente período de trabajo
+						// If break duration is 0, go directly to the next work period
 						if (currentRepetition < repetitions) {
 							storeSwitchToNext();
-							startTimeRef.current = Date.now(); // Reiniciar el contador
+							startTimeRef.current = Date.now(); // Reset the counter
 							setLocalElapsed(0);
 						} else {
-							// Todas las repeticiones completadas
+							// All repetitions completed
 							storeStop();
 							showTimerNotification('complete', {
 								title: 'All Sessions Completed',
@@ -118,9 +119,9 @@ export const useTimer = () => {
 							});
 						}
 					} else {
-						// Cambiar a modo descanso
+						// Switch to break mode
 						storeSwitchToNext();
-						startTimeRef.current = Date.now(); // Reiniciar el contador
+						startTimeRef.current = Date.now(); // Reset the counter
 						setLocalElapsed(0);
 
 						showTimerNotification('break', {
@@ -130,11 +131,11 @@ export const useTimer = () => {
 						});
 					}
 				} else {
-					// Fin del descanso, iniciar nuevo trabajo o terminar
+					// End of break, start new work or end
 					if (currentRepetition < repetitions) {
-						// Iniciar nuevo período de trabajo
+						// Start new work period
 						storeSwitchToNext();
-						startTimeRef.current = Date.now(); // Reiniciar el contador
+						startTimeRef.current = Date.now(); // Reset the counter
 						setLocalElapsed(0);
 
 						showTimerNotification('work', {
@@ -143,7 +144,7 @@ export const useTimer = () => {
 							persistent: false,
 						});
 					} else {
-						// Todas las repeticiones completadas
+						// All repetitions completed
 						storeStop();
 						startTimeRef.current = null;
 						setLocalElapsed(0);
@@ -157,9 +158,9 @@ export const useTimer = () => {
 				}
 			}
 		}
-	}, [localElapsed, status, mode, workDuration, breakDuration, repetitions, currentRepetition, infiniteMode, projectId]);
+	}, [localElapsed, status, mode, workDuration, breakDuration, repetitions, currentRepetition, infiniteMode, projectId, createTimeEntryFromWorkSession, storeStop, storeSwitchToNext]);
 
-	// Crear wrapped functions para manipular el timer
+	// Wrapped functions to manipulate the timer
 	const start = () => {
 		storeStart();
 		startTimeRef.current = Date.now();
@@ -172,7 +173,7 @@ export const useTimer = () => {
 
 	const resume = () => {
 		storeResume();
-		// Ajustar el tiempo de inicio para mantener el tiempo transcurrido
+		// Adjust the start time to maintain the elapsed time
 		startTimeRef.current = Date.now() - (localElapsed * 1000);
 	};
 
@@ -189,7 +190,7 @@ export const useTimer = () => {
 	};
 
 	const skipToNext = () => {
-		// Gestionar la notificación localmente
+		// Handle notification locally
 		const notificationType = mode === 'work' ? 'break' : 'work';
 		const title = mode === 'work' ? t('timer.breakTime') : t('timer.workTime');
 		const body = mode === 'work' ? t('timer.workCompleted') : t('timer.breakCompleted');
@@ -200,44 +201,41 @@ export const useTimer = () => {
 			persistent: false
 		});
 
-		// Usar la función del store
+		// Use the store function
 		storeSwitchToNext();
 
-		// Reiniciar el contador local
+		// Reset the local counter
 		startTimeRef.current = Date.now();
 		setLocalElapsed(0);
 	};
 
-	// Calcular el tiempo restante con nuestro contador local
+	// Calculate the remaining time or elapsed time for infinite mode
 	const remainingTime =
-		mode === 'work'
-			? infiniteMode
-				? 0
-				: Math.max(0, workDuration * 60 - localElapsed)
-			: Math.max(0, breakDuration * 60 - localElapsed);
+		mode === 'work' && infiniteMode
+			? 0 // For infinite mode in work mode, there's no remaining time
+			: Math.max(0, (mode === 'work' ? workDuration : breakDuration) * 60 - localElapsed);
 
-	// Formatear el tiempo
+	// Format the time
 	const formatTime = (seconds: number): string => {
 		if (infiniteMode && mode === 'work') {
-			// Para el modo infinito, mostrar el tiempo transcurrido
+			// For infinite mode, show the elapsed time
 			const hours = Math.floor(localElapsed / 3600);
 			const minutes = Math.floor((localElapsed % 3600) / 60);
 			const secs = localElapsed % 60;
 			return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 		} else {
-			// Para el modo normal, mostrar el tiempo restante
+			// For normal mode, show the remaining time
 			const minutes = Math.floor(seconds / 60);
 			const secs = seconds % 60;
 			return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 		}
 	};
 
-	// Calcular el progreso
-	const progress = infiniteMode && mode === 'work'
-		? 50
-		: mode === 'work'
-			? (localElapsed / (workDuration * 60)) * 100
-			: (localElapsed / (breakDuration * 60)) * 100;
+	// Calculate the progress percentage
+	const progress = 
+		infiniteMode && mode === 'work'
+			? 50 // Fixed 50% for infinite mode to display half circle
+			: Math.min(100, (localElapsed / ((mode === 'work' ? workDuration : breakDuration) * 60)) * 100);
 
 	return {
 		status,
@@ -269,9 +267,7 @@ export const useTimer = () => {
 		reset,
 		skipToNext,
 		createTimeEntryOnCompletion: createTimeEntryFromWorkSession,
-		infiniteMode,
-		selectedEntryId,
-
+		
 		setWorkDuration,
 		setBreakDuration,
 		setRepetitions,

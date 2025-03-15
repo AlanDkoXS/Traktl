@@ -72,6 +72,9 @@ export const useTimerStore = create<TimerState>()(
 			start: (projectId = null, taskId = null) =>
 				set((state) => {
 					if (state.status === 'idle' || state.status === 'paused') {
+						// Ensure infiniteMode is properly set based on selectedEntryId
+						const updatedInfiniteMode = !!state.selectedEntryId;
+						
 						return {
 							status: 'running',
 							projectId: projectId || state.projectId,
@@ -79,6 +82,7 @@ export const useTimerStore = create<TimerState>()(
 							elapsed: state.status === 'paused' ? state.elapsed : 0,
 							workStartTime: state.mode === 'work' ? new Date() : state.workStartTime,
 							showCompletionModal: false,
+							infiniteMode: updatedInfiniteMode,
 						};
 					}
 					return state;
@@ -138,9 +142,17 @@ export const useTimerStore = create<TimerState>()(
 
 			closeCompletionModal: () => set({ showCompletionModal: false }),
 
-			setInfiniteMode: (value) => set({ infiniteMode: value }),
+			setInfiniteMode: (value) => set({ 
+				infiniteMode: value,
+				// If turning off infinite mode, also clear selected entry
+				selectedEntryId: value ? get().selectedEntryId : null
+			}),
 
-			setSelectedEntryId: (id) => set({ selectedEntryId: id }),
+			setSelectedEntryId: (id) => set({ 
+				selectedEntryId: id,
+				// Always set infinite mode when selecting an entry
+				infiniteMode: id !== null
+			}),
 
 			tick: () =>
 				set((state) => {
@@ -237,6 +249,7 @@ export const useTimerStore = create<TimerState>()(
 											workStartTime: null,
 											showCompletionModal: true,
 											infiniteMode: false,
+											selectedEntryId: null,
 										};
 									}
 								}
@@ -397,6 +410,7 @@ export const useTimerStore = create<TimerState>()(
 								workStartTime: null,
 								showCompletionModal: true,
 								infiniteMode: false,
+								selectedEntryId: null,
 							};
 						}
 					}

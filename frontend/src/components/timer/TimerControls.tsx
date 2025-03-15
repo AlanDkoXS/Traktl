@@ -30,6 +30,7 @@ export const TimerControls = ({
 	const { t } = useTranslation();
 	const [showShortSessionModal, setShowShortSessionModal] = useState(false);
 	const [showShortStopModal, setShowShortStopModal] = useState(false);
+	const [showStopConfirmationModal, setShowStopConfirmationModal] = useState(false);
 	const [modalAction, setModalAction] = useState<'next' | 'stop'>('next');
 
 	const handleSkipToNext = () => {
@@ -48,19 +49,25 @@ export const TimerControls = ({
 	};
 
 	const handleStop = () => {
-		// If session is shorter than a minute and in work mode, show confirmation modal
-		if (
-			(status === 'running' && elapsed < 60 && mode === 'work') ||
-			(status === 'paused' && elapsed < 60 && mode === 'work')
-		) {
-			setModalAction('stop');
-			setShowShortStopModal(true);
-			return;
+		if (mode === 'work' && elapsed > 0) {
+			// Always show the save confirmation when stopping a work session with time recorded
+			setShowStopConfirmationModal(true);
+		} else {
+			// For break mode or empty timer, just stop
+			stop();
 		}
-
-		// Otherwise proceed normally
-		stop();
 	};
+
+	const handleConfirmStop = () => {
+		// Save and stop the timer
+		stop();
+		setShowStopConfirmationModal(false);
+	};
+
+	const handleCancelStop = () => {
+		// Just close the modal without saving
+		setShowStopConfirmationModal(false);
+	}
 
 	const handleConfirmShortSession = () => {
 		if (modalAction === 'next') {
@@ -338,6 +345,22 @@ export const TimerControls = ({
 				cancelButtonText={t('common.no')}
 				onConfirm={handleConfirmShortStop}
 				onCancel={() => setShowShortStopModal(false)}
+				isLoading={false}
+				danger={false}
+			/>
+
+			{/* Stop confirmation modal */}
+			<ConfirmModal
+				isOpen={showStopConfirmationModal}
+				title={t('timer.saveSessionTitle', 'Save Session')}
+				message={t(
+					'timer.saveSessionMessage',
+					'Do you want to save this timer session?'
+				)}
+				confirmButtonText={t('common.save')}
+				cancelButtonText={t('common.cancel')}
+				onConfirm={handleConfirmStop}
+				onCancel={handleCancelStop}
 				isLoading={false}
 				danger={false}
 			/>

@@ -5,7 +5,8 @@
     },
     "languages": {
         "english": "English",
-        "spanish": "Spanish"
+        "spanish": "Spanish",
+        "turkish": "Turkish"
     },
     "dashboard": {
         "activityHeatmap": "Activity Heatmap",
@@ -48,6 +49,7 @@
         "invalidCredentials": "Invalid email or password"
     },
     "theme": {
+        "title": "Theme",
         "light": "Light",
         "dark": "Dark",
         "system": "System"
@@ -75,7 +77,9 @@
         "settings": "Timer Settings",
         "presets": "Presets",
         "sessionsCompleted": "All sessions completed",
-        "allSessionsCompleted": "Great job! You've completed all your work sessions."
+        "allSessionsCompleted": "Great job! You've completed all your work sessions.",
+        "saveSessionTitle": "Save Session",
+        "saveSessionMessage": "Do you want to save this timer session?"
     },
     "projects": {
         "title": "Projects",
@@ -150,7 +154,9 @@
         "session": "Session",
         "created": "Time entry created",
         "entryCreated": "Time entry of {{duration}} minutes has been recorded",
-        "deleteConfirmation": "Are you sure you want to delete the time entry? This action cannot be undone."
+        "deleteConfirmation": "Are you sure you want to delete the time entry? This action cannot be undone.",
+        "shortTimeTitle": "Short Session",
+        "shortTimeMessage": "This session is less than a minute. Do you still want to save it?"
     },
     "tags": {
         "title": "Tags",
@@ -160,9 +166,7 @@
         "color": "Color",
         "noTags": "No tags found",
         "notFound": "Tag not found",
-        "deleteConfirmation": "Are you sure you want to delete the tag \"{{name}}\"? This action cannot be undone.",
-        "shortTimeTitle": "Short Time Entry",
-        "shortTimeMessage": "This time entry is less than a minute. Do you still want to save?"
+        "deleteConfirmation": "Are you sure you want to delete the tag \"{{name}}\"? This action cannot be undone."
     },
     "timerPresets": {
         "title": "Timer Presets",
@@ -218,7 +222,8 @@
         "viewAll": "View All",
         "retry": "Retry",
         "done": "Done",
-        "edit": "Edit"
+        "edit": "Edit",
+        "close": "Close"
     },
     "errors": {
         "required": "This field is required",
@@ -227,5 +232,11 @@
         "passwordStrength": "Password must contain at least one number, one uppercase letter, and one special character",
         "serverError": "Server error, please try again",
         "unauthorized": "Unauthorized, please sign in"
+    },
+    "about": {
+        "title": "About",
+        "version": "Version",
+        "createdBy": "Created by",
+        "contact": "Contact"
     }
 }

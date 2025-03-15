@@ -5,7 +5,8 @@
     },
     "languages": {
         "english": "Inglés",
-        "spanish": "Español"
+        "spanish": "Español",
+        "turkish": "Turco"
     },
     "dashboard": {
         "activityHeatmap": "Mapa de Actividad",
@@ -48,6 +49,7 @@
         "invalidCredentials": "Correo o contraseña inválidos"
     },
     "theme": {
+        "title": "Tema",
         "light": "Claro",
         "dark": "Oscuro",
         "system": "Sistema"
@@ -75,7 +77,9 @@
         "settings": "Configuración del Temporizador",
         "presets": "Presets",
         "sessionsCompleted": "Todas las sesiones completadas",
-        "allSessionsCompleted": "¡Buen trabajo! Has completado todas tus sesiones de trabajo."
+        "allSessionsCompleted": "¡Buen trabajo! Has completado todas tus sesiones de trabajo.",
+        "saveSessionTitle": "Guardar Sesión",
+        "saveSessionMessage": "¿Quieres guardar esta sesión del temporizador?"
     },
     "projects": {
         "title": "Proyectos",
@@ -218,7 +222,8 @@
         "viewAll": "Ver Todo",
         "retry": "Reintentar",
         "done": "Listo",
-        "edit": "Editar"
+        "edit": "Editar",
+        "close": "Cerrar"
     },
     "errors": {
         "required": "Este campo es obligatorio",
@@ -227,5 +232,11 @@
         "passwordStrength": "La contraseña debe contener al menos un número, una letra mayúscula y un carácter especial",
         "serverError": "Error del servidor, inténtalo de nuevo",
         "unauthorized": "No autorizado, inicia sesión por favor"
+    },
+    "about": {
+        "title": "Acerca de",
+        "version": "Versión",
+        "createdBy": "Creado por",
+        "contact": "Contacto"
     }
 }
