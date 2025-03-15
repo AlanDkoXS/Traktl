@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface TimerDisplayProps {
 	progress: number;
@@ -14,26 +14,43 @@ export const TimerDisplay = ({
 	isInfiniteMode = false,
 }: TimerDisplayProps) => {
 	const circleLength = 263.89; // 2 * PI * 42, el perímetro del círculo
-	const [adjustedProgress, setAdjustedProgress] = useState(progress);
+	const [displayProgress, setDisplayProgress] = useState(progress);
+	const requestRef = useRef<number>();
+	const previousTimeRef = useRef<number>();
 
-	// Actualización suave del progreso (si es necesario, ajusta esto)
-	useEffect(() => {
-		const progressInterval = setInterval(() => {
-			setAdjustedProgress((prevProgress) => {
-				if (prevProgress < progress) {
-					return prevProgress + 100; // Aumentar el progreso de uno en uno para evitar saltos
-				}
-				clearInterval(progressInterval); // Detener la actualización si ya se alcanzó el progreso final
-				return prevProgress;
+	// Animación fluida usando requestAnimationFrame
+	const animate = (time: number) => {
+		if (previousTimeRef.current !== undefined) {
+			// Determinar cuánto debemos animar en esta frame
+			const deltaTime = time - previousTimeRef.current;
+
+			// Actualizar el progreso de manera suave
+			// El valor 0.1 determina la velocidad de la animación (menor = más suave pero más lento)
+			setDisplayProgress(prevProgress => {
+				const diff = progress - prevProgress;
+				const step = diff * Math.min(deltaTime / 100, 0.2); // Limitar el paso para animaciones muy largas
+				return prevProgress + step;
 			});
-		}, 1000); // Actualización cada segundo
+		}
 
-		return () => clearInterval(progressInterval); // Limpiar intervalo cuando el componente se desmonte
-	}, [progress]);
+		previousTimeRef.current = time;
+		requestRef.current = requestAnimationFrame(animate);
+	};
 
+	// Configurar la animación con requestAnimationFrame
+	useEffect(() => {
+		requestRef.current = requestAnimationFrame(animate);
+		return () => {
+			if (requestRef.current) {
+				cancelAnimationFrame(requestRef.current);
+			}
+		};
+	}, [progress]); // Depende de progress para reiniciar la animación cuando cambia
+
+	// Calcular el desplazamiento del círculo basado en el progreso
 	const progressOffset = isInfiniteMode
 		? circleLength / 2 // Siempre mostrar medio círculo para el modo infinito
-		: circleLength - (circleLength * adjustedProgress) / 100;
+		: circleLength - (circleLength * displayProgress) / 100;
 
 	return (
 		<div className="relative h-48 w-48 sm:h-64 sm:w-64 mx-auto mb-4">
@@ -62,14 +79,18 @@ export const TimerDisplay = ({
 					className={`transform origin-center -rotate-90 ${
 						mode === 'work'
 							? 'stroke-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]'
-							: 'text-green-500 dark:text-green-400'
+							: 'stroke-[hsl(var(--color-project-hue),var(--color-project-saturation),50%)]'
 					}`}
 				/>
 			</svg>
 
 			{/* Texto del temporizador */}
 			<div className="absolute inset-0 flex flex-col items-center justify-center">
-				<span className="text-4xl sm:text-5xl font-bold dynamic-color">
+				<span className={`text-4xl sm:text-5xl font-bold ${
+					mode === 'work'
+						? 'dynamic-color'
+						: 'text-[hsl(var(--color-project-hue),var(--color-project-saturation),50%)]'
+				}`}>
 					{formattedTime}
 				</span>
 				{isInfiniteMode && <span className="text-2xl dynamic-color mt-2">∞</span>}
