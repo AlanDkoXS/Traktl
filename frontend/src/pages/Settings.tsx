@@ -173,34 +173,6 @@ export const Settings = () => {
 						</div>
 					</div>
 
-					<div>
-						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
-							{t('settings.timers')}
-						</h2>
-
-						<div>
-							<label
-								htmlFor="defaultTimerPreset"
-								className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-							>
-								{t('settings.defaultTimerPreset')}
-							</label>
-							<select
-								id="defaultTimerPreset"
-								value={defaultTimerPreset}
-								onChange={(e) => setDefaultTimerPreset(e.target.value)}
-								className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
-							>
-								<option value="">{t('settings.noDefaultPreset')}</option>
-								{timerPresets.map((preset) => (
-									<option key={preset.id} value={preset.id}>
-										{preset.name} ({preset.workDuration}m/{preset.breakDuration}
-										m)
-									</option>
-								))}
-							</select>
-						</div>
-					</div>
 
 					<div className="flex justify-end">
 						<button

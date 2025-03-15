@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TimeEntry } from '../../types';
 import {
@@ -30,6 +30,11 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	);
 	const [hoveredDay, setHoveredDay] = useState<string | null>(null);
 
+	// Entries to use - memoized to prevent recalculation
+	const entriesToUse = useMemo(() => {
+		return timeEntries.length > 0 ? timeEntries : storeTimeEntries;
+	}, [timeEntries, storeTimeEntries]);
+
 	// Handle responsive behavior
 	useEffect(() => {
 		const handleResize = () => {
@@ -43,7 +48,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		return () => window.removeEventListener('resize', handleResize);
 	}, []);
 
-	// Generate calendar grid
+	// Generate calendar grid - memoized to prevent recalculations
 	const calendarData = useMemo(() => {
 		const today = new Date();
 		const weeksToShow = 21;
@@ -58,15 +63,15 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		const days = eachDayOfInterval({ start: gridStartDate, end: gridEndDate });
 
 		const activityByDate: Record<string, number> = {};
-		const entriesToUse = timeEntries.length > 0 ? timeEntries : storeTimeEntries;
-
+		
+		// Only process entries once, with proper error handling
 		entriesToUse.forEach((entry) => {
 			try {
 				const dateString = format(new Date(entry.startTime), 'yyyy-MM-dd');
 				if (!activityByDate[dateString]) activityByDate[dateString] = 0;
 				if (entry.duration) activityByDate[dateString] += entry.duration / (1000 * 60);
 			} catch (error) {
-				console.error('Error processing entry:', error);
+				console.error('Error processing entry date:', error);
 			}
 		});
 
@@ -92,9 +97,9 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		});
 
 		return daysByWeekday;
-	}, [timeEntries, storeTimeEntries]);
+	}, [entriesToUse]); // Only depend on the entries
 
-	// Calculate max activity
+	// Calculate max activity - memoized
 	const maxActivity = useMemo(() => {
 		const allActivities = Object.values(calendarData)
 			.flat()
@@ -102,17 +107,30 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		return Math.max(...allActivities, 60);
 	}, [calendarData]);
 
-	// Calculate number of columns
+	// Calculate number of columns - memoized
 	const numCols = useMemo(() => {
 		return Object.values(calendarData)[0]?.length || 21;
 	}, [calendarData]);
 
-	// Get today's pie data
+	// Get today's pie data - memoized with improved project data handling
 	const todaysPieData = useMemo(() => {
 		const today = new Date().toISOString().split('T')[0];
-		const entriesToUse = timeEntries.length > 0 ? timeEntries : storeTimeEntries;
+		
+		// Create a map of projectId -> project for faster lookups
+		const projectMap = new Map();
+		projects.forEach(project => {
+			projectMap.set(project.id, project);
+		});
+		
 		const todayEntries = entriesToUse.filter(
-			(entry) => format(new Date(entry.startTime), 'yyyy-MM-dd') === today
+			(entry) => {
+				try {
+					return format(new Date(entry.startTime), 'yyyy-MM-dd') === today;
+				} catch (error) {
+					console.error('Error formatting entry date:', error);
+					return false;
+				}
+			}
 		);
 
 		const projectTimeMap: Record<string, number> = {};
@@ -124,11 +142,12 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			projectTimeMap[entry.project] += entry.duration / (1000 * 60);
 		});
 
-		// Calculate total to determine percentages
+		// Calculate total for percentages
 		const total = Object.values(projectTimeMap).reduce((sum, mins) => sum + mins, 0);
 
+		// Create pie chart data with efficient project lookups
 		const result = Object.entries(projectTimeMap).map(([projectId, duration]) => {
-			const project = projects.find((p) => p.id === projectId);
+			const project = projectMap.get(projectId);
 			const percent = total > 0 ? duration / total : 0;
 
 			return {
@@ -142,12 +161,14 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 
 		// Sort by percentage (highest first to assign colors)
 		return result.sort((a, b) => b.percent - a.percent);
-	}, [timeEntries, storeTimeEntries, projects]);
+	}, [entriesToUse, projects]); // Depend only on entries and projects
 
-	const totalMinutesToday = todaysPieData.reduce((sum, item) => sum + item.value, 0);
+	const totalMinutesToday = useMemo(() => {
+		return todaysPieData.reduce((sum, item) => sum + item.value, 0);
+	}, [todaysPieData]);
 
 	// GitHub-style activity colors
-	const getGitHubActivityColor = (minutes: number, isHovered: boolean) => {
+	const getGitHubActivityColor = useCallback((minutes: number, isHovered: boolean) => {
 		if (minutes === 0)
 			return isHovered ? 'bg-gray-200 dark:bg-gray-600' : 'bg-gray-100 dark:bg-gray-700';
 
@@ -162,78 +183,10 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			return isHovered ? 'bg-[#30a14e] dark:bg-[#26a641]' : 'bg-[#40c463] dark:bg-[#26a641]';
 
 		return isHovered ? 'bg-[#216e39] dark:bg-[#39d353]' : 'bg-[#30a14e] dark:bg-[#39d353]';
-	};
+	}, [maxActivity]);
 
-	// Get GitHub-style colors for pie chart (grayscale to green)
-	const getGitHubPieColor = (index: number, totalItems: number) => {
-		// GitHub-inspired color palette for the pie chart
-		const GITHUB_COLORS = [
-			'#216e39', // darkest green
-			'#30a14e',
-			'#40c463',
-			'#9be9a8', // lightest green
-			'#ebedf0', // gray
-		];
-
-		// For less important slices (low percentage), use gray
-		if (index >= 4) return '#ebedf0';
-		return GITHUB_COLORS[index];
-	};
-
-	const daysTranslation = {
-		0: t('dashboard.days.sun'),
-		1: t('dashboard.days.mon'),
-		2: t('dashboard.days.tue'),
-		3: t('dashboard.days.wed'),
-		4: t('dashboard.days.thu'),
-		5: t('dashboard.days.fri'),
-		6: t('dashboard.days.sat'),
-	};
-
-	// Custom tooltip for heatmap
-	const renderTooltip = (day: any) => {
-		if (!day) return null;
-		const date = format(day.date, 'MMM d, yyyy');
-		const minutes = Math.round(day.activity);
-
-		// Find projects for this day
-		const dayProjects: Record<string, number> = {};
-		const entriesToUse = timeEntries.length > 0 ? timeEntries : storeTimeEntries;
-
-		entriesToUse.forEach((entry) => {
-			const entryDate = format(new Date(entry.startTime), 'yyyy-MM-dd');
-			if (entryDate === day.dateString) {
-				const projectId = entry.project;
-				const project = projects.find((p) => p.id === projectId);
-				const projectName = project?.name || 'Unknown Project';
-
-				if (!dayProjects[projectName]) {
-					dayProjects[projectName] = 0;
-				}
-				dayProjects[projectName] += entry.duration / (1000 * 60);
-			}
-		});
-
-		return (
-			<div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md text-xs">
-				<div className="font-medium">{date}</div>
-				<div className="text-gray-700 dark:text-gray-300">{minutes} min total</div>
-				{Object.entries(dayProjects).length > 0 && (
-					<div className="mt-1 pt-1">
-						{Object.entries(dayProjects).map(([project, mins]) => (
-							<div key={project} className="flex justify-between">
-								<span>{project}:</span>
-								<span className="ml-2 font-medium">{Math.round(mins)} min</span>
-							</div>
-						))}
-					</div>
-				)}
-			</div>
-		);
-	};
-
-	// Custom tooltip for pie chart
-	const CustomTooltip = ({ active, payload }: any) => {
+	// Custom tooltip for pie chart - memoized component
+	const CustomTooltip = useCallback(({ active, payload }: any) => {
 		if ((active && payload && payload.length) || hoveredLabel || tooltipData) {
 			const data = hoveredLabel
 				? todaysPieData.find((item) => item.id === hoveredLabel)
@@ -266,10 +219,61 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			);
 		}
 		return null;
-	};
+	}, [hoveredLabel, tooltipData, todaysPieData]);
+
+	// Custom tooltip for heatmap
+	const renderTooltip = useCallback((day: any) => {
+		if (!day) return null;
+		const date = format(day.date, 'MMM d, yyyy');
+		const minutes = Math.round(day.activity);
+
+		// Create a map of project ids for this day
+		const dayProjects: Record<string, number> = {};
+		
+		// Create a map of projectId -> project for faster lookups
+		const projectMap = new Map();
+		projects.forEach(project => {
+			projectMap.set(project.id, project);
+		});
+
+		entriesToUse.forEach((entry) => {
+			try {
+				const entryDate = format(new Date(entry.startTime), 'yyyy-MM-dd');
+				if (entryDate === day.dateString) {
+					const projectId = entry.project;
+					const project = projectMap.get(projectId);
+					const projectName = project?.name || 'Unknown Project';
+
+					if (!dayProjects[projectName]) {
+						dayProjects[projectName] = 0;
+					}
+					dayProjects[projectName] += entry.duration / (1000 * 60);
+				}
+			} catch (error) {
+				console.error('Error formatting entry date:', error);
+			}
+		});
+
+		return (
+			<div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md text-xs">
+				<div className="font-medium">{date}</div>
+				<div className="text-gray-700 dark:text-gray-300">{minutes} min total</div>
+				{Object.entries(dayProjects).length > 0 && (
+					<div className="mt-1 pt-1">
+						{Object.entries(dayProjects).map(([project, mins]) => (
+							<div key={project} className="flex justify-between">
+								<span>{project}:</span>
+								<span className="ml-2 font-medium">{Math.round(mins)} min</span>
+							</div>
+						))}
+					</div>
+				)}
+			</div>
+		);
+	}, [entriesToUse, projects]);
 
 	// Custom label for pie chart
-	const renderCustomizedLabel = ({
+	const renderCustomizedLabel = useCallback(({
 		cx,
 		cy,
 		midAngle,
@@ -281,6 +285,8 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		value,
 		payload,
 	}) => {
+		if (percent < 0.05) return null; // Don't render labels for small segments
+		
 		const RADIAN = Math.PI / 180;
 		const radius = outerRadius * 1.3;
 		const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -331,6 +337,16 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 				</text>
 			</g>
 		);
+	}, []);
+
+	const daysTranslation = {
+		0: t('dashboard.days.sun'),
+		1: t('dashboard.days.mon'),
+		2: t('dashboard.days.tue'),
+		3: t('dashboard.days.wed'),
+		4: t('dashboard.days.thu'),
+		5: t('dashboard.days.fri'),
+		6: t('dashboard.days.sat'),
 	};
 
 	return (
@@ -364,10 +380,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 											{todaysPieData.map((entry, index) => (
 												<Cell
 													key={`cell-${index}`}
-													fill={getGitHubPieColor(
-														index,
-														todaysPieData.length
-													)}
+													fill={entry.color || `#${(((index * 7) % 15) + 1).toString(16).repeat(6)}`}
 													stroke="none"
 												/>
 											))}

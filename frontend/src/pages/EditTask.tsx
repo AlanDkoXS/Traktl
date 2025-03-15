@@ -55,7 +55,7 @@ export const EditTask = () => {
 	if (isLoading) {
 		return (
 			<div className="flex justify-center items-center py-8">
-				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+				<div className="animate-spin rounded-full h-8 w-8 border-b-2 dynamic-border"></div>
 				<span className="ml-2">{t('common.loading')}</span>
 			</div>
 		);
@@ -77,19 +77,19 @@ export const EditTask = () => {
 	return (
 		<div>
 			<div className="flex justify-between items-center mb-6">
-				<h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+				<h1 className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
 					{t('tasks.edit')}
 				</h1>
 				<button
 					onClick={() => setShowDeleteModal(true)}
-					className="btn btn-secondary bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800"
+					className="btn btn-secondary bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-800/50"
 				>
 					<TrashIcon className="h-5 w-5 mr-1" />
 					{t('common.delete')}
 				</button>
 			</div>
 
-			<div className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] shadow-sm rounded-lg overflow-hidden border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 				<div className="px-4 py-5 sm:p-6">
 					<TaskForm task={selectedTask} isEditing />
 				</div>
