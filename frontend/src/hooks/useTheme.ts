@@ -5,10 +5,8 @@ export const useTheme = () => {
   const { theme, setTheme, toggleTheme } = useThemeStore();
 
   useEffect(() => {
-    // Auto-detect system preference on first load
     if (theme === 'system' || !theme) {
       const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const preferredTheme = isSystemDark ? 'dark' : 'light';
       document.documentElement.classList.toggle('dark', isSystemDark);
     } else if (theme === 'dark') {
       document.documentElement.classList.add('dark');
