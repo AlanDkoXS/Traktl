@@ -207,8 +207,16 @@
         "theme": "Tema",
         "saved": "Ajustes guardados correctamente",
         "timers": "Temporizadores",
-        "defaultTimerPreset": "Preset Predeterminado",
-        "noDefaultPreset": "Sin preset predeterminado"
+        "changePassword": "Cambiar Contraseña",
+        "currentPassword": "Contraseña Actual",
+        "newPassword": "Nueva Contraseña",
+        "passwordChanged": "Contraseña cambiada correctamente",
+        "verifyEmail": "Verificar Correo",
+        "emailVerificationStatus": "Correo Verificado",
+        "verified": "✓",
+        "notVerified": "✗",
+        "requestVerification": "Solicitar"
+
     },
     "common": {
         "save": "Guardar",

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { showTimerNotification } from '../utils/notifications/TimerNotifications';
+import { showTimerNotification } from '../utils/soundNotifications';
 import { timeEntryService } from '../services/timeEntryService';
 
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'break';
@@ -93,7 +93,7 @@ export const useTimerStore = create<TimerState>()(
 					if (state.status === 'idle' || state.status === 'paused') {
 						// Ensure infiniteMode is properly set based on selectedEntryId
 						const updatedInfiniteMode = !!state.selectedEntryId;
-						
+
 						const newState = {
 							status: 'running' as TimerStatus,
 							projectId: projectId || state.projectId,
@@ -103,12 +103,12 @@ export const useTimerStore = create<TimerState>()(
 							showCompletionModal: false,
 							infiniteMode: updatedInfiniteMode,
 						};
-						
+
 						// Setup the interval after the state update
 						setTimeout(() => {
 							setupGlobalInterval(get().tick, 'running');
 						}, 0);
-						
+
 						return newState;
 					}
 					return state;
@@ -164,7 +164,7 @@ export const useTimerStore = create<TimerState>()(
 			reset: () => {
 				// Clear the interval when resetting
 				setupGlobalInterval(get().tick, 'idle');
-				
+
 				return set({
 					status: 'idle',
 					mode: 'work',
@@ -183,13 +183,13 @@ export const useTimerStore = create<TimerState>()(
 
 			closeCompletionModal: () => set({ showCompletionModal: false }),
 
-			setInfiniteMode: (value) => set({ 
+			setInfiniteMode: (value) => set({
 				infiniteMode: value,
 				// If turning off infinite mode, also clear selected entry
 				selectedEntryId: value ? get().selectedEntryId : null
 			}),
 
-			setSelectedEntryId: (id) => set({ 
+			setSelectedEntryId: (id) => set({
 				selectedEntryId: id,
 				// Always set infinite mode when selecting an entry
 				infiniteMode: id !== null
@@ -547,7 +547,7 @@ export const useTimerStore = create<TimerState>()(
 						state.workStartTime = null;
 					}
 				}
-				
+
 				// Reiniciar el intervalo si el temporizador estaba activo
 				if (state && (state.status === 'running' || state.status === 'break')) {
 					setupGlobalInterval(state.tick, state.status);

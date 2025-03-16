@@ -285,7 +285,7 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 							className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
 								selectedTags.includes(tag.id)
 									? 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300'
-									: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+									: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
 							}`}
 						>
 							<div

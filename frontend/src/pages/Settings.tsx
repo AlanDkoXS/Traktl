@@ -2,15 +2,13 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../hooks/useTheme';
 import { useAuthStore } from '../store/authStore';
-import { useTimerPresetStore } from '../store/timerPresetStore';
 import { ChangePasswordModal } from '../components/auth/ChangePasswordModal';
 import { emailVerificationService } from '../services/emailVerificationService';
 
 export const Settings = () => {
 	const { t, i18n } = useTranslation();
-	const { theme, setTheme } = useTheme();
-	const { user, updateUser, isLoading, error } = useAuthStore();
-	const { timerPresets, fetchTimerPresets } = useTimerPresetStore();
+	const { setTheme } = useTheme();
+	const { user, updateUser, error } = useAuthStore();
 
 	const [name, setName] = useState(user?.name || '');
 	const [email, setEmail] = useState(user?.email || '');
@@ -20,19 +18,12 @@ export const Settings = () => {
 	const [userTheme, setUserTheme] = useState<'light' | 'dark'>(
 		(user?.theme as 'light' | 'dark') || 'light'
 	);
-	const [defaultTimerPreset, setDefaultTimerPreset] = useState<string>(
-		user?.defaultTimerPreset || ''
-	);
+
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [successMessage, setSuccessMessage] = useState('');
 	const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 	const [isEmailVerified, setIsEmailVerified] = useState(false);
 	const [isVerificationLoading, setIsVerificationLoading] = useState(false);
-
-	// Load timer presets
-	useEffect(() => {
-		fetchTimerPresets();
-	}, [fetchTimerPresets]);
 
 	// Check email verification status
 	useEffect(() => {
@@ -61,7 +52,6 @@ export const Settings = () => {
 				email,
 				preferredLanguage,
 				theme: userTheme,
-				defaultTimerPreset,
 			});
 
 			// Apply changes to app UI
@@ -144,6 +134,13 @@ export const Settings = () => {
 									onChange={(e) => setName(e.target.value)}
 									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								/>
+								<button
+									type="button"
+									onClick={() => setShowChangePasswordModal(true)}
+									className="btn btn-primary dynamic-bg text-white hover:brightness-110"
+								>
+									{t('settings.changePassword')}
+								</button>
 							</div>
 
 							<div>
@@ -166,8 +163,16 @@ export const Settings = () => {
 									</span>
 									{isEmailVerified ? (
 										<span className="text-xs text-green-600 dark:text-green-400 flex items-center">
-											<svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-												<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+											<svg
+												className="w-4 h-4 mr-1"
+												fill="currentColor"
+												viewBox="0 0 20 20"
+											>
+												<path
+													fillRule="evenodd"
+													d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+													clipRule="evenodd"
+												/>
 											</svg>
 											{t('settings.verified')}
 										</span>
@@ -180,24 +185,16 @@ export const Settings = () => {
 												type="button"
 												onClick={handleRequestVerification}
 												disabled={isVerificationLoading}
-												className="text-xs text-primary-600 hover:text-primary-500 dark:text-primary-400 hover:underline"
+												className="btn btn-primary dynamic-bg text-white hover:brightness-110"
 											>
-												{isVerificationLoading ? t('common.loading') : t('settings.requestVerification')}
+												{isVerificationLoading
+													? t('common.loading')
+													: t('settings.requestVerification')}
 											</button>
 										</div>
 									)}
 								</div>
 							</div>
-						</div>
-
-						<div className="mt-4">
-							<button
-								type="button"
-								onClick={() => setShowChangePasswordModal(true)}
-								className="text-sm text-primary-600 hover:text-primary-500 dark:text-primary-400 hover:underline"
-							>
-								{t('settings.changePassword')}
-							</button>
 						</div>
 					</div>
 
@@ -245,7 +242,6 @@ export const Settings = () => {
 							</div>
 						</div>
 					</div>
-
 
 					<div className="flex justify-end">
 						<button

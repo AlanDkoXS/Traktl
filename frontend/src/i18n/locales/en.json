@@ -220,17 +220,15 @@
         "theme": "Theme",
         "saved": "Settings saved successfully",
         "timers": "Timers",
-        "defaultTimerPreset": "Default Timer Preset",
-        "noDefaultPreset": "No default preset",
         "changePassword": "Change Password",
         "currentPassword": "Current Password",
         "newPassword": "New Password",
         "passwordChanged": "Password changed successfully",
         "verifyEmail": "Verify Email",
         "emailVerificationStatus": "Email Verification Status",
-        "verified": "Verified",
-        "notVerified": "Not Verified",
-        "requestVerification": "Request Verification Email"
+        "verified": "✓",
+        "notVerified": "✗",
+        "requestVerification": "Request"
     },
     "common": {
         "save": "Save",

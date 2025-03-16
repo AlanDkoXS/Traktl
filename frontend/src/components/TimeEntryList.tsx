@@ -273,7 +273,7 @@ export const TimeEntryList = ({
 					return (
 						<div
 							key={entry.id}
-							className={`relative block bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg p-2 shadow-sm transition-all ${isTimerActive && !isSelected ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow-md' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''}`}
+							className={`relative block bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg p-2 shadow-sm transition-all ${isTimerActive && !isSelected ? 'opacity-60 pointer-events-none' : ''} ${isSelected ? 'shadow-md' : ''} ${isHovered && !isSelected ? 'bg-gray-50 dark:bg-gray-800' : ''}`}
 							onMouseEnter={() => setHoveredEntryId(entry.id)}
 							onMouseLeave={() => setHoveredEntryId(null)}
 							style={entryBgStyle}
@@ -285,7 +285,7 @@ export const TimeEntryList = ({
 								<div className="flex items-center justify-between pr-16">
 									<div className="flex items-center min-w-0">
 										<div
-											className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-700'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
+											className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-800'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
 											onClick={(e) => handlePlayClick(entry, e)}
 											style={
 												isSelected

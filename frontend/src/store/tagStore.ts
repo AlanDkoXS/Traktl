@@ -17,7 +17,7 @@ interface TagState {
   clearSelectedTag: () => void;
 }
 
-export const useTagStore = create<TagState>((set, get) => ({
+export const useTagStore = create<TagState>((set) => ({
   tags: [],
   selectedTag: null,
   isLoading: false,
@@ -44,13 +44,13 @@ export const useTagStore = create<TagState>((set, get) => ({
       set({ error: 'Invalid tag ID', isLoading: false, selectedTag: null });
       return null;
     }
-    
+
     try {
       set({ isLoading: true, error: null });
       const tag = await tagService.getTag(id);
-      
+
       if (!tag) throw new Error('Tag not found');
-      
+
       set({ selectedTag: tag, isLoading: false });
       return tag;
     } catch (error: any) {

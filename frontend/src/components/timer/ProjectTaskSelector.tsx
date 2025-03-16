@@ -126,7 +126,7 @@ export const ProjectTaskSelector = ({
 		<>
 			<button
 				onClick={openModal}
-				className="w-full p-3 text-left flex justify-between items-center bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
+				className="w-full p-3 text-left flex justify-between items-center bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm"
 			>
 				<div>
 					<div className="font-medium dynamic-color">
@@ -204,7 +204,7 @@ export const ProjectTaskSelector = ({
 														id="project-select"
 														value={projectId || ''}
 														onChange={handleProjectChange}
-														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
+														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-800 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
 													>
 														<option value="">
 															{t('timeEntries.selectProject')}
@@ -222,7 +222,7 @@ export const ProjectTaskSelector = ({
 														onClick={() =>
 															setShowCreateProjectModal(true)
 														}
-														className="ml-2 p-2 w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center"
+														className="ml-2 mt-1 p-2 w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center"
 														title={t('projects.new')}
 													>
 														<PlusIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -244,7 +244,7 @@ export const ProjectTaskSelector = ({
 														onChange={(e) =>
 															setTaskId(e.target.value || null)
 														}
-														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
+														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-800 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
 														disabled={!projectId}
 													>
 														<option value="">
@@ -261,7 +261,7 @@ export const ProjectTaskSelector = ({
 															onClick={() =>
 																setShowCreateTaskModal(true)
 															}
-															className="ml-2 p-2 w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center"
+															className="ml-2 mt-1 p-2 w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center"
 															title={t('tasks.new')}
 														>
 															<PlusIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -281,7 +281,7 @@ export const ProjectTaskSelector = ({
 													id="notes"
 													value={notes}
 													onChange={(e) => setNotes(e.target.value)}
-													className="mt-1 block w-full rounded-md shadow-sm bg-gray-50 dark:bg-gray-700 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
+													className="mt-1 block w-full rounded-md shadow-sm bg-gray-50 dark:bg-gray-800 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
 													placeholder={t('timeEntries.notes')}
 													rows={2}
 												/>

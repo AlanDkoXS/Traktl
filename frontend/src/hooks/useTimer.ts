@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTimerStore } from '../store/timerStore';
 import { useTranslation } from 'react-i18next';
-import { showTimerNotification } from '../utils/notifications/TimerNotifications';
+import { showTimerNotification } from '../utils/soundNotifications';
 
 export const useTimer = () => {
 	const { t } = useTranslation();
@@ -67,7 +67,7 @@ export const useTimer = () => {
 	};
 
 	// Calculate the progress percentage
-	const progress = 
+	const progress =
 		infiniteMode && mode === 'work'
 			? 50 // Fixed 50% for infinite mode to display half circle
 			: Math.min(100, (elapsed / ((mode === 'work' ? workDuration : breakDuration) * 60)) * 100);
@@ -102,7 +102,7 @@ export const useTimer = () => {
 		reset: storeReset,
 		skipToNext: storeSwitchToNext,
 		createTimeEntryOnCompletion: createTimeEntryFromWorkSession,
-		
+
 		setWorkDuration,
 		setBreakDuration,
 		setRepetitions,

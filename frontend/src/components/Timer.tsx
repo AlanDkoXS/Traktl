@@ -17,7 +17,7 @@ import { useTimeEntryStore } from '../store/timeEntryStore';
 import {
 	requestNotificationPermission,
 	checkNotificationPermission,
-} from '../utils/notifications/TimerNotifications';
+} from '../utils/soundNotifications';
 import { ConfirmModal } from './ui/ConfirmModal';
 import { useTimerStore } from '../store/timerStore';
 import { setProjectColor } from '../utils/dynamicColors';
@@ -125,8 +125,8 @@ export const Timer = () => {
 	// Current timer settings to pass to preset creator
 	const currentSettings = {
 		workDuration,
-		breakDuration, 
-		repetitions
+		breakDuration,
+		repetitions,
 	};
 
 	return (
@@ -195,8 +195,8 @@ export const Timer = () => {
 						/>
 
 						{/* Timer Presets */}
-						<PresetSelector 
-							onSelectPreset={handlePresetSelect} 
+						<PresetSelector
+							onSelectPreset={handlePresetSelect}
 							currentSettings={currentSettings}
 						/>
 					</div>

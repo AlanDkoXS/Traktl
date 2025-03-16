@@ -70,9 +70,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			try {
 				// Ensure startTime is properly parsed to a Date object
 				const startTimeDate =
-					entry.startTime instanceof Date
-						? entry.startTime
-						: parseISO(entry.startTime.toString());
+					entry.startTime instanceof Date ? entry.startTime : parseISO(entry.startTime);
 
 				const dateString = format(startTimeDate, 'yyyy-MM-dd');
 				if (!activityByDate[dateString]) activityByDate[dateString] = 0;
@@ -215,7 +213,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	const getGitHubActivityColor = useCallback(
 		(minutes: number, isHovered: boolean) => {
 			if (minutes === 0)
-				return isHovered ? 'bg-gray-200 dark:bg-gray-600' : 'bg-gray-100 dark:bg-gray-700';
+				return isHovered ? 'bg-gray-200 dark:bg-gray-600' : 'bg-gray-100 dark:bg-gray-800';
 
 			// GitHub color palette
 			if (minutes <= maxActivity * 0.15)
@@ -243,8 +241,6 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		(index: number, totalItems: number, isDarkMode: boolean) => {
 			const colors = isDarkMode ? GITHUB_COLORS_DARK : GITHUB_COLORS;
 
-			// Para valores de mayor porcentaje (índice más bajo), usar el verde más claro
-			// Para valores de menor porcentaje (índice más alto), usar el verde más oscuro
 			const colorIndex = Math.min(index, colors.length - 1);
 			return colors[colorIndex];
 		},
@@ -276,7 +272,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 					const entryStartTime =
 						entry.startTime instanceof Date
 							? entry.startTime
-							: parseISO(entry.startTime.toString());
+							: parseISO(entry.startTime);
 
 					const entryDate = format(entryStartTime, 'yyyy-MM-dd');
 
@@ -423,7 +419,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 							</div>
 						</>
 					) : (
-						<div className="flex items-center justify-center h-64 w-full bg-gray-50 dark:bg-gray-800 rounded-md">
+						<div className="flex items-center justify-center h-64 w-full rounded-md">
 							<p className="text-xs text-gray-500 dark:text-gray-400 text-center">
 								{t('dashboard.noDataToday')}
 							</p>
@@ -526,7 +522,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 						>
 							<span>{t('dashboard.less')}</span>
 							<div className="flex mx-2 space-x-1 items-center">
-								<div className="h-2 w-2 bg-gray-100 dark:bg-gray-700 rounded-sm"></div>
+								<div className="h-2 w-2 bg-gray-100 dark:bg-gray-800 rounded-sm"></div>
 								<div className="h-2.5 w-2.5 bg-[#ebedf0] dark:bg-[#0e4429] rounded-sm"></div>
 								<div className="h-3 w-3 bg-[#9be9a8] dark:bg-[#006d32] rounded-sm"></div>
 								<div className="h-3.5 w-3.5 bg-[#40c463] dark:bg-[#26a641] rounded-sm"></div>
