@@ -2,134 +2,170 @@
  * Utility for managing timer notifications with improved performance
  */
 
-// Cache for notification objects to prevent memory leaks
-let notificationCache: Notification | null = null;
+// Audio player singleton to ensure only one sound plays at a time
+class AudioPlayerSingleton {
+    private static instance: AudioPlayerSingleton;
+    private currentAudio: HTMLAudioElement | null = null;
+    private audioElements: Record<string, HTMLAudioElement> = {};
 
-// Cache for audio elements to improve performance
-const audioCache: Record<string, HTMLAudioElement> = {
-  work: new Audio('/sounds/work.mp3'),
-  break: new Audio('/sounds/break.mp3'),
-  complete: new Audio('/sounds/complete.mp3')
-};
+    private constructor() {
+      // Initialize sounds
+      this.audioElements = {
+        work: new Audio('/sounds/work.mp3'),
+        break: new Audio('/sounds/break.mp3'),
+        complete: new Audio('/sounds/complete.mp3')
+      };
 
-// Pre-load audio files
-Object.values(audioCache).forEach(audio => {
-  audio.load();
-  // Set to low volume by default to prevent loud surprises
-  audio.volume = 0.7;
-});
-
-interface NotificationOptions {
-  title: string;
-  body: string;
-  icon?: string;
-  tag?: string;
-  renotify?: boolean;
-  persistent?: boolean; // For notifications that should stay until user interaction
-}
-
-/**
- * Check if notifications are supported and permission is granted
- */
-export const checkNotificationPermission = (): NotificationPermission | null => {
-  if (!('Notification' in window)) {
-    console.log('This browser does not support notifications');
-    return null;
-  }
-  return Notification.permission;
-};
-
-/**
- * Request notification permission 
- */
-export const requestNotificationPermission = async (): Promise<NotificationPermission> => {
-  if (!('Notification' in window)) {
-    console.log('This browser does not support notifications');
-    return 'denied';
-  }
-  
-  try {
-    const permission = await Notification.permission;
-    // Only request if not determined yet
-    if (permission !== 'granted' && permission !== 'denied') {
-      return await Notification.requestPermission();
+      // Preload sounds
+      Object.values(this.audioElements).forEach(audio => {
+        audio.load();
+        audio.volume = 0.7;
+      });
     }
-    return permission;
-  } catch (error) {
-    console.error('Error requesting notification permission:', error);
-    return 'denied';
-  }
-};
 
-/**
- * Show a notification with optimization to prevent UI blocking
- */
-export const showTimerNotification = (
-  type: 'work' | 'break' | 'complete' | 'timeEntry',
-  options: NotificationOptions
-): void => {
-  // Close any existing notification first (unless current is persistent)
-  if (notificationCache && !options.persistent) {
-    notificationCache.close();
-    notificationCache = null;
-  }
-
-  // Play the appropriate sound using the cached audio element
-  const audio = audioCache[type === 'timeEntry' ? 'complete' : type];
-  if (audio) {
-    // Reset audio to beginning if it was already playing
-    audio.pause();
-    audio.currentTime = 0;
-    
-    // Using requestAnimationFrame to prevent UI blocking
-    window.requestAnimationFrame(() => {
-      const playPromise = audio.play();
-      // Handle promise to prevent uncaught promise errors
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.warn('Audio play failed:', error);
-        });
+    public static getInstance(): AudioPlayerSingleton {
+      if (!AudioPlayerSingleton.instance) {
+        AudioPlayerSingleton.instance = new AudioPlayerSingleton();
       }
-    });
-  }
+      return AudioPlayerSingleton.instance;
+    }
 
-  // Show browser notification if permission is granted
-  if (checkNotificationPermission() === 'granted') {
-    try {
-      // Using setTimeout to avoid UI thread blocking
-      setTimeout(() => {
-        const notification = new Notification(options.title, {
-          body: options.body,
-          icon: options.icon || '/favicon.ico',
-          tag: options.tag || 'timer-notification',
-          renotify: options.renotify || true,
-          silent: true // We're playing our own sounds
-        });
+    public play(type: string): void {
+      // Stop any currently playing audio
+      this.stop();
 
-        notification.onclick = () => {
-          window.focus();
-          notification.close();
-        };
+      if (this.audioElements[type]) {
+        this.currentAudio = this.audioElements[type];
+        this.currentAudio.currentTime = 0;
 
-        // Auto-close after 5 seconds to prevent notification buildup
-        // Unless it's a persistent notification
-        if (!options.persistent) {
-          setTimeout(() => {
-            notification.close();
-          }, 5000);
+        // Play safely
+        const playPromise = this.currentAudio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.warn('Error playing audio:', error);
+          });
         }
+      }
+    }
 
-        // Store notification reference for cleanup
-        notificationCache = notification;
-      }, 0);
-    } catch (error) {
-      console.error('Error showing notification:', error);
+    public stop(): void {
+      if (this.currentAudio) {
+        this.currentAudio.pause();
+        this.currentAudio.currentTime = 0;
+        this.currentAudio = null;
+      }
+    }
+
+    // Clean up resources when page closes
+    public cleanup(): void {
+      this.stop();
+      this.audioElements = {};
     }
   }
-};
 
-export default {
-  checkNotificationPermission,
-  requestNotificationPermission,
-  showTimerNotification
-};
+  // Ensure cleanup when page closes
+  window.addEventListener('beforeunload', () => {
+    AudioPlayerSingleton.getInstance().cleanup();
+  });
+
+  // Notification cache
+  let notificationCache: Notification | null = null;
+
+  // Custom notification options interface
+  interface TimerNotificationOptions {
+    title: string;
+    body: string;
+    icon?: string;
+    tag?: string;
+    persistent?: boolean;
+  }
+
+  /**
+   * Check if notifications are supported and permission is granted
+   */
+  export const checkNotificationPermission = (): NotificationPermission | null => {
+    if (!('Notification' in window)) {
+      console.log('This browser does not support notifications');
+      return null;
+    }
+    return Notification.permission;
+  };
+
+  /**
+   * Request notification permission
+   */
+  export const requestNotificationPermission = async (): Promise<NotificationPermission> => {
+    if (!('Notification' in window)) {
+      console.log('This browser does not support notifications');
+      return 'denied';
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      return permission;
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      return 'denied';
+    }
+  };
+
+  /**
+   * Show a notification with optimization to prevent UI blocking
+   */
+  export const showTimerNotification = (
+    type: 'work' | 'break' | 'complete' | 'timeEntry',
+    options: TimerNotificationOptions
+  ): void => {
+    // Close any existing notification first (unless current is persistent)
+    if (notificationCache && !options.persistent) {
+      notificationCache.close();
+      notificationCache = null;
+    }
+
+    // Play the appropriate sound using our singleton
+    const soundType = type === 'timeEntry' ? 'complete' : type;
+    // Use requestAnimationFrame to prevent UI blocking
+    window.requestAnimationFrame(() => {
+      AudioPlayerSingleton.getInstance().play(soundType);
+    });
+
+    // Show browser notification if permission is granted
+    if (checkNotificationPermission() === 'granted') {
+      try {
+        // Using setTimeout to avoid UI thread blocking
+        setTimeout(() => {
+          const notification = new Notification(options.title, {
+            body: options.body,
+            icon: options.icon || '/favicon.ico',
+            tag: options.tag || 'timer-notification',
+            // No renotify property as it's not in standard NotificationOptions
+            silent: true // We're playing our own sounds
+          });
+
+          notification.onclick = () => {
+            window.focus();
+            notification.close();
+          };
+
+          // Auto-close after 5 seconds to prevent notification buildup
+          // Unless it's a persistent notification
+          if (!options.persistent) {
+            setTimeout(() => {
+              notification.close();
+            }, 5000);
+          }
+
+          // Store notification reference for cleanup
+          notificationCache = notification;
+        }, 0);
+      } catch (error) {
+        console.error('Error showing notification:', error);
+      }
+    }
+  };
+
+  export default {
+    checkNotificationPermission,
+    requestNotificationPermission,
+    showTimerNotification
+  };
