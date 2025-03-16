@@ -236,7 +236,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		[maxActivity]
 	);
 
-	// Get GitHub-style color for pie chart slice based on index
+	// Get green color for pie chart slice based on index
 	const getPieChartColor = useCallback(
 		(index: number, totalItems: number, isDarkMode: boolean) => {
 			const colors = isDarkMode ? GITHUB_COLORS_DARK : GITHUB_COLORS;
@@ -247,7 +247,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		[GITHUB_COLORS, GITHUB_COLORS_DARK]
 	);
 
-	const daysTranslation = {
+	const daysTranslation: { [key: number]: string } = {
 		0: t('dashboard.days.sun'),
 		1: t('dashboard.days.mon'),
 		2: t('dashboard.days.tue'),

@@ -338,9 +338,9 @@ export const Reports = () => {
 								</div>
 
 								{/* Table */}
-								<div className="overflow-x-auto">
-									<table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-										<thead className="bg-gray-50 dark:bg-gray-800">
+								<div className="overflow-x-auto rounded-lg shadow-sm">
+									<table className="shadow-sm min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+										<thead className="dynamic-bg-subtle dark:dynamic-bg-subtle">
 											<tr>
 												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
 													{t('reports.project')}
