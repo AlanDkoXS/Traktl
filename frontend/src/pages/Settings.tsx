@@ -11,7 +11,14 @@ import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid';
 export const Settings = () => {
 	const { t, i18n } = useTranslation();
 	const { setTheme } = useTheme();
-	const { user, updateUser, error } = useAuthStore();
+	const { 
+		user, 
+		updateUser, 
+		error, 
+		isEmailVerified, 
+		isPendingVerification,
+		checkVerificationStatus 
+	} = useAuthStore();
 
 	const [name, setName] = useState(user?.name || '');
 	const [email, setEmail] = useState(user?.email || '');
@@ -25,26 +32,22 @@ export const Settings = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [successMessage, setSuccessMessage] = useState('');
 	const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-	const [isEmailVerified, setIsEmailVerified] = useState(false);
-	const [isPendingVerification, setIsPendingVerification] = useState(false);
 	const [isVerificationLoading, setIsVerificationLoading] = useState(false);
 	const [showVerificationModal, setShowVerificationModal] = useState(false);
 	const [verificationError, setVerificationError] = useState('');
 
-	// Check email verification status
+	// Check email verification status when component mounts
 	useEffect(() => {
-		const checkVerificationStatus = async () => {
+		const refreshVerificationStatus = async () => {
 			try {
-				const status = await emailVerificationService.checkVerificationStatus();
-				setIsEmailVerified(status.isVerified);
-				setIsPendingVerification(status.isPending);
+				await checkVerificationStatus();
 			} catch (err) {
-				console.error('Error checking verification status:', err);
+				console.error('Error refreshing verification status:', err);
 			}
 		};
 
-		checkVerificationStatus();
-	}, []);
+		refreshVerificationStatus();
+	}, [checkVerificationStatus]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -66,6 +69,9 @@ export const Settings = () => {
 			i18n.changeLanguage(preferredLanguage);
 
 			setSuccessMessage(t('settings.saved'));
+			
+			// If email changed, refresh verification status
+			await checkVerificationStatus();
 		} catch (err) {
 			console.error('Failed to save settings:', err);
 		} finally {
@@ -94,8 +100,8 @@ export const Settings = () => {
 		setVerificationError('');
 		try {
 			await emailVerificationService.requestVerification();
-			setIsPendingVerification(true);
 			setShowVerificationModal(true);
+			// The emailVerificationService now updates the auth store
 		} catch (err: any) {
 			console.error('Error requesting verification:', err);
 			setVerificationError(err.message || 'Error al solicitar el correo de verificación');

@@ -80,7 +80,7 @@ export class VerificationService {
 
 			const updated = await this.userRepository.update(userId, {
 				isVerified: true,
-				emailEmailVerificationToken: undefined,
+				emailVerificationToken: undefined,
 			} as any);
 
 			if (!updated) {
