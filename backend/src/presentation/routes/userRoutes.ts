@@ -1,52 +1,41 @@
-import { Router } from 'express'
-import { UserController } from '../controllers'
-import { UserService } from '../../domain/services/user/userService'
-import { MongoUserRepository } from '../../infrastructure/repositories/mongodb/mongoUserRepository'
-import { validateJWT } from '../middlewares'
-import { GoogleAuthController } from '../controllers/googleAuthController'
+import { Router } from 'express';
+import { UserController } from '../controllers';
+import { UserService } from '../../domain/services/user/userService';
+import { VerificationService } from '../../domain/services/user/verificationService';
+import { MongoUserRepository } from '../../infrastructure/repositories/mongodb/mongoUserRepository';
+import { validateJWT } from '../middlewares';
+import { GoogleAuthController } from '../controllers/googleAuthController';
+import { EmailService } from '../../service/emailService';
 
-// Create repository and service
-const userRepository = new MongoUserRepository()
-const userService = new UserService(userRepository)
+// Create repository and services
+const userRepository = new MongoUserRepository();
+const userService = new UserService(userRepository);
+const emailService = new EmailService();
+const verificationService = new VerificationService(userRepository, emailService);
 
 // Create controllers
-const controller = new UserController(userService)
-const googleAuthController = new GoogleAuthController(userService)
+const controller = new UserController(userService, verificationService);
+const googleAuthController = new GoogleAuthController(userService);
 
-const router = Router()
+const router = Router();
 
 // Public routes
-router.post('/register', (req, res) => {
-    console.log('Register route accessed')
-    controller.register(req, res)
-})
-
-router.post('/login', (req, res) => {
-    console.log('Login route accessed')
-    controller.login(req, res)
-})
+router.post('/register', controller.register);
+router.post('/login', controller.login);
 
 // Google Auth routes
-router.post('/google', (req, res) => {
-    console.log('Google auth route accessed')
-    googleAuthController.googleLogin(req, res)
-})
+router.post('/google', googleAuthController.googleLogin);
 
 // Protected routes
-router.get('/profile', validateJWT, (req, res) => {
-    console.log('Profile route accessed')
-    controller.getProfile(req, res)
-})
+router.get('/profile', validateJWT, controller.getProfile);
+router.put('/profile', validateJWT, controller.updateProfile);
 
-router.put('/profile', validateJWT, (req, res) => {
-    console.log('Update profile route accessed')
-    controller.updateProfile(req, res)
-})
+// Password management
+router.put('/change-password', validateJWT, controller.changePassword);
 
-// Add change password route
-router.put('/change-password', validateJWT, (req, res) => {
-    console.log('Change password route accessed')
-    controller.changePassword(req, res)
-})
+// Email verification routes
+router.post('/request-verification', validateJWT, controller.requestVerification);
+router.post('/verify-email', controller.verifyEmail);
+router.get('/verification-status', validateJWT, controller.getVerificationStatus);
 
-export const userRoutes = router
+export const userRoutes = router;

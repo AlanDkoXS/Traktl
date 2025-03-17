@@ -1,3 +1,8 @@
+export interface VerificationToken {
+  token: string;
+  expiresAt: Date;
+}
+
 export interface User {
     _id: string
     name: string
@@ -10,6 +15,8 @@ export interface User {
     updatedAt: Date
     googleId?: string
     picture?: string
+    isVerified?: boolean
+    verificationToken?: VerificationToken
     comparePassword?(password: string): boolean
 }
 
@@ -25,5 +32,7 @@ export interface UserEntity {
     updatedAt: Date
     googleId?: string
     picture?: string
+    isVerified?: boolean
+    verificationToken?: VerificationToken
     comparePassword?(password: string): boolean
 }

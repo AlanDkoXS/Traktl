@@ -59,6 +59,7 @@ coverage
 tmp
 .tmp
 temp
+.hintrc
 
 # ESLint and Prettier
 .eslintcache

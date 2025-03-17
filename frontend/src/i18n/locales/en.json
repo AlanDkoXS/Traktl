@@ -60,7 +60,7 @@
         "passwordChanged": "Your password has been changed successfully.",
         "emailVerification": "Email Verification",
         "emailVerified": "Your email has been verified successfully.",
-        "emailVerificationSent": "A verification email has been sent to your email address.",
+        "emailVerificationSent": "A verification e-mail has been sent to your e-mail address. Please also check Junk Mail if it does not appear. ",
         "verifyEmail": "Verify Email",
         "emailVerificationInstructions": "Please check your email and click on the verification link.",
         "emailVerificationExpired": "The verification link has expired. Please request a new one.",
