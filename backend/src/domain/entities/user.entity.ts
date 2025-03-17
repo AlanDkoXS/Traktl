@@ -1,4 +1,4 @@
-export interface emailEmailVerificationToken {
+export interface EmailVerificationToken {
   token: string;
   expiresAt: Date;
 }
@@ -16,7 +16,7 @@ export interface User {
     googleId?: string
     picture?: string
     isVerified?: boolean
-    emailEmailVerificationToken?: emailEmailVerificationToken
+    emailVerificationToken?: EmailVerificationToken
     comparePassword?(password: string): boolean
 }
 
@@ -33,6 +33,6 @@ export interface UserEntity {
     googleId?: string
     picture?: string
     isVerified?: boolean
-    emailEmailVerificationToken?: emailEmailVerificationToken
+    emailVerificationToken?: EmailVerificationToken
     comparePassword?(password: string): boolean
 }

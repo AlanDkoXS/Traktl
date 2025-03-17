@@ -2,104 +2,104 @@ import { UserRepository } from '../../repositories/userRepository.interface';
 import { EmailService } from '../../../service/emailService';
 import { JwtAdapter } from '../../../config/jwt.adapter';
 import { CustomError } from '../../errors/custom.errors';
-import { emailEmailVerificationToken } from '../../entities/user.entity';
+import { EmailVerificationToken } from '../../entities/user.entity';
 
 interface TokenPayload {
-  id: string;
-  email?: string;
-  [key: string]: any;
+	id: string;
+	email?: string;
+	[key: string]: any;
 }
 
 export class VerificationService {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly emailService: EmailService
-  ) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+		private readonly emailService: EmailService
+	) {}
 
-  async generateemailEmailVerificationToken(userId: string, email: string): Promise<string> {
-    // Generate verification token (24 hours expiration)
-    const token = await JwtAdapter.generateToken({ id: userId, email }, '24h');
+	async generateEmailVerificationToken(userId: string, email: string): Promise<string> {
+		// Generate verification token (24 hours expiration)
+		const token = await JwtAdapter.generateToken({ id: userId, email }, '24h');
 
-    if (!token) {
-      throw CustomError.internalServer('Error generating verification token');
-    }
+		if (!token) {
+			throw CustomError.internalServer('Error generating verification token');
+		}
 
-    // Update user with verification token
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 24);
+		// Update user with verification token
+		const expiresAt = new Date();
+		expiresAt.setHours(expiresAt.getHours() + 24);
 
-    const emailEmailVerificationTokenData: emailEmailVerificationToken = {
-      token,
-      expiresAt
-    };
+		const emailVerificationTokenData: EmailVerificationToken = {
+			token,
+			expiresAt,
+		};
 
-    const updated = await this.userRepository.update(userId, {
-      emailEmailVerificationToken: emailEmailVerificationTokenData
-    } as any);
+		const updated = await this.userRepository.update(userId, {
+			emailVerificationToken: emailVerificationTokenData,
+		} as any);
 
-    if (!updated) {
-      throw CustomError.internalServer('Error storing verification token');
-    }
+		if (!updated) {
+			throw CustomError.internalServer('Error storing verification token');
+		}
 
-    return token;
-  }
+		return token;
+	}
 
-  async requestVerification(userId: string, email: string): Promise<boolean> {
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw CustomError.notFound('User not found');
-    }
+	async requestVerification(userId: string, email: string): Promise<boolean> {
+		const user = await this.userRepository.findById(userId);
+		if (!user) {
+			throw CustomError.notFound('User not found');
+		}
 
-    if (user.isVerified) {
-      throw CustomError.badRequest('Email already verified');
-    }
+		if (user.isVerified) {
+			throw CustomError.badRequest('Email already verified');
+		}
 
-    const token = await this.generateemailEmailVerificationToken(userId, email);
+		const token = await this.generateEmailVerificationToken(userId, email);
 
-    return this.emailService.sendVerificationEmail(email, token);
-  }
+		return this.emailService.sendVerificationEmail(email, token);
+	}
 
-  async verifyEmail(token: string): Promise<boolean> {
-    try {
-      const payload = await JwtAdapter.validateToken(token) as TokenPayload;
+	async verifyEmail(token: string): Promise<boolean> {
+		try {
+			const payload = (await JwtAdapter.validateToken(token)) as TokenPayload;
 
-      if (!payload || !payload.id) {
-        throw CustomError.unauthorized('Invalid or expired token');
-      }
+			if (!payload || !payload.id) {
+				throw CustomError.unauthorized('Invalid or expired token');
+			}
 
-      const userId = payload.id;
+			const userId = payload.id;
 
-      const user = await this.userRepository.findById(userId);
-      if (!user) {
-        throw CustomError.notFound('User not found');
-      }
+			const user = await this.userRepository.findById(userId);
+			if (!user) {
+				throw CustomError.notFound('User not found');
+			}
 
-      if (user.isVerified) {
-        return true;
-      }
+			if (user.isVerified) {
+				return true;
+			}
 
-      const updated = await this.userRepository.update(userId, {
-        isVerified: true,
-        emailEmailVerificationToken: undefined
-      } as any);
+			const updated = await this.userRepository.update(userId, {
+				isVerified: true,
+				emailEmailVerificationToken: undefined,
+			} as any);
 
-      if (!updated) {
-        throw CustomError.internalServer('Error updating verification status');
-      }
+			if (!updated) {
+				throw CustomError.internalServer('Error updating verification status');
+			}
 
-      return true;
-    } catch (error) {
-      console.error('Verification error:', error);
-      throw CustomError.unauthorized('Invalid or expired token');
-    }
-  }
+			return true;
+		} catch (error) {
+			console.error('Verification error:', error);
+			throw CustomError.unauthorized('Invalid or expired token');
+		}
+	}
 
-  async getVerificationStatus(userId: string): Promise<{ isVerified: boolean }> {
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw CustomError.notFound('User not found');
-    }
+	async getVerificationStatus(userId: string): Promise<{ isVerified: boolean }> {
+		const user = await this.userRepository.findById(userId);
+		if (!user) {
+			throw CustomError.notFound('User not found');
+		}
 
-    return { isVerified: user.isVerified || false };
-  }
+		return { isVerified: user.isVerified || false };
+	}
 }
