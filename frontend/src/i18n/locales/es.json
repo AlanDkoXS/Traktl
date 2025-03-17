@@ -213,9 +213,10 @@
         "passwordChanged": "Contraseña cambiada correctamente",
         "verifyEmail": "Verificar Correo",
         "emailVerificationStatus": "Correo Verificado",
-        "verified": "✓",
-        "notVerified": "✗",
-        "requestVerification": "Solicitar"
+        "verified": "Correo verificado",
+        "notVerified": "Correo no verificado",
+        "requestVerification": "Solicitar",
+        "pendingVerification": "Correo enviado para verificacion"
 
     },
     "common": {

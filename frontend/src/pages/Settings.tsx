@@ -5,7 +5,8 @@ import { useAuthStore } from '../store/authStore';
 import { ChangePasswordModal } from '../components/auth/ChangePasswordModal';
 import { emailVerificationService } from '../services/emailVerificationService';
 import { Modal } from '../components/ui/Modal';
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, XCircleIcon, EnvelopeIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid';
 
 export const Settings = () => {
 	const { t, i18n } = useTranslation();
@@ -25,6 +26,7 @@ export const Settings = () => {
 	const [successMessage, setSuccessMessage] = useState('');
 	const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 	const [isEmailVerified, setIsEmailVerified] = useState(false);
+	const [isPendingVerification, setIsPendingVerification] = useState(false);
 	const [isVerificationLoading, setIsVerificationLoading] = useState(false);
 	const [showVerificationModal, setShowVerificationModal] = useState(false);
 	const [verificationError, setVerificationError] = useState('');
@@ -33,8 +35,9 @@ export const Settings = () => {
 	useEffect(() => {
 		const checkVerificationStatus = async () => {
 			try {
-				const verified = await emailVerificationService.checkVerificationStatus();
-				setIsEmailVerified(verified);
+				const status = await emailVerificationService.checkVerificationStatus();
+				setIsEmailVerified(status.isVerified);
+				setIsPendingVerification(status.isPending);
 			} catch (err) {
 				console.error('Error checking verification status:', err);
 			}
@@ -91,12 +94,69 @@ export const Settings = () => {
 		setVerificationError('');
 		try {
 			await emailVerificationService.requestVerification();
+			setIsPendingVerification(true);
 			setShowVerificationModal(true);
 		} catch (err: any) {
 			console.error('Error requesting verification:', err);
 			setVerificationError(err.message || 'Error al solicitar el correo de verificación');
 		} finally {
 			setIsVerificationLoading(false);
+		}
+	};
+
+	// Render the verification status badge
+	const renderVerificationStatus = () => {
+		if (isEmailVerified) {
+			return (
+				<div className="text-sm text-green-600 dark:text-green-400 flex items-center bg-green-50 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
+					<CheckCircleSolid className="w-5 h-5 mr-1" />
+					{t('settings.verified')}
+				</div>
+			);
+		} else if (isPendingVerification) {
+			return (
+				<div className="text-sm text-yellow-600 dark:text-yellow-400 flex items-center bg-yellow-50 dark:bg-yellow-900/30 px-3 py-1.5 rounded-full">
+					<ClockIcon className="w-5 h-5 mr-1" />
+					{t('settings.pendingVerification')}
+				</div>
+			);
+		} else {
+			return (
+				<div className="flex flex-col">
+					<div className="flex items-center">
+						<div className="text-sm text-red-600 dark:text-red-400 flex items-center bg-red-50 dark:bg-red-900/30 px-3 py-1.5 rounded-full mr-3">
+							<XCircleIcon className="w-5 h-5 mr-1" />
+							{t('settings.notVerified')}
+						</div>
+						<button
+							type="button"
+							onClick={handleRequestVerification}
+							disabled={isVerificationLoading}
+							className="btn btn-primary dynamic-bg text-white hover:brightness-110 text-sm px-3 py-1.5 rounded-full"
+						>
+							{isVerificationLoading ? (
+								<span className="flex items-center">
+									<svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+										<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+										<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+									</svg>
+									{t('common.loading')}
+								</span>
+							) : (
+								<span className="flex items-center">
+									<EnvelopeIcon className="w-4 h-4 mr-1" />
+									{t('settings.requestVerification')}
+								</span>
+							)}
+						</button>
+					</div>
+					{verificationError && (
+						<span className="text-sm text-red-600 dark:text-red-400 mt-1">
+							{verificationError}
+						</span>
+					)}
+				</div>
+			);
 		}
 	};
 
@@ -167,35 +227,7 @@ export const Settings = () => {
 									<span className="text-sm mr-2">
 										{t('settings.emailVerificationStatus')}:
 									</span>
-									{isEmailVerified ? (
-										<div className="text-sm text-green-600 dark:text-green-400 flex items-center bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-md">
-											<CheckCircleIcon className="w-5 h-5 mr-1" />
-											{t('settings.verified')}
-										</div>
-									) : (
-										<div className="flex flex-col">
-											<div className="flex items-center">
-												<span className="text-sm text-yellow-600 dark:text-yellow-400 mr-2">
-													{t('settings.notVerified')}
-												</span>
-												<button
-													type="button"
-													onClick={handleRequestVerification}
-													disabled={isVerificationLoading}
-													className="btn btn-primary dynamic-bg text-white hover:brightness-110"
-												>
-													{isVerificationLoading
-														? t('common.loading')
-														: t('settings.requestVerification')}
-												</button>
-											</div>
-											{verificationError && (
-												<span className="text-sm text-red-600 dark:text-red-400 mt-1">
-													{verificationError}
-												</span>
-											)}
-										</div>
-									)}
+									{renderVerificationStatus()}
 								</div>
 							</div>
 						</div>
@@ -273,7 +305,7 @@ export const Settings = () => {
 			>
 				<div className="flex flex-col items-center">
 					<div className="h-16 w-16 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 mb-4">
-						<CheckCircleIcon className="h-8 w-8 text-green-600 dark:text-green-400" />
+						<EnvelopeIcon className="h-8 w-8 text-green-600 dark:text-green-400" />
 					</div>
 					<p className="text-center text-gray-800 dark:text-gray-200 mb-6">
 						{t('auth.emailVerificationSent')}

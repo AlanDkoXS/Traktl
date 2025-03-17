@@ -1,9 +1,9 @@
-export interface VerificationToken {
+export interface emailEmailVerificationToken {
 	token: string;
 	expiresAt: Date;
 }
 
 export interface UserVerification {
 	isVerified: boolean;
-	verificationToken?: VerificationToken;
+	emailEmailVerificationToken?: emailEmailVerificationToken;
 }

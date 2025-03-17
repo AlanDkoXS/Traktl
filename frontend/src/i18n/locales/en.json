@@ -226,9 +226,10 @@
         "passwordChanged": "Password changed successfully",
         "verifyEmail": "Verify Email",
         "emailVerificationStatus": "Email Verification Status",
-        "verified": "✓",
-        "notVerified": "✗",
-        "requestVerification": "Request"
+        "verified": "Email not verified",
+        "notVerified": "Email verified",
+        "requestVerification": "Requesy",
+        "pendingVerification": "Email sent to verify"
     },
     "common": {
         "save": "Save",
