@@ -27,6 +27,7 @@ export const Settings = () => {
 	const [isEmailVerified, setIsEmailVerified] = useState(false);
 	const [isVerificationLoading, setIsVerificationLoading] = useState(false);
 	const [showVerificationModal, setShowVerificationModal] = useState(false);
+	const [verificationError, setVerificationError] = useState('');
 
 	// Check email verification status
 	useEffect(() => {
@@ -87,11 +88,13 @@ export const Settings = () => {
 
 	const handleRequestVerification = async () => {
 		setIsVerificationLoading(true);
+		setVerificationError('');
 		try {
 			await emailVerificationService.requestVerification();
 			setShowVerificationModal(true);
-		} catch (err) {
+		} catch (err: any) {
 			console.error('Error requesting verification:', err);
+			setVerificationError(err.message || 'Error al solicitar el correo de verificación');
 		} finally {
 			setIsVerificationLoading(false);
 		}
@@ -170,20 +173,27 @@ export const Settings = () => {
 											{t('settings.verified')}
 										</div>
 									) : (
-										<div className="flex items-center">
-											<span className="text-sm text-yellow-600 dark:text-yellow-400 mr-2">
-												{t('settings.notVerified')}
-											</span>
-											<button
-												type="button"
-												onClick={handleRequestVerification}
-												disabled={isVerificationLoading}
-												className="btn btn-primary dynamic-bg text-white hover:brightness-110"
-											>
-												{isVerificationLoading
-													? t('common.loading')
-													: t('settings.requestVerification')}
-											</button>
+										<div className="flex flex-col">
+											<div className="flex items-center">
+												<span className="text-sm text-yellow-600 dark:text-yellow-400 mr-2">
+													{t('settings.notVerified')}
+												</span>
+												<button
+													type="button"
+													onClick={handleRequestVerification}
+													disabled={isVerificationLoading}
+													className="btn btn-primary dynamic-bg text-white hover:brightness-110"
+												>
+													{isVerificationLoading
+														? t('common.loading')
+														: t('settings.requestVerification')}
+												</button>
+											</div>
+											{verificationError && (
+												<span className="text-sm text-red-600 dark:text-red-400 mt-1">
+													{verificationError}
+												</span>
+											)}
 										</div>
 									)}
 								</div>

@@ -1,10 +1,23 @@
 import api from './api';
 
 export const emailVerificationService = {
+	// Track last request time to prevent spam
+	lastRequestTime: 0,
+	
 	// Request email verification
 	requestVerification: async (): Promise<void> => {
+		const now = Date.now();
+		const elapsedSeconds = (now - emailVerificationService.lastRequestTime) / 1000;
+		
+		// Enforce 60 seconds cooldown
+		if (elapsedSeconds < 60) {
+			const remainingSeconds = Math.ceil(60 - elapsedSeconds);
+			throw new Error(`Por favor espera ${remainingSeconds} segundos antes de solicitar otro correo`);
+		}
+		
 		try {
 			await api.post('users/request-verification');
+			emailVerificationService.lastRequestTime = now;
 		} catch (error) {
 			console.error('Error requesting email verification:', error);
 			throw error;
