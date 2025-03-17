@@ -4,6 +4,8 @@ import { useTheme } from '../hooks/useTheme';
 import { useAuthStore } from '../store/authStore';
 import { ChangePasswordModal } from '../components/auth/ChangePasswordModal';
 import { emailVerificationService } from '../services/emailVerificationService';
+import { Modal } from '../components/ui/Modal';
+import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
 export const Settings = () => {
 	const { t, i18n } = useTranslation();
@@ -24,6 +26,7 @@ export const Settings = () => {
 	const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 	const [isEmailVerified, setIsEmailVerified] = useState(false);
 	const [isVerificationLoading, setIsVerificationLoading] = useState(false);
+	const [showVerificationModal, setShowVerificationModal] = useState(false);
 
 	// Check email verification status
 	useEffect(() => {
@@ -86,7 +89,7 @@ export const Settings = () => {
 		setIsVerificationLoading(true);
 		try {
 			await emailVerificationService.requestVerification();
-			setSuccessMessage(t('auth.emailVerificationSent'));
+			setShowVerificationModal(true);
 		} catch (err) {
 			console.error('Error requesting verification:', err);
 		} finally {
@@ -137,7 +140,7 @@ export const Settings = () => {
 								<button
 									type="button"
 									onClick={() => setShowChangePasswordModal(true)}
-									className="btn btn-primary dynamic-bg text-white hover:brightness-110"
+									className="mt-4 btn btn-primary dynamic-bg text-white hover:brightness-110"
 								>
 									{t('settings.changePassword')}
 								</button>
@@ -157,28 +160,18 @@ export const Settings = () => {
 									onChange={(e) => setEmail(e.target.value)}
 									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								/>
-								<div className="mt-1 flex items-center">
-									<span className="text-xs mr-2">
+								<div className="mt-4 flex items-center">
+									<span className="text-sm mr-2">
 										{t('settings.emailVerificationStatus')}:
 									</span>
 									{isEmailVerified ? (
-										<span className="text-xs text-green-600 dark:text-green-400 flex items-center">
-											<svg
-												className="w-4 h-4 mr-1"
-												fill="currentColor"
-												viewBox="0 0 20 20"
-											>
-												<path
-													fillRule="evenodd"
-													d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-													clipRule="evenodd"
-												/>
-											</svg>
+										<div className="text-sm text-green-600 dark:text-green-400 flex items-center bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-md">
+											<CheckCircleIcon className="w-5 h-5 mr-1" />
 											{t('settings.verified')}
-										</span>
+										</div>
 									) : (
 										<div className="flex items-center">
-											<span className="text-xs text-yellow-600 dark:text-yellow-400 mr-2">
+											<span className="text-sm text-yellow-600 dark:text-yellow-400 mr-2">
 												{t('settings.notVerified')}
 											</span>
 											<button
@@ -261,6 +254,28 @@ export const Settings = () => {
 				onClose={() => setShowChangePasswordModal(false)}
 				onSuccess={handlePasswordChangeSuccess}
 			/>
+
+			{/* Verification Email Sent Modal */}
+			<Modal 
+				isOpen={showVerificationModal} 
+				onClose={() => setShowVerificationModal(false)}
+				title={t('auth.emailVerification')}
+			>
+				<div className="flex flex-col items-center">
+					<div className="h-16 w-16 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 mb-4">
+						<CheckCircleIcon className="h-8 w-8 text-green-600 dark:text-green-400" />
+					</div>
+					<p className="text-center text-gray-800 dark:text-gray-200 mb-6">
+						{t('auth.emailVerificationSent')}
+					</p>
+					<button
+						className="btn btn-primary dynamic-bg text-white"
+						onClick={() => setShowVerificationModal(false)}
+					>
+						{t('common.close')}
+					</button>
+				</div>
+			</Modal>
 		</div>
 	);
 };
