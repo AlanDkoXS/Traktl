@@ -14,7 +14,7 @@ export const Dashboard = () => {
 	const { projects, fetchProjects } = useProjectStore();
 	const { clients, fetchClients } = useClientStore();
 	const { tasks, fetchTasks } = useTaskStore();
-	const { timeEntries, isLoading: entriesLoading } = useTimeEntryStore();
+	const { timeEntries } = useTimeEntryStore();
 
 	const [isLoading, setIsLoading] = useState(true);
 	const [dataInitialized, setDataInitialized] = useState(false);
@@ -110,7 +110,13 @@ export const Dashboard = () => {
 };
 
 // Stats Card Component
-const StatsCard = ({ title, count, link }) => {
+interface StatsCardProps {
+	title: string;
+	count: number;
+	link: string;
+}
+
+const StatsCard = ({ title, count, link }: StatsCardProps) => {
 	const { t } = useTranslation();
 
 	return (
@@ -131,11 +137,16 @@ const StatsCard = ({ title, count, link }) => {
 };
 
 // Quick Link Component
-const QuickLink = ({ href, title }) => {
+interface QuickLinkProps {
+	href: string;
+	title: string;
+}
+
+const QuickLink = ({ href, title }: QuickLinkProps) => {
 	return (
 		<Link
 			to={href}
-			className="flex items-center py-2 px-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:dynamic-bg-subtle hover:dynamic-color transition-colors group"
+			className="flex utems-center py-2 px-3 rounded-md text-sm font-medium text-gray-500 dark:text-gray-400 hover:dynamic-bg-subtle hover:dynamic-color transition-colors group"
 		>
 			<PlusIcon className="h-5 w-5 mr-2" />
 			<span>{title}</span>

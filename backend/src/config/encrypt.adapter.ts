@@ -2,7 +2,7 @@ import { genSaltSync, hashSync, compareSync } from 'bcryptjs'
 
 export const encryptAdapter = {
     hash: (password: string) => {
-        const salt = genSaltSync(10); // Reduced from 12 to 10 for consistency
+        const salt = genSaltSync(10);
         return hashSync(password, salt)
     },
 

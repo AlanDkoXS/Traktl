@@ -80,10 +80,7 @@ UserSchema.pre('save', function (next) {
 
 // Method to compare password
 UserSchema.methods.comparePassword = function (password: string): boolean {
-    console.log('Input password:', password)
-    console.log('Stored hashed password:', this.password)
-    console.log('Comparison result:', encryptAdapter.compare(password, this.password))
-    return encryptAdapter.compare(password, this.password)
+       return encryptAdapter.compare(password, this.password)
 }
 
 export const User = mongoose.model<IUser>('User', UserSchema)

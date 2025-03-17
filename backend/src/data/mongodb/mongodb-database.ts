@@ -16,10 +16,10 @@ export class MongoDatabase {
                 dbName,
             })
 
-            console.log('✓ MongoDB connected')
+            console.log('MongoDB connection: ✓')
             return true
         } catch (error) {
-            console.error('MongoDB connection error:', error)
+            console.error('MongoDB connection: ✗:', error)
             throw error
         }
     }
