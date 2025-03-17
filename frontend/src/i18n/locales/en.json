@@ -226,9 +226,9 @@
         "passwordChanged": "Password changed successfully",
         "verifyEmail": "Verify Email",
         "emailVerificationStatus": "Email Verification Status",
-        "verified": "Email not verified",
-        "notVerified": "Email verified",
-        "requestVerification": "Requesy",
+        "verified": "Email verified",
+        "notVerified": "Email not verified",
+        "requestVerification": "Request",
         "pendingVerification": "Email sent to verify"
     },
     "common": {
