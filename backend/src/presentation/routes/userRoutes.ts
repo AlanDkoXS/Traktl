@@ -43,4 +43,10 @@ router.put('/profile', validateJWT, (req, res) => {
     controller.updateProfile(req, res)
 })
 
+// Add change password route
+router.put('/change-password', validateJWT, (req, res) => {
+    console.log('Change password route accessed')
+    controller.changePassword(req, res)
+})
+
 export const userRoutes = router

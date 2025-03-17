@@ -14,18 +14,15 @@ export class UserService {
         createUserDto: CreateUserDTO
     ): Promise<{ user: User; token: string }> {
         const { email, password } = createUserDto
-
         // Validate email format
         if (!regularExp.email.test(email)) {
             throw CustomError.badRequest('Invalid email format')
         }
-
         // Check if user already exists
         const existingUser = await this.userRepository.findByEmail(email)
         if (existingUser) {
             throw CustomError.badRequest('User already exists')
         }
-
         // Convert DTO to UserEntity
         const userEntity: UserEntity = {
             name: createUserDto.name,
@@ -39,14 +36,11 @@ export class UserService {
             createdAt: new Date(),
             updatedAt: new Date(),
         }
-
         // Create user
         const user = await this.userRepository.create(userEntity)
-
         // Generate JWT token
         const token = await JwtAdapter.generateToken({ id: user._id })
         if (!token) throw CustomError.internalServer('Error generating token')
-
         return { user, token }
     }
 
@@ -55,14 +49,12 @@ export class UserService {
     ): Promise<{ user: User; token: string }> {
         const { email, password } = loginUserDto
         console.log('Login attempt:', email);
-
         // Find user by email
         const user = await this.userRepository.findByEmail(email)
         if (!user) {
             console.log('User not found:', email);
             throw CustomError.unauthorized('Invalid credentials')
         }
-
         console.log('User found:', user.email);
         console.log('Stored hashed password:', user.password);
         console.log('Provided password:', password);
@@ -72,20 +64,16 @@ export class UserService {
             console.error('comparePassword method does not exist on user object');
             throw CustomError.internalServer('Authentication system error');
         }
-
         // Validate password
         const isPasswordValid = user.comparePassword(password);
         console.log('Password validation result:', isPasswordValid);
-
         if (!isPasswordValid) {
             console.log('Invalid password for user:', email);
             throw CustomError.unauthorized('Invalid credentials')
         }
-
         // Generate JWT token
         const token = await JwtAdapter.generateToken({ id: user._id })
         if (!token) throw CustomError.internalServer('Error generating token')
-
         return { user, token }
     }
 
@@ -109,7 +97,6 @@ export class UserService {
         if (!user) {
             throw CustomError.notFound('User not found')
         }
-
         const updatedUser = await this.userRepository.update(
             userId,
             updateUserDto
@@ -117,7 +104,36 @@ export class UserService {
         if (!updatedUser) {
             throw CustomError.internalServer('Error updating user')
         }
-
         return updatedUser
+    }
+
+    async changePassword(
+        userId: string,
+        currentPassword: string,
+        newPassword: string
+    ): Promise<boolean> {
+        // Find user by ID
+        const user = await this.userRepository.findById(userId)
+        if (!user) {
+            throw CustomError.notFound('User not found')
+        }
+
+        // Validate current password
+        if (!user.comparePassword) {
+            throw CustomError.internalServer('Authentication system error')
+        }
+
+        const isPasswordValid = user.comparePassword(currentPassword)
+        if (!isPasswordValid) {
+            throw CustomError.badRequest('Current password is incorrect')
+        }
+
+        // Update password
+        const updated = await this.userRepository.updatePassword(userId, newPassword)
+        if (!updated) {
+            throw CustomError.internalServer('Error updating password')
+        }
+
+        return true
     }
 }

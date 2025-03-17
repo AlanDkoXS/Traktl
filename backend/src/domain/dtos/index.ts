@@ -2,6 +2,7 @@
 export * from './user/create-user.dto'
 export * from './user/update-user.dto'
 export * from './user/login-user.dto'
+export * from './change-password.dto'
 
 // Project DTOs
 export * from './project/create-project.dto'

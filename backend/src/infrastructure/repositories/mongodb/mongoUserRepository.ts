@@ -34,6 +34,18 @@ export class MongoUserRepository implements UserRepository {
         return updatedUser ? this.mapToDomain(updatedUser) : null
     }
 
+    async updatePassword(id: string, newPassword: string): Promise<boolean> {
+        const user = await User.findById(id)
+        
+        if (!user) return false
+        
+        user.password = newPassword // The pre-save hook will hash the password
+        user.updatedAt = new Date()
+        
+        await user.save()
+        return true
+    }
+
     async delete(id: string): Promise<boolean> {
         const result = await User.findByIdAndDelete(id)
         return !!result
