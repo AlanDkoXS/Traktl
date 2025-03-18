@@ -2,12 +2,20 @@ import { create } from 'zustand'
 import { tagService } from '../services/tagService'
 import { Tag } from '../types'
 
+// Define una interfaz para los errores de API
+interface ApiError extends Error {
+    response?: {
+        data?: {
+            message?: string;
+        };
+    };
+}
+
 interface TagState {
 	tags: Tag[]
 	selectedTag: Tag | null
 	isLoading: boolean
 	error: string | null
-
 	fetchTags: () => Promise<Tag[]>
 	fetchTag: (id: string) => Promise<Tag | null>
 	createTag: (
@@ -27,23 +35,22 @@ export const useTagStore = create<TagState>((set) => ({
 	selectedTag: null,
 	isLoading: false,
 	error: null,
-
 	fetchTags: async () => {
 		try {
 			set({ isLoading: true, error: null })
 			const tags = await tagService.getTags()
 			set({ tags, isLoading: false })
 			return tags
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError;
 			console.error('Error fetching tags:', error)
 			set({
-				error: error.message || 'Failed to fetch tags',
+				error: apiError.message || 'Failed to fetch tags',
 				isLoading: false,
 			})
 			return []
 		}
 	},
-
 	fetchTag: async (id: string) => {
 		if (!id || id === 'undefined') {
 			set({
@@ -53,25 +60,22 @@ export const useTagStore = create<TagState>((set) => ({
 			})
 			return null
 		}
-
 		try {
 			set({ isLoading: true, error: null })
 			const tag = await tagService.getTag(id)
-
 			if (!tag) throw new Error('Tag not found')
-
 			set({ selectedTag: tag, isLoading: false })
 			return tag
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError;
 			set({
-				error: error.message || 'Failed to fetch tag',
+				error: apiError.message || 'Failed to fetch tag',
 				isLoading: false,
 				selectedTag: null,
 			})
 			return null
 		}
 	},
-
 	createTag: async (tag) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -81,15 +85,15 @@ export const useTagStore = create<TagState>((set) => ({
 				isLoading: false,
 			}))
 			return newTag
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError;
 			set({
-				error: error.message || 'Failed to create tag',
+				error: apiError.message || 'Failed to create tag',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	updateTag: async (id, tag) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -103,15 +107,15 @@ export const useTagStore = create<TagState>((set) => ({
 				isLoading: false,
 			}))
 			return updatedTag
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError;
 			set({
-				error: error.message || 'Failed to update tag',
+				error: apiError.message || 'Failed to update tag',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	deleteTag: async (id) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -122,15 +126,15 @@ export const useTagStore = create<TagState>((set) => ({
 					state.selectedTag?.id === id ? null : state.selectedTag,
 				isLoading: false,
 			}))
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError;
 			set({
-				error: error.message || 'Failed to delete tag',
+				error: apiError.message || 'Failed to delete tag',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	selectTag: (tag) => set({ selectedTag: tag }),
 	clearSelectedTag: () => set({ selectedTag: null }),
 }))

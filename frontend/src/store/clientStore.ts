@@ -2,12 +2,20 @@ import { create } from 'zustand'
 import { clientService } from '../services/clientService'
 import { Client } from '../types'
 
+// Define an interface for API errors
+interface ApiError extends Error {
+	response?: {
+		data?: {
+			message?: string
+		}
+	}
+}
+
 interface ClientState {
 	clients: Client[]
 	selectedClient: Client | null
 	isLoading: boolean
 	error: string | null
-
 	fetchClients: () => Promise<Client[]>
 	fetchClient: (id: string) => Promise<Client | null>
 	createClient: (
@@ -24,28 +32,27 @@ interface ClientState {
 	clearSelectedClient: () => void
 }
 
-export const useClientStore = create<ClientState>((set, get) => ({
+export const useClientStore = create<ClientState>((set) => ({
 	clients: [],
 	selectedClient: null,
 	isLoading: false,
 	error: null,
-
 	fetchClients: async () => {
 		try {
 			set({ isLoading: true, error: null })
 			const clients = await clientService.getClients()
 			set({ clients, isLoading: false })
 			return clients
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError
 			console.error('Error fetching clients:', error)
 			set({
-				error: error.message || 'Failed to fetch clients',
+				error: apiError.message || 'Failed to fetch clients',
 				isLoading: false,
 			})
 			return []
 		}
 	},
-
 	fetchClient: async (id: string) => {
 		// Validate ID
 		if (!id || id === 'undefined') {
@@ -57,32 +64,28 @@ export const useClientStore = create<ClientState>((set, get) => ({
 			})
 			return null
 		}
-
 		try {
 			set({ isLoading: true, error: null })
-
 			console.log(`Fetching client with ID: ${id}`)
 			const client = await clientService.getClient(id)
-
 			if (!client) {
 				console.error('Client not found for ID:', id)
 				throw new Error('Client not found')
 			}
-
 			console.log('Client fetched successfully:', client)
 			set({ selectedClient: client, isLoading: false })
 			return client
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError
 			console.error(`Error fetching client with ID ${id}:`, error)
 			set({
-				error: error.message || 'Failed to fetch client',
+				error: apiError.message || 'Failed to fetch client',
 				isLoading: false,
 				selectedClient: null,
 			})
 			return null
 		}
 	},
-
 	createClient: async (client) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -92,16 +95,16 @@ export const useClientStore = create<ClientState>((set, get) => ({
 				isLoading: false,
 			}))
 			return newClient
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError
 			console.error('Error creating client:', error)
 			set({
-				error: error.message || 'Failed to create client',
+				error: apiError.message || 'Failed to create client',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	updateClient: async (id, client) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -117,16 +120,16 @@ export const useClientStore = create<ClientState>((set, get) => ({
 				isLoading: false,
 			}))
 			return updatedClient
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError
 			console.error('Error updating client:', error)
 			set({
-				error: error.message || 'Failed to update client',
+				error: apiError.message || 'Failed to update client',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	deleteClient: async (id) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -139,20 +142,19 @@ export const useClientStore = create<ClientState>((set, get) => ({
 						: state.selectedClient,
 				isLoading: false,
 			}))
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError
 			console.error('Error deleting client:', error)
 			set({
-				error: error.message || 'Failed to delete client',
+				error: apiError.message || 'Failed to delete client',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	selectClient: (client) => {
 		set({ selectedClient: client })
 	},
-
 	clearSelectedClient: () => {
 		set({ selectedClient: null })
 	},

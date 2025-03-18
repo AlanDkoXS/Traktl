@@ -3,6 +3,15 @@ import { persist } from 'zustand/middleware'
 import { User } from '../types'
 import { authService } from '../services/authService'
 
+// Define an interface for API errors
+interface ApiError extends Error {
+    response?: {
+        data?: {
+            message?: string;
+        };
+    };
+}
+
 interface AuthState {
 	token: string | null
 	user: User | null
@@ -68,9 +77,10 @@ export const useAuthStore = create<AuthState>()(
 					} else {
 						throw new Error('No token received from server')
 					}
-				} catch (err: any) {
+				} catch (err: unknown) {
+					const apiError = err as ApiError;
 					const errorMessage =
-						err.response?.data?.message || 'Login failed'
+						apiError.response?.data?.message || 'Login failed'
 					console.error('Login error:', errorMessage)
 
 					set({
@@ -112,9 +122,10 @@ export const useAuthStore = create<AuthState>()(
 					} else {
 						throw new Error('No token received from server')
 					}
-				} catch (err: any) {
+				} catch (err: unknown) {
+					const apiError = err as ApiError;
 					const errorMessage =
-						err.response?.data?.message || 'Google login failed'
+						apiError.response?.data?.message || 'Google login failed'
 					console.error('Google login error:', errorMessage)
 
 					set({
@@ -164,9 +175,10 @@ export const useAuthStore = create<AuthState>()(
 					} else {
 						throw new Error('No token received from server')
 					}
-				} catch (err: any) {
+				} catch (err: unknown) {
+					const apiError = err as ApiError;
 					const errorMessage =
-						err.response?.data?.message || 'Registration failed'
+						apiError.response?.data?.message || 'Registration failed'
 					console.error('Registration error:', errorMessage)
 
 					set({
@@ -218,17 +230,16 @@ export const useAuthStore = create<AuthState>()(
 
 					// Check verification status after loading user
 					await get().checkVerificationStatus()
-				} catch (err: any) {
+				} catch (err: unknown) {
 					console.error('Error loading user:', err)
 					localStorage.removeItem('auth-token')
+					const apiError = err as ApiError;
 					set({
 						token: null,
 						user: null,
 						isAuthenticated: false,
 						isLoading: false,
-						error:
-							err.response?.data?.message ||
-							'Failed to load user',
+						error: apiError.response?.data?.message || 'Failed to load user',
 					})
 				}
 			},
@@ -252,17 +263,16 @@ export const useAuthStore = create<AuthState>()(
 						user: updatedUser,
 						isLoading: false,
 					})
-				} catch (err: any) {
+				} catch (err: unknown) {
 					console.error('🔴 authStore: Error updating user:', err)
+					const apiError = err as ApiError;
+					const errorMessage = apiError.response?.data?.message || 'Failed to update user';
+
 					set({
-						error:
-							err.response?.data?.message ||
-							'Failed to update user',
+						error: errorMessage,
 						isLoading: false,
 					})
-					throw new Error(
-						err.response?.data?.message || 'Failed to update user',
-					)
+					throw new Error(errorMessage)
 				}
 			},
 
@@ -327,7 +337,7 @@ export const useAuthStore = create<AuthState>()(
 					)
 
 					return { isVerified, isPending }
-				} catch (err) {
+				} catch (err: unknown) {
 					console.error(
 						'🔴 authStore: Error checking verification status:',
 						err,

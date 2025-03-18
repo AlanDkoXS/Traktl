@@ -40,6 +40,7 @@ import {
 	setProjectColor,
 	setDefaultColorForSection,
 } from './utils/dynamicColors'
+import DataInitializer from './components/DataInitializer'
 
 function App() {
 	// Initialize theme
@@ -76,6 +77,9 @@ function App() {
 
 	return (
 		<Router>
+			{/* Add DataInitializer component here to load data after authentication */}
+			<DataInitializer />
+
 			<Routes>
 				{/* Public routes */}
 				<Route path="/login" element={<Login />} />

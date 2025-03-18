@@ -2,12 +2,21 @@ import { create } from 'zustand'
 import { taskService } from '../services'
 import { Task } from '../types'
 
+// Define una interfaz para los errores de API
+interface ApiError extends Error {
+    response?: {
+        data?: {
+            error?: string;
+            message?: string;
+        };
+    };
+}
+
 interface TaskState {
 	tasks: Task[]
 	selectedTask: Task | null
 	isLoading: boolean
 	error: string | null
-
 	fetchTasks: (projectId?: string) => Promise<void>
 	fetchTask: (id: string) => Promise<void>
 	createTask: (
@@ -22,38 +31,37 @@ interface TaskState {
 	clearSelectedTask: () => void
 }
 
-export const useTaskStore = create<TaskState>((set, get) => ({
+export const useTaskStore = create<TaskState>((set) => ({
 	tasks: [],
 	selectedTask: null,
 	isLoading: false,
 	error: null,
-
 	fetchTasks: async (projectId) => {
 		try {
 			set({ isLoading: true, error: null })
 			const tasks = await taskService.getTasks(projectId)
 			set({ tasks, isLoading: false })
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError;
 			set({
-				error: error.response?.data?.error || 'Failed to fetch tasks',
+				error: apiError.response?.data?.error || 'Failed to fetch tasks',
 				isLoading: false,
 			})
 		}
 	},
-
 	fetchTask: async (id: string) => {
 		try {
 			set({ isLoading: true, error: null })
 			const task = await taskService.getTask(id)
 			set({ selectedTask: task, isLoading: false })
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError;
 			set({
-				error: error.response?.data?.error || 'Failed to fetch task',
+				error: apiError.response?.data?.error || 'Failed to fetch task',
 				isLoading: false,
 			})
 		}
 	},
-
 	createTask: async (task) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -62,15 +70,15 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 				tasks: [...state.tasks, newTask],
 				isLoading: false,
 			}))
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError;
 			set({
-				error: error.response?.data?.error || 'Failed to create task',
+				error: apiError.response?.data?.error || 'Failed to create task',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	updateTask: async (id, task) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -83,15 +91,15 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 						: state.selectedTask,
 				isLoading: false,
 			}))
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError;
 			set({
-				error: error.response?.data?.error || 'Failed to update task',
+				error: apiError.response?.data?.error || 'Failed to update task',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	deleteTask: async (id) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -102,19 +110,18 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 					state.selectedTask?.id === id ? null : state.selectedTask,
 				isLoading: false,
 			}))
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError;
 			set({
-				error: error.response?.data?.error || 'Failed to delete task',
+				error: apiError.response?.data?.error || 'Failed to delete task',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	selectTask: (task) => {
 		set({ selectedTask: task })
 	},
-
 	clearSelectedTask: () => {
 		set({ selectedTask: null })
 	},

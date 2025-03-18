@@ -2,6 +2,15 @@ import { create } from 'zustand'
 import { projectService } from '../services/projectService'
 import { Project } from '../types'
 
+// Define an interface for API errors
+interface ApiError extends Error {
+	response?: {
+		data?: {
+			message?: string
+		}
+	}
+}
+
 interface ProjectState {
 	projects: Project[]
 	selectedProject: Project | null
@@ -24,7 +33,7 @@ interface ProjectState {
 	clearSelectedProject: () => void
 }
 
-export const useProjectStore = create<ProjectState>((set, get) => ({
+export const useProjectStore = create<ProjectState>((set) => ({
 	projects: [],
 	selectedProject: null,
 	isLoading: false,
@@ -36,10 +45,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 			const projects = await projectService.getProjects()
 			set({ projects, isLoading: false })
 			return projects
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError
 			console.error('Error fetching projects:', error)
 			set({
-				error: error.message || 'Failed to fetch projects',
+				error: apiError.message || 'Failed to fetch projects',
 				isLoading: false,
 			})
 			return []
@@ -72,10 +82,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 			console.log('Project fetched successfully:', project)
 			set({ selectedProject: project, isLoading: false })
 			return project
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError
 			console.error(`Error fetching project with ID ${id}:`, error)
 			set({
-				error: error.message || 'Failed to fetch project',
+				error: apiError.message || 'Failed to fetch project',
 				isLoading: false,
 				selectedProject: null,
 			})
@@ -92,10 +103,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 				isLoading: false,
 			}))
 			return newProject
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError
 			console.error('Error creating project:', error)
 			set({
-				error: error.message || 'Failed to create project',
+				error: apiError.message || 'Failed to create project',
 				isLoading: false,
 			})
 			throw error
@@ -120,10 +132,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 				isLoading: false,
 			}))
 			return updatedProject
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError
 			console.error('Error updating project:', error)
 			set({
-				error: error.message || 'Failed to update project',
+				error: apiError.message || 'Failed to update project',
 				isLoading: false,
 			})
 			throw error
@@ -142,10 +155,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 						: state.selectedProject,
 				isLoading: false,
 			}))
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const apiError = error as ApiError
 			console.error('Error deleting project:', error)
 			set({
-				error: error.message || 'Failed to delete project',
+				error: apiError.message || 'Failed to delete project',
 				isLoading: false,
 			})
 			throw error

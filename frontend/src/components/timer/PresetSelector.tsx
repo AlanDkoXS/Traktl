@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useTimerPresetStore } from '../../store/timerPresetStore'
 import { TimerPreset } from '../../types'
@@ -21,10 +21,37 @@ export const PresetSelector = ({
 	const { t } = useTranslation()
 	const { timerPresets, fetchTimerPresets, isLoading } = useTimerPresetStore()
 	const [showCreatePresetModal, setShowCreatePresetModal] = useState(false)
-
+	const initialSelectionMade = useRef(false)
+	
 	useEffect(() => {
-		fetchTimerPresets()
+		const loadPresets = async () => {
+			await fetchTimerPresets()
+		}
+		
+		loadPresets()
 	}, [fetchTimerPresets])
+	
+	// Automatically select Pomodoro preset when presets are loaded (but only once)
+	useEffect(() => {
+		if (timerPresets.length > 0 && !initialSelectionMade.current) {
+			// Try to find the Pomodoro preset first (created by default for new users)
+			const pomodoroPreset = timerPresets.find(preset => 
+				preset.name.includes('Pomodoro')
+			)
+			
+			if (pomodoroPreset) {
+				console.log('Automatically selecting Pomodoro preset')
+				onSelectPreset(pomodoroPreset)
+			} else {
+				// If Pomodoro preset doesn't exist, select the first available preset
+				console.log('Pomodoro preset not found, selecting first available preset')
+				onSelectPreset(timerPresets[0])
+			}
+			
+			// Mark that we've made the initial selection
+			initialSelectionMade.current = true
+		}
+	}, [timerPresets, onSelectPreset])
 
 	const handlePresetCreated = (presetId: string) => {
 		// Find the newly created preset and select it
@@ -73,7 +100,6 @@ export const PresetSelector = ({
 					<PlusIcon className="h-5 w-5" />
 				</button>
 			</div>
-
 			{/* Save current settings as preset modal */}
 			<PresetCreateModal
 				isOpen={showCreatePresetModal}
