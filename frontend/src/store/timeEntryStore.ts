@@ -1,151 +1,251 @@
 import { create } from 'zustand'
-import { timerPresetService } from '../services/timerPresetService'
-import { TimerPreset } from '../types'
+import { timeEntryService } from '../services/timeEntryService'
+import { TimeEntry } from '../types'
 
-// Define an interface for API errors
-interface ApiError extends Error {
-    response?: {
-        data?: {
-            message?: string;
-        };
-    };
-}
-
-interface TimerPresetState {
-	timerPresets: TimerPreset[]
-	selectedTimerPreset: TimerPreset | null
+interface TimeEntryState {
+	timeEntries: TimeEntry[]
+	selectedTimeEntry: TimeEntry | null
 	isLoading: boolean
 	error: string | null
-	fetchTimerPresets: () => Promise<TimerPreset[]>
-	fetchTimerPreset: (id: string) => Promise<TimerPreset | null>
-	createTimerPreset: (
-		timerPreset: Omit<
-			TimerPreset,
-			'id' | 'user' | 'createdAt' | 'updatedAt'
-		>,
-	) => Promise<TimerPreset>
-	updateTimerPreset: (
+
+	fetchTimeEntries: (
+		projectId?: string,
+		taskId?: string,
+		startDate?: Date | string,
+		endDate?: Date | string,
+	) => Promise<TimeEntry[]>
+
+	fetchTimeEntry: (id: string) => Promise<TimeEntry | null>
+
+	createTimeEntry: (
+		timeEntry: Omit<TimeEntry, 'id' | 'user' | 'createdAt' | 'updatedAt'>,
+	) => Promise<TimeEntry>
+
+	updateTimeEntry: (
 		id: string,
-		timerPreset: Partial<
-			Omit<TimerPreset, 'id' | 'user' | 'createdAt' | 'updatedAt'>
+		timeEntry: Partial<
+			Omit<TimeEntry, 'id' | 'user' | 'createdAt' | 'updatedAt'>
 		>,
-	) => Promise<TimerPreset>
-	deleteTimerPreset: (id: string) => Promise<void>
-	selectTimerPreset: (timerPreset: TimerPreset | null) => void
-	clearSelectedTimerPreset: () => void
+	) => Promise<TimeEntry>
+
+	deleteTimeEntry: (id: string) => Promise<void>
+
+	selectTimeEntry: (timeEntry: TimeEntry | null) => void
+
+	clearSelectedTimeEntry: () => void
+
+	addNewTimeEntry: (timeEntry: TimeEntry) => void
 }
 
-export const useTimerPresetStore = create<TimerPresetState>((set) => ({
-	timerPresets: [],
-	selectedTimerPreset: null,
+// Función auxiliar para formatear fechas
+const formatDateSafely = (
+	date: Date | string | undefined,
+): Date | undefined => {
+	if (!date) return undefined
+
+	if (date instanceof Date) {
+		return isNaN(date.getTime()) ? undefined : date
+	}
+
+	if (typeof date === 'string') {
+		try {
+			// Si es una fecha ISO (contiene 'T')
+			if (date.includes('T')) {
+				const parsedDate = new Date(date)
+				return isNaN(parsedDate.getTime()) ? undefined : parsedDate
+			} else {
+				// Si es una fecha simple (YYYY-MM-DD)
+				const startOfDay = new Date(`${date}T00:00:00`)
+				return isNaN(startOfDay.getTime()) ? undefined : startOfDay
+			}
+		} catch {
+			return undefined
+		}
+	}
+
+	return undefined
+}
+
+// Crear el store
+const timeEntryStore = create<TimeEntryState>((set) => ({
+	timeEntries: [],
+	selectedTimeEntry: null,
 	isLoading: false,
 	error: null,
-	fetchTimerPresets: async () => {
+
+	fetchTimeEntries: async (projectId, taskId, startDate, endDate) => {
+		console.log('fetchTimeEntries called with params:', {
+			projectId,
+			taskId,
+			startDate,
+			endDate,
+		})
+
 		try {
+			// Set loading state first to provide immediate feedback
 			set({ isLoading: true, error: null })
-			const timerPresets = await timerPresetService.getTimerPresets()
-			set({ timerPresets, isLoading: false })
-			return timerPresets
-		} catch (error: unknown) {
-			const apiError = error as ApiError;
+
+			// Formatear las fechas de manera segura
+			const formattedStartDate = formatDateSafely(startDate)
+
+			// Para la fecha final, si es una cadena sin 'T', queremos establecerla al final del día
+			let formattedEndDate: Date | undefined
+			if (
+				endDate &&
+				typeof endDate === 'string' &&
+				!endDate.includes('T')
+			) {
+				try {
+					formattedEndDate = new Date(`${endDate}T23:59:59.999`)
+					if (isNaN(formattedEndDate.getTime())) {
+						formattedEndDate = undefined
+					}
+				} catch {
+					formattedEndDate = undefined
+				}
+			} else {
+				formattedEndDate = formatDateSafely(endDate)
+			}
+
+			// Make API call with processed dates
+			const timeEntries = await timeEntryService.getTimeEntries(
+				projectId,
+				taskId,
+				formattedStartDate,
+				formattedEndDate,
+			)
+
+			console.log('Fetched time entries:', timeEntries.length)
+			set({ timeEntries, isLoading: false })
+			return timeEntries
+		} catch (error) {
+			console.error('Error fetching time entries:', error)
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Failed to fetch time entries'
 			set({
-				error: apiError.message || 'Failed to fetch timer presets',
+				error: errorMessage,
 				isLoading: false,
 			})
 			return []
 		}
 	},
-	fetchTimerPreset: async (id: string) => {
-		if (!id || id === 'undefined') {
-			set({
-				error: 'Invalid timer preset ID',
-				isLoading: false,
-				selectedTimerPreset: null,
-			})
-			return null
-		}
+
+	fetchTimeEntry: async (id: string) => {
 		try {
 			set({ isLoading: true, error: null })
-			const timerPreset = await timerPresetService.getTimerPreset(id)
-			if (!timerPreset) throw new Error('Timer preset not found')
-			set({ selectedTimerPreset: timerPreset, isLoading: false })
-			return timerPreset
-		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const timeEntry = await timeEntryService.getTimeEntry(id)
+			set({ selectedTimeEntry: timeEntry, isLoading: false })
+			return timeEntry
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Failed to fetch time entry'
 			set({
-				error: apiError.message || 'Failed to fetch timer preset',
+				error: errorMessage,
 				isLoading: false,
-				selectedTimerPreset: null,
 			})
 			return null
 		}
 	},
-	createTimerPreset: async (timerPreset) => {
+
+	createTimeEntry: async (timeEntry) => {
 		try {
 			set({ isLoading: true, error: null })
-			const newTimerPreset =
-				await timerPresetService.createTimerPreset(timerPreset)
+			const newTimeEntry =
+				await timeEntryService.createTimeEntry(timeEntry)
 			set((state) => ({
-				timerPresets: [...state.timerPresets, newTimerPreset],
+				timeEntries: [newTimeEntry, ...state.timeEntries],
 				isLoading: false,
 			}))
-			return newTimerPreset
-		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			return newTimeEntry
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Failed to create time entry'
 			set({
-				error: apiError.message || 'Failed to create timer preset',
+				error: errorMessage,
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-	updateTimerPreset: async (id, timerPreset) => {
+
+	updateTimeEntry: async (id, timeEntry) => {
 		try {
 			set({ isLoading: true, error: null })
-			const updatedTimerPreset =
-				await timerPresetService.updateTimerPreset(id, timerPreset)
+			const updatedTimeEntry = await timeEntryService.updateTimeEntry(
+				id,
+				timeEntry,
+			)
 			set((state) => ({
-				timerPresets: state.timerPresets.map((tp) =>
-					tp.id === id ? updatedTimerPreset : tp,
+				timeEntries: state.timeEntries.map((te) =>
+					te.id === id ? updatedTimeEntry : te,
 				),
-				selectedTimerPreset:
-					state.selectedTimerPreset?.id === id
-						? updatedTimerPreset
-						: state.selectedTimerPreset,
+				selectedTimeEntry:
+					state.selectedTimeEntry?.id === id
+						? updatedTimeEntry
+						: state.selectedTimeEntry,
 				isLoading: false,
 			}))
-			return updatedTimerPreset
-		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			return updatedTimeEntry
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Failed to update time entry'
 			set({
-				error: apiError.message || 'Failed to update timer preset',
+				error: errorMessage,
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-	deleteTimerPreset: async (id) => {
+
+	deleteTimeEntry: async (id) => {
 		try {
 			set({ isLoading: true, error: null })
-			await timerPresetService.deleteTimerPreset(id)
+			await timeEntryService.deleteTimeEntry(id)
 			set((state) => ({
-				timerPresets: state.timerPresets.filter((tp) => tp.id !== id),
-				selectedTimerPreset:
-					state.selectedTimerPreset?.id === id
+				timeEntries: state.timeEntries.filter((te) => te.id !== id),
+				selectedTimeEntry:
+					state.selectedTimeEntry?.id === id
 						? null
-						: state.selectedTimerPreset,
+						: state.selectedTimeEntry,
 				isLoading: false,
 			}))
-		} catch (error: unknown) {
-			const apiError = error as ApiError;
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Failed to delete time entry'
 			set({
-				error: apiError.message || 'Failed to delete timer preset',
+				error: errorMessage,
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-	selectTimerPreset: (timerPreset) =>
-		set({ selectedTimerPreset: timerPreset }),
-	clearSelectedTimerPreset: () => set({ selectedTimerPreset: null }),
+
+	selectTimeEntry: (timeEntry) => {
+		set({ selectedTimeEntry: timeEntry })
+	},
+
+	clearSelectedTimeEntry: () => {
+		set({ selectedTimeEntry: null })
+	},
+
+	// Método para añadir una entrada directamente al store sin fetch
+	addNewTimeEntry: (timeEntry) => {
+		set((state) => ({
+			timeEntries: [timeEntry, ...state.timeEntries],
+		}))
+	},
 }))
+
+// Exportar de dos maneras: default y como variable nombrada
+export default timeEntryStore
+export const useTimeEntryStore = timeEntryStore

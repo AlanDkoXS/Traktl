@@ -41,6 +41,8 @@ import {
 	setDefaultColorForSection,
 } from './utils/dynamicColors'
 import DataInitializer from './components/DataInitializer'
+import { ThemeSynchronizer } from './components/ThemeSynchronizer'
+import { LanguageSynchronizer } from './components/LanguageSynchronizer'
 
 function App() {
 	// Initialize theme
@@ -77,6 +79,10 @@ function App() {
 
 	return (
 		<Router>
+			{/* Add synchronizers for user preferences */}
+			<ThemeSynchronizer />
+			<LanguageSynchronizer />
+			
 			{/* Add DataInitializer component here to load data after authentication */}
 			<DataInitializer />
 

@@ -5,11 +5,11 @@ import { authService } from '../services/authService'
 
 // Define an interface for API errors
 interface ApiError extends Error {
-    response?: {
-        data?: {
-            message?: string;
-        };
-    };
+	response?: {
+		data?: {
+			message?: string
+		}
+	}
 }
 
 interface AuthState {
@@ -20,6 +20,9 @@ interface AuthState {
 	error: string | null
 	isEmailVerified: boolean
 	isPendingVerification: boolean
+	preferredLanguage: string | null
+	theme: string | null
+	defaultTimerPreset: string | null
 	login: (email: string, password: string) => Promise<void>
 	loginWithGoogle: (tokenId: string) => Promise<void>
 	register: (
@@ -37,6 +40,7 @@ interface AuthState {
 		isVerified: boolean
 		isPending: boolean
 	}>
+	updateUserPreferences: (user: User) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -49,6 +53,24 @@ export const useAuthStore = create<AuthState>()(
 			error: null,
 			isEmailVerified: false,
 			isPendingVerification: false,
+			preferredLanguage: null,
+			theme: null,
+			defaultTimerPreset: null,
+
+			// Helper function to update user preferences
+			updateUserPreferences: (user: User) => {
+				console.log('🔵 authStore: Updating user preferences:', {
+					preferredLanguage: user.preferredLanguage,
+					theme: user.theme,
+					defaultTimerPreset: user.defaultTimerPreset,
+				})
+
+				set({
+					preferredLanguage: user.preferredLanguage || null,
+					theme: user.theme || null,
+					defaultTimerPreset: user.defaultTimerPreset || null,
+				})
+			},
 
 			login: async (email, password) => {
 				try {
@@ -60,6 +82,7 @@ export const useAuthStore = create<AuthState>()(
 					)
 
 					console.log('Login successful, token received:', token)
+					console.log('Login successful, user data:', user)
 
 					// Save token to localStorage (store exactly as received from server)
 					if (token) {
@@ -72,13 +95,16 @@ export const useAuthStore = create<AuthState>()(
 							isLoading: false,
 						})
 
+						// Update user preferences
+						get().updateUserPreferences(user)
+
 						// Check verification status after login
 						await get().checkVerificationStatus()
 					} else {
 						throw new Error('No token received from server')
 					}
 				} catch (err: unknown) {
-					const apiError = err as ApiError;
+					const apiError = err as ApiError
 					const errorMessage =
 						apiError.response?.data?.message || 'Login failed'
 					console.error('Login error:', errorMessage)
@@ -105,6 +131,7 @@ export const useAuthStore = create<AuthState>()(
 						'Google login successful, token received:',
 						token,
 					)
+					console.log('Google login successful, user data:', user)
 
 					// Save token to localStorage
 					if (token) {
@@ -117,15 +144,19 @@ export const useAuthStore = create<AuthState>()(
 							isLoading: false,
 						})
 
+						// Update user preferences
+						get().updateUserPreferences(user)
+
 						// Check verification status after Google login
 						await get().checkVerificationStatus()
 					} else {
 						throw new Error('No token received from server')
 					}
 				} catch (err: unknown) {
-					const apiError = err as ApiError;
+					const apiError = err as ApiError
 					const errorMessage =
-						apiError.response?.data?.message || 'Google login failed'
+						apiError.response?.data?.message ||
+						'Google login failed'
 					console.error('Google login error:', errorMessage)
 
 					set({
@@ -158,6 +189,7 @@ export const useAuthStore = create<AuthState>()(
 					)
 
 					console.log('Register successful, token received:', token)
+					console.log('Register successful, user data:', user)
 
 					// Save token to localStorage
 					if (token) {
@@ -172,13 +204,17 @@ export const useAuthStore = create<AuthState>()(
 							isEmailVerified: false,
 							isPendingVerification: false,
 						})
+
+						// Update user preferences
+						get().updateUserPreferences(user)
 					} else {
 						throw new Error('No token received from server')
 					}
 				} catch (err: unknown) {
-					const apiError = err as ApiError;
+					const apiError = err as ApiError
 					const errorMessage =
-						apiError.response?.data?.message || 'Registration failed'
+						apiError.response?.data?.message ||
+						'Registration failed'
 					console.error('Registration error:', errorMessage)
 
 					set({
@@ -201,6 +237,9 @@ export const useAuthStore = create<AuthState>()(
 					isAuthenticated: false,
 					isEmailVerified: false,
 					isPendingVerification: false,
+					preferredLanguage: null,
+					theme: null,
+					defaultTimerPreset: null,
 				})
 			},
 
@@ -228,18 +267,23 @@ export const useAuthStore = create<AuthState>()(
 						isLoading: false,
 					})
 
+					// Update user preferences
+					get().updateUserPreferences(user)
+
 					// Check verification status after loading user
 					await get().checkVerificationStatus()
 				} catch (err: unknown) {
 					console.error('Error loading user:', err)
 					localStorage.removeItem('auth-token')
-					const apiError = err as ApiError;
+					const apiError = err as ApiError
 					set({
 						token: null,
 						user: null,
 						isAuthenticated: false,
 						isLoading: false,
-						error: apiError.response?.data?.message || 'Failed to load user',
+						error:
+							apiError.response?.data?.message ||
+							'Failed to load user',
 					})
 				}
 			},
@@ -263,10 +307,15 @@ export const useAuthStore = create<AuthState>()(
 						user: updatedUser,
 						isLoading: false,
 					})
+
+					// Update user preferences
+					get().updateUserPreferences(updatedUser)
 				} catch (err: unknown) {
 					console.error('🔴 authStore: Error updating user:', err)
-					const apiError = err as ApiError;
-					const errorMessage = apiError.response?.data?.message || 'Failed to update user';
+					const apiError = err as ApiError
+					const errorMessage =
+						apiError.response?.data?.message ||
+						'Failed to update user'
 
 					set({
 						error: errorMessage,
@@ -357,6 +406,9 @@ export const useAuthStore = create<AuthState>()(
 					token: state.token ? '(token exists)' : null,
 					isEmailVerified: state.isEmailVerified,
 					isPendingVerification: state.isPendingVerification,
+					preferredLanguage: state.preferredLanguage,
+					theme: state.theme,
+					defaultTimerPreset: state.defaultTimerPreset,
 				})
 
 				return {
@@ -364,6 +416,10 @@ export const useAuthStore = create<AuthState>()(
 					// Now also persist the verification status
 					isEmailVerified: state.isEmailVerified,
 					isPendingVerification: state.isPendingVerification,
+					// Also persist user preferences
+					preferredLanguage: state.preferredLanguage,
+					theme: state.theme,
+					defaultTimerPreset: state.defaultTimerPreset,
 					// Don't persist isAuthenticated, as it should be verified on load
 					isAuthenticated: false,
 				}
@@ -374,6 +430,9 @@ export const useAuthStore = create<AuthState>()(
 						isEmailVerified: state.isEmailVerified,
 						isPendingVerification: state.isPendingVerification,
 						isAuthenticated: state.isAuthenticated,
+						preferredLanguage: state.preferredLanguage,
+						theme: state.theme,
+						defaultTimerPreset: state.defaultTimerPreset,
 					})
 				} else {
 					console.log('🔴 Failed to rehydrate auth state')

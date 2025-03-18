@@ -26,17 +26,32 @@ export const authService = {
 			// Check how the response is structured and extract token and user accordingly
 			let token, user
 
-			if (response.data.token) {
-				// Format 1: { token, user }
+			if (response.data.ok && response.data.data) {
+				// Format: { ok: true, data: { token, user } }
+				if (response.data.data.token) {
+					token = response.data.data.token
+					user = response.data.data.user
+				} else {
+					// Format: { ok: true, data: { user, token } }
+					token = response.data.data.token
+					user = response.data.data.user
+				}
+			} else if (response.data.token) {
+				// Direct format: { token, user }
 				token = response.data.token
-				user = response.data.data || response.data.user
-			} else if (response.data.data?.token) {
-				// Format 2: { data: { token, user } }
-				token = response.data.data.token
-				user = response.data.data.user || response.data.data
+				user = response.data.user || response.data.data
 			} else {
 				console.error('Unexpected response format:', response.data)
 				throw new Error('Invalid response format from server')
+			}
+
+			// Ensure user object has all required fields
+			if (user) {
+				// Log all user properties for debugging
+				console.log(
+					'Extracted user data:',
+					JSON.stringify(user, null, 2),
+				)
 			}
 
 			return { token, user }
@@ -47,26 +62,37 @@ export const authService = {
 	},
 
 	// Google Login
-	loginWithGoogle: async (tokenId: string): Promise<LoginResponse> => {
+	loginWithGoogle: async (credential: string): Promise<LoginResponse> => {
 		try {
-			console.log('Sending Google login request with token')
-			const response = await api.post('/users/google', { token: tokenId })
+			console.log('Sending Google login request with credential')
+			// Use token as the parameter name to match what the backend controller expects
+			const response = await api.post('/users/google', {
+				token: credential,
+			})
 
 			console.log('Google login API response:', response.data)
 
 			// Extract token and user data
 			let token, user
 
-			if (response.data.token) {
+			if (response.data.ok && response.data.data) {
+				// Format: { ok: true, data: { token, user } }
+				token = response.data.data.token
+				user = response.data.data.user
+			} else if (response.data.token) {
+				// Direct format: { token, user }
 				token = response.data.token
 				user = response.data.user || response.data.data
-			} else if (response.data.data?.token) {
-				token = response.data.data.token
-				user = response.data.data.user || response.data.data
 			} else {
 				console.error('Unexpected response format:', response.data)
 				throw new Error('Invalid response format from server')
 			}
+
+			// Log all user properties for debugging
+			console.log(
+				'Extracted Google login user data:',
+				JSON.stringify(user, null, 2),
+			)
 
 			return { token, user }
 		} catch (error) {
@@ -101,16 +127,24 @@ export const authService = {
 			// Handle different response formats
 			let token, user
 
-			if (response.data.token) {
+			if (response.data.ok && response.data.data) {
+				// Format: { ok: true, data: { token, user } }
+				token = response.data.data.token
+				user = response.data.data.user
+			} else if (response.data.token) {
+				// Direct format: { token, user }
 				token = response.data.token
 				user = response.data.user || response.data.data
-			} else if (response.data.data?.token) {
-				token = response.data.data.token
-				user = response.data.data.user || response.data.data
 			} else {
 				console.error('Unexpected response format:', response.data)
 				throw new Error('Invalid response format from server')
 			}
+
+			// Log all user properties for debugging
+			console.log(
+				'Extracted register user data:',
+				JSON.stringify(user, null, 2),
+			)
 
 			return { token, user }
 		} catch (error) {
@@ -128,14 +162,25 @@ export const authService = {
 			// Handle different response formats
 			let user
 
-			if (response.data.user) {
+			if (response.data.ok && response.data.data) {
+				// Format: { ok: true, data: { user } }
+				user = response.data.data
+			} else if (response.data.user) {
+				// Direct format: { user }
 				user = response.data.user
 			} else if (response.data.data) {
+				// Direct format: { data }
 				user = response.data.data
 			} else {
 				console.error('Unexpected response format:', response.data)
 				throw new Error('Invalid response format from server')
 			}
+
+			// Log all user properties for debugging
+			console.log(
+				'Extracted profile user data:',
+				JSON.stringify(user, null, 2),
+			)
 
 			return user
 		} catch (error) {
@@ -162,14 +207,25 @@ export const authService = {
 			// Handle different response formats
 			let user
 
-			if (response.data.user) {
+			if (response.data.ok && response.data.data) {
+				// Format: { ok: true, data: { user } }
+				user = response.data.data
+			} else if (response.data.user) {
+				// Direct format: { user }
 				user = response.data.user
 			} else if (response.data.data) {
+				// Direct format: { data }
 				user = response.data.data
 			} else {
 				console.error('Unexpected response format:', response.data)
 				throw new Error('Invalid response format from server')
 			}
+
+			// Log all user properties for debugging
+			console.log(
+				'Updated profile user data:',
+				JSON.stringify(user, null, 2),
+			)
 
 			return user
 		} catch (error) {
@@ -198,7 +254,7 @@ export const authService = {
 	requestPasswordReset: async (email: string): Promise<void> => {
 		try {
 			await api.post('/users/forgot-password', { email })
-		} catch (error) {
+		} catch {
 			// Do not throw an error here for security reasons
 			// Even if the email doesn't exist, we don't want to reveal that
 			console.log('Request password reset completed')
