@@ -11,12 +11,12 @@ const router = Router()
 
 // Test route - make sure it's defined FIRST for visibility
 router.get('/test', (req, res) => {
-    console.log('>>> Test route handler executed!')
-    return res.status(200).json({ 
-        ok: true,
-        message: 'API working correctly!',
-        timestamp: new Date().toISOString()
-    })
+	console.log('>>> Test route handler executed!')
+	return res.status(200).json({
+		ok: true,
+		message: 'API working correctly!',
+		timestamp: new Date().toISOString(),
+	})
 })
 
 // Register all routes

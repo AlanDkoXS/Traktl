@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import { encryptAdapter } from '../../../config';
+import mongoose, { Schema, Document } from 'mongoose'
+import { encryptAdapter } from '../../../config'
 
 export enum Status {
 	ACTIVE = 'active',
@@ -7,18 +7,18 @@ export enum Status {
 }
 
 export interface IUser extends Document {
-	name: string;
-	email: string;
-	password: string;
-	preferredLanguage: string;
-	theme: string;
-	defaultTimerPreset?: mongoose.Types.ObjectId;
-	createdAt: Date;
-	updatedAt: Date;
-	googleId?: string;
-	picture?: string;
-	status: Status;
-	comparePassword(password: string): boolean;
+	name: string
+	email: string
+	password: string
+	preferredLanguage: string
+	theme: string
+	defaultTimerPreset?: mongoose.Types.ObjectId
+	createdAt: Date
+	updatedAt: Date
+	googleId?: string
+	picture?: string
+	status: Status
+	comparePassword(password: string): boolean
 }
 
 const UserSchema = new Schema<IUser>(
@@ -63,24 +63,24 @@ const UserSchema = new Schema<IUser>(
 	{
 		timestamps: true,
 		versionKey: false,
-	}
-);
+	},
+)
 
 // Pre-save hook to hash password
 UserSchema.pre('save', function (next) {
-	if (!this.isModified('password')) return next();
+	if (!this.isModified('password')) return next()
 
 	try {
-		this.password = encryptAdapter.hash(this.password);
-		next();
+		this.password = encryptAdapter.hash(this.password)
+		next()
 	} catch (error: any) {
-		next(error);
+		next(error)
 	}
-});
+})
 
 // Method to compare password
 UserSchema.methods.comparePassword = function (password: string): boolean {
-	return encryptAdapter.compare(password, this.password);
-};
+	return encryptAdapter.compare(password, this.password)
+}
 
-export const User = mongoose.model<IUser>('User', UserSchema);
+export const User = mongoose.model<IUser>('User', UserSchema)

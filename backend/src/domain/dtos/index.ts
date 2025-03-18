@@ -2,6 +2,10 @@
 export * from './user/create-user.dto'
 export * from './user/update-user.dto'
 export * from './user/login-user.dto'
+export * from './user/verify-email.dto'
+export * from './user/request-verification.dto'
+export * from './user/forgot-password.dto'
+export * from './user/reset-password.dto'
 export * from './change-password.dto'
 
 // Project DTOs
