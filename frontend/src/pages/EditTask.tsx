@@ -1,56 +1,57 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { TaskForm } from '../components/TaskForm';
-import { useTaskStore } from '../store/taskStore';
-import { ConfirmModal } from '../components/ui/ConfirmModal';
-import { TrashIcon } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { TaskForm } from '../components/TaskForm'
+import { useTaskStore } from '../store/taskStore'
+import { ConfirmModal } from '../components/ui/ConfirmModal'
+import { TrashIcon } from '@heroicons/react/24/outline'
 
 export const EditTask = () => {
-	const { t } = useTranslation();
-	const { id } = useParams<{ id: string }>();
-	const navigate = useNavigate();
-	const { selectedTask, fetchTask, deleteTask, isLoading, error } = useTaskStore();
-	const [notFound, setNotFound] = useState(false);
-	const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [deleteLoading, setDeleteLoading] = useState(false);
+	const { t } = useTranslation()
+	const { id } = useParams<{ id: string }>()
+	const navigate = useNavigate()
+	const { selectedTask, fetchTask, deleteTask, isLoading, error } =
+		useTaskStore()
+	const [notFound, setNotFound] = useState(false)
+	const [showDeleteModal, setShowDeleteModal] = useState(false)
+	const [deleteLoading, setDeleteLoading] = useState(false)
 
 	useEffect(() => {
 		// Check if id is undefined or invalid
 		if (!id || id === 'undefined') {
-			console.error('Invalid task ID:', id);
-			setNotFound(true);
-			return;
+			console.error('Invalid task ID:', id)
+			setNotFound(true)
+			return
 		}
-		
+
 		// Add a loading indicator
 		const loadTask = async () => {
 			try {
-				await fetchTask(id);
+				await fetchTask(id)
 			} catch (err) {
-				console.error('Error fetching task:', err);
-				setNotFound(true);
+				console.error('Error fetching task:', err)
+				setNotFound(true)
 			}
-		};
-		
-		loadTask();
-	}, [id, fetchTask]);
+		}
+
+		loadTask()
+	}, [id, fetchTask])
 
 	// Handle task deletion
 	const handleDelete = async () => {
-		if (!id) return;
-		
-		setDeleteLoading(true);
+		if (!id) return
+
+		setDeleteLoading(true)
 		try {
-			await deleteTask(id);
-			navigate('/tasks');
+			await deleteTask(id)
+			navigate('/tasks')
 		} catch (err) {
-			console.error('Error deleting task:', err);
+			console.error('Error deleting task:', err)
 		} finally {
-			setDeleteLoading(false);
-			setShowDeleteModal(false);
+			setDeleteLoading(false)
+			setShowDeleteModal(false)
 		}
-	};
+	}
 
 	if (isLoading) {
 		return (
@@ -58,7 +59,7 @@ export const EditTask = () => {
 				<div className="animate-spin rounded-full h-8 w-8 border-b-2 dynamic-border"></div>
 				<span className="ml-2">{t('common.loading')}</span>
 			</div>
-		);
+		)
 	}
 
 	if (error || notFound || !selectedTask) {
@@ -67,11 +68,14 @@ export const EditTask = () => {
 				<p className="text-gray-500 dark:text-gray-400 mb-4">
 					{t('tasks.notFound')}
 				</p>
-				<button onClick={() => navigate('/tasks')} className="btn btn-primary">
+				<button
+					onClick={() => navigate('/tasks')}
+					className="btn btn-primary"
+				>
 					{t('common.goBack')}
 				</button>
 			</div>
-		);
+		)
 	}
 
 	return (
@@ -101,7 +105,7 @@ export const EditTask = () => {
 				title={t('common.confirmDelete')}
 				message={t('tasks.deleteConfirmation', {
 					name: selectedTask.name,
-					defaultValue: `Are you sure you want to delete the task "${selectedTask.name}"? This action cannot be undone.`
+					defaultValue: `Are you sure you want to delete the task "${selectedTask.name}"? This action cannot be undone.`,
 				})}
 				confirmButtonText={t('common.delete')}
 				cancelButtonText={t('common.cancel')}
@@ -111,5 +115,5 @@ export const EditTask = () => {
 				danger={true}
 			/>
 		</div>
-	);
-};
+	)
+}

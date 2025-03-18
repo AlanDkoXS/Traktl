@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { TimeEntry } from '../../types';
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { TimeEntry } from '../../types'
 import {
 	format,
 	subDays,
@@ -11,74 +11,82 @@ import {
 	endOfWeek,
 	isSameDay,
 	parseISO,
-} from 'date-fns';
-import { useTimeEntryStore } from '../../store/timeEntryStore';
-import { useProjectStore } from '../../store/projectStore';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+} from 'date-fns'
+import { useTimeEntryStore } from '../../store/timeEntryStore'
+import { useProjectStore } from '../../store/projectStore'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 
 interface ActivityHeatmapProps {
-	timeEntries?: TimeEntry[];
+	timeEntries?: TimeEntry[]
 }
 
 export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
-	const { t } = useTranslation();
-	const { timeEntries: storeTimeEntries } = useTimeEntryStore();
-	const { projects } = useProjectStore();
-	const [cellSize, setCellSize] = useState(10);
-	const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
-	const [tooltipData, setTooltipData] = useState<{ x: number; y: number; data: any } | null>(
-		null
-	);
-	const [hoveredDay, setHoveredDay] = useState<string | null>(null);
+	const { t } = useTranslation()
+	const { timeEntries: storeTimeEntries } = useTimeEntryStore()
+	const { projects } = useProjectStore()
+	const [cellSize, setCellSize] = useState(10)
+	const [hoveredLabel, setHoveredLabel] = useState<string | null>(null)
+	const [tooltipData, setTooltipData] = useState<{
+		x: number
+		y: number
+		data: any
+	} | null>(null)
+	const [hoveredDay, setHoveredDay] = useState<string | null>(null)
 
 	// Use entries from props if provided, otherwise use store
 	const entriesToUse = useMemo(() => {
-		return timeEntries.length > 0 ? timeEntries : storeTimeEntries;
-	}, [timeEntries, storeTimeEntries]);
+		return timeEntries.length > 0 ? timeEntries : storeTimeEntries
+	}, [timeEntries, storeTimeEntries])
 
 	// Handle responsive behavior
 	useEffect(() => {
 		const handleResize = () => {
-			if (window.innerWidth >= 1280) setCellSize(16);
-			else if (window.innerWidth >= 1024) setCellSize(14);
-			else setCellSize(10);
-		};
+			if (window.innerWidth >= 1280) setCellSize(16)
+			else if (window.innerWidth >= 1024) setCellSize(14)
+			else setCellSize(10)
+		}
 
-		handleResize();
-		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
-	}, []);
+		handleResize()
+		window.addEventListener('resize', handleResize)
+		return () => window.removeEventListener('resize', handleResize)
+	}, [])
 
 	// Generate calendar grid - memoized to prevent recalculations
 	const calendarData = useMemo(() => {
-		const today = new Date();
-		const weeksToShow = 21;
+		const today = new Date()
+		const weeksToShow = 21
 
-		const halfWeeks = Math.floor(weeksToShow / 2);
-		const startDate = subDays(today, halfWeeks * 7);
-		const endDate = addDays(today, halfWeeks * 7);
+		const halfWeeks = Math.floor(weeksToShow / 2)
+		const startDate = subDays(today, halfWeeks * 7)
+		const endDate = addDays(today, halfWeeks * 7)
 
-		const gridStartDate = startOfWeek(startDate);
-		const gridEndDate = endOfWeek(endDate);
+		const gridStartDate = startOfWeek(startDate)
+		const gridEndDate = endOfWeek(endDate)
 
-		const days = eachDayOfInterval({ start: gridStartDate, end: gridEndDate });
+		const days = eachDayOfInterval({
+			start: gridStartDate,
+			end: gridEndDate,
+		})
 
-		const activityByDate: Record<string, number> = {};
+		const activityByDate: Record<string, number> = {}
 
 		// Process entries only once per useMemo calculation
 		entriesToUse.forEach((entry) => {
 			try {
 				// Ensure startTime is properly parsed to a Date object
 				const startTimeDate =
-					entry.startTime instanceof Date ? entry.startTime : parseISO(entry.startTime);
+					entry.startTime instanceof Date
+						? entry.startTime
+						: parseISO(entry.startTime)
 
-				const dateString = format(startTimeDate, 'yyyy-MM-dd');
-				if (!activityByDate[dateString]) activityByDate[dateString] = 0;
-				if (entry.duration) activityByDate[dateString] += entry.duration / (1000 * 60);
+				const dateString = format(startTimeDate, 'yyyy-MM-dd')
+				if (!activityByDate[dateString]) activityByDate[dateString] = 0
+				if (entry.duration)
+					activityByDate[dateString] += entry.duration / (1000 * 60)
 			} catch (error) {
-				console.error('Error processing entry:', error);
+				console.error('Error processing entry:', error)
 			}
-		});
+		})
 
 		const daysByWeekday: Record<number, any[]> = {
 			0: [],
@@ -88,34 +96,34 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			4: [],
 			5: [],
 			6: [],
-		};
+		}
 
 		days.forEach((date) => {
-			const dayOfWeek = getDay(date);
-			const dateString = format(date, 'yyyy-MM-dd');
+			const dayOfWeek = getDay(date)
+			const dateString = format(date, 'yyyy-MM-dd')
 			daysByWeekday[dayOfWeek].push({
 				date,
 				dateString,
 				activity: activityByDate[dateString] || 0,
 				isToday: isSameDay(date, today),
-			});
-		});
+			})
+		})
 
-		return daysByWeekday;
-	}, [entriesToUse]); // Only depend on entries array reference
+		return daysByWeekday
+	}, [entriesToUse]) // Only depend on entries array reference
 
 	// Calculate max activity
 	const maxActivity = useMemo(() => {
 		const allActivities = Object.values(calendarData)
 			.flat()
-			.map((day) => day.activity);
-		return Math.max(...allActivities, 60);
-	}, [calendarData]);
+			.map((day) => day.activity)
+		return Math.max(...allActivities, 60)
+	}, [calendarData])
 
 	// Calculate number of columns
 	const numCols = useMemo(() => {
-		return Object.values(calendarData)[0]?.length || 21;
-	}, [calendarData]);
+		return Object.values(calendarData)[0]?.length || 21
+	}, [calendarData])
 
 	// GitHub-style colors (from gray to green)
 	const GITHUB_COLORS = useMemo(
@@ -125,8 +133,8 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			'#30a14e', // darker green
 			'#216e39', // darkest green
 		],
-		[]
-	);
+		[],
+	)
 
 	// Dark mode GitHub-style colors
 	const GITHUB_COLORS_DARK = useMemo(
@@ -136,62 +144,67 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			'#006d32', // medium green
 			'#0e4429', // darkest green
 		],
-		[]
-	);
+		[],
+	)
 
 	// Get today's pie data - completely rewritten to ensure correctness
 	const todaysPieData = useMemo(() => {
 		// Get today's date in YYYY-MM-DD format
-		const todayStr = format(new Date(), 'yyyy-MM-dd');
+		const todayStr = format(new Date(), 'yyyy-MM-dd')
 
 		// Filter entries for today only
 		const todayEntries = entriesToUse.filter((entry) => {
 			try {
 				const startDate =
-					entry.startTime instanceof Date ? entry.startTime : new Date(entry.startTime);
+					entry.startTime instanceof Date
+						? entry.startTime
+						: new Date(entry.startTime)
 
-				const entryDateStr = format(startDate, 'yyyy-MM-dd');
-				return entryDateStr === todayStr;
+				const entryDateStr = format(startDate, 'yyyy-MM-dd')
+				return entryDateStr === todayStr
 			} catch (error) {
-				console.error('Error processing entry date:', error, entry);
-				return false;
+				console.error('Error processing entry date:', error, entry)
+				return false
 			}
-		});
+		})
 
 		// Group entries by project
 		const projectMap: Record<
 			string,
 			{
-				id: string;
-				duration: number;
-				name: string;
+				id: string
+				duration: number
+				name: string
 			}
-		> = {};
+		> = {}
 
 		// Process each entry to accumulate time by project
 		todayEntries.forEach((entry) => {
-			const projectId = entry.project;
+			const projectId = entry.project
 
 			if (!projectMap[projectId]) {
 				// Find the project details
-				const project = projects.find((p) => p.id === projectId);
+				const project = projects.find((p) => p.id === projectId)
 
 				projectMap[projectId] = {
 					id: projectId,
 					duration: 0,
 					name: project?.name || 'Unknown Project',
-				};
+				}
 			}
 
 			// Add this entry's duration to the project total
-			projectMap[projectId].duration += entry.duration / (1000 * 60);
-		});
+			projectMap[projectId].duration += entry.duration / (1000 * 60)
+		})
 
 		// Convert the map to an array for the pie chart
-		const projectTimeArray = Object.values(projectMap);
+		const projectTimeArray = Object.values(projectMap)
 
 		// Calculate total duration for percentages
-		const totalDuration = projectTimeArray.reduce((sum, project) => sum + project.duration, 0);
+		const totalDuration = projectTimeArray.reduce(
+			(sum, project) => sum + project.duration,
+			0,
+		)
 
 		// Format the data for the pie chart
 		const formattedData = projectTimeArray.map((project) => ({
@@ -199,53 +212,57 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			name: project.name,
 			value: Math.round(project.duration), // Round to nearest minute
 			percent: totalDuration > 0 ? project.duration / totalDuration : 0,
-		}));
+		}))
 
 		// Sort by duration (highest first)
-		return formattedData.sort((a, b) => b.value - a.value);
-	}, [entriesToUse, projects]);
+		return formattedData.sort((a, b) => b.value - a.value)
+	}, [entriesToUse, projects])
 
 	const totalMinutesToday = useMemo(() => {
-		return todaysPieData.reduce((sum, item) => sum + item.value, 0);
-	}, [todaysPieData]);
+		return todaysPieData.reduce((sum, item) => sum + item.value, 0)
+	}, [todaysPieData])
 
 	// GitHub-style activity colors - converted to memoized function
 	const getGitHubActivityColor = useCallback(
 		(minutes: number, isHovered: boolean) => {
 			if (minutes === 0)
-				return isHovered ? 'bg-gray-200 dark:bg-gray-600' : 'bg-gray-100 dark:bg-gray-800';
+				return isHovered
+					? 'bg-gray-200 dark:bg-gray-600'
+					: 'bg-gray-100 dark:bg-gray-800'
 
 			// GitHub color palette
 			if (minutes <= maxActivity * 0.15)
 				return isHovered
 					? 'bg-[#9be9a8] dark:bg-[#0e4429]'
-					: 'bg-[#ebedf0] dark:bg-[#0e4429]';
+					: 'bg-[#ebedf0] dark:bg-[#0e4429]'
 
 			if (minutes <= maxActivity * 0.4)
 				return isHovered
 					? 'bg-[#40c463] dark:bg-[#006d32]'
-					: 'bg-[#9be9a8] dark:bg-[#006d32]';
+					: 'bg-[#9be9a8] dark:bg-[#006d32]'
 
 			if (minutes <= maxActivity * 0.7)
 				return isHovered
 					? 'bg-[#30a14e] dark:bg-[#26a641]'
-					: 'bg-[#40c463] dark:bg-[#26a641]';
+					: 'bg-[#40c463] dark:bg-[#26a641]'
 
-			return isHovered ? 'bg-[#216e39] dark:bg-[#39d353]' : 'bg-[#30a14e] dark:bg-[#39d353]';
+			return isHovered
+				? 'bg-[#216e39] dark:bg-[#39d353]'
+				: 'bg-[#30a14e] dark:bg-[#39d353]'
 		},
-		[maxActivity]
-	);
+		[maxActivity],
+	)
 
 	// Get green color for pie chart slice based on index
 	const getPieChartColor = useCallback(
 		(index: number, totalItems: number, isDarkMode: boolean) => {
-			const colors = isDarkMode ? GITHUB_COLORS_DARK : GITHUB_COLORS;
+			const colors = isDarkMode ? GITHUB_COLORS_DARK : GITHUB_COLORS
 
-			const colorIndex = Math.min(index, colors.length - 1);
-			return colors[colorIndex];
+			const colorIndex = Math.min(index, colors.length - 1)
+			return colors[colorIndex]
 		},
-		[GITHUB_COLORS, GITHUB_COLORS_DARK]
-	);
+		[GITHUB_COLORS, GITHUB_COLORS_DARK],
+	)
 
 	const daysTranslation: { [key: number]: string } = {
 		0: t('dashboard.days.sun'),
@@ -255,93 +272,106 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		4: t('dashboard.days.thu'),
 		5: t('dashboard.days.fri'),
 		6: t('dashboard.days.sat'),
-	};
+	}
 
 	// Custom tooltip for heatmap
 	const renderTooltip = useCallback(
 		(day: any) => {
-			if (!day) return null;
-			const date = format(day.date, 'MMM d, yyyy');
-			const minutes = Math.round(day.activity);
+			if (!day) return null
+			const date = format(day.date, 'MMM d, yyyy')
+			const minutes = Math.round(day.activity)
 
 			// Find projects for this day
-			const dayProjects: Record<string, number> = {};
+			const dayProjects: Record<string, number> = {}
 
 			entriesToUse.forEach((entry) => {
 				try {
 					const entryStartTime =
 						entry.startTime instanceof Date
 							? entry.startTime
-							: parseISO(entry.startTime);
+							: parseISO(entry.startTime)
 
-					const entryDate = format(entryStartTime, 'yyyy-MM-dd');
+					const entryDate = format(entryStartTime, 'yyyy-MM-dd')
 
 					if (entryDate === day.dateString) {
-						const projectId = entry.project;
-						const project = projects.find((p) => p.id === projectId);
-						const projectName = project?.name || 'Unknown Project';
+						const projectId = entry.project
+						const project = projects.find((p) => p.id === projectId)
+						const projectName = project?.name || 'Unknown Project'
 
 						if (!dayProjects[projectName]) {
-							dayProjects[projectName] = 0;
+							dayProjects[projectName] = 0
 						}
-						dayProjects[projectName] += entry.duration / (1000 * 60);
+						dayProjects[projectName] += entry.duration / (1000 * 60)
 					}
 				} catch (error) {
-					console.error('Error processing entry for tooltip:', error);
+					console.error('Error processing entry for tooltip:', error)
 				}
-			});
+			})
 
 			return (
 				<div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md text-xs">
 					<div className="font-medium">{date}</div>
-					<div className="text-gray-700 dark:text-gray-300">{minutes} min total</div>
+					<div className="text-gray-700 dark:text-gray-300">
+						{minutes} min total
+					</div>
 					{Object.entries(dayProjects).length > 0 && (
 						<div className="mt-1 pt-1 border-t border-gray-100 dark:border-gray-700">
-							{Object.entries(dayProjects).map(([project, mins]) => (
-								<div key={project} className="flex justify-between">
-									<span className="mr-2">{project}:</span>
-									<span className="font-medium">{Math.round(mins)} min</span>
-								</div>
-							))}
+							{Object.entries(dayProjects).map(
+								([project, mins]) => (
+									<div
+										key={project}
+										className="flex justify-between"
+									>
+										<span className="mr-2">{project}:</span>
+										<span className="font-medium">
+											{Math.round(mins)} min
+										</span>
+									</div>
+								),
+							)}
 						</div>
 					)}
 				</div>
-			);
+			)
 		},
-		[entriesToUse, projects]
-	);
+		[entriesToUse, projects],
+	)
 
 	// Custom tooltip for pie chart
 	const CustomTooltip = useCallback(({ active, payload }: any) => {
-		if (!active || !payload || !payload.length) return null;
+		if (!active || !payload || !payload.length) return null
 
-		const data = payload[0].payload;
+		const data = payload[0].payload
 
 		return (
 			<div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md text-xs">
-				<p className="font-medium text-gray-900 dark:text-white">{data.name}</p>
+				<p className="font-medium text-gray-900 dark:text-white">
+					{data.name}
+				</p>
 				<p className="text-gray-700 dark:text-gray-300">
 					{data.value} min ({Math.round(data.percent * 100)}%)
 				</p>
 			</div>
-		);
-	}, []);
+		)
+	}, [])
 
 	// Format time for better display
 	const formatTime = useCallback((milliseconds: number) => {
-		const minutes = Math.round(milliseconds);
-		const hours = Math.floor(minutes / 60);
-		const remainingMinutes = minutes % 60;
+		const minutes = Math.round(milliseconds)
+		const hours = Math.floor(minutes / 60)
+		const remainingMinutes = minutes % 60
 
 		if (hours > 0) {
-			return `${hours}h ${remainingMinutes}m`;
+			return `${hours}h ${remainingMinutes}m`
 		}
-		return `${minutes}m`;
-	}, []);
+		return `${minutes}m`
+	}, [])
 
 	// Detect dark mode for pie chart colors
 	const isDarkMode =
-		typeof window !== 'undefined' ? document.documentElement.classList.contains('dark') : false;
+		typeof window !== 'undefined'
+			? document.documentElement.classList.contains('dark')
+			: false
 
 	return (
 		<div className="w-full">
@@ -368,17 +398,19 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 											paddingAngle={1}
 											isAnimationActive={false}
 										>
-											{todaysPieData.map((entry, index) => (
-												<Cell
-													key={`cell-${entry.id}`}
-													fill={getPieChartColor(
-														index,
-														todaysPieData.length,
-														isDarkMode
-													)}
-													stroke="none"
-												/>
-											))}
+											{todaysPieData.map(
+												(entry, index) => (
+													<Cell
+														key={`cell-${entry.id}`}
+														fill={getPieChartColor(
+															index,
+															todaysPieData.length,
+															isDarkMode,
+														)}
+														stroke="none"
+													/>
+												),
+											)}
 										</Pie>
 										<Tooltip content={<CustomTooltip />} />
 									</PieChart>
@@ -402,14 +434,17 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 											<div
 												className="w-2 h-2 rounded-full mr-1 flex-shrink-0"
 												style={{
-													backgroundColor: getPieChartColor(
-														index,
-														todaysPieData.length,
-														isDarkMode
-													),
+													backgroundColor:
+														getPieChartColor(
+															index,
+															todaysPieData.length,
+															isDarkMode,
+														),
 												}}
 											/>
-											<span className="truncate">{entry.name}</span>
+											<span className="truncate">
+												{entry.name}
+											</span>
 										</div>
 										<span className="flex-shrink-0">
 											{formatTime(entry.value)}
@@ -443,24 +478,33 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 								<div className="w-6"></div>
 
 								{/* Date labels at top */}
-								{Array.from({ length: numCols }).map((_, colIndex) => {
-									if (
-										colIndex % 4 === 0 &&
-										calendarData[1] &&
-										calendarData[1][colIndex]
-									) {
+								{Array.from({ length: numCols }).map(
+									(_, colIndex) => {
+										if (
+											colIndex % 4 === 0 &&
+											calendarData[1] &&
+											calendarData[1][colIndex]
+										) {
+											return (
+												<div
+													key={`date-${colIndex}`}
+													className="text-center text-gray-500 dark:text-gray-400 mb-1"
+													style={{ fontSize: '9px' }}
+												>
+													{format(
+														calendarData[1][
+															colIndex
+														].date,
+														'MMM d',
+													)}
+												</div>
+											)
+										}
 										return (
-											<div
-												key={`date-${colIndex}`}
-												className="text-center text-gray-500 dark:text-gray-400 mb-1"
-												style={{ fontSize: '9px' }}
-											>
-												{format(calendarData[1][colIndex].date, 'MMM d')}
-											</div>
-										);
-									}
-									return <div key={`date-${colIndex}`}></div>;
-								})}
+											<div key={`date-${colIndex}`}></div>
+										)
+									},
+								)}
 
 								{/* Day rows with labels */}
 								{[0, 1, 2, 3, 4, 5, 6].map((dayOfWeek) => (
@@ -472,44 +516,53 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 											{daysTranslation[dayOfWeek]}
 										</div>
 
-										{Array.from({ length: numCols }).map((_, colIndex) => {
-											const day =
-												calendarData[dayOfWeek] &&
-												calendarData[dayOfWeek][colIndex];
+										{Array.from({ length: numCols }).map(
+											(_, colIndex) => {
+												const day =
+													calendarData[dayOfWeek] &&
+													calendarData[dayOfWeek][
+														colIndex
+													]
 
-											if (!day)
+												if (!day)
+													return (
+														<div
+															key={`cell-${dayOfWeek}-${colIndex}`}
+															className="bg-transparent"
+															style={{
+																width: `${cellSize}px`,
+																height: `${cellSize}px`,
+															}}
+														/>
+													)
+
+												const isHovered =
+													hoveredDay ===
+													`${dayOfWeek}-${colIndex}`
 												return (
 													<div
 														key={`cell-${dayOfWeek}-${colIndex}`}
-														className="bg-transparent"
+														className={`${getGitHubActivityColor(day.activity, isHovered)} rounded-sm relative group transition-colors`}
 														style={{
 															width: `${cellSize}px`,
 															height: `${cellSize}px`,
 														}}
-													/>
-												);
-
-											const isHovered =
-												hoveredDay === `${dayOfWeek}-${colIndex}`;
-											return (
-												<div
-													key={`cell-${dayOfWeek}-${colIndex}`}
-													className={`${getGitHubActivityColor(day.activity, isHovered)} rounded-sm relative group transition-colors`}
-													style={{
-														width: `${cellSize}px`,
-														height: `${cellSize}px`,
-													}}
-													onMouseEnter={() =>
-														setHoveredDay(`${dayOfWeek}-${colIndex}`)
-													}
-													onMouseLeave={() => setHoveredDay(null)}
-												>
-													<div className="hidden group-hover:block absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 whitespace-nowrap">
-														{renderTooltip(day)}
+														onMouseEnter={() =>
+															setHoveredDay(
+																`${dayOfWeek}-${colIndex}`,
+															)
+														}
+														onMouseLeave={() =>
+															setHoveredDay(null)
+														}
+													>
+														<div className="hidden group-hover:block absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 whitespace-nowrap">
+															{renderTooltip(day)}
+														</div>
 													</div>
-												</div>
-											);
-										})}
+												)
+											},
+										)}
 									</React.Fragment>
 								))}
 							</div>
@@ -534,5 +587,5 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 				</div>
 			</div>
 		</div>
-	);
-};
+	)
+}

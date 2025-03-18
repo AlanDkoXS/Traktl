@@ -1,29 +1,31 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useTagStore } from '../../store/tagStore';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useTagStore } from '../../store/tagStore'
+import { Link } from 'react-router-dom'
 
 export const TagList = () => {
-	const { t } = useTranslation();
-	const { tags, isLoading, error, fetchTags } = useTagStore();
-	const [retryCount, setRetryCount] = useState(0);
-	const [hoveredTagId, setHoveredTagId] = useState<string | null>(null);
+	const { t } = useTranslation()
+	const { tags, isLoading, error, fetchTags } = useTagStore()
+	const [retryCount, setRetryCount] = useState(0)
+	const [hoveredTagId, setHoveredTagId] = useState<string | null>(null)
 
 	useEffect(() => {
-		fetchTags();
-	}, [fetchTags, retryCount]);
+		fetchTags()
+	}, [fetchTags, retryCount])
 
 	const handleRetry = () => {
-		setRetryCount((prev) => prev + 1);
-	};
+		setRetryCount((prev) => prev + 1)
+	}
 
 	if (isLoading) {
 		return (
 			<div className="flex justify-center items-center py-4">
 				<div className="animate-spin rounded-full h-6 w-6 border-b-2 dynamic-border"></div>
-				<span className="ml-2 dynamic-color">{t('common.loading')}</span>
+				<span className="ml-2 dynamic-color">
+					{t('common.loading')}
+				</span>
 			</div>
-		);
+		)
 	}
 
 	if (error) {
@@ -37,18 +39,23 @@ export const TagList = () => {
 					{t('common.retry')}
 				</button>
 			</div>
-		);
+		)
 	}
 
 	if (tags.length === 0) {
 		return (
 			<div className="text-center py-8 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-				<p className="text-gray-500 dark:text-gray-400 mb-4">{t('tags.noTags')}</p>
-				<Link to="/tags/new" className="btn btn-primary dynamic-bg text-white">
+				<p className="text-gray-500 dark:text-gray-400 mb-4">
+					{t('tags.noTags')}
+				</p>
+				<Link
+					to="/tags/new"
+					className="btn btn-primary dynamic-bg text-white"
+				>
 					{t('tags.new')}
 				</Link>
 			</div>
-		);
+		)
 	}
 
 	return (
@@ -110,5 +117,5 @@ export const TagList = () => {
 				))}
 			</ul>
 		</div>
-	);
-};
+	)
+}

@@ -1,47 +1,52 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { useProjectStore } from '../store/projectStore';
-import { useClientStore } from '../store/clientStore';
-import { Project } from '../types';
-import { toObjectIdOrUndefined } from '../utils/validationHelpers';
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { useProjectStore } from '../store/projectStore'
+import { useClientStore } from '../store/clientStore'
+import { Project } from '../types'
+import { toObjectIdOrUndefined } from '../utils/validationHelpers'
 
 interface ProjectFormProps {
-	project?: Project;
-	isEditing?: boolean;
+	project?: Project
+	isEditing?: boolean
 }
 
-export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) => {
-	const { t } = useTranslation();
-	const navigate = useNavigate();
-	const { createProject, updateProject } = useProjectStore();
-	const { clients, fetchClients } = useClientStore();
+export const ProjectForm = ({
+	project,
+	isEditing = false,
+}: ProjectFormProps) => {
+	const { t } = useTranslation()
+	const navigate = useNavigate()
+	const { createProject, updateProject } = useProjectStore()
+	const { clients, fetchClients } = useClientStore()
 
-	const [name, setName] = useState(project?.name || '');
-	const [description, setDescription] = useState(project?.description || '');
-	const [color, setColor] = useState(project?.color || '#3b82f6');
-	const [clientId, setClientId] = useState(project?.client || '');
-	const [status, setStatus] = useState<'active' | 'archived'>(project?.status || 'active');
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [error, setError] = useState('');
+	const [name, setName] = useState(project?.name || '')
+	const [description, setDescription] = useState(project?.description || '')
+	const [color, setColor] = useState(project?.color || '#3b82f6')
+	const [clientId, setClientId] = useState(project?.client || '')
+	const [status, setStatus] = useState<'active' | 'archived'>(
+		project?.status || 'active',
+	)
+	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [error, setError] = useState('')
 
 	useEffect(() => {
-		fetchClients();
-	}, [fetchClients]);
+		fetchClients()
+	}, [fetchClients])
 
 	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
 
 		if (!name) {
-			setError(t('errors.required'));
-			return;
+			setError(t('errors.required'))
+			return
 		}
 
-		setIsSubmitting(true);
-		setError('');
+		setIsSubmitting(true)
+		setError('')
 
 		// Convert clientId to a valid ObjectId or undefined to prevent the error
-		const validClientId = toObjectIdOrUndefined(clientId);
+		const validClientId = toObjectIdOrUndefined(clientId)
 
 		try {
 			if (isEditing && project) {
@@ -51,7 +56,7 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 					color,
 					client: validClientId,
 					status,
-				});
+				})
 			} else {
 				await createProject({
 					name,
@@ -59,17 +64,17 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 					color,
 					client: validClientId,
 					status,
-				});
+				})
 			}
 
-			navigate('/projects');
+			navigate('/projects')
 		} catch (err: any) {
-			console.error('Project submission error:', err);
-			setError(err.message || t('errors.serverError'));
+			console.error('Project submission error:', err)
+			setError(err.message || t('errors.serverError'))
 		} finally {
-			setIsSubmitting(false);
+			setIsSubmitting(false)
 		}
-	};
+	}
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-6">
@@ -169,11 +174,17 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 				<select
 					id="status"
 					value={status}
-					onChange={(e) => setStatus(e.target.value as 'active' | 'archived')}
+					onChange={(e) =>
+						setStatus(e.target.value as 'active' | 'archived')
+					}
 					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 				>
-					<option value="active">{t('projects.status.active')}</option>
-					<option value="archived">{t('projects.status.archived')}</option>
+					<option value="active">
+						{t('projects.status.active')}
+					</option>
+					<option value="archived">
+						{t('projects.status.archived')}
+					</option>
 				</select>
 			</div>
 
@@ -185,7 +196,11 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 				>
 					{t('common.cancel')}
 				</button>
-				<button type="submit" disabled={isSubmitting} className="btn btn-primary">
+				<button
+					type="submit"
+					disabled={isSubmitting}
+					className="btn btn-primary"
+				>
 					{isSubmitting
 						? t('common.loading')
 						: isEditing
@@ -194,5 +209,5 @@ export const ProjectForm = ({ project, isEditing = false }: ProjectFormProps) =>
 				</button>
 			</div>
 		</form>
-	);
-};
+	)
+}

@@ -1,97 +1,98 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
-import { LanguageSelector } from '../components/LanguageSelector';
-import { ThemeToggle } from '../components/ThemeToggle';
-import api from '../services/api';
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom'
+import { LanguageSelector } from '../components/LanguageSelector'
+import { ThemeToggle } from '../components/ThemeToggle'
+import api from '../services/api'
 
 export const ResetPassword = () => {
-	const { t } = useTranslation();
-	const navigate = useNavigate();
-	const { token } = useParams<{ token: string }>();
-	const location = useLocation();
-	
+	const { t } = useTranslation()
+	const navigate = useNavigate()
+	const { token } = useParams<{ token: string }>()
+	const location = useLocation()
+
 	// Get email from query params if available
-	const queryParams = new URLSearchParams(location.search);
-	const email = queryParams.get('email') || '';
-	
-	const [password, setPassword] = useState('');
-	const [confirmPassword, setConfirmPassword] = useState('');
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [error, setError] = useState('');
-	const [passwordError, setPasswordError] = useState('');
-	const [confirmError, setConfirmError] = useState('');
-	const [successMessage, setSuccessMessage] = useState('');
+	const queryParams = new URLSearchParams(location.search)
+	const email = queryParams.get('email') || ''
+
+	const [password, setPassword] = useState('')
+	const [confirmPassword, setConfirmPassword] = useState('')
+	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [error, setError] = useState('')
+	const [passwordError, setPasswordError] = useState('')
+	const [confirmError, setConfirmError] = useState('')
+	const [successMessage, setSuccessMessage] = useState('')
 
 	// Password validation
 	useEffect(() => {
 		if (password) {
 			const passwordRegex =
-				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 			if (!passwordRegex.test(password)) {
-				setPasswordError(t('auth.passwordRequirements'));
+				setPasswordError(t('auth.passwordRequirements'))
 			} else {
-				setPasswordError('');
+				setPasswordError('')
 			}
 		} else {
-			setPasswordError('');
+			setPasswordError('')
 		}
-	}, [password, t]);
+	}, [password, t])
 
 	// Confirm password validation
 	useEffect(() => {
 		if (confirmPassword && password !== confirmPassword) {
-			setConfirmError(t('auth.passwordMismatch'));
+			setConfirmError(t('auth.passwordMismatch'))
 		} else {
-			setConfirmError('');
+			setConfirmError('')
 		}
-	}, [password, confirmPassword, t]);
+	}, [password, confirmPassword, t])
 
 	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
 
 		// Validate required fields
 		if (!password || !confirmPassword) {
-			setError(t('errors.required'));
-			return;
+			setError(t('errors.required'))
+			return
 		}
 
 		// Check password validation
 		if (passwordError) {
-			return;
+			return
 		}
 
 		// Check password match
 		if (password !== confirmPassword) {
-			setConfirmError(t('auth.passwordMismatch'));
-			return;
+			setConfirmError(t('auth.passwordMismatch'))
+			return
 		}
 
 		try {
-			setIsSubmitting(true);
-			setError('');
+			setIsSubmitting(true)
+			setError('')
 
 			// Send password reset request
-			await api.post('/users/reset-password', { token, password });
+			await api.post('/users/reset-password', { token, password })
 
 			// Show success message and redirect to login after a delay
 			setSuccessMessage(
 				t(
 					'auth.passwordResetSuccess',
-					'Your password has been reset successfully. You can now login with your new password.'
-				)
-			);
-			
+					'Your password has been reset successfully. You can now login with your new password.',
+				),
+			)
+
 			setTimeout(() => {
-				navigate('/login');
-			}, 3000);
+				navigate('/login')
+			}, 3000)
 		} catch (err: any) {
-			const errorMessage = err.response?.data?.message || t('errors.serverError');
-			setError(errorMessage);
+			const errorMessage =
+				err.response?.data?.message || t('errors.serverError')
+			setError(errorMessage)
 		} finally {
-			setIsSubmitting(false);
+			setIsSubmitting(false)
 		}
-	};
+	}
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -109,7 +110,10 @@ export const ResetPassword = () => {
 						{t('auth.resetPassword', 'Reset Password')}
 					</h2>
 					<p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-						{t('auth.resetPasswordInstructions', 'Enter your new password below.')}
+						{t(
+							'auth.resetPasswordInstructions',
+							'Enter your new password below.',
+						)}
 					</p>
 				</div>
 
@@ -165,7 +169,9 @@ export const ResetPassword = () => {
 								autoComplete="new-password"
 								required
 								value={confirmPassword}
-								onChange={(e) => setConfirmPassword(e.target.value)}
+								onChange={(e) =>
+									setConfirmPassword(e.target.value)
+								}
 								className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm mt-1"
 								placeholder={t('auth.passwordConfirm')}
 							/>
@@ -183,10 +189,12 @@ export const ResetPassword = () => {
 							disabled={isSubmitting}
 							className="btn btn-primary w-full py-2 justify-center"
 						>
-							{isSubmitting ? t('common.loading') : t('auth.resetPassword', 'Reset Password')}
+							{isSubmitting
+								? t('common.loading')
+								: t('auth.resetPassword', 'Reset Password')}
 						</button>
 					</div>
-					
+
 					<div className="flex items-center justify-between mt-4">
 						<Link
 							to="/login"
@@ -198,5 +206,5 @@ export const ResetPassword = () => {
 				</form>
 			</div>
 		</div>
-	);
-};
+	)
+}

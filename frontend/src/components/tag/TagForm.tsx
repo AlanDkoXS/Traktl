@@ -1,49 +1,49 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { useTagStore } from '../../store/tagStore';
-import { Tag } from '../../types';
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { useTagStore } from '../../store/tagStore'
+import { Tag } from '../../types'
 
 interface TagFormProps {
-	tag?: Tag;
-	isEditing?: boolean;
+	tag?: Tag
+	isEditing?: boolean
 }
 
 export const TagForm = ({ tag, isEditing = false }: TagFormProps) => {
-	const { t } = useTranslation();
-	const navigate = useNavigate();
-	const { createTag, updateTag } = useTagStore();
+	const { t } = useTranslation()
+	const navigate = useNavigate()
+	const { createTag, updateTag } = useTagStore()
 
-	const [name, setName] = useState(tag?.name || '');
-	const [color, setColor] = useState(tag?.color || '#2ecc71');
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [error, setError] = useState('');
+	const [name, setName] = useState(tag?.name || '')
+	const [color, setColor] = useState(tag?.color || '#2ecc71')
+	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [error, setError] = useState('')
 
 	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
 
 		if (!name) {
-			setError(t('errors.required'));
-			return;
+			setError(t('errors.required'))
+			return
 		}
 
-		setIsSubmitting(true);
-		setError('');
+		setIsSubmitting(true)
+		setError('')
 
 		try {
 			if (isEditing && tag) {
-				await updateTag(tag.id, { name, color });
+				await updateTag(tag.id, { name, color })
 			} else {
-				await createTag({ name, color });
+				await createTag({ name, color })
 			}
 
-			navigate('/tags');
+			navigate('/tags')
 		} catch (err: any) {
-			setError(err.message || t('errors.serverError'));
+			setError(err.message || t('errors.serverError'))
 		} finally {
-			setIsSubmitting(false);
+			setIsSubmitting(false)
 		}
-	};
+	}
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-6">
@@ -103,7 +103,11 @@ export const TagForm = ({ tag, isEditing = false }: TagFormProps) => {
 				>
 					{t('common.cancel')}
 				</button>
-				<button type="submit" disabled={isSubmitting} className="btn btn-primary dynamic-bg text-white">
+				<button
+					type="submit"
+					disabled={isSubmitting}
+					className="btn btn-primary dynamic-bg text-white"
+				>
 					{isSubmitting
 						? t('common.loading')
 						: isEditing
@@ -112,5 +116,5 @@ export const TagForm = ({ tag, isEditing = false }: TagFormProps) => {
 				</button>
 			</div>
 		</form>
-	);
-};
+	)
+}

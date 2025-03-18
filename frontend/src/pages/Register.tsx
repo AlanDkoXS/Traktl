@@ -1,95 +1,89 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
-import { LanguageSelector } from '../components/LanguageSelector';
-import { ThemeToggle } from '../components/ThemeToggle';
-import { useAuthStore } from '../store/authStore';
-import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link, useNavigate } from 'react-router-dom'
+import { LanguageSelector } from '../components/LanguageSelector'
+import { ThemeToggle } from '../components/ThemeToggle'
+import { useAuthStore } from '../store/authStore'
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
 
 export const Register = () => {
-	const { t } = useTranslation();
-	const navigate = useNavigate();
-	const { register, isAuthenticated } = useAuthStore();
-	const [name, setName] = useState('');
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
-	const [confirmPassword, setConfirmPassword] = useState('');
-	const [error, setError] = useState('');
-	const [passwordError, setPasswordError] = useState('');
-	const [confirmError, setConfirmError] = useState('');
-	const [loading, setIsSubmitting] = useState(false);
+	const { t } = useTranslation()
+	const navigate = useNavigate()
+	const { register, isAuthenticated } = useAuthStore()
+	const [name, setName] = useState('')
+	const [email, setEmail] = useState('')
+	const [password, setPassword] = useState('')
+	const [confirmPassword, setConfirmPassword] = useState('')
+	const [error, setError] = useState('')
+	const [passwordError, setPasswordError] = useState('')
+	const [confirmError, setConfirmError] = useState('')
+	const [loading, setIsSubmitting] = useState(false)
 
 	// Check if already authenticated
 	useEffect(() => {
 		if (isAuthenticated) {
-			navigate('/');
+			navigate('/')
 		}
-	}, [isAuthenticated, navigate]);
+	}, [isAuthenticated, navigate])
 
 	// Password validation
 	useEffect(() => {
 		if (password) {
 			const passwordRegex =
-				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 			if (!passwordRegex.test(password)) {
-				setPasswordError(t('auth.passwordRequirements'));
+				setPasswordError(t('auth.passwordRequirements'))
 			} else {
-				setPasswordError('');
+				setPasswordError('')
 			}
 		} else {
-			setPasswordError('');
+			setPasswordError('')
 		}
-	}, [password, t]);
+	}, [password, t])
 
 	// Confirm password validation
 	useEffect(() => {
 		if (confirmPassword && password !== confirmPassword) {
-			setConfirmError(t('auth.passwordMismatch'));
+			setConfirmError(t('auth.passwordMismatch'))
 		} else {
-			setConfirmError('');
+			setConfirmError('')
 		}
-	}, [password, confirmPassword, t]);
+	}, [password, confirmPassword, t])
 
 	const handleRegister = async (e: React.FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
 
 		// Validate required fields
 		if (!name || !email || !password || !confirmPassword) {
-			setError(t('errors.required'));
-			return;
+			setError(t('errors.required'))
+			return
 		}
 
 		// Check password validation
 		if (passwordError) {
-			return;
+			return
 		}
 
 		// Check password match
 		if (password !== confirmPassword) {
-			setConfirmError(t('auth.passwordMismatch'));
-			return;
+			setConfirmError(t('auth.passwordMismatch'))
+			return
 		}
 
 		try {
-			setIsSubmitting(true);
-			setError('');
+			setIsSubmitting(true)
+			setError('')
 
 			// Note: changed 'system' to 'light' here to match backend validation
-			await register(
-				name,
-				email,
-				password,
-				'en',
-				'light'
-			);
+			await register(name, email, password, 'en', 'light')
 
-			navigate('/');
+			navigate('/')
 		} catch (err: any) {
-			setError(err.message || t('errors.serverError'));
+			setError(err.message || t('errors.serverError'))
 		} finally {
-			setIsSubmitting(false);
+			setIsSubmitting(false)
 		}
-	};
+	}
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -121,7 +115,9 @@ export const Register = () => {
 
 				<div className="mt-6 flex items-center justify-center">
 					<div className="border-t flex-grow border-gray-300 dark:border-gray-700"></div>
-					<div className="mx-4 text-sm text-gray-500 dark:text-gray-400">{t('auth.orSignUpWith')}</div>
+					<div className="mx-4 text-sm text-gray-500 dark:text-gray-400">
+						{t('auth.orSignUpWith')}
+					</div>
 					<div className="border-t flex-grow border-gray-300 dark:border-gray-700"></div>
 				</div>
 
@@ -209,7 +205,9 @@ export const Register = () => {
 								autoComplete="new-password"
 								required
 								value={confirmPassword}
-								onChange={(e) => setConfirmPassword(e.target.value)}
+								onChange={(e) =>
+									setConfirmPassword(e.target.value)
+								}
 								className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm mt-1"
 								placeholder={t('auth.passwordConfirm')}
 							/>
@@ -224,7 +222,9 @@ export const Register = () => {
 					<div>
 						<button
 							type="submit"
-							disabled={loading || !!passwordError || !!confirmError}
+							disabled={
+								loading || !!passwordError || !!confirmError
+							}
 							className="btn btn-primary w-full py-2 justify-center"
 						>
 							{loading ? t('common.loading') : t('auth.signUp')}
@@ -233,5 +233,5 @@ export const Register = () => {
 				</form>
 			</div>
 		</div>
-	);
-};
+	)
+}

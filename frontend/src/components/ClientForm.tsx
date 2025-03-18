@@ -1,35 +1,35 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { useClientStore } from '../store/clientStore';
-import { Client } from '../types';
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { useClientStore } from '../store/clientStore'
+import { Client } from '../types'
 
 interface ClientFormProps {
-	client?: Client;
-	isEditing?: boolean;
+	client?: Client
+	isEditing?: boolean
 }
 
 export const ClientForm = ({ client, isEditing = false }: ClientFormProps) => {
-	const { t } = useTranslation();
-	const navigate = useNavigate();
-	const { createClient, updateClient } = useClientStore();
+	const { t } = useTranslation()
+	const navigate = useNavigate()
+	const { createClient, updateClient } = useClientStore()
 
-	const [name, setName] = useState(client?.name || '');
-	const [contactInfo, setContactInfo] = useState(client?.contactInfo || '');
-	const [color, setColor] = useState(client?.color || '#3b82f6');
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [error, setError] = useState('');
+	const [name, setName] = useState(client?.name || '')
+	const [contactInfo, setContactInfo] = useState(client?.contactInfo || '')
+	const [color, setColor] = useState(client?.color || '#3b82f6')
+	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [error, setError] = useState('')
 
 	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
 
 		if (!name) {
-			setError(t('errors.required'));
-			return;
+			setError(t('errors.required'))
+			return
 		}
 
-		setIsSubmitting(true);
-		setError('');
+		setIsSubmitting(true)
+		setError('')
 
 		try {
 			if (isEditing && client) {
@@ -37,23 +37,23 @@ export const ClientForm = ({ client, isEditing = false }: ClientFormProps) => {
 					name,
 					contactInfo,
 					color,
-				});
+				})
 			} else {
 				await createClient({
 					name,
 					contactInfo,
 					color,
-				});
+				})
 			}
 
-			navigate('/clients');
+			navigate('/clients')
 		} catch (err: any) {
-			console.error('Client submission error:', err);
-			setError(err.message || t('errors.serverError'));
+			console.error('Client submission error:', err)
+			setError(err.message || t('errors.serverError'))
 		} finally {
-			setIsSubmitting(false);
+			setIsSubmitting(false)
 		}
-	};
+	}
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-6">
@@ -129,7 +129,11 @@ export const ClientForm = ({ client, isEditing = false }: ClientFormProps) => {
 				>
 					{t('common.cancel')}
 				</button>
-				<button type="submit" disabled={isSubmitting} className="btn btn-primary">
+				<button
+					type="submit"
+					disabled={isSubmitting}
+					className="btn btn-primary"
+				>
 					{isSubmitting
 						? t('common.loading')
 						: isEditing
@@ -138,5 +142,5 @@ export const ClientForm = ({ client, isEditing = false }: ClientFormProps) => {
 				</button>
 			</div>
 		</form>
-	);
-};
+	)
+}

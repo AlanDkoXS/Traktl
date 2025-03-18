@@ -1,7 +1,7 @@
-import { ReactNode, useState, useEffect } from 'react';
-import { UserMenu } from '../components/UserMenu';
-import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
+import { ReactNode, useState, useEffect } from 'react'
+import { UserMenu } from '../components/UserMenu'
+import { useTranslation } from 'react-i18next'
+import { Link, useLocation } from 'react-router-dom'
 import {
 	HomeIcon,
 	ClipboardDocumentListIcon,
@@ -13,58 +13,66 @@ import {
 	XMarkIcon,
 	TagIcon,
 	ClockIcon as TimerIcon,
-} from '@heroicons/react/24/outline';
-import { StickyTimer } from '../components/timer/StickyTimer';
+} from '@heroicons/react/24/outline'
+import { StickyTimer } from '../components/timer/StickyTimer'
 
 interface MainLayoutProps {
-	children: ReactNode;
+	children: ReactNode
 }
 
 export const MainLayout = ({ children }: MainLayoutProps) => {
-	const { t } = useTranslation();
-	const location = useLocation();
-	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const { t } = useTranslation()
+	const location = useLocation()
+	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
 	// Close mobile menu when location changes
 	useEffect(() => {
-		setIsMobileMenuOpen(false);
-	}, [location.pathname]);
+		setIsMobileMenuOpen(false)
+	}, [location.pathname])
 
 	// Close mobile menu when Escape key is pressed
 	useEffect(() => {
 		const handleEsc = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') {
-				setIsMobileMenuOpen(false);
+				setIsMobileMenuOpen(false)
 			}
-		};
+		}
 
-		window.addEventListener('keydown', handleEsc);
-		return () => window.removeEventListener('keydown', handleEsc);
-	}, []);
+		window.addEventListener('keydown', handleEsc)
+		return () => window.removeEventListener('keydown', handleEsc)
+	}, [])
 
 	// Prevent scrolling when mobile menu is open
 	useEffect(() => {
 		if (isMobileMenuOpen) {
-			document.body.style.overflow = 'hidden';
+			document.body.style.overflow = 'hidden'
 		} else {
-			document.body.style.overflow = '';
+			document.body.style.overflow = ''
 		}
 
 		return () => {
-			document.body.style.overflow = '';
-		};
-	}, [isMobileMenuOpen]);
+			document.body.style.overflow = ''
+		}
+	}, [isMobileMenuOpen])
 
 	const navigation = [
 		{ name: t('nav.dashboard'), href: '/', icon: HomeIcon },
-		{ name: t('nav.projects'), href: '/projects', icon: ClipboardDocumentListIcon },
+		{
+			name: t('nav.projects'),
+			href: '/projects',
+			icon: ClipboardDocumentListIcon,
+		},
 		{ name: t('nav.clients'), href: '/clients', icon: UserGroupIcon },
 		{ name: t('nav.tasks'), href: '/tasks', icon: ClockIcon },
 		{ name: t('tags.title'), href: '/tags', icon: TagIcon },
-		{ name: t('timerPresets.title'), href: '/timer-presets', icon: TimerIcon },
+		{
+			name: t('timerPresets.title'),
+			href: '/timer-presets',
+			icon: TimerIcon,
+		},
 		{ name: t('nav.reports'), href: '/reports', icon: ChartBarIcon },
 		{ name: t('nav.settings'), href: '/settings', icon: Cog6ToothIcon },
-	];
+	]
 
 	return (
 		<div className="flex h-full bg-gray-50 dark:bg-[rgb(var(--color-bg-canvas))]">
@@ -87,7 +95,9 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 						<Bars3Icon className="h-6 w-6" />
 					</button>
 
-					<div className="text-xl font-bold dynamic-color">{t('app.name')}</div>
+					<div className="text-xl font-bold dynamic-color">
+						{t('app.name')}
+					</div>
 
 					<UserMenu />
 				</div>
@@ -103,7 +113,9 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 					shadow-lg border-r border-gray-200 dark:border-[rgb(var(--color-border-primary))]`}
 			>
 				<div className="h-16 flex items-center justify-between p-4 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-					<h1 className="text-xl font-bold dynamic-color">{t('app.name')}</h1>
+					<h1 className="text-xl font-bold dynamic-color">
+						{t('app.name')}
+					</h1>
 					<div className="flex items-center">
 						<button
 							onClick={() => setIsMobileMenuOpen(false)}
@@ -121,7 +133,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 				<div className="flex-1 overflow-y-auto p-3 mt-6">
 					<div className="space-y-1">
 						{navigation.map((item) => {
-							const isActive = location.pathname === item.href;
+							const isActive = location.pathname === item.href
 							return (
 								<Link
 									key={item.name}
@@ -142,7 +154,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 									/>
 									{item.name}
 								</Link>
-							);
+							)
 						})}
 					</div>
 				</div>
@@ -151,7 +163,9 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 			{/* Main content area */}
 			<div className="flex-1 flex flex-col min-h-screen pt-14 md:pt-0 overflow-x-hidden">
 				{/* Main content */}
-				<main className="flex-1 max-w-7xl mx-auto p-4 sm:p-6 w-full">{children}</main>
+				<main className="flex-1 max-w-7xl mx-auto p-4 sm:p-6 w-full">
+					{children}
+				</main>
 
 				{/* Footer */}
 				<footer className="py-4 px-6 text-center text-xs text-gray-500 dark:text-gray-400">
@@ -164,5 +178,5 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 			{/* Sticky Timer */}
 			<StickyTimer />
 		</div>
-	);
-};
+	)
+}

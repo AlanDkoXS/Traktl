@@ -1,94 +1,96 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useTimer } from '../../hooks/useTimer';
-import { useLocation } from 'react-router-dom';
-import { PlayIcon, PauseIcon, StopIcon } from '@heroicons/react/24/solid';
-import { ConfirmModal } from '../ui/ConfirmModal';
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useTimer } from '../../hooks/useTimer'
+import { useLocation } from 'react-router-dom'
+import { PlayIcon, PauseIcon, StopIcon } from '@heroicons/react/24/solid'
+import { ConfirmModal } from '../ui/ConfirmModal'
 
 export const StickyTimer = () => {
-	const { t } = useTranslation();
-	const location = useLocation();
-	const { 
+	const { t } = useTranslation()
+	const location = useLocation()
+	const {
 		status,
-		mode, 
-		formattedTime, 
-		progress, 
+		mode,
+		formattedTime,
+		progress,
 		elapsed,
 		pause,
 		resume,
 		stop,
 		projectId,
-		infiniteMode
-	} = useTimer();
+		infiniteMode,
+	} = useTimer()
 
-	const [isVisible, setIsVisible] = useState(false);
-	const [animateIn, setAnimateIn] = useState(false);
-	const [showStopConfirmationModal, setShowStopConfirmationModal] = useState(false);
+	const [isVisible, setIsVisible] = useState(false)
+	const [animateIn, setAnimateIn] = useState(false)
+	const [showStopConfirmationModal, setShowStopConfirmationModal] =
+		useState(false)
 
 	// Simplified logic for visibility
 	useEffect(() => {
-		const isTimerActive = status === 'running' || status === 'paused' || status === 'break';
-		const isDashboard = location.pathname === '/';
+		const isTimerActive =
+			status === 'running' || status === 'paused' || status === 'break'
+		const isDashboard = location.pathname === '/'
 
 		// Simple rule: show if timer is active and not on dashboard
 		if (isTimerActive && !isDashboard) {
-			setIsVisible(true);
+			setIsVisible(true)
 			// Add slight delay for animation
 			const animTimeout = setTimeout(() => {
-				setAnimateIn(true);
-			}, 50);
-			return () => clearTimeout(animTimeout);
+				setAnimateIn(true)
+			}, 50)
+			return () => clearTimeout(animTimeout)
 		} else {
 			// Hide with animation
-			setAnimateIn(false);
+			setAnimateIn(false)
 			const hideTimeout = setTimeout(() => {
-				setIsVisible(false);
-			}, 500); // Match the transition duration in the className
-			return () => clearTimeout(hideTimeout);
+				setIsVisible(false)
+			}, 500) // Match the transition duration in the className
+			return () => clearTimeout(hideTimeout)
 		}
-	}, [status, location.pathname]);
+	}, [status, location.pathname])
 
 	// Handle stop confirmation
 	const handleStop = () => {
 		if (elapsed > 0) {
 			// Always show confirmation when stopping with time recorded (work or break)
-			setShowStopConfirmationModal(true);
+			setShowStopConfirmationModal(true)
 		} else {
 			// For empty timer, just stop and reset
-			stop();
+			stop()
 		}
-	};
+	}
 
 	const handleConfirmSave = () => {
-		stop();
-		setShowStopConfirmationModal(false);
-	};
+		stop()
+		setShowStopConfirmationModal(false)
+	}
 
 	const handleDontSave = () => {
-		stop();
-		setShowStopConfirmationModal(false);
-	};
+		stop()
+		setShowStopConfirmationModal(false)
+	}
 
 	const handleCancelStopModal = () => {
-		setShowStopConfirmationModal(false);
-	};
+		setShowStopConfirmationModal(false)
+	}
 
 	// Early return if not visible at all
-	if (!isVisible) return null;
+	if (!isVisible) return null
 
 	// Get button color classes based on mode
 	const getButtonClasses = (buttonType: 'play' | 'pause' | 'stop') => {
 		if (buttonType === 'stop') {
-			return 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800/50';
+			return 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800/50'
 		}
-		
+
 		if (mode === 'break') {
-			return 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800/50';
+			return 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800/50'
 		}
-		
+
 		// Use dynamic colors for work mode
-		return 'dynamic-bg-subtle dynamic-color hover:brightness-110 dark:hover:brightness-125';
-	};
+		return 'dynamic-bg-subtle dynamic-color hover:brightness-110 dark:hover:brightness-125'
+	}
 
 	return (
 		<>
@@ -167,7 +169,7 @@ export const StickyTimer = () => {
 				title={t('timer.saveSessionTitle', 'Save Session')}
 				message={t(
 					'timer.stopSessionMessage',
-					'Do you want to save this timer session? This will reset the timer and return to Session 1.'
+					'Do you want to save this timer session? This will reset the timer and return to Session 1.',
 				)}
 				confirmButtonText={t('common.yes')}
 				cancelButtonText={t('common.no')}
@@ -179,5 +181,5 @@ export const StickyTimer = () => {
 				onCancelButtonClick={handleCancelStopModal}
 			/>
 		</>
-	);
-};
+	)
+}

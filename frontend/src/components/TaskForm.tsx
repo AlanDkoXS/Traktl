@@ -1,49 +1,51 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useTaskStore } from '../store/taskStore';
-import { useProjectStore } from '../store/projectStore';
-import { Task } from '../types';
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useTaskStore } from '../store/taskStore'
+import { useProjectStore } from '../store/projectStore'
+import { Task } from '../types'
 
 interface TaskFormProps {
-	task?: Task;
-	isEditing?: boolean;
+	task?: Task
+	isEditing?: boolean
 }
 
 export const TaskForm = ({ task, isEditing = false }: TaskFormProps) => {
-	const { t } = useTranslation();
-	const navigate = useNavigate();
-	const location = useLocation();
-	const { createTask, updateTask } = useTaskStore();
-	const { projects, fetchProjects } = useProjectStore();
+	const { t } = useTranslation()
+	const navigate = useNavigate()
+	const location = useLocation()
+	const { createTask, updateTask } = useTaskStore()
+	const { projects, fetchProjects } = useProjectStore()
 
 	// Get projectId from query params if available
-	const queryParams = new URLSearchParams(location.search);
-	const queryProjectId = queryParams.get('projectId');
+	const queryParams = new URLSearchParams(location.search)
+	const queryProjectId = queryParams.get('projectId')
 
-	const [name, setName] = useState(task?.name || '');
-	const [description, setDescription] = useState(task?.description || '');
-	const [projectId, setProjectId] = useState(task?.project || queryProjectId || '');
-	const [status, setStatus] = useState<'pending' | 'in-progress' | 'completed'>(
-		task?.status || 'pending'
-	);
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [error, setError] = useState('');
+	const [name, setName] = useState(task?.name || '')
+	const [description, setDescription] = useState(task?.description || '')
+	const [projectId, setProjectId] = useState(
+		task?.project || queryProjectId || '',
+	)
+	const [status, setStatus] = useState<
+		'pending' | 'in-progress' | 'completed'
+	>(task?.status || 'pending')
+	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [error, setError] = useState('')
 
 	useEffect(() => {
-		fetchProjects();
-	}, [fetchProjects]);
+		fetchProjects()
+	}, [fetchProjects])
 
 	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
 
 		if (!name || !projectId) {
-			setError(t('errors.required'));
-			return;
+			setError(t('errors.required'))
+			return
 		}
 
-		setIsSubmitting(true);
-		setError('');
+		setIsSubmitting(true)
+		setError('')
 
 		try {
 			if (isEditing && task) {
@@ -52,23 +54,23 @@ export const TaskForm = ({ task, isEditing = false }: TaskFormProps) => {
 					description,
 					project: projectId,
 					status,
-				});
+				})
 			} else {
 				await createTask({
 					name,
 					description,
 					project: projectId,
 					status,
-				});
+				})
 			}
 
-			navigate('/tasks');
+			navigate('/tasks')
 		} catch (err: any) {
-			setError(err.message || t('errors.serverError'));
+			setError(err.message || t('errors.serverError'))
 		} finally {
-			setIsSubmitting(false);
+			setIsSubmitting(false)
 		}
-	};
+	}
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-6">
@@ -145,13 +147,22 @@ export const TaskForm = ({ task, isEditing = false }: TaskFormProps) => {
 					id="status"
 					value={status}
 					onChange={(e) =>
-						setStatus(e.target.value as 'pending' | 'in-progress' | 'completed')
+						setStatus(
+							e.target.value as
+								| 'pending'
+								| 'in-progress'
+								| 'completed',
+						)
 					}
 					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 				>
 					<option value="pending">{t('tasks.status.pending')}</option>
-					<option value="in-progress">{t('tasks.status.inProgress')}</option>
-					<option value="completed">{t('tasks.status.completed')}</option>
+					<option value="in-progress">
+						{t('tasks.status.inProgress')}
+					</option>
+					<option value="completed">
+						{t('tasks.status.completed')}
+					</option>
 				</select>
 			</div>
 
@@ -163,7 +174,11 @@ export const TaskForm = ({ task, isEditing = false }: TaskFormProps) => {
 				>
 					{t('common.cancel')}
 				</button>
-				<button type="submit" disabled={isSubmitting} className="btn btn-primary">
+				<button
+					type="submit"
+					disabled={isSubmitting}
+					className="btn btn-primary"
+				>
 					{isSubmitting
 						? t('common.loading')
 						: isEditing
@@ -172,5 +187,5 @@ export const TaskForm = ({ task, isEditing = false }: TaskFormProps) => {
 				</button>
 			</div>
 		</form>
-	);
-};
+	)
+}

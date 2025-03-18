@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-import { TimeEntryForm } from '../components/TimeEntryForm';
+import { useTranslation } from 'react-i18next'
+import { TimeEntryForm } from '../components/TimeEntryForm'
 
 export const CreateTimeEntry = () => {
-	const { t } = useTranslation();
+	const { t } = useTranslation()
 
 	return (
 		<div>
@@ -16,5 +16,5 @@ export const CreateTimeEntry = () => {
 				</div>
 			</div>
 		</div>
-	);
-};
+	)
+}

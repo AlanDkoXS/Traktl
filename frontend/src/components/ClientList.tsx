@@ -1,33 +1,33 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useClientStore } from '../store/clientStore';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useClientStore } from '../store/clientStore'
+import { Link } from 'react-router-dom'
 
 export const ClientList = () => {
-	const { t } = useTranslation();
-	const { clients, isLoading, error, fetchClients } = useClientStore();
-	const [retryCount, setRetryCount] = useState(0);
-	const [hoveredClientId, setHoveredClientId] = useState<string | null>(null);
+	const { t } = useTranslation()
+	const { clients, isLoading, error, fetchClients } = useClientStore()
+	const [retryCount, setRetryCount] = useState(0)
+	const [hoveredClientId, setHoveredClientId] = useState<string | null>(null)
 
 	useEffect(() => {
 		const loadClients = async () => {
 			try {
-				await fetchClients();
+				await fetchClients()
 			} catch (err) {
-				console.error('Error loading clients:', err);
+				console.error('Error loading clients:', err)
 			}
-		};
+		}
 
-		loadClients();
-	}, [fetchClients, retryCount]);
+		loadClients()
+	}, [fetchClients, retryCount])
 
 	const handleRetry = () => {
-		setRetryCount((prev) => prev + 1);
-	};
+		setRetryCount((prev) => prev + 1)
+	}
 
 	const handleClientHover = (clientId: string | null) => {
-		setHoveredClientId(clientId);
-	};
+		setHoveredClientId(clientId)
+	}
 
 	if (isLoading) {
 		return (
@@ -35,7 +35,7 @@ export const ClientList = () => {
 				<div className="animate-spin rounded-full h-6 w-6 border-b-2 dynamic-border"></div>
 				<span className="ml-2">{t('common.loading')}</span>
 			</div>
-		);
+		)
 	}
 
 	if (error) {
@@ -49,18 +49,20 @@ export const ClientList = () => {
 					{t('common.retry')}
 				</button>
 			</div>
-		);
+		)
 	}
 
 	if (clients.length === 0) {
 		return (
 			<div className="text-center py-8">
-				<p className="text-gray-500 dark:text-gray-400 mb-4">{t('clients.noClients')}</p>
+				<p className="text-gray-500 dark:text-gray-400 mb-4">
+					{t('clients.noClients')}
+				</p>
 				<Link to="/clients/new" className="btn btn-primary">
 					{t('clients.new')}
 				</Link>
 			</div>
-		);
+		)
 	}
 
 	return (
@@ -82,7 +84,9 @@ export const ClientList = () => {
 								<div className="min-w-0 flex-1 flex items-center">
 									<div
 										className="flex-shrink-0 h-6 w-6 rounded-md"
-										style={{ backgroundColor: client.color }}
+										style={{
+											backgroundColor: client.color,
+										}}
 									/>
 									<div className="min-w-0 flex-1 px-4">
 										<div>
@@ -99,7 +103,8 @@ export const ClientList = () => {
 								</div>
 								<div>
 									<span className="text-xs text-gray-500 dark:text-gray-400">
-										{t('projects.title')}: {client.projects?.length || 0}
+										{t('projects.title')}:{' '}
+										{client.projects?.length || 0}
 									</span>
 								</div>
 							</div>
@@ -108,5 +113,5 @@ export const ClientList = () => {
 				))}
 			</ul>
 		</div>
-	);
-};
+	)
+}

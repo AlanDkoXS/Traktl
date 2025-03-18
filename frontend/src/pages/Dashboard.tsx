@@ -1,44 +1,44 @@
-import { useTranslation } from 'react-i18next';
-import { Timer } from '../components/Timer';
-import { useProjectStore } from '../store/projectStore';
-import { useClientStore } from '../store/clientStore';
-import { useTaskStore } from '../store/taskStore';
-import { useTimeEntryStore } from '../store/timeEntryStore';
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRightIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { TimeEntryList } from '../components/TimeEntryList';
+import { useTranslation } from 'react-i18next'
+import { Timer } from '../components/Timer'
+import { useProjectStore } from '../store/projectStore'
+import { useClientStore } from '../store/clientStore'
+import { useTaskStore } from '../store/taskStore'
+import { useTimeEntryStore } from '../store/timeEntryStore'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowRightIcon, PlusIcon } from '@heroicons/react/24/outline'
+import { TimeEntryList } from '../components/TimeEntryList'
 
 export const Dashboard = () => {
-	const { t } = useTranslation();
-	const { projects, fetchProjects } = useProjectStore();
-	const { clients, fetchClients } = useClientStore();
-	const { tasks, fetchTasks } = useTaskStore();
-	const { timeEntries } = useTimeEntryStore();
+	const { t } = useTranslation()
+	const { projects, fetchProjects } = useProjectStore()
+	const { clients, fetchClients } = useClientStore()
+	const { tasks, fetchTasks } = useTaskStore()
+	const { timeEntries } = useTimeEntryStore()
 
-	const [isLoading, setIsLoading] = useState(true);
-	const [dataInitialized, setDataInitialized] = useState(false);
+	const [isLoading, setIsLoading] = useState(true)
+	const [dataInitialized, setDataInitialized] = useState(false)
 
 	useEffect(() => {
 		if (!dataInitialized) {
 			const loadData = async () => {
-				setIsLoading(true);
+				setIsLoading(true)
 				try {
 					// Load data in sequence to avoid cycles
-					await fetchProjects();
-					await fetchClients();
-					await fetchTasks();
-					setDataInitialized(true);
+					await fetchProjects()
+					await fetchClients()
+					await fetchTasks()
+					setDataInitialized(true)
 				} catch (err) {
-					console.error('Error loading dashboard data:', err);
+					console.error('Error loading dashboard data:', err)
 				} finally {
-					setIsLoading(false);
+					setIsLoading(false)
 				}
-			};
+			}
 
-			loadData();
+			loadData()
 		}
-	}, [dataInitialized]);
+	}, [dataInitialized])
 
 	return (
 		<div className="max-w-7xl mx-auto">
@@ -95,10 +95,22 @@ export const Dashboard = () => {
 										href="/time-entries/new"
 										title={t('timeEntries.new')}
 									/>
-									<QuickLink href="/projects/new" title={t('projects.new')} />
-									<QuickLink href="/tasks/new" title={t('tasks.new')} />
-									<QuickLink href="/clients/new" title={t('clients.new')} />
-									<QuickLink href="/reports" title={t('reports.title')} />
+									<QuickLink
+										href="/projects/new"
+										title={t('projects.new')}
+									/>
+									<QuickLink
+										href="/tasks/new"
+										title={t('tasks.new')}
+									/>
+									<QuickLink
+										href="/clients/new"
+										title={t('clients.new')}
+									/>
+									<QuickLink
+										href="/reports"
+										title={t('reports.title')}
+									/>
 								</nav>
 							</div>
 						</>
@@ -106,18 +118,18 @@ export const Dashboard = () => {
 				</div>
 			</div>
 		</div>
-	);
-};
+	)
+}
 
 // Stats Card Component
 interface StatsCardProps {
-	title: string;
-	count: number;
-	link: string;
+	title: string
+	count: number
+	link: string
 }
 
 const StatsCard = ({ title, count, link }: StatsCardProps) => {
-	const { t } = useTranslation();
+	const { t } = useTranslation()
 
 	return (
 		<Link
@@ -125,21 +137,25 @@ const StatsCard = ({ title, count, link }: StatsCardProps) => {
 			className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 hover:shadow-md transition-shadow flex flex-col h-full group rounded-lg shadow-sm border border-gray-200 dark:border-[rgb(var(--color-border-primary))]"
 		>
 			<div className="flex flex-col h-full">
-				<div className="font-medium text-gray-500 dark:text-gray-400 text-sm">{title}</div>
-				<div className="mt-2 text-3xl font-semibold dynamic-color">{count}</div>
+				<div className="font-medium text-gray-500 dark:text-gray-400 text-sm">
+					{title}
+				</div>
+				<div className="mt-2 text-3xl font-semibold dynamic-color">
+					{count}
+				</div>
 				<div className="mt-auto pt-2 text-xs dynamic-color flex items-center">
 					{t('common.viewAll')}
 					<ArrowRightIcon className="ml-1 h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
 				</div>
 			</div>
 		</Link>
-	);
-};
+	)
+}
 
 // Quick Link Component
 interface QuickLinkProps {
-	href: string;
-	title: string;
+	href: string
+	title: string
 }
 
 const QuickLink = ({ href, title }: QuickLinkProps) => {
@@ -152,5 +168,5 @@ const QuickLink = ({ href, title }: QuickLinkProps) => {
 			<span>{title}</span>
 			<ArrowRightIcon className="ml-auto h-4 w-4 text-gray-400 group-hover:dynamic-color group-hover:translate-x-0.5 transition-transform" />
 		</Link>
-	);
-};
+	)
+}

@@ -1,13 +1,13 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
 
 interface TimerSettingsProps {
-	workDuration: number;
-	breakDuration: number;
-	repetitions: number;
-	status: 'idle' | 'running' | 'paused' | 'break';
-	setWorkDuration: (minutes: number) => void;
-	setBreakDuration: (minutes: number) => void;
-	setRepetitions: (repetitions: number) => void;
+	workDuration: number
+	breakDuration: number
+	repetitions: number
+	status: 'idle' | 'running' | 'paused' | 'break'
+	setWorkDuration: (minutes: number) => void
+	setBreakDuration: (minutes: number) => void
+	setRepetitions: (repetitions: number) => void
 }
 
 export const TimerSettings = ({
@@ -19,29 +19,35 @@ export const TimerSettings = ({
 	setBreakDuration,
 	setRepetitions,
 }: TimerSettingsProps) => {
-	const { t } = useTranslation();
+	const { t } = useTranslation()
 
-	const handleWorkDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = parseInt(e.target.value);
+	const handleWorkDurationChange = (
+		e: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const value = parseInt(e.target.value)
 		if (!isNaN(value) && value >= 1 && value <= 60) {
-			setWorkDuration(value);
+			setWorkDuration(value)
 		}
-	};
+	}
 
-	const handleBreakDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = parseInt(e.target.value);
+	const handleBreakDurationChange = (
+		e: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const value = parseInt(e.target.value)
 		// Modificado para permitir 0 minutos
 		if (!isNaN(value) && value >= 0 && value <= 30) {
-			setBreakDuration(value);
+			setBreakDuration(value)
 		}
-	};
+	}
 
-	const handleRepetitionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = parseInt(e.target.value);
+	const handleRepetitionsChange = (
+		e: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const value = parseInt(e.target.value)
 		if (!isNaN(value) && value >= 1 && value <= 10) {
-			setRepetitions(value);
+			setRepetitions(value)
 		}
-	};
+	}
 
 	return (
 		<div className="mt-8 rounded-lg shadow-sm">
@@ -66,7 +72,9 @@ export const TimerSettings = ({
 							max="60"
 							step="1"
 							value={workDuration}
-							onChange={(e) => setWorkDuration(parseInt(e.target.value))}
+							onChange={(e) =>
+								setWorkDuration(parseInt(e.target.value))
+							}
 							disabled={status !== 'idle'}
 							className="w-full"
 						/>
@@ -100,7 +108,9 @@ export const TimerSettings = ({
 							max="30"
 							step="1"
 							value={breakDuration}
-							onChange={(e) => setBreakDuration(parseInt(e.target.value))}
+							onChange={(e) =>
+								setBreakDuration(parseInt(e.target.value))
+							}
 							disabled={status !== 'idle'}
 							className="w-full"
 						/>
@@ -134,7 +144,9 @@ export const TimerSettings = ({
 							max="10"
 							step="1"
 							value={repetitions}
-							onChange={(e) => setRepetitions(parseInt(e.target.value))}
+							onChange={(e) =>
+								setRepetitions(parseInt(e.target.value))
+							}
 							disabled={status !== 'idle'}
 							className="w-full"
 						/>
@@ -153,5 +165,5 @@ export const TimerSettings = ({
 				</div>
 			</div>
 		</div>
-	);
-};
+	)
+}

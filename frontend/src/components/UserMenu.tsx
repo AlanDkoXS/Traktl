@@ -1,16 +1,19 @@
-import { Fragment, useState } from 'react';
-import { Menu, Transition } from '@headlessui/react';
-import { UserCircleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '../store/authStore';
-import { ThemeToggle } from './ThemeToggle';
-import { LanguageSelector } from './LanguageSelector';
-import { Dialog } from '@headlessui/react';
+import { Fragment, useState } from 'react'
+import { Menu, Transition } from '@headlessui/react'
+import {
+	UserCircleIcon,
+	InformationCircleIcon,
+} from '@heroicons/react/24/outline'
+import { useTranslation } from 'react-i18next'
+import { useAuthStore } from '../store/authStore'
+import { ThemeToggle } from './ThemeToggle'
+import { LanguageSelector } from './LanguageSelector'
+import { Dialog } from '@headlessui/react'
 
 export const UserMenu = () => {
-	const { t } = useTranslation();
-	const { user, logout } = useAuthStore();
-	const [aboutModalOpen, setAboutModalOpen] = useState(false);
+	const { t } = useTranslation()
+	const { user, logout } = useAuthStore()
+	const [aboutModalOpen, setAboutModalOpen] = useState(false)
 
 	return (
 		<>
@@ -19,9 +22,16 @@ export const UserMenu = () => {
 					<Menu.Button className="flex max-w-xs items-center rounded-full bg-white dark:bg-[rgb(var(--color-bg-inset))] text-sm focus:outline-none focus:ring-2 focus:dynamic-border focus:ring-offset-2">
 						<span className="sr-only">Open user menu</span>
 						{user?.picture ? (
-							<img className="h-8 w-8 rounded-full" src={user.picture} alt={user.name} />
+							<img
+								className="h-8 w-8 rounded-full"
+								src={user.picture}
+								alt={user.name}
+							/>
 						) : (
-							<UserCircleIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
+							<UserCircleIcon
+								className="h-8 w-8 text-gray-400"
+								aria-hidden="true"
+							/>
 						)}
 					</Menu.Button>
 				</div>
@@ -103,29 +113,38 @@ export const UserMenu = () => {
 			</Menu>
 
 			{/* Modal de Acerca de */}
-			<Dialog open={aboutModalOpen} onClose={() => setAboutModalOpen(false)} className="relative z-50">
-				<div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
-				
+			<Dialog
+				open={aboutModalOpen}
+				onClose={() => setAboutModalOpen(false)}
+				className="relative z-50"
+			>
+				<div
+					className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+					aria-hidden="true"
+				/>
+
 				<div className="fixed inset-0 flex items-center justify-center p-4">
 					<Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-lg bg-white dark:bg-[rgb(var(--color-bg-inset))] p-6 text-left align-middle shadow-xl transition-all">
-						<Dialog.Title 
-							as="h3" 
+						<Dialog.Title
+							as="h3"
 							className="text-lg font-medium leading-6 text-gray-900 dark:text-white dynamic-color"
 						>
 							{t('about.title', 'About Traktl')}
 						</Dialog.Title>
-						
+
 						<div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
 							<p className="mb-2">
-								{t('app.name')} - {t('about.version', 'Version')} 0.1.b
+								{t('app.name')} -{' '}
+								{t('about.version', 'Version')} 0.1.b
 							</p>
 							<p className="mb-4">
-								{t('about.createdBy', 'Created by')} Alan Quintana
+								{t('about.createdBy', 'Created by')} Alan
+								Quintana
 							</p>
 							<p>
-								{t('about.contact', 'Contact')}: 
-								<a 
-									href="mailto:hello@alanquintana.pro" 
+								{t('about.contact', 'Contact')}:
+								<a
+									href="mailto:hello@alanquintana.pro"
 									className="ml-1 text-primary-600 dark:text-primary-400 hover:underline"
 								>
 									hello@alanquintana.pro
@@ -146,5 +165,5 @@ export const UserMenu = () => {
 				</div>
 			</Dialog>
 		</>
-	);
-};
+	)
+}

@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-import { ProjectForm } from '../components/ProjectForm';
+import { useTranslation } from 'react-i18next'
+import { ProjectForm } from '../components/ProjectForm'
 
 export const CreateProject = () => {
-	const { t } = useTranslation();
+	const { t } = useTranslation()
 
 	return (
 		<div>
@@ -16,5 +16,5 @@ export const CreateProject = () => {
 				</div>
 			</div>
 		</div>
-	);
-};
+	)
+}

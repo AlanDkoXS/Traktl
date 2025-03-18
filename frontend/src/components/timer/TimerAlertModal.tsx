@@ -1,15 +1,15 @@
-import { useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
-import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
-import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
+import { Fragment } from 'react'
+import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid'
+import { useTranslation } from 'react-i18next'
 
 interface TimerAlertModalProps {
-	isOpen: boolean;
-	message: string;
-	type: 'work' | 'break' | 'complete';
-	onClose: () => void;
-	autoCloseDelay?: number;
+	isOpen: boolean
+	message: string
+	type: 'work' | 'break' | 'complete'
+	onClose: () => void
+	autoCloseDelay?: number
 }
 
 export const TimerAlertModal = ({
@@ -19,26 +19,26 @@ export const TimerAlertModal = ({
 	onClose,
 	autoCloseDelay = 4000,
 }: TimerAlertModalProps) => {
-	const { t } = useTranslation();
+	const { t } = useTranslation()
 
 	// Auto-close timer
 	useEffect(() => {
 		if (isOpen && autoCloseDelay > 0) {
 			const timer = setTimeout(() => {
-				onClose();
-			}, autoCloseDelay);
+				onClose()
+			}, autoCloseDelay)
 
-			return () => clearTimeout(timer);
+			return () => clearTimeout(timer)
 		}
-	}, [isOpen, autoCloseDelay, onClose]);
+	}, [isOpen, autoCloseDelay, onClose])
 
 	// Determine icon based on type
 	const getIcon = () => {
 		switch (type) {
 			case 'work':
-				return <PlayIcon className="h-8 w-8 dynamic-color" />;
+				return <PlayIcon className="h-8 w-8 dynamic-color" />
 			case 'break':
-				return <PauseIcon className="h-8 w-8 dynamic-color" />;
+				return <PauseIcon className="h-8 w-8 dynamic-color" />
 			case 'complete':
 				return (
 					<svg
@@ -49,11 +49,11 @@ export const TimerAlertModal = ({
 					>
 						<path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
 					</svg>
-				);
+				)
 			default:
-				return <PlayIcon className="h-8 w-8 dynamic-color" />;
+				return <PlayIcon className="h-8 w-8 dynamic-color" />
 		}
-	};
+	}
 
 	return (
 		<Transition show={isOpen} as={Fragment}>
@@ -99,7 +99,9 @@ export const TimerAlertModal = ({
 								</div>
 
 								<div className="mt-3">
-									<p className="text-gray-600 dark:text-gray-300">{message}</p>
+									<p className="text-gray-600 dark:text-gray-300">
+										{message}
+									</p>
 								</div>
 
 								<div className="mt-4 flex justify-end">
@@ -117,5 +119,5 @@ export const TimerAlertModal = ({
 				</div>
 			</Dialog>
 		</Transition>
-	);
-};
+	)
+}

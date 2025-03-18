@@ -1,108 +1,117 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useTimeEntryStore } from '../store/timeEntryStore';
-import { useProjectStore } from '../store/projectStore';
-import { useTaskStore } from '../store/taskStore';
-import { useTagStore } from '../store/tagStore';
-import { TimeEntry } from '../types';
-import { format } from 'date-fns';
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { useTimeEntryStore } from '../store/timeEntryStore'
+import { useProjectStore } from '../store/projectStore'
+import { useTaskStore } from '../store/taskStore'
+import { useTagStore } from '../store/tagStore'
+import { TimeEntry } from '../types'
+import { format } from 'date-fns'
 
 interface TimeEntryFormProps {
-	timeEntry?: TimeEntry;
-	isEditing?: boolean;
+	timeEntry?: TimeEntry
+	isEditing?: boolean
 }
 
-export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormProps) => {
-	const { t } = useTranslation();
-	const navigate = useNavigate();
-	const location = useLocation();
-	const { createTimeEntry, updateTimeEntry } = useTimeEntryStore();
-	const { projects, fetchProjects } = useProjectStore();
-	const { tasks, fetchTasks } = useTaskStore();
-	const { tags, fetchTags } = useTagStore();
+export const TimeEntryForm = ({
+	timeEntry,
+	isEditing = false,
+}: TimeEntryFormProps) => {
+	const { t } = useTranslation()
+	const navigate = useNavigate()
+	const location = useLocation()
+	const { createTimeEntry, updateTimeEntry } = useTimeEntryStore()
+	const { projects, fetchProjects } = useProjectStore()
+	const { tasks, fetchTasks } = useTaskStore()
+	const { tags, fetchTags } = useTagStore()
 
 	// Get projectId from query params if available
-	const queryParams = new URLSearchParams(location.search);
-	const queryProjectId = queryParams.get('projectId');
-	const queryTaskId = queryParams.get('taskId');
+	const queryParams = new URLSearchParams(location.search)
+	const queryProjectId = queryParams.get('projectId')
+	const queryTaskId = queryParams.get('taskId')
 
 	// Initialize with either existing time entry, query params, or defaults
-	const [projectId, setProjectId] = useState(timeEntry?.project || queryProjectId || '');
-	const [taskId, setTaskId] = useState(timeEntry?.task || queryTaskId || '');
-	const [selectedTags, setSelectedTags] = useState<string[]>(timeEntry?.tags || []);
+	const [projectId, setProjectId] = useState(
+		timeEntry?.project || queryProjectId || '',
+	)
+	const [taskId, setTaskId] = useState(timeEntry?.task || queryTaskId || '')
+	const [selectedTags, setSelectedTags] = useState<string[]>(
+		timeEntry?.tags || [],
+	)
 	const [startTime, setStartTime] = useState(
 		timeEntry?.startTime
 			? format(new Date(timeEntry.startTime), "yyyy-MM-dd'T'HH:mm")
-			: format(new Date(), "yyyy-MM-dd'T'HH:mm")
-	);
+			: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+	)
 	const [endTime, setEndTime] = useState(
 		timeEntry?.endTime && !timeEntry.isRunning
 			? format(new Date(timeEntry.endTime), "yyyy-MM-dd'T'HH:mm")
-			: ''
-	);
-	const [notes, setNotes] = useState(timeEntry?.notes || '');
-	const [isRunning, setIsRunning] = useState(timeEntry?.isRunning || false);
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [error, setError] = useState('');
+			: '',
+	)
+	const [notes, setNotes] = useState(timeEntry?.notes || '')
+	const [isRunning, setIsRunning] = useState(timeEntry?.isRunning || false)
+	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [error, setError] = useState('')
 
 	useEffect(() => {
 		// Load projects, tasks, and tags
-		fetchProjects();
-		fetchTags();
+		fetchProjects()
+		fetchTags()
 
 		// If we have a project ID, fetch tasks for that project
 		if (projectId) {
-			fetchTasks(projectId);
+			fetchTasks(projectId)
 		}
-	}, [fetchProjects, fetchTags, fetchTasks, projectId]);
+	}, [fetchProjects, fetchTags, fetchTasks, projectId])
 
 	const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newProjectId = e.target.value;
-		setProjectId(newProjectId);
-		setTaskId(''); // Reset task when project changes
+		const newProjectId = e.target.value
+		setProjectId(newProjectId)
+		setTaskId('') // Reset task when project changes
 
 		// If this project changes, fetch tasks for the new project
 		if (newProjectId) {
-			fetchTasks(newProjectId);
+			fetchTasks(newProjectId)
 		}
-	};
+	}
 
 	const handleTagToggle = (tagId: string) => {
 		setSelectedTags((prev) =>
-			prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
-		);
-	};
+			prev.includes(tagId)
+				? prev.filter((id) => id !== tagId)
+				: [...prev, tagId],
+		)
+	}
 
 	const calculateDuration = () => {
-		if (isRunning || !endTime) return 0;
+		if (isRunning || !endTime) return 0
 
-		const start = new Date(startTime).getTime();
-		const end = new Date(endTime).getTime();
+		const start = new Date(startTime).getTime()
+		const end = new Date(endTime).getTime()
 
-		return end > start ? end - start : 0;
-	};
+		return end > start ? end - start : 0
+	}
 
 	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
 
 		if (!projectId || !startTime) {
-			setError(t('errors.required'));
-			return;
+			setError(t('errors.required'))
+			return
 		}
 
 		if (!isRunning && !endTime) {
-			setError(t('timeEntries.endTimeRequired'));
-			return;
+			setError(t('timeEntries.endTimeRequired'))
+			return
 		}
 
-		const duration = calculateDuration();
+		const duration = calculateDuration()
 
-		setIsSubmitting(true);
-		setError('');
+		setIsSubmitting(true)
+		setError('')
 
 		try {
-			console.log('Preparing time entry data...');
+			console.log('Preparing time entry data...')
 			const timeEntryData = {
 				project: projectId,
 				task: taskId || undefined,
@@ -112,37 +121,37 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 				notes,
 				isRunning,
 				tags: selectedTags,
-			};
-
-			console.log('Time entry data:', timeEntryData);
-
-			if (isEditing && timeEntry) {
-				console.log(`Updating time entry ${timeEntry.id}`);
-				await updateTimeEntry(timeEntry.id, timeEntryData);
-				console.log('Time entry updated successfully');
-			} else {
-				console.log('Creating new time entry');
-				await createTimeEntry(timeEntryData);
-				console.log('Time entry created successfully');
 			}
 
-			navigate('/time-entries');
+			console.log('Time entry data:', timeEntryData)
+
+			if (isEditing && timeEntry) {
+				console.log(`Updating time entry ${timeEntry.id}`)
+				await updateTimeEntry(timeEntry.id, timeEntryData)
+				console.log('Time entry updated successfully')
+			} else {
+				console.log('Creating new time entry')
+				await createTimeEntry(timeEntryData)
+				console.log('Time entry created successfully')
+			}
+
+			navigate('/time-entries')
 		} catch (err: any) {
-			console.error('Error submitting time entry:', err);
-			setError(err.message || t('errors.serverError'));
+			console.error('Error submitting time entry:', err)
+			setError(err.message || t('errors.serverError'))
 		} finally {
-			setIsSubmitting(false);
+			setIsSubmitting(false)
 		}
-	};
+	}
 
 	// Update the end time field when isRunning changes
 	useEffect(() => {
 		if (isRunning) {
-			setEndTime('');
+			setEndTime('')
 		} else if (!endTime) {
-			setEndTime(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
+			setEndTime(format(new Date(), "yyyy-MM-dd'T'HH:mm"))
 		}
-	}, [isRunning, endTime]);
+	}, [isRunning, endTime])
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-6">
@@ -317,7 +326,11 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 				>
 					{t('common.cancel')}
 				</button>
-				<button type="submit" disabled={isSubmitting} className="btn btn-primary">
+				<button
+					type="submit"
+					disabled={isSubmitting}
+					className="btn btn-primary"
+				>
 					{isSubmitting
 						? t('common.loading')
 						: isEditing
@@ -326,5 +339,5 @@ export const TimeEntryForm = ({ timeEntry, isEditing = false }: TimeEntryFormPro
 				</button>
 			</div>
 		</form>
-	);
-};
+	)
+}

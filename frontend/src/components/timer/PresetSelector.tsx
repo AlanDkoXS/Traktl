@@ -1,37 +1,40 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useTimerPresetStore } from '../../store/timerPresetStore';
-import { TimerPreset } from '../../types';
-import { PlusIcon } from '@heroicons/react/24/outline';
-import { PresetCreateModal } from './modals/PresetCreateModal';
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useTimerPresetStore } from '../../store/timerPresetStore'
+import { TimerPreset } from '../../types'
+import { PlusIcon } from '@heroicons/react/24/outline'
+import { PresetCreateModal } from './modals/PresetCreateModal'
 
 interface PresetSelectorProps {
-	onSelectPreset: (preset: TimerPreset) => void;
+	onSelectPreset: (preset: TimerPreset) => void
 	currentSettings?: {
-		workDuration: number;
-		breakDuration: number;
-		repetitions: number;
-	};
+		workDuration: number
+		breakDuration: number
+		repetitions: number
+	}
 }
 
-export const PresetSelector = ({ onSelectPreset, currentSettings }: PresetSelectorProps) => {
-	const { t } = useTranslation();
-	const { timerPresets, fetchTimerPresets, isLoading } = useTimerPresetStore();
-	const [showCreatePresetModal, setShowCreatePresetModal] = useState(false);
+export const PresetSelector = ({
+	onSelectPreset,
+	currentSettings,
+}: PresetSelectorProps) => {
+	const { t } = useTranslation()
+	const { timerPresets, fetchTimerPresets, isLoading } = useTimerPresetStore()
+	const [showCreatePresetModal, setShowCreatePresetModal] = useState(false)
 
 	useEffect(() => {
-		fetchTimerPresets();
-	}, [fetchTimerPresets]);
+		fetchTimerPresets()
+	}, [fetchTimerPresets])
 
 	const handlePresetCreated = (presetId: string) => {
 		// Find the newly created preset and select it
-		const newPreset = timerPresets.find(preset => preset.id === presetId);
+		const newPreset = timerPresets.find((preset) => preset.id === presetId)
 		if (newPreset) {
-			onSelectPreset(newPreset);
+			onSelectPreset(newPreset)
 		}
 		// Re-fetch presets to ensure we have the latest list
-		fetchTimerPresets();
-	};
+		fetchTimerPresets()
+	}
 
 	if (isLoading || timerPresets.length === 0) {
 		return (
@@ -44,7 +47,7 @@ export const PresetSelector = ({ onSelectPreset, currentSettings }: PresetSelect
 					<span className="ml-1">{t('timerPresets.new')}</span>
 				</button>
 			</div>
-		);
+		)
 	}
 
 	return (
@@ -79,5 +82,5 @@ export const PresetSelector = ({ onSelectPreset, currentSettings }: PresetSelect
 				initialValues={currentSettings}
 			/>
 		</div>
-	);
-};
+	)
+}

@@ -1,131 +1,220 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useTheme } from '../hooks/useTheme';
-import { useAuthStore } from '../store/authStore';
-import { ChangePasswordModal } from '../components/auth/ChangePasswordModal';
-import { emailVerificationService } from '../services/emailVerificationService';
-import { Modal } from '../components/ui/Modal';
-import { CheckCircleIcon, XCircleIcon, EnvelopeIcon, ClockIcon } from '@heroicons/react/24/outline';
-import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid';
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useTheme } from '../hooks/useTheme'
+import { useAuthStore } from '../store/authStore'
+import { ChangePasswordModal } from '../components/auth/ChangePasswordModal'
+import { emailVerificationService } from '../services/emailVerificationService'
+import { Modal } from '../components/ui/Modal'
+import {
+	CheckCircleIcon,
+	XCircleIcon,
+	EnvelopeIcon,
+	ClockIcon,
+} from '@heroicons/react/24/outline'
+import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 
 export const Settings = () => {
-	const { t, i18n } = useTranslation();
-	const { setTheme } = useTheme();
-	const { 
-		user, 
-		updateUser, 
-		error, 
-		isEmailVerified, 
+	const { t, i18n } = useTranslation()
+	const { setTheme } = useTheme()
+	const {
+		user,
+		updateUser,
+		error,
+		isEmailVerified,
 		isPendingVerification,
-		checkVerificationStatus 
-	} = useAuthStore();
+		checkVerificationStatus,
+	} = useAuthStore()
 
-	const [name, setName] = useState(user?.name || '');
-	const [email, setEmail] = useState(user?.email || '');
-	const [preferredLanguage, setPreferredLanguage] = useState<'es' | 'en' | 'tr'>(
-		(user?.preferredLanguage as 'es' | 'en' | 'tr') || 'en'
-	);
+	const [name, setName] = useState(user?.name || '')
+	const [email, setEmail] = useState(user?.email || '')
+	const [preferredLanguage, setPreferredLanguage] = useState<
+		'es' | 'en' | 'tr'
+	>((user?.preferredLanguage as 'es' | 'en' | 'tr') || 'en')
 	const [userTheme, setUserTheme] = useState<'light' | 'dark'>(
-		(user?.theme as 'light' | 'dark') || 'light'
-	);
+		(user?.theme as 'light' | 'dark') || 'light',
+	)
 
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [successMessage, setSuccessMessage] = useState('');
-	const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-	const [isVerificationLoading, setIsVerificationLoading] = useState(false);
-	const [showVerificationModal, setShowVerificationModal] = useState(false);
-	const [verificationError, setVerificationError] = useState('');
+	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [successMessage, setSuccessMessage] = useState('')
+	const [showChangePasswordModal, setShowChangePasswordModal] =
+		useState(false)
+	const [isVerificationLoading, setIsVerificationLoading] = useState(false)
+	const [showVerificationModal, setShowVerificationModal] = useState(false)
+	const [verificationError, setVerificationError] = useState('')
 
 	// Check email verification status when component mounts
 	useEffect(() => {
+		console.log(
+			'�� Settings: Component mounted, checking verification status',
+		)
+
 		const refreshVerificationStatus = async () => {
 			try {
-				await checkVerificationStatus();
+				console.log('⚪ Settings: Refreshing verification status...')
+				const result = await checkVerificationStatus()
+				console.log(
+					'🟢 Settings: Verification status refreshed:',
+					result,
+				)
 			} catch (err) {
-				console.error('Error refreshing verification status:', err);
+				console.error(
+					'🔴 Settings: Error refreshing verification status:',
+					err,
+				)
 			}
-		};
+		}
 
-		refreshVerificationStatus();
-	}, [checkVerificationStatus]);
+		refreshVerificationStatus()
+
+		// Set up interval to periodically check verification status (every 30 seconds)
+		const intervalId = setInterval(() => {
+			console.log('⚪ Settings: Periodic verification status check')
+			refreshVerificationStatus()
+		}, 30000)
+
+		// Clean up interval on unmount
+		return () => {
+			console.log('🔵 Settings: Component unmounting, clearing interval')
+			clearInterval(intervalId)
+		}
+	}, [checkVerificationStatus])
+
+	// Update form fields when user data changes
+	useEffect(() => {
+		if (user) {
+			console.log(
+				'🔵 Settings: User data changed, updating form fields:',
+				user,
+			)
+			setName(user.name || '')
+			setEmail(user.email || '')
+			setPreferredLanguage(
+				(user.preferredLanguage as 'es' | 'en' | 'tr') || 'en',
+			)
+			setUserTheme((user.theme as 'light' | 'dark') || 'light')
+		}
+	}, [user])
+
+	// Log verification state for debugging
+	useEffect(() => {
+		console.log('🔵 Settings: Verification state changed:', {
+			isEmailVerified,
+			isPendingVerification,
+		})
+	}, [isEmailVerified, isPendingVerification])
 
 	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
+		console.log('⚪ Settings: Form submitted')
 
-		setIsSubmitting(true);
-		setSuccessMessage('');
+		setIsSubmitting(true)
+		setSuccessMessage('')
 
 		try {
 			// Update user settings with valid theme value
+			console.log('⚪ Settings: Updating user with data:', {
+				name,
+				email,
+				preferredLanguage,
+				theme: userTheme,
+			})
 			await updateUser({
 				name,
 				email,
 				preferredLanguage,
 				theme: userTheme,
-			});
+			})
+			console.log('🟢 Settings: User updated successfully')
 
 			// Apply changes to app UI
-			setTheme(userTheme === 'light' ? 'light' : 'dark');
-			i18n.changeLanguage(preferredLanguage);
+			setTheme(userTheme === 'light' ? 'light' : 'dark')
+			i18n.changeLanguage(preferredLanguage)
 
-			setSuccessMessage(t('settings.saved'));
-			
+			setSuccessMessage(t('settings.saved'))
+			console.log('🟢 Settings: Success message set')
+
 			// If email changed, refresh verification status
-			await checkVerificationStatus();
+			console.log(
+				'⚪ Settings: Refreshing verification status after update',
+			)
+			await checkVerificationStatus()
+			console.log(
+				'🟢 Settings: Verification status refreshed after update',
+			)
 		} catch (err) {
-			console.error('Failed to save settings:', err);
+			console.error('🔴 Settings: Failed to save settings:', err)
 		} finally {
-			setIsSubmitting(false);
+			setIsSubmitting(false)
 		}
-	};
+	}
 
 	const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newLang = e.target.value as 'es' | 'en' | 'tr';
-		setPreferredLanguage(newLang);
-		i18n.changeLanguage(newLang);
-	};
+		const newLang = e.target.value as 'es' | 'en' | 'tr'
+		console.log('🔵 Settings: Language changed to:', newLang)
+		setPreferredLanguage(newLang)
+		i18n.changeLanguage(newLang)
+	}
 
 	const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newTheme = e.target.value as 'light' | 'dark';
-		setUserTheme(newTheme);
-		setTheme(newTheme);
-	};
+		const newTheme = e.target.value as 'light' | 'dark'
+		console.log('🔵 Settings: Theme changed to:', newTheme)
+		setUserTheme(newTheme)
+		setTheme(newTheme)
+	}
 
 	const handlePasswordChangeSuccess = () => {
-		setSuccessMessage(t('settings.passwordChanged'));
-	};
+		console.log('🟢 Settings: Password changed successfully')
+		setSuccessMessage(t('settings.passwordChanged'))
+	}
 
 	const handleRequestVerification = async () => {
-		setIsVerificationLoading(true);
-		setVerificationError('');
+		console.log('⚪ Settings: Requesting email verification')
+		setIsVerificationLoading(true)
+		setVerificationError('')
 		try {
-			await emailVerificationService.requestVerification();
-			setShowVerificationModal(true);
-			// The emailVerificationService now updates the auth store
+			await emailVerificationService.requestVerification()
+			console.log('🟢 Settings: Verification requested successfully')
+			setShowVerificationModal(true)
+
+			// Force refresh verification status after requesting verification
+			console.log(
+				'⚪ Settings: Force refreshing verification status after request',
+			)
+			await checkVerificationStatus()
+			console.log(
+				'🟢 Settings: Verification status refreshed after request',
+			)
 		} catch (err: any) {
-			console.error('Error requesting verification:', err);
-			setVerificationError(err.message || 'Error al solicitar el correo de verificación');
+			console.error('🔴 Settings: Error requesting verification:', err)
+			setVerificationError(
+				err.message || 'Error al solicitar el correo de verificación',
+			)
 		} finally {
-			setIsVerificationLoading(false);
+			setIsVerificationLoading(false)
 		}
-	};
+	}
 
 	// Render the verification status badge
 	const renderVerificationStatus = () => {
+		console.log('🔵 Settings: Rendering verification status:', {
+			isEmailVerified,
+			isPendingVerification,
+		})
+
 		if (isEmailVerified) {
 			return (
 				<div className="text-sm text-green-600 dark:text-green-400 flex items-center bg-green-50 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
 					<CheckCircleSolid className="w-5 h-5 mr-1" />
 					{t('settings.verified')}
 				</div>
-			);
+			)
 		} else if (isPendingVerification) {
 			return (
 				<div className="text-sm text-yellow-600 dark:text-yellow-400 flex items-center bg-yellow-50 dark:bg-yellow-900/30 px-3 py-1.5 rounded-full">
 					<ClockIcon className="w-5 h-5 mr-1" />
 					{t('settings.pendingVerification')}
 				</div>
-			);
+			)
 		} else {
 			return (
 				<div className="flex flex-col">
@@ -142,9 +231,25 @@ export const Settings = () => {
 						>
 							{isVerificationLoading ? (
 								<span className="flex items-center">
-									<svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-										<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-										<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+									<svg
+										className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+									>
+										<circle
+											className="opacity-25"
+											cx="12"
+											cy="12"
+											r="10"
+											stroke="currentColor"
+											strokeWidth="4"
+										></circle>
+										<path
+											className="opacity-75"
+											fill="currentColor"
+											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+										></path>
 									</svg>
 									{t('common.loading')}
 								</span>
@@ -162,9 +267,9 @@ export const Settings = () => {
 						</span>
 					)}
 				</div>
-			);
+			)
 		}
-	};
+	}
 
 	return (
 		<div>
@@ -208,7 +313,9 @@ export const Settings = () => {
 								/>
 								<button
 									type="button"
-									onClick={() => setShowChangePasswordModal(true)}
+									onClick={() =>
+										setShowChangePasswordModal(true)
+									}
 									className="mt-4 btn btn-primary dynamic-bg text-white hover:brightness-110"
 								>
 									{t('settings.changePassword')}
@@ -258,9 +365,15 @@ export const Settings = () => {
 									onChange={handleLanguageChange}
 									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								>
-									<option value="en">{t('languages.english')}</option>
-									<option value="es">{t('languages.spanish')}</option>
-									<option value="tr">{t('languages.turkish')}</option>
+									<option value="en">
+										{t('languages.english')}
+									</option>
+									<option value="es">
+										{t('languages.spanish')}
+									</option>
+									<option value="tr">
+										{t('languages.turkish')}
+									</option>
 								</select>
 							</div>
 
@@ -277,8 +390,12 @@ export const Settings = () => {
 									onChange={handleThemeChange}
 									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 								>
-									<option value="light">{t('theme.light')}</option>
-									<option value="dark">{t('theme.dark')}</option>
+									<option value="light">
+										{t('theme.light')}
+									</option>
+									<option value="dark">
+										{t('theme.dark')}
+									</option>
 								</select>
 							</div>
 						</div>
@@ -290,7 +407,9 @@ export const Settings = () => {
 							disabled={isSubmitting}
 							className="btn btn-primary dynamic-bg text-white hover:brightness-110"
 						>
-							{isSubmitting ? t('common.loading') : t('common.save')}
+							{isSubmitting
+								? t('common.loading')
+								: t('common.save')}
 						</button>
 					</div>
 				</form>
@@ -304,8 +423,8 @@ export const Settings = () => {
 			/>
 
 			{/* Verification Email Sent Modal */}
-			<Modal 
-				isOpen={showVerificationModal} 
+			<Modal
+				isOpen={showVerificationModal}
 				onClose={() => setShowVerificationModal(false)}
 				title={t('auth.emailVerification')}
 			>
@@ -325,5 +444,5 @@ export const Settings = () => {
 				</div>
 			</Modal>
 		</div>
-	);
-};
+	)
+}

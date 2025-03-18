@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { ConfirmModal } from '../ui/ConfirmModal';
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { ConfirmModal } from '../ui/ConfirmModal'
 
 interface TimerControlsProps {
-	status: 'idle' | 'running' | 'paused' | 'break';
-	elapsed: number;
-	start: () => void;
-	pause: () => void;
-	resume: () => void;
-	stop: () => void;
-	skipToNext: () => void;
-	projectId: string | null;
-	infiniteMode: boolean;
-	mode: 'work' | 'break';
+	status: 'idle' | 'running' | 'paused' | 'break'
+	elapsed: number
+	start: () => void
+	pause: () => void
+	resume: () => void
+	stop: () => void
+	skipToNext: () => void
+	projectId: string | null
+	infiniteMode: boolean
+	mode: 'work' | 'break'
 }
 
 export const TimerControls = ({
@@ -27,77 +27,84 @@ export const TimerControls = ({
 	infiniteMode,
 	mode,
 }: TimerControlsProps) => {
-	const { t } = useTranslation();
-	const [showShortSessionModal, setShowShortSessionModal] = useState(false);
-	const [showStopConfirmationModal, setShowStopConfirmationModal] = useState(false);
-	const [modalAction, setModalAction] = useState<'next' | 'stop'>('next');
+	const { t } = useTranslation()
+	const [showShortSessionModal, setShowShortSessionModal] = useState(false)
+	const [showStopConfirmationModal, setShowStopConfirmationModal] =
+		useState(false)
+	const [modalAction, setModalAction] = useState<'next' | 'stop'>('next')
 
 	const handleSkipToNext = () => {
 		// When in infinite mode or in break mode, don't show the warning modal
 		if (
-			(status === 'running' && elapsed < 60 && !infiniteMode && mode === 'work') ||
-			(status === 'paused' && elapsed < 60 && !infiniteMode && mode === 'work')
+			(status === 'running' &&
+				elapsed < 60 &&
+				!infiniteMode &&
+				mode === 'work') ||
+			(status === 'paused' &&
+				elapsed < 60 &&
+				!infiniteMode &&
+				mode === 'work')
 		) {
-			setModalAction('next');
-			setShowShortSessionModal(true);
-			return;
+			setModalAction('next')
+			setShowShortSessionModal(true)
+			return
 		}
 
 		// Otherwise proceed normally
-		skipToNext();
-	};
+		skipToNext()
+	}
 
 	const handleStop = () => {
 		if (elapsed > 0) {
 			// Always show confirmation when stopping with time recorded (work or break)
-			setShowStopConfirmationModal(true);
+			setShowStopConfirmationModal(true)
 		} else {
 			// For empty timer, just stop and reset
-			stop();
+			stop()
 		}
-	};
+	}
 
 	const handleConfirmSave = () => {
 		// Save and stop the timer
-		stop();
-		setShowStopConfirmationModal(false);
-	};
+		stop()
+		setShowStopConfirmationModal(false)
+	}
 
 	const handleDontSave = () => {
 		// Clear timer without saving
-		stop();
-		setShowStopConfirmationModal(false);
+		stop()
+		setShowStopConfirmationModal(false)
 	}
 
 	const handleCancelStopModal = () => {
 		// Just close the modal without any action
-		setShowStopConfirmationModal(false);
+		setShowStopConfirmationModal(false)
 	}
 
 	const handleConfirmShortSession = () => {
 		if (modalAction === 'next') {
-			skipToNext();
+			skipToNext()
 		} else {
-			stop();
+			stop()
 		}
-		setShowShortSessionModal(false);
-	};
+		setShowShortSessionModal(false)
+	}
 
 	const handleDontSaveShortSession = () => {
 		if (modalAction === 'next') {
 			// Don't save but still advance to next phase
-			skipToNext();
+			skipToNext()
 		} else {
 			// Don't save and stop timer
-			stop();
+			stop()
 		}
-		setShowShortSessionModal(false);
-	};
+		setShowShortSessionModal(false)
+	}
 
 	const handleCancelShortSession = () => {
 		// Just close the modal without any action
-		setShowShortSessionModal(false);
-	};
+		setShowShortSessionModal(false)
+	}
 
 	return (
 		<>
@@ -106,10 +113,10 @@ export const TimerControls = ({
 					<button
 						onClick={() => {
 							if (!projectId) {
-								alert(t('timeEntries.selectProject'));
-								return;
+								alert(t('timeEntries.selectProject'))
+								return
 							}
-							start();
+							start()
 						}}
 						className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle hover:opacity-90 transition-opacity shadow-sm"
 						title={t('timer.start')}
@@ -331,7 +338,7 @@ export const TimerControls = ({
 				title={t('timeEntries.shortTimeTitle', 'Short Session')}
 				message={t(
 					'timeEntries.shortTimeMessage',
-					'This session is less than a minute. Do you still want to save it?'
+					'This session is less than a minute. Do you still want to save it?',
 				)}
 				confirmButtonText={t('common.yes')}
 				cancelButtonText={t('common.no')}
@@ -349,7 +356,7 @@ export const TimerControls = ({
 				title={t('timer.saveSessionTitle', 'Save Session')}
 				message={t(
 					'timer.stopSessionMessage',
-					'Do you want to save this timer session? This will reset the timer and return to Session 1.'
+					'Do you want to save this timer session? This will reset the timer and return to Session 1.',
 				)}
 				confirmButtonText={t('common.yes')}
 				cancelButtonText={t('common.no')}
@@ -361,5 +368,5 @@ export const TimerControls = ({
 				onCancelButtonClick={handleCancelStopModal}
 			/>
 		</>
-	);
-};
+	)
+}

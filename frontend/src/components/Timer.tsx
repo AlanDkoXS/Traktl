@@ -1,29 +1,29 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useTimer } from '../hooks/useTimer';
-import { useProjectStore } from '../store/projectStore';
-import { useTaskStore } from '../store/taskStore';
-import { useTagStore } from '../store/tagStore';
-import { TimeEntryList } from './TimeEntryList';
-import { TimerDisplay } from './timer/TimerDisplay';
-import { TimerControls } from './timer/TimerControls';
-import { TimerSettings } from './timer/TimerSettings';
-import { ProjectTaskSelector } from './timer/ProjectTaskSelector';
-import { PresetSelector } from './timer/PresetSelector';
-import { ActivityHeatmap } from './timer/ActivityHeatmap';
-import { NotificationManager } from './timer/NotificationManager';
-import { TimerPreset } from '../types';
-import { useTimeEntryStore } from '../store/timeEntryStore';
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useTimer } from '../hooks/useTimer'
+import { useProjectStore } from '../store/projectStore'
+import { useTaskStore } from '../store/taskStore'
+import { useTagStore } from '../store/tagStore'
+import { TimeEntryList } from './TimeEntryList'
+import { TimerDisplay } from './timer/TimerDisplay'
+import { TimerControls } from './timer/TimerControls'
+import { TimerSettings } from './timer/TimerSettings'
+import { ProjectTaskSelector } from './timer/ProjectTaskSelector'
+import { PresetSelector } from './timer/PresetSelector'
+import { ActivityHeatmap } from './timer/ActivityHeatmap'
+import { NotificationManager } from './timer/NotificationManager'
+import { TimerPreset } from '../types'
+import { useTimeEntryStore } from '../store/timeEntryStore'
 import {
 	requestNotificationPermission,
 	checkNotificationPermission,
-} from '../utils/soundNotifications';
-import { ConfirmModal } from './ui/ConfirmModal';
-import { useTimerStore } from '../store/timerStore';
-import { setProjectColor } from '../utils/dynamicColors';
+} from '../utils/soundNotifications'
+import { ConfirmModal } from './ui/ConfirmModal'
+import { useTimerStore } from '../store/timerStore'
+import { setProjectColor } from '../utils/dynamicColors'
 
 export const Timer = () => {
-	const { t } = useTranslation();
+	const { t } = useTranslation()
 	const {
 		status,
 		mode,
@@ -53,81 +53,84 @@ export const Timer = () => {
 		setTaskId,
 		setNotes,
 		setTags,
-	} = useTimer();
+	} = useTimer()
 
-	const { showCompletionModal, closeCompletionModal } = useTimerStore();
-	const { projects } = useProjectStore();
-	const { fetchTimeEntries } = useTimeEntryStore(); // Import fetchTimeEntries
+	const { showCompletionModal, closeCompletionModal } = useTimerStore()
+	const { projects } = useProjectStore()
+	const { fetchTimeEntries } = useTimeEntryStore() // Import fetchTimeEntries
 
 	// State hooks
 	const [notificationPermission, setNotificationPermission] =
-		useState<NotificationPermission | null>(null);
-	const [showNotification, setShowNotification] = useState(false);
+		useState<NotificationPermission | null>(null)
+	const [showNotification, setShowNotification] = useState(false)
 
 	// Request notification permission once
 	useEffect(() => {
 		const checkPermission = async () => {
-			const permission = checkNotificationPermission();
-			setNotificationPermission(permission);
-		};
+			const permission = checkNotificationPermission()
+			setNotificationPermission(permission)
+		}
 
-		checkPermission();
-	}, []);
+		checkPermission()
+	}, [])
 
 	// Apply project color when project changes
 	useEffect(() => {
 		if (projectId) {
-			const project = projects.find((p) => p.id === projectId);
+			const project = projects.find((p) => p.id === projectId)
 			if (project?.color) {
-				setProjectColor(project.color);
+				setProjectColor(project.color)
 			}
 		}
-	}, [projectId, projects]);
+	}, [projectId, projects])
 
 	// Listen for time entry creation event to refresh the list
 	useEffect(() => {
 		const handleTimeEntryCreated = () => {
-			fetchTimeEntries();
-		};
+			fetchTimeEntries()
+		}
 
-		window.addEventListener('time-entry-created', handleTimeEntryCreated);
+		window.addEventListener('time-entry-created', handleTimeEntryCreated)
 		return () => {
-			window.removeEventListener('time-entry-created', handleTimeEntryCreated);
-		};
-	}, [fetchTimeEntries]);
+			window.removeEventListener(
+				'time-entry-created',
+				handleTimeEntryCreated,
+			)
+		}
+	}, [fetchTimeEntries])
 
 	// Play sound and show notification when timer completes
 	useEffect(() => {
 		if (progress >= 100) {
 			// Show in-app notification
-			setShowNotification(true);
+			setShowNotification(true)
 		}
-	}, [mode, progress]);
+	}, [mode, progress])
 
 	// Request notification permission
 	const handleRequestPermission = async () => {
-		const permission = await requestNotificationPermission();
-		setNotificationPermission(permission);
-	};
+		const permission = await requestNotificationPermission()
+		setNotificationPermission(permission)
+	}
 
 	// Close notification handler
 	const handleCloseNotification = () => {
-		setShowNotification(false);
-	};
+		setShowNotification(false)
+	}
 
 	// Handle preset selection
 	const handlePresetSelect = (preset: TimerPreset) => {
-		setWorkDuration(preset.workDuration);
-		setBreakDuration(preset.breakDuration);
-		setRepetitions(preset.repetitions);
-	};
+		setWorkDuration(preset.workDuration)
+		setBreakDuration(preset.breakDuration)
+		setRepetitions(preset.repetitions)
+	}
 
 	// Current timer settings to pass to preset creator
 	const currentSettings = {
 		workDuration,
 		breakDuration,
 		repetitions,
-	};
+	}
 
 	return (
 		<div className="flex flex-col space-y-6 dashboard-timer">
@@ -143,7 +146,9 @@ export const Timer = () => {
 
 				<div className="text-center mb-4">
 					<h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white dynamic-color">
-						{mode === 'work' ? t('timer.workTime') : t('timer.breakTime')}
+						{mode === 'work'
+							? t('timer.workTime')
+							: t('timer.breakTime')}
 					</h2>
 					<div className="text-sm text-gray-500 dark:text-gray-400">
 						{infiniteMode ? (
@@ -152,7 +157,8 @@ export const Timer = () => {
 							</span>
 						) : (
 							<>
-								{t('timer.session')} {currentRepetition}/{repetitions}
+								{t('timer.session')} {currentRepetition}/
+								{repetitions}
 							</>
 						)}
 					</div>
@@ -236,7 +242,7 @@ export const Timer = () => {
 				title={t('timer.sessionsCompleted', 'Sessions Completed')}
 				message={t(
 					'timer.allSessionsCompleted',
-					"Great job! You've completed all your work sessions."
+					"Great job! You've completed all your work sessions.",
 				)}
 				confirmButtonText={t('common.done')}
 				cancelButtonText=""
@@ -246,5 +252,5 @@ export const Timer = () => {
 				danger={false}
 			/>
 		</div>
-	);
-};
+	)
+}

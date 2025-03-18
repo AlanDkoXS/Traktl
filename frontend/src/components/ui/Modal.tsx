@@ -1,29 +1,41 @@
-import { Fragment, ReactNode, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import { Fragment, ReactNode, useEffect } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
 
 interface ModalProps {
-	isOpen: boolean;
-	onClose: () => void;
-	title: string;
-	children: ReactNode;
-	maxWidth?: string;
+	isOpen: boolean
+	onClose: () => void
+	title: string
+	children: ReactNode
+	maxWidth?: string
 }
 
-export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }: ModalProps) => {
+export const Modal = ({
+	isOpen,
+	onClose,
+	title,
+	children,
+	maxWidth = 'max-w-lg',
+}: ModalProps) => {
 	// Prevent scrolling when modal is open
 	useEffect(() => {
 		if (isOpen) {
-			const originalStyle = window.getComputedStyle(document.body).overflow;
-			document.body.style.overflow = 'hidden';
+			const originalStyle = window.getComputedStyle(
+				document.body,
+			).overflow
+			document.body.style.overflow = 'hidden'
 			return () => {
-				document.body.style.overflow = originalStyle;
-			};
+				document.body.style.overflow = originalStyle
+			}
 		}
-	}, [isOpen]);
+	}, [isOpen])
 
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
-			<Dialog as="div" className="relative z-50 modal-stacked" onClose={onClose}>
+			<Dialog
+				as="div"
+				className="relative z-50 modal-stacked"
+				onClose={onClose}
+			>
 				<Transition.Child
 					as={Fragment}
 					enter="ease-out duration-300"
@@ -63,5 +75,5 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' 
 				</div>
 			</Dialog>
 		</Transition>
-	);
-};
+	)
+}

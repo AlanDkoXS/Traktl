@@ -1,24 +1,24 @@
-import { Fragment, useState, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { useTranslation } from 'react-i18next';
-import { PlusIcon } from '@heroicons/react/24/outline';
-import { useProjectStore } from '../../store/projectStore';
-import { useTaskStore } from '../../store/taskStore';
-import { useTagStore } from '../../store/tagStore';
-import { setProjectColor } from '../../utils/dynamicColors';
-import { ProjectCreateModal } from './modals/ProjectCreateModal';
-import { TaskCreateModal } from './modals/TaskCreateModal';
-import { TagCreateModal } from './modals/TagCreateModal';
+import { Fragment, useState, useEffect } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
+import { useTranslation } from 'react-i18next'
+import { PlusIcon } from '@heroicons/react/24/outline'
+import { useProjectStore } from '../../store/projectStore'
+import { useTaskStore } from '../../store/taskStore'
+import { useTagStore } from '../../store/tagStore'
+import { setProjectColor } from '../../utils/dynamicColors'
+import { ProjectCreateModal } from './modals/ProjectCreateModal'
+import { TaskCreateModal } from './modals/TaskCreateModal'
+import { TagCreateModal } from './modals/TagCreateModal'
 
 interface ProjectTaskSelectorProps {
-	projectId: string | null;
-	taskId: string | null;
-	notes: string;
-	selectedTags: string[];
-	setProjectId: (id: string | null) => void;
-	setTaskId: (id: string | null) => void;
-	setNotes: (notes: string) => void;
-	setSelectedTags: (tags: string[]) => void;
+	projectId: string | null
+	taskId: string | null
+	notes: string
+	selectedTags: string[]
+	setProjectId: (id: string | null) => void
+	setTaskId: (id: string | null) => void
+	setNotes: (notes: string) => void
+	setSelectedTags: (tags: string[]) => void
 }
 
 export const ProjectTaskSelector = ({
@@ -31,96 +31,101 @@ export const ProjectTaskSelector = ({
 	setNotes,
 	setSelectedTags,
 }: ProjectTaskSelectorProps) => {
-	const { t } = useTranslation();
-	const [isOpen, setIsOpen] = useState(false);
-	const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
-	const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
-	const [showCreateTagModal, setShowCreateTagModal] = useState(false);
+	const { t } = useTranslation()
+	const [isOpen, setIsOpen] = useState(false)
+	const [showCreateProjectModal, setShowCreateProjectModal] = useState(false)
+	const [showCreateTaskModal, setShowCreateTaskModal] = useState(false)
+	const [showCreateTagModal, setShowCreateTagModal] = useState(false)
 
 	// Get data from stores
-	const { projects, fetchProjects, isLoading: projectsLoading } = useProjectStore();
-	const { tasks, fetchTasks, isLoading: tasksLoading } = useTaskStore();
-	const { tags, fetchTags, isLoading: tagsLoading } = useTagStore();
+	const {
+		projects,
+		fetchProjects,
+		isLoading: projectsLoading,
+	} = useProjectStore()
+	const { tasks, fetchTasks, isLoading: tasksLoading } = useTaskStore()
+	const { tags, fetchTags, isLoading: tagsLoading } = useTagStore()
 
 	// Load data when component mounts
 	useEffect(() => {
 		const loadData = async () => {
-			await fetchProjects();
-			await fetchTags();
+			await fetchProjects()
+			await fetchTags()
 			if (projectId) {
-				await fetchTasks(projectId);
+				await fetchTasks(projectId)
 			}
-		};
+		}
 
-		loadData();
-	}, [fetchProjects, fetchTags, fetchTasks, projectId]);
+		loadData()
+	}, [fetchProjects, fetchTags, fetchTasks, projectId])
 
 	// Update project color when project changes
 	useEffect(() => {
 		if (projectId) {
-			const project = projects.find((p) => p.id === projectId);
+			const project = projects.find((p) => p.id === projectId)
 			if (project?.color) {
-				setProjectColor(project.color);
+				setProjectColor(project.color)
 			}
 		}
-	}, [projectId, projects]);
+	}, [projectId, projects])
 
 	const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newProjectId = e.target.value || null;
-		setProjectId(newProjectId);
-		setTaskId(null); // Reset task when project changes
+		const newProjectId = e.target.value || null
+		setProjectId(newProjectId)
+		setTaskId(null) // Reset task when project changes
 
 		// Update dynamic color
 		if (newProjectId) {
-			const project = projects.find((p) => p.id === newProjectId);
+			const project = projects.find((p) => p.id === newProjectId)
 			if (project?.color) {
-				setProjectColor(project.color);
+				setProjectColor(project.color)
 			}
-			fetchTasks(newProjectId);
+			fetchTasks(newProjectId)
 		}
-	};
+	}
 
 	const handleTagToggle = (tagId: string) => {
 		if (selectedTags.includes(tagId)) {
-			setSelectedTags(selectedTags.filter((id) => id !== tagId));
+			setSelectedTags(selectedTags.filter((id) => id !== tagId))
 		} else {
-			setSelectedTags([...selectedTags, tagId]);
+			setSelectedTags([...selectedTags, tagId])
 		}
-	};
+	}
 
 	const openModal = () => {
-		setIsOpen(true);
-	};
+		setIsOpen(true)
+	}
 
 	const closeModal = () => {
-		setIsOpen(false);
-	};
+		setIsOpen(false)
+	}
 
 	// Handle creation callbacks
 	const handleProjectCreated = (newProjectId: string) => {
-		setProjectId(newProjectId);
-		fetchProjects();
+		setProjectId(newProjectId)
+		fetchProjects()
 		// Refetch tasks for the new project
-		fetchTasks(newProjectId);
-	};
+		fetchTasks(newProjectId)
+	}
 
 	const handleTaskCreated = (newTaskId: string) => {
 		if (projectId) {
-			fetchTasks(projectId);
-			setTaskId(newTaskId);
+			fetchTasks(projectId)
+			setTaskId(newTaskId)
 		}
-	};
+	}
 
 	const handleTagCreated = (newTagId: string) => {
-		fetchTags();
-		setSelectedTags([...selectedTags, newTagId]);
-	};
+		fetchTags()
+		setSelectedTags([...selectedTags, newTagId])
+	}
 
 	// Find selected project and task names
-	const selectedProject = projects.find((p) => p.id === projectId);
-	const selectedTask = tasks.find((t) => t.id === taskId);
+	const selectedProject = projects.find((p) => p.id === projectId)
+	const selectedTask = tasks.find((t) => t.id === taskId)
 
-	const isLoading = projectsLoading || tagsLoading || (projectId && tasksLoading);
+	const isLoading =
+		projectsLoading || tagsLoading || (projectId && tasksLoading)
 
 	return (
 		<>
@@ -130,7 +135,9 @@ export const ProjectTaskSelector = ({
 			>
 				<div>
 					<div className="font-medium dynamic-color">
-						{selectedProject ? selectedProject.name : t('timeEntries.selectProject')}
+						{selectedProject
+							? selectedProject.name
+							: t('timeEntries.selectProject')}
 					</div>
 					{selectedTask && (
 						<div className="text-sm text-gray-500 dark:text-gray-400">
@@ -203,27 +210,43 @@ export const ProjectTaskSelector = ({
 													<select
 														id="project-select"
 														value={projectId || ''}
-														onChange={handleProjectChange}
+														onChange={
+															handleProjectChange
+														}
 														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-800 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
 													>
 														<option value="">
-															{t('timeEntries.selectProject')}
+															{t(
+																'timeEntries.selectProject',
+															)}
 														</option>
-														{projects.map((project) => (
-															<option
-																key={project.id}
-																value={project.id}
-															>
-																{project.name}
-															</option>
-														))}
+														{projects.map(
+															(project) => (
+																<option
+																	key={
+																		project.id
+																	}
+																	value={
+																		project.id
+																	}
+																>
+																	{
+																		project.name
+																	}
+																</option>
+															),
+														)}
 													</select>
 													<button
 														onClick={() =>
-															setShowCreateProjectModal(true)
+															setShowCreateProjectModal(
+																true,
+															)
 														}
 														className="ml-2 mt-1 p-2 w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center"
-														title={t('projects.new')}
+														title={t(
+															'projects.new',
+														)}
 													>
 														<PlusIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
 													</button>
@@ -242,16 +265,25 @@ export const ProjectTaskSelector = ({
 														id="task-select"
 														value={taskId || ''}
 														onChange={(e) =>
-															setTaskId(e.target.value || null)
+															setTaskId(
+																e.target
+																	.value ||
+																	null,
+															)
 														}
 														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-800 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
 														disabled={!projectId}
 													>
 														<option value="">
-															{t('timeEntries.selectTask')}
+															{t(
+																'timeEntries.selectTask',
+															)}
 														</option>
 														{tasks.map((task) => (
-															<option key={task.id} value={task.id}>
+															<option
+																key={task.id}
+																value={task.id}
+															>
 																{task.name}
 															</option>
 														))}
@@ -259,10 +291,14 @@ export const ProjectTaskSelector = ({
 													{projectId && (
 														<button
 															onClick={() =>
-																setShowCreateTaskModal(true)
+																setShowCreateTaskModal(
+																	true,
+																)
 															}
 															className="ml-2 mt-1 p-2 w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center"
-															title={t('tasks.new')}
+															title={t(
+																'tasks.new',
+															)}
 														>
 															<PlusIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
 														</button>
@@ -280,9 +316,13 @@ export const ProjectTaskSelector = ({
 												<textarea
 													id="notes"
 													value={notes}
-													onChange={(e) => setNotes(e.target.value)}
+													onChange={(e) =>
+														setNotes(e.target.value)
+													}
 													className="mt-1 block w-full rounded-md shadow-sm bg-gray-50 dark:bg-gray-800 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
-													placeholder={t('timeEntries.notes')}
+													placeholder={t(
+														'timeEntries.notes',
+													)}
 													rows={2}
 												/>
 											</div>
@@ -296,35 +336,50 @@ export const ProjectTaskSelector = ({
 														<button
 															key={tag.id}
 															type="button"
-															onClick={() => handleTagToggle(tag.id)}
+															onClick={() =>
+																handleTagToggle(
+																	tag.id,
+																)
+															}
 															className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium`}
 															style={{
 																backgroundColor:
-																	selectedTags.includes(tag.id)
+																	selectedTags.includes(
+																		tag.id,
+																	)
 																		? `${tag.color}20`
 																		: '#f3f4f6',
-																color: selectedTags.includes(tag.id)
+																color: selectedTags.includes(
+																	tag.id,
+																)
 																	? tag.color
 																	: '#374151',
-																borderColor: tag.color,
-																borderWidth: selectedTags.includes(
-																	tag.id
-																)
-																	? '1px'
-																	: '0',
+																borderColor:
+																	tag.color,
+																borderWidth:
+																	selectedTags.includes(
+																		tag.id,
+																	)
+																		? '1px'
+																		: '0',
 															}}
 														>
 															<div
 																className="w-2 h-2 rounded-full mr-1.5"
 																style={{
-																	backgroundColor: tag.color,
+																	backgroundColor:
+																		tag.color,
 																}}
 															/>
 															{tag.name}
 														</button>
 													))}
 													<button
-														onClick={() => setShowCreateTagModal(true)}
+														onClick={() =>
+															setShowCreateTagModal(
+																true,
+															)
+														}
 														className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium dynamic-bg-subtle dynamic-color"
 													>
 														<PlusIcon className="h-3 w-3 mr-1" />
@@ -373,5 +428,5 @@ export const ProjectTaskSelector = ({
 				onTagCreated={handleTagCreated}
 			/>
 		</>
-	);
-};
+	)
+}

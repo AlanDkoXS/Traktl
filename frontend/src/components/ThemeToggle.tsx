@@ -1,10 +1,14 @@
-import { SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
-import { useTheme } from '../hooks/useTheme';
-import { useTranslation } from 'react-i18next';
+import {
+	SunIcon,
+	MoonIcon,
+	ComputerDesktopIcon,
+} from '@heroicons/react/24/outline'
+import { useTheme } from '../hooks/useTheme'
+import { useTranslation } from 'react-i18next'
 
 export const ThemeToggle = () => {
-	const { theme, setTheme } = useTheme();
-	const { t } = useTranslation();
+	const { theme, setTheme } = useTheme()
+	const { t } = useTranslation()
 
 	return (
 		<div className="flex items-center space-x-3 p-2">
@@ -33,5 +37,5 @@ export const ThemeToggle = () => {
 				<ComputerDesktopIcon className="h-5 w-5" />
 			</button>
 		</div>
-	);
-};
+	)
+}

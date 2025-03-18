@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-import { TaskForm } from '../components/TaskForm';
+import { useTranslation } from 'react-i18next'
+import { TaskForm } from '../components/TaskForm'
 
 export const CreateTask = () => {
-	const { t } = useTranslation();
+	const { t } = useTranslation()
 
 	return (
 		<div>
@@ -16,5 +16,5 @@ export const CreateTask = () => {
 				</div>
 			</div>
 		</div>
-	);
-};
+	)
+}

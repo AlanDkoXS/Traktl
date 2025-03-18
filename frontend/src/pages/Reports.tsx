@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useProjectStore } from '../store/projectStore';
-import { useTimeEntryStore } from '../store/timeEntryStore';
-import { format, subDays, parseISO, differenceInDays } from 'date-fns';
+import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useProjectStore } from '../store/projectStore'
+import { useTimeEntryStore } from '../store/timeEntryStore'
+import { format, subDays, parseISO, differenceInDays } from 'date-fns'
 import {
 	LineChart,
 	Line,
@@ -14,130 +14,148 @@ import {
 	PieChart,
 	Pie,
 	Cell,
-} from 'recharts';
+} from 'recharts'
 
 export const Reports = () => {
-	const { t } = useTranslation();
-	const { projects, fetchProjects } = useProjectStore();
-	const { timeEntries, fetchTimeEntries, isLoading, error } = useTimeEntryStore();
+	const { t } = useTranslation()
+	const { projects, fetchProjects } = useProjectStore()
+	const { timeEntries, fetchTimeEntries, isLoading, error } =
+		useTimeEntryStore()
 
-	const [startDate, setStartDate] = useState(format(subDays(new Date(), 30), 'yyyy-MM-dd'));
-	const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-	const [projectId, setProjectId] = useState('');
-	const [filterKey, setFilterKey] = useState(0);
+	const [startDate, setStartDate] = useState(
+		format(subDays(new Date(), 30), 'yyyy-MM-dd'),
+	)
+	const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+	const [projectId, setProjectId] = useState('')
+	const [filterKey, setFilterKey] = useState(0)
 
 	// Load initial data
 	useEffect(() => {
 		const loadData = async () => {
 			try {
-				await fetchProjects();
+				await fetchProjects()
 				await fetchTimeEntries(
 					projectId || undefined,
 					undefined,
 					startDate ? new Date(startDate + 'T00:00:00') : undefined,
-					endDate ? new Date(endDate + 'T23:59:59.999') : undefined
-				);
+					endDate ? new Date(endDate + 'T23:59:59.999') : undefined,
+				)
 			} catch (err) {
-				console.error('Error loading reports data:', err);
+				console.error('Error loading reports data:', err)
 			}
-		};
+		}
 
-		loadData();
-	}, [fetchProjects, fetchTimeEntries, projectId, startDate, endDate, filterKey]);
+		loadData()
+	}, [
+		fetchProjects,
+		fetchTimeEntries,
+		projectId,
+		startDate,
+		endDate,
+		filterKey,
+	])
 
 	// Apply filters
 	const applyFilters = () => {
-		setFilterKey((prev) => prev + 1);
-	};
+		setFilterKey((prev) => prev + 1)
+	}
 
 	// Calculate total time spent
-	const totalTime = timeEntries.reduce((acc, entry) => acc + entry.duration, 0);
+	const totalTime = timeEntries.reduce(
+		(acc, entry) => acc + entry.duration,
+		0,
+	)
 
 	// Format time (milliseconds to hours and minutes)
 	const formatTime = (milliseconds: number) => {
-		const hours = Math.floor(milliseconds / (1000 * 60 * 60));
-		const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
-		return `${hours}h ${minutes}m`;
-	};
+		const hours = Math.floor(milliseconds / (1000 * 60 * 60))
+		const minutes = Math.floor(
+			(milliseconds % (1000 * 60 * 60)) / (1000 * 60),
+		)
+		return `${hours}h ${minutes}m`
+	}
 
 	// Group time entries by project for pie chart
 	const timeByProjectData = useMemo(() => {
 		// Group by project
-		const groupedByProject = timeEntries.reduce((acc: Record<string, number>, entry) => {
-			const projectId = entry.project;
-			if (!acc[projectId]) {
-				acc[projectId] = 0;
-			}
-			acc[projectId] += entry.duration;
-			return acc;
-		}, {});
+		const groupedByProject = timeEntries.reduce(
+			(acc: Record<string, number>, entry) => {
+				const projectId = entry.project
+				if (!acc[projectId]) {
+					acc[projectId] = 0
+				}
+				acc[projectId] += entry.duration
+				return acc
+			},
+			{},
+		)
 
 		// Convert to chart data format
 		return Object.entries(groupedByProject)
 			.map(([projectId, duration]) => {
-				const project = projects.find((p) => p.id === projectId);
+				const project = projects.find((p) => p.id === projectId)
 				return {
 					name: project?.name || 'Unknown Project',
 					value: duration,
 					color: project?.color || '#cccccc',
-				};
+				}
 			})
-			.sort((a, b) => b.value - a.value); // Sort by duration (descending)
-	}, [timeEntries, projects]);
+			.sort((a, b) => b.value - a.value) // Sort by duration (descending)
+	}, [timeEntries, projects])
 
 	// Group time entries by day and project for line chart
 	const timeByDayAndProjectData = useMemo(() => {
-		if (!startDate || !endDate) return { dayData: [], projectsData: [] };
+		if (!startDate || !endDate) return { dayData: [], projectsData: [] }
 
-		const start = new Date(startDate + 'T00:00:00');
-		const end = new Date(endDate + 'T23:59:59');
-		const days = differenceInDays(end, start) + 1;
+		const start = new Date(startDate + 'T00:00:00')
+		const end = new Date(endDate + 'T23:59:59')
+		const days = differenceInDays(end, start) + 1
 
 		// Initialize day data structure
-		const daysArray = [];
+		const daysArray = []
 		for (let i = 0; i < days; i++) {
-			const currentDate = new Date(start);
-			currentDate.setDate(start.getDate() + i);
-			const dateString = format(currentDate, 'yyyy-MM-dd');
-			const displayDate = format(currentDate, 'MMM dd');
+			const currentDate = new Date(start)
+			currentDate.setDate(start.getDate() + i)
+			const dateString = format(currentDate, 'yyyy-MM-dd')
+			const displayDate = format(currentDate, 'MMM dd')
 
 			daysArray.push({
 				date: dateString,
 				displayDate,
 				// We'll add project data here later
-			});
+			})
 		}
 
 		// Track projects and their time per day
-		const projectTimeByDay: Record<string, Record<string, number>> = {};
-		const projectInfo: Record<string, { name: string; color: string }> = {};
+		const projectTimeByDay: Record<string, Record<string, number>> = {}
+		const projectInfo: Record<string, { name: string; color: string }> = {}
 
 		// Group time entries by project and day
 		timeEntries.forEach((entry) => {
-			const projectId = entry.project;
-			const day = format(new Date(entry.startTime), 'yyyy-MM-dd');
-			const project = projects.find((p) => p.id === projectId);
+			const projectId = entry.project
+			const day = format(new Date(entry.startTime), 'yyyy-MM-dd')
+			const project = projects.find((p) => p.id === projectId)
 
 			// Store project info for later use
 			if (project && !projectInfo[projectId]) {
 				projectInfo[projectId] = {
 					name: project.name,
 					color: project.color,
-				};
+				}
 			}
 
 			// Initialize project object if needed
 			if (!projectTimeByDay[projectId]) {
-				projectTimeByDay[projectId] = {};
+				projectTimeByDay[projectId] = {}
 			}
 
 			// Add time to the appropriate day
 			if (!projectTimeByDay[projectId][day]) {
-				projectTimeByDay[projectId][day] = 0;
+				projectTimeByDay[projectId][day] = 0
 			}
 
-			projectTimeByDay[projectId][day] += entry.duration;
-		});
+			projectTimeByDay[projectId][day] += entry.duration
+		})
 
 		// For each day, add all project data
 		const result = daysArray.map((day) => {
@@ -146,35 +164,39 @@ export const Reports = () => {
 				displayDate: day.displayDate,
 				// For total minutes across all projects
 				totalMinutes: 0,
-			};
+			}
 
 			// Add data for each project
-			Object.entries(projectTimeByDay).forEach(([projectId, projectDays]) => {
-				const projectMinutes = Math.round((projectDays[day.date] || 0) / (1000 * 60));
-				dayData[projectId] = projectMinutes;
-				dayData.totalMinutes += projectMinutes;
-			});
+			Object.entries(projectTimeByDay).forEach(
+				([projectId, projectDays]) => {
+					const projectMinutes = Math.round(
+						(projectDays[day.date] || 0) / (1000 * 60),
+					)
+					dayData[projectId] = projectMinutes
+					dayData.totalMinutes += projectMinutes
+				},
+			)
 
-			return dayData;
-		});
+			return dayData
+		})
 
 		// Create project metadata for creating lines
 		const projectsData = Object.entries(projectInfo).map(([id, info]) => ({
 			id,
 			name: info.name,
 			color: info.color,
-		}));
+		}))
 
 		return {
 			dayData: result,
 			projectsData,
-		};
-	}, [timeEntries, startDate, endDate, projects]);
+		}
+	}, [timeEntries, startDate, endDate, projects])
 
 	// Create a fallback color for the line chart
 	const getDefaultLineColor = () => {
-		return 'hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness))';
-	};
+		return 'hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness))'
+	}
 
 	return (
 		<div>
@@ -230,7 +252,9 @@ export const Reports = () => {
 							onChange={(e) => setProjectId(e.target.value)}
 							className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 						>
-							<option value="">{t('timeEntries.allProjects')}</option>
+							<option value="">
+								{t('timeEntries.allProjects')}
+							</option>
 							{projects.map((project) => (
 								<option key={project.id} value={project.id}>
 									{project.name}
@@ -253,7 +277,9 @@ export const Reports = () => {
 			{isLoading ? (
 				<div className="flex justify-center items-center py-4 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 					<div className="animate-spin rounded-full h-6 w-6 border-b-2 dynamic-border"></div>
-					<span className="ml-2 dynamic-color">{t('common.loading')}</span>
+					<span className="ml-2 dynamic-color">
+						{t('common.loading')}
+					</span>
 				</div>
 			) : error ? (
 				<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-4 rounded-md">
@@ -290,7 +316,9 @@ export const Reports = () => {
 								<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
 									{timeByDayAndProjectData.dayData.length > 0
 										? formatTime(
-												totalTime / timeByDayAndProjectData.dayData.length
+												totalTime /
+													timeByDayAndProjectData
+														.dayData.length,
 											)
 										: '0h 0m'}
 								</p>
@@ -307,7 +335,10 @@ export const Reports = () => {
 							<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 								{/* Pie Chart */}
 								<div className="h-64">
-									<ResponsiveContainer width="100%" height="100%">
+									<ResponsiveContainer
+										width="100%"
+										height="100%"
+									>
 										<PieChart>
 											<Pie
 												data={timeByProjectData}
@@ -323,15 +354,19 @@ export const Reports = () => {
 												paddingAngle={3}
 												stroke="none"
 											>
-												{timeByProjectData.map((entry, index) => (
-													<Cell
-														key={`cell-${index}`}
-														fill={entry.color}
-													/>
-												))}
+												{timeByProjectData.map(
+													(entry, index) => (
+														<Cell
+															key={`cell-${index}`}
+															fill={entry.color}
+														/>
+													),
+												)}
 											</Pie>
 											<Tooltip
-												formatter={(value) => formatTime(Number(value))}
+												formatter={(value) =>
+													formatTime(Number(value))
+												}
 											/>
 										</PieChart>
 									</ResponsiveContainer>
@@ -354,37 +389,43 @@ export const Reports = () => {
 											</tr>
 										</thead>
 										<tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-											{timeByProjectData.map((entry, index) => {
-												const percentage =
-													totalTime > 0
-														? ((entry.value / totalTime) * 100).toFixed(
-																1
-															)
-														: '0';
+											{timeByProjectData.map(
+												(entry, index) => {
+													const percentage =
+														totalTime > 0
+															? (
+																	(entry.value /
+																		totalTime) *
+																	100
+																).toFixed(1)
+															: '0'
 
-												return (
-													<tr key={index}>
-														<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-															<div className="flex items-center">
-																<div
-																	className="w-3 h-3 rounded-full mr-2"
-																	style={{
-																		backgroundColor:
-																			entry.color,
-																	}}
-																/>
-																{entry.name}
-															</div>
-														</td>
-														<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-															{formatTime(entry.value)}
-														</td>
-														<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-															{percentage}%
-														</td>
-													</tr>
-												);
-											})}
+													return (
+														<tr key={index}>
+															<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+																<div className="flex items-center">
+																	<div
+																		className="w-3 h-3 rounded-full mr-2"
+																		style={{
+																			backgroundColor:
+																				entry.color,
+																		}}
+																	/>
+																	{entry.name}
+																</div>
+															</td>
+															<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+																{formatTime(
+																	entry.value,
+																)}
+															</td>
+															<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+																{percentage}%
+															</td>
+														</tr>
+													)
+												},
+											)}
 										</tbody>
 									</table>
 								</div>
@@ -406,7 +447,12 @@ export const Reports = () => {
 								<ResponsiveContainer width="100%" height="100%">
 									<LineChart
 										data={timeByDayAndProjectData.dayData}
-										margin={{ top: 20, right: 30, left: 0, bottom: 60 }}
+										margin={{
+											top: 20,
+											right: 30,
+											left: 0,
+											bottom: 60,
+										}}
 									>
 										<XAxis
 											dataKey="displayDate"
@@ -430,26 +476,35 @@ export const Reports = () => {
 										<Tooltip
 											formatter={(value, name, props) => {
 												if (name === 'totalMinutes')
-													return [`${value} min`, 'Total'];
+													return [
+														`${value} min`,
+														'Total',
+													]
 												// Find project name for this id
 												const project =
 													timeByDayAndProjectData.projectsData.find(
-														(p) => p.id === name
-													);
-												return [`${value} min`, project?.name || name];
+														(p) => p.id === name,
+													)
+												return [
+													`${value} min`,
+													project?.name || name,
+												]
 											}}
-											labelFormatter={(label) => `Date: ${label}`}
+											labelFormatter={(label) =>
+												`Date: ${label}`
+											}
 										/>
 										<Legend
 											verticalAlign="top"
 											formatter={(value, entry) => {
-												if (value === 'totalMinutes') return 'Total';
+												if (value === 'totalMinutes')
+													return 'Total'
 												// Find project name for this dataKey
 												const project =
 													timeByDayAndProjectData.projectsData.find(
-														(p) => p.id === value
-													);
-												return project?.name || value;
+														(p) => p.id === value,
+													)
+												return project?.name || value
 											}}
 										/>
 
@@ -473,7 +528,9 @@ export const Reports = () => {
 										{/* Then show individual project lines */}
 										{timeByDayAndProjectData.projectsData
 											.filter(
-												(project) => !projectId || project.id === projectId
+												(project) =>
+													!projectId ||
+													project.id === projectId,
 											)
 											.map((project) => (
 												<Line
@@ -503,5 +560,5 @@ export const Reports = () => {
 				</div>
 			)}
 		</div>
-	);
-};
+	)
+}

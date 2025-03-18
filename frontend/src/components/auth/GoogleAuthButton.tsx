@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '../../store/authStore';
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useAuthStore } from '../../store/authStore'
 
 interface GoogleAuthButtonProps {
-	isLogin?: boolean;
+	isLogin?: boolean
 }
 
 export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
-	const { t } = useTranslation();
-	const { loginWithGoogle } = useAuthStore();
-	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const { t } = useTranslation()
+	const { loginWithGoogle } = useAuthStore()
+	const [isLoading, setIsLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
 
 	// Handle Google Login
 	const handleGoogleLogin = async () => {
-		setIsLoading(true);
-		setError(null);
+		setIsLoading(true)
+		setError(null)
 
 		try {
 			// Load the Google Identity Services script
-			await loadGoogleScript();
+			await loadGoogleScript()
 
 			// Initialize Google Identity Services
 			window.google.accounts.id.initialize({
@@ -27,63 +27,69 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 				callback: handleGoogleResponse,
 				auto_select: false,
 				cancel_on_tap_outside: true,
-			});
+			})
 
 			// Prompt the Google One Tap UI
 			window.google.accounts.id.prompt((notification: any) => {
-				if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+				if (
+					notification.isNotDisplayed() ||
+					notification.isSkippedMoment()
+				) {
 					// Try manual prompt
 					console.log(
-						'One Tap was skipped or not displayed, falling back to manual prompt'
-					);
+						'One Tap was skipped or not displayed, falling back to manual prompt',
+					)
 					window.google.accounts.id.renderButton(
 						document.getElementById('google-login-button')!,
-						{ theme: 'outline', size: 'large', width: '100%' }
-					);
+						{ theme: 'outline', size: 'large', width: '100%' },
+					)
 				}
-			});
+			})
 		} catch (error) {
-			console.error('Error initializing Google Sign-In:', error);
-			setError('Error setting up Google authentication');
-			setIsLoading(false);
+			console.error('Error initializing Google Sign-In:', error)
+			setError('Error setting up Google authentication')
+			setIsLoading(false)
 		}
-	};
+	}
 
 	const handleGoogleResponse = async (response: any) => {
 		console.log(
 			'Google response received with credential:',
-			response.credential ? `${response.credential.substring(0, 20)}...` : 'none'
-		);
+			response.credential
+				? `${response.credential.substring(0, 20)}...`
+				: 'none',
+		)
 		try {
 			// Call your backend with the token - be sure to use the correct parameter name
-			await loginWithGoogle(response.credential);
-			console.log('Google login successful');
+			await loginWithGoogle(response.credential)
+			console.log('Google login successful')
 		} catch (error) {
-			console.error('Error with Google authentication:', error);
-			setError('Failed to authenticate with Google');
+			console.error('Error with Google authentication:', error)
+			setError('Failed to authenticate with Google')
 		} finally {
-			setIsLoading(false);
+			setIsLoading(false)
 		}
-	};
+	}
 
 	// Function to load Google Identity Services script
 	const loadGoogleScript = () => {
 		return new Promise<void>((resolve, reject) => {
 			if (document.getElementById('google-identity-script')) {
-				resolve();
-				return;
+				resolve()
+				return
 			}
 
-			const script = document.createElement('script');
-			script.src = 'https://accounts.google.com/gsi/client';
-			script.id = 'google-identity-script';
-			script.async = true;
-			script.defer = true;
-			script.onload = () => resolve();
-			script.onerror = () => reject(new Error('Failed to load Google script'));
-			document.body.appendChild(script);
-		});
-	};
+			const script = document.createElement('script')
+			script.src = 'https://accounts.google.com/gsi/client'
+			script.id = 'google-identity-script'
+			script.async = true
+			script.defer = true
+			script.onload = () => resolve()
+			script.onerror = () =>
+				reject(new Error('Failed to load Google script'))
+			document.body.appendChild(script)
+		})
+	}
 
 	return (
 		<div className="w-full">
@@ -103,7 +109,11 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 				{isLoading ? (
 					<div className="w-5 h-5 border-2 border-t-2 border-transparent border-t-gray-600 dark:border-t-gray-300 rounded-full animate-spin" />
 				) : (
-					<svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+					<svg
+						className="w-5 h-5"
+						viewBox="0 0 24 24"
+						xmlns="http://www.w3.org/2000/svg"
+					>
 						<path
 							fill="#4285F4"
 							d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -131,5 +141,5 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 				</span>
 			</button>
 		</div>
-	);
-};
+	)
+}

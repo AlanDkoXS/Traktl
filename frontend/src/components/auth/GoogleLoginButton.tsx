@@ -1,55 +1,58 @@
-import { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '../../store/authStore';
-import { GoogleLogo } from './GoogleLogo';
+import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useAuthStore } from '../../store/authStore'
+import { GoogleLogo } from './GoogleLogo'
 
 interface GoogleLoginButtonProps {
-	isLogin?: boolean;
+	isLogin?: boolean
 }
 
-export const GoogleLoginButton = ({ isLogin = true }: GoogleLoginButtonProps) => {
-	const { t } = useTranslation();
-	const { loginWithGoogle } = useAuthStore();
-	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState('');
-	const googleButtonRef = useRef<HTMLDivElement>(null);
-	const scriptLoaded = useRef(false);
+export const GoogleLoginButton = ({
+	isLogin = true,
+}: GoogleLoginButtonProps) => {
+	const { t } = useTranslation()
+	const { loginWithGoogle } = useAuthStore()
+	const [isLoading, setIsLoading] = useState(false)
+	const [error, setError] = useState('')
+	const googleButtonRef = useRef<HTMLDivElement>(null)
+	const scriptLoaded = useRef(false)
 
 	useEffect(() => {
 		// Load the Google Identity Services script
 		const loadGoogleScript = () => {
-			if (scriptLoaded.current) return;
+			if (scriptLoaded.current) return
 
-			const script = document.createElement('script');
-			script.src = 'https://accounts.google.com/gsi/client';
-			script.id = 'google-identity-script';
-			script.async = true;
-			script.defer = true;
+			const script = document.createElement('script')
+			script.src = 'https://accounts.google.com/gsi/client'
+			script.id = 'google-identity-script'
+			script.async = true
+			script.defer = true
 			script.onload = () => {
-				scriptLoaded.current = true;
-				initializeGoogleSignIn();
-			};
+				scriptLoaded.current = true
+				initializeGoogleSignIn()
+			}
 			script.onerror = () => {
-				console.error('Failed to load Google script');
-				setError('Failed to load Google authentication');
-				setIsLoading(false);
-			};
-			document.body.appendChild(script);
-		};
+				console.error('Failed to load Google script')
+				setError('Failed to load Google authentication')
+				setIsLoading(false)
+			}
+			document.body.appendChild(script)
+		}
 
-		loadGoogleScript();
+		loadGoogleScript()
 
 		// Cleanup function
 		return () => {
 			// Clean up any Google-specific listeners or DOM elements if needed
 			if (googleButtonRef.current) {
-				googleButtonRef.current.innerHTML = '';
+				googleButtonRef.current.innerHTML = ''
 			}
-		};
-	}, []);
+		}
+	}, [])
 
 	const initializeGoogleSignIn = () => {
-		if (!window.google || !scriptLoaded.current || !googleButtonRef.current) return;
+		if (!window.google || !scriptLoaded.current || !googleButtonRef.current)
+			return
 
 		try {
 			// Initialize Google Identity Services
@@ -58,7 +61,7 @@ export const GoogleLoginButton = ({ isLogin = true }: GoogleLoginButtonProps) =>
 				callback: handleGoogleResponse,
 				auto_select: false,
 				cancel_on_tap_outside: true,
-			});
+			})
 
 			// Render the Google Sign-In button
 			window.google.accounts.id.renderButton(googleButtonRef.current, {
@@ -66,28 +69,28 @@ export const GoogleLoginButton = ({ isLogin = true }: GoogleLoginButtonProps) =>
 				size: 'large',
 				width: '100%',
 				text: isLogin ? 'signin_with' : 'signup_with',
-			});
+			})
 		} catch (err) {
-			console.error('Error initializing Google Sign-In:', err);
-			setError('Error initializing Google Sign-In');
-			setIsLoading(false);
+			console.error('Error initializing Google Sign-In:', err)
+			setError('Error initializing Google Sign-In')
+			setIsLoading(false)
 		}
-	};
+	}
 
 	const handleGoogleResponse = async (response: any) => {
-		console.log('Google response received');
-		setIsLoading(true);
+		console.log('Google response received')
+		setIsLoading(true)
 		try {
 			// Call your backend with the token
-			await loginWithGoogle(response.credential);
-			console.log('Google login successful');
+			await loginWithGoogle(response.credential)
+			console.log('Google login successful')
 		} catch (error) {
-			console.error('Error with Google authentication:', error);
-			setError(t('auth.googleAuthError'));
+			console.error('Error with Google authentication:', error)
+			setError(t('auth.googleAuthError'))
 		} finally {
-			setIsLoading(false);
+			setIsLoading(false)
 		}
-	};
+	}
 
 	return (
 		<div className="w-full">
@@ -109,5 +112,5 @@ export const GoogleLoginButton = ({ isLogin = true }: GoogleLoginButtonProps) =>
 				></div>
 			)}
 		</div>
-	);
-};
+	)
+}

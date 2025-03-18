@@ -1,40 +1,46 @@
-import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { TimeEntryForm } from '../components/TimeEntryForm';
-import { useTimeEntryStore } from '../store/timeEntryStore';
-import { TrashIcon } from '@heroicons/react/24/outline';
-import { ConfirmModal } from '../components/ui/ConfirmModal';
-import { useState } from 'react';
+import { useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { TimeEntryForm } from '../components/TimeEntryForm'
+import { useTimeEntryStore } from '../store/timeEntryStore'
+import { TrashIcon } from '@heroicons/react/24/outline'
+import { ConfirmModal } from '../components/ui/ConfirmModal'
+import { useState } from 'react'
 
 export const EditTimeEntry = () => {
-	const { t } = useTranslation();
-	const { id } = useParams<{ id: string }>();
-	const navigate = useNavigate();
-	const { selectedTimeEntry, fetchTimeEntry, deleteTimeEntry, isLoading, error } = useTimeEntryStore();
-	const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [deleteLoading, setDeleteLoading] = useState(false);
+	const { t } = useTranslation()
+	const { id } = useParams<{ id: string }>()
+	const navigate = useNavigate()
+	const {
+		selectedTimeEntry,
+		fetchTimeEntry,
+		deleteTimeEntry,
+		isLoading,
+		error,
+	} = useTimeEntryStore()
+	const [showDeleteModal, setShowDeleteModal] = useState(false)
+	const [deleteLoading, setDeleteLoading] = useState(false)
 
 	useEffect(() => {
 		if (id) {
-			fetchTimeEntry(id);
+			fetchTimeEntry(id)
 		}
-	}, [id, fetchTimeEntry]);
+	}, [id, fetchTimeEntry])
 
 	const handleDelete = async () => {
-		if (!id) return;
-		
-		setDeleteLoading(true);
+		if (!id) return
+
+		setDeleteLoading(true)
 		try {
-			await deleteTimeEntry(id);
-			navigate('/time-entries');
+			await deleteTimeEntry(id)
+			navigate('/time-entries')
 		} catch (err) {
-			console.error('Error deleting time entry:', err);
+			console.error('Error deleting time entry:', err)
 		} finally {
-			setDeleteLoading(false);
-			setShowDeleteModal(false);
+			setDeleteLoading(false)
+			setShowDeleteModal(false)
 		}
-	};
+	}
 
 	if (isLoading) {
 		return (
@@ -42,7 +48,7 @@ export const EditTimeEntry = () => {
 				<div className="animate-spin rounded-full h-8 w-8 border-b-2 dynamic-border"></div>
 				<span className="ml-2">{t('common.loading')}</span>
 			</div>
-		);
+		)
 	}
 
 	if (error) {
@@ -50,7 +56,7 @@ export const EditTimeEntry = () => {
 			<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-4 rounded-md">
 				{error}
 			</div>
-		);
+		)
 	}
 
 	if (!selectedTimeEntry) {
@@ -59,11 +65,14 @@ export const EditTimeEntry = () => {
 				<p className="text-gray-500 dark:text-gray-400 mb-4">
 					{t('timeEntries.notFound')}
 				</p>
-				<button onClick={() => navigate('/time-entries')} className="btn btn-primary">
+				<button
+					onClick={() => navigate('/time-entries')}
+					className="btn btn-primary"
+				>
 					{t('common.goBack')}
 				</button>
 			</div>
-		);
+		)
 	}
 
 	return (
@@ -92,7 +101,8 @@ export const EditTimeEntry = () => {
 				isOpen={showDeleteModal}
 				title={t('common.confirmDelete')}
 				message={t('timeEntries.deleteConfirmation', {
-					defaultValue: 'Are you sure you want to delete this time entry? This action cannot be undone.'
+					defaultValue:
+						'Are you sure you want to delete this time entry? This action cannot be undone.',
 				})}
 				confirmButtonText={t('common.delete')}
 				cancelButtonText={t('common.cancel')}
@@ -102,5 +112,5 @@ export const EditTimeEntry = () => {
 				danger={true}
 			/>
 		</div>
-	);
-};
+	)
+}

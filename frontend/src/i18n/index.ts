@@ -1,11 +1,11 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+import LanguageDetector from 'i18next-browser-languagedetector'
 
 // Import translations
-import enTranslation from './locales/en.json';
-import esTranslation from './locales/es.json';
-import trTranslation from './locales/tr.json';
+import enTranslation from './locales/en.json'
+import esTranslation from './locales/es.json'
+import trTranslation from './locales/tr.json'
 
 // Initialize i18next with improved language detection
 i18n.use(LanguageDetector)
@@ -33,7 +33,9 @@ i18n.use(LanguageDetector)
 			lookupFromSubdomainIndex: 0,
 			// Don't use cookies to avoid unnecessary headers
 			lookupCookie: 'i18next',
-			cookieExpirationDate: new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000), // 2 years
+			cookieExpirationDate: new Date(
+				Date.now() + 2 * 365 * 24 * 60 * 60 * 1000,
+			), // 2 years
 			// HTML lang attribute
 			htmlTag: document.documentElement,
 		},
@@ -43,6 +45,6 @@ i18n.use(LanguageDetector)
 		},
 		// Ensure translations are loaded before initial render
 		initImmediate: false,
-	});
+	})
 
-export default i18n;
+export default i18n

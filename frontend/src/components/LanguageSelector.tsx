@@ -1,27 +1,27 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Menu } from '@headlessui/react';
-import { LanguageIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Menu } from '@headlessui/react'
+import { LanguageIcon } from '@heroicons/react/24/outline'
 
 export const LanguageSelector = () => {
-	const { i18n, t } = useTranslation();
-	const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+	const { i18n, t } = useTranslation()
+	const [currentLanguage, setCurrentLanguage] = useState(i18n.language)
 
 	useEffect(() => {
 		// Update state when language changes
-		setCurrentLanguage(i18n.language);
-	}, [i18n.language]);
+		setCurrentLanguage(i18n.language)
+	}, [i18n.language])
 
 	const languages = [
 		{ code: 'en', name: t('languages.english', 'English') },
 		{ code: 'es', name: t('languages.spanish', 'Español') },
 		{ code: 'tr', name: t('languages.turkish', 'Türkçe') },
-	];
+	]
 
 	const changeLanguage = (lng: string) => {
-		i18n.changeLanguage(lng);
-		setCurrentLanguage(lng);
-	};
+		i18n.changeLanguage(lng)
+		setCurrentLanguage(lng)
+	}
 
 	return (
 		<Menu as="div" className="relative">
@@ -38,13 +38,17 @@ export const LanguageSelector = () => {
 						<Menu.Item key={language.code}>
 							{({ active }) => (
 								<button
-									onClick={() => changeLanguage(language.code)}
+									onClick={() =>
+										changeLanguage(language.code)
+									}
 									className={`${
 										active
 											? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
 											: 'text-gray-700 dark:text-gray-200'
 									} ${
-										currentLanguage === language.code ? 'font-bold' : ''
+										currentLanguage === language.code
+											? 'font-bold'
+											: ''
 									} block w-full text-left p-4 text-sm`}
 								>
 									{language.name}
@@ -55,5 +59,5 @@ export const LanguageSelector = () => {
 				</div>
 			</Menu.Items>
 		</Menu>
-	);
-};
+	)
+}

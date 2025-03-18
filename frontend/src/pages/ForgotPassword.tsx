@@ -1,53 +1,53 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { LanguageSelector } from '../components/LanguageSelector';
-import { ThemeToggle } from '../components/ThemeToggle';
-import { authService } from '../services/authService';
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+import { LanguageSelector } from '../components/LanguageSelector'
+import { ThemeToggle } from '../components/ThemeToggle'
+import { authService } from '../services/authService'
 
 export const ForgotPassword = () => {
-	const { t } = useTranslation();
-	const [email, setEmail] = useState('');
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [error, setError] = useState('');
-	const [successMessage, setSuccessMessage] = useState('');
+	const { t } = useTranslation()
+	const [email, setEmail] = useState('')
+	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [error, setError] = useState('')
+	const [successMessage, setSuccessMessage] = useState('')
 
 	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
 
 		if (!email) {
-			setError(t('errors.required'));
-			return;
+			setError(t('errors.required'))
+			return
 		}
 
 		try {
-			setIsSubmitting(true);
-			setError('');
-			setSuccessMessage('');
+			setIsSubmitting(true)
+			setError('')
+			setSuccessMessage('')
 
 			// API call to request password reset
-			await authService.requestPasswordReset(email);
+			await authService.requestPasswordReset(email)
 
 			// Show success message even if the email doesn't exist for security reasons
 			setSuccessMessage(
 				t(
 					'auth.passwordResetSent',
-					'If an account with that email exists, we have sent password reset instructions.'
-				)
-			);
-			setEmail('');
+					'If an account with that email exists, we have sent password reset instructions.',
+				),
+			)
+			setEmail('')
 		} catch (err: any) {
 			// For security, we don't want to reveal if the email exists or not
 			setSuccessMessage(
 				t(
 					'auth.passwordResetSent',
-					'If an account with that email exists, we have sent password reset instructions.'
-				)
-			);
+					'If an account with that email exists, we have sent password reset instructions.',
+				),
+			)
 		} finally {
-			setIsSubmitting(false);
+			setIsSubmitting(false)
 		}
-	};
+	}
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -65,7 +65,10 @@ export const ForgotPassword = () => {
 						{t('auth.forgotPassword')}
 					</h2>
 					<p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-						{t('auth.forgotPasswordInstructions', 'Enter your email to receive password reset instructions.')}
+						{t(
+							'auth.forgotPasswordInstructions',
+							'Enter your email to receive password reset instructions.',
+						)}
 					</p>
 				</div>
 
@@ -105,10 +108,12 @@ export const ForgotPassword = () => {
 							disabled={isSubmitting}
 							className="btn btn-primary w-full py-2 justify-center"
 						>
-							{isSubmitting ? t('common.loading') : t('auth.resetPassword', 'Reset Password')}
+							{isSubmitting
+								? t('common.loading')
+								: t('auth.resetPassword', 'Reset Password')}
 						</button>
 					</div>
-					
+
 					<div className="flex items-center justify-between mt-4">
 						<Link
 							to="/login"
@@ -120,5 +125,5 @@ export const ForgotPassword = () => {
 				</form>
 			</div>
 		</div>
-	);
-};
+	)
+}

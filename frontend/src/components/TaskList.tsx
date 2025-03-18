@@ -1,41 +1,43 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useTaskStore } from '../store/taskStore';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useTaskStore } from '../store/taskStore'
+import { Link } from 'react-router-dom'
 
 interface TaskListProps {
-	projectId?: string;
+	projectId?: string
 }
 
 export const TaskList = ({ projectId }: TaskListProps) => {
-	const { t } = useTranslation();
-	const { tasks, isLoading, error, fetchTasks } = useTaskStore();
-	const [retryCount, setRetryCount] = useState(0);
-	const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
+	const { t } = useTranslation()
+	const { tasks, isLoading, error, fetchTasks } = useTaskStore()
+	const [retryCount, setRetryCount] = useState(0)
+	const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null)
 
 	useEffect(() => {
 		const loadTasks = async () => {
 			try {
-				await fetchTasks(projectId);
+				await fetchTasks(projectId)
 			} catch (err) {
-				console.error('Error loading tasks:', err);
+				console.error('Error loading tasks:', err)
 			}
-		};
+		}
 
-		loadTasks();
-	}, [fetchTasks, projectId, retryCount]);
+		loadTasks()
+	}, [fetchTasks, projectId, retryCount])
 
 	const handleRetry = () => {
-		setRetryCount((prev) => prev + 1);
-	};
+		setRetryCount((prev) => prev + 1)
+	}
 
 	if (isLoading) {
 		return (
 			<div className="flex justify-center items-center py-4">
 				<div className="animate-spin rounded-full h-6 w-6 border-b-2 dynamic-border"></div>
-				<span className="ml-2 dynamic-color">{t('common.loading')}</span>
+				<span className="ml-2 dynamic-color">
+					{t('common.loading')}
+				</span>
 			</div>
-		);
+		)
 	}
 
 	if (error) {
@@ -49,21 +51,27 @@ export const TaskList = ({ projectId }: TaskListProps) => {
 					{t('common.retry')}
 				</button>
 			</div>
-		);
+		)
 	}
 
 	if (tasks.length === 0) {
 		return (
 			<div className="text-center py-8 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-				<p className="text-gray-500 dark:text-gray-400 mb-4">{t('tasks.noTasks')}</p>
+				<p className="text-gray-500 dark:text-gray-400 mb-4">
+					{t('tasks.noTasks')}
+				</p>
 				<Link
-					to={projectId ? `/tasks/new?projectId=${projectId}` : '/tasks/new'}
+					to={
+						projectId
+							? `/tasks/new?projectId=${projectId}`
+							: '/tasks/new'
+					}
 					className="btn btn-primary dynamic-bg text-white"
 				>
 					{t('tasks.new')}
 				</Link>
 			</div>
-		);
+		)
 	}
 
 	return (
@@ -125,5 +133,5 @@ export const TaskList = ({ projectId }: TaskListProps) => {
 				))}
 			</ul>
 		</div>
-	);
-};
+	)
+}

@@ -1,33 +1,35 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useProjectStore } from '../store/projectStore';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useProjectStore } from '../store/projectStore'
+import { Link } from 'react-router-dom'
 
 export const ProjectList = () => {
-	const { t } = useTranslation();
-	const { projects, isLoading, error, fetchProjects } = useProjectStore();
-	const [retryCount, setRetryCount] = useState(0);
-	const [hoveredProjectId, setHoveredProjectId] = useState<string | null>(null);
+	const { t } = useTranslation()
+	const { projects, isLoading, error, fetchProjects } = useProjectStore()
+	const [retryCount, setRetryCount] = useState(0)
+	const [hoveredProjectId, setHoveredProjectId] = useState<string | null>(
+		null,
+	)
 
 	useEffect(() => {
 		const loadProjects = async () => {
 			try {
-				await fetchProjects();
+				await fetchProjects()
 			} catch (err) {
-				console.error('Error loading projects:', err);
+				console.error('Error loading projects:', err)
 			}
-		};
+		}
 
-		loadProjects();
-	}, [fetchProjects, retryCount]);
+		loadProjects()
+	}, [fetchProjects, retryCount])
 
 	const handleRetry = () => {
-		setRetryCount((prev) => prev + 1);
-	};
+		setRetryCount((prev) => prev + 1)
+	}
 
 	const handleProjectHover = (projectId: string | null) => {
-		setHoveredProjectId(projectId);
-	};
+		setHoveredProjectId(projectId)
+	}
 
 	if (isLoading) {
 		return (
@@ -35,7 +37,7 @@ export const ProjectList = () => {
 				<div className="animate-spin rounded-full h-6 w-6 border-b-2 dynamic-border"></div>
 				<span className="ml-2">{t('common.loading')}</span>
 			</div>
-		);
+		)
 	}
 
 	if (error) {
@@ -49,18 +51,20 @@ export const ProjectList = () => {
 					{t('common.retry')}
 				</button>
 			</div>
-		);
+		)
 	}
 
 	if (projects.length === 0) {
 		return (
 			<div className="text-center py-8">
-				<p className="text-gray-500 dark:text-gray-400 mb-4">{t('projects.noProjects')}</p>
+				<p className="text-gray-500 dark:text-gray-400 mb-4">
+					{t('projects.noProjects')}
+				</p>
 				<Link to="/projects/new" className="btn btn-primary">
 					{t('projects.new')}
 				</Link>
 			</div>
-		);
+		)
 	}
 
 	return (
@@ -82,7 +86,9 @@ export const ProjectList = () => {
 								<div className="min-w-0 flex-1 flex items-center">
 									<div
 										className="flex-shrink-0 h-6 w-6 rounded-md"
-										style={{ backgroundColor: project.color }}
+										style={{
+											backgroundColor: project.color,
+										}}
 									/>
 									<div className="min-w-0 flex-1 px-4">
 										<div>
@@ -114,5 +120,5 @@ export const ProjectList = () => {
 				))}
 			</ul>
 		</div>
-	);
-};
+	)
+}
