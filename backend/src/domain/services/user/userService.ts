@@ -13,16 +13,19 @@ export class UserService {
 		private readonly userRepository: UserRepository,
 		private readonly userInitService: UserInitService,
 	) {
-		console.log('UserService constructor called');
-		console.log('UserRepository initialized:', !!this.userRepository);
-		console.log('UserInitService initialized:', !!this.userInitService);
+		console.log('UserService constructor called')
+		console.log('UserRepository initialized:', !!this.userRepository)
+		console.log('UserInitService initialized:', !!this.userInitService)
 	}
 
 	async registerUser(
 		createUserDto: CreateUserDTO,
 	): Promise<{ user: User; token: string }> {
 		try {
-			console.log('Starting user registration process for:', createUserDto.email);
+			console.log(
+				'Starting user registration process for:',
+				createUserDto.email,
+			)
 			const { email, password } = createUserDto
 			// Validate email format
 			if (!regularExp.email.test(email)) {
@@ -46,48 +49,62 @@ export class UserService {
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			}
-			
-			console.log('Creating user in database...');
+
+			console.log('Creating user in database...')
 			// Create user
 			const user = await this.userRepository.create(userEntity)
-			console.log('User created successfully with ID:', user._id);
-			
+			console.log('User created successfully with ID:', user._id)
+
 			// Initialize user with default settings - with more robust error handling
 			try {
-				console.log('Starting initialization of default settings for user:', user.email);
-				
+				console.log(
+					'Starting initialization of default settings for user:',
+					user.email,
+				)
+
 				// MongoDB uses _id, make sure we pass the correct ID to the initialization service
 				if (!user._id) {
-					console.error('User creation succeeded but _id is missing:', user);
-					throw new Error('User ID is missing after creation');
+					console.error(
+						'User creation succeeded but _id is missing:',
+						user,
+					)
+					throw new Error('User ID is missing after creation')
 				}
-				
+
+				// IMPORTANTE: Convertir el user a UserEntity para la inicialización
+				const userEntityForInit: UserEntity = {
+					...user,
+					id: user._id, // Establecer el id explícitamente
+				}
+
 				// Wait for initialization to complete
-				await this.userInitService.initializeUser(user);
-				console.log('User initialization completed successfully');
+				await this.userInitService.initializeUser(userEntityForInit)
+				console.log('User initialization completed successfully')
 			} catch (initError) {
 				// Log error but don't fail the registration
-				console.error('Error during user initialization:', initError);
-				console.error('Will continue with registration despite initialization failure');
-				
+				console.error('Error during user initialization:', initError)
+				console.error(
+					'Will continue with registration despite initialization failure',
+				)
+
 				// We could consider deleting the user if initialization completely fails
 				// await this.userRepository.delete(user._id);
 				// throw CustomError.internalServer('Error setting up user account');
 			}
-			
+
 			// Generate JWT token
-			console.log('Generating authentication token...');
+			console.log('Generating authentication token...')
 			const token = await JwtAdapter.generateToken({ id: user._id })
 			if (!token) {
 				throw CustomError.internalServer('Error generating token')
 			}
-			
-			console.log('User registration completed successfully');
+
+			console.log('User registration completed successfully')
 			return { user, token }
 		} catch (error) {
-			console.error('Error during user registration:', error);
+			console.error('Error during user registration:', error)
 			// Re-throw the error to be handled by the controller
-			throw error;
+			throw error
 		}
 	}
 

@@ -21,41 +21,33 @@ export class UserInitService {
   async initializeUser(user: UserEntity): Promise<void> {
     try {
       console.log('Initializing user defaults for:', user.email);
-      console.log('User object structure:', JSON.stringify(user, null, 2));
-
-      // Extract the user ID - MongoDB uses _id
-      const userId = user.id?.toString();
-
-      if (!userId) {
-        console.error('User _id is missing during initialization');
-        throw new Error('User _id is required for initialization');
+      
+      // Ensure we have a valid ID
+      if (!user.id) {
+        console.error('User ID is missing during initialization');
+        throw new Error('User ID is required for initialization');
       }
 
+      const userId = user.id;
       console.log(`Starting initialization for user ID: ${userId}`);
 
-      // Create default project (Focus)
+      // Create Focus project
       console.log('Creating default Focus project...');
       const focusProject = await this.createDefaultProject(userId);
-      console.log('Default Focus project created:', focusProject?.id || 'failed');
+      console.log('Default Focus project created successfully');
 
-      // Create default timer presets
+      // Create timer presets
       console.log('Creating default timer presets...');
       const defaultPresets = await this.createDefaultTimerPresets(userId);
       console.log('Default timer presets created:', defaultPresets.length);
 
       // Set default timer preset (Pomodoro)
-      if (defaultPresets.length > 0) {
-        const presetId = defaultPresets[0].id?.toString();
-
-        if (presetId) {
-          console.log('Setting default timer preset:', presetId);
-          await this.setDefaultTimerPreset(userId, presetId);
-          console.log('Default timer preset set successfully');
-        } else {
-          console.warn('Preset created but no _id found:', defaultPresets[0]);
-        }
+      if (defaultPresets.length > 0 && defaultPresets[0].id) {
+        console.log('Setting default timer preset:', defaultPresets[0].id);
+        await this.setDefaultTimerPreset(userId, defaultPresets[0].id);
+        console.log('Default timer preset set successfully');
       } else {
-        console.warn('No default presets were created, skipping default preset setting');
+        console.warn('No default presets were created or preset has no ID');
       }
 
       console.log(`Successfully initialized user: ${user.email}`);
@@ -81,11 +73,12 @@ export class UserInitService {
       color: '#33d17a',
       user: userId,
       status: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date()
     } as ProjectEntity;
 
     try {
       const project = await this.projectRepository.create(focusProject);
-      console.log('Focus project created successfully with ID:', project._id);
       return project;
     } catch (error) {
       console.error('Error creating Focus project:', error);
@@ -105,6 +98,8 @@ export class UserInitService {
       breakDuration: 5,
       repetitions: 4,
       user: userId,
+      createdAt: new Date(),
+      updatedAt: new Date()
     } as TimerPresetEntity;
 
     const workBreakPreset = {
@@ -113,19 +108,18 @@ export class UserInitService {
       breakDuration: 17,
       repetitions: 4,
       user: userId,
+      createdAt: new Date(),
+      updatedAt: new Date()
     } as TimerPresetEntity;
 
     try {
       console.log('Creating Pomodoro preset...');
       const pomodoro = await this.timerPresetRepository.create(pomodoroPreset);
-      console.log('Pomodoro preset created with ID:', pomodoro._id);
 
       console.log('Creating 52/17 preset...');
       const workBreak = await this.timerPresetRepository.create(workBreakPreset);
-      console.log('52/17 preset created with ID:', workBreak._id);
 
-      const createdPresets = [pomodoro, workBreak];
-      return createdPresets;
+      return [pomodoro, workBreak];
     } catch (error) {
       console.error('Error creating default timer presets:', error);
       throw error;
