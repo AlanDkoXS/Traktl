@@ -31,10 +31,13 @@ export const VerifyEmail = () => {
 
 				// Update verification status in the auth store
 				await checkVerificationStatus()
-			} catch (err: any) {
+			} catch (err: unknown) {
 				setIsSuccess(false)
+				const error = err as {
+					response?: { data?: { message?: string } }
+				}
 				setErrorMessage(
-					err.response?.data?.message ||
+					error.response?.data?.message ||
 						t('auth.emailVerificationFailed'),
 				)
 			} finally {
