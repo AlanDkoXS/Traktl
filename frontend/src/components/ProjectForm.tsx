@@ -68,9 +68,13 @@ export const ProjectForm = ({
 			}
 
 			navigate('/projects')
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error('Project submission error:', err)
-			setError(err.message || t('errors.serverError'))
+			if (err instanceof Error) {
+				setError(err.message || t('errors.serverError'))
+			} else {
+				setError(t('errors.serverError'))
+			}
 		} finally {
 			setIsSubmitting(false)
 		}

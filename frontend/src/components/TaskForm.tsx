@@ -65,8 +65,12 @@ export const TaskForm = ({ task, isEditing = false }: TaskFormProps) => {
 			}
 
 			navigate('/tasks')
-		} catch (err: any) {
-			setError(err.message || t('errors.serverError'))
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				setError(err.message || t('errors.serverError'))
+			} else {
+				setError(t('errors.serverError'))
+			}
 		} finally {
 			setIsSubmitting(false)
 		}
