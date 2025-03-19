@@ -136,9 +136,12 @@ export const TimeEntryForm = ({
 			}
 
 			navigate('/time-entries')
-		} catch (err: any) {
-			console.error('Error submitting time entry:', err)
-			setError(err.message || t('errors.serverError'))
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				setError(err.message || t('errors.serverError'))
+			} else {
+				setError(t('errors.serverError'))
+			}
 		} finally {
 			setIsSubmitting(false)
 		}
