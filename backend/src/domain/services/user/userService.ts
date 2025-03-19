@@ -6,16 +6,11 @@ import { UpdateUserDTO } from '../../dtos/user/update-user.dto'
 import { CustomError } from '../../errors/custom.errors'
 import { JwtAdapter } from '../../../config/jwt.adapter'
 import { regularExp } from '../../../config/regular-exp'
-import { UserInitService } from './userInitService'
 
 export class UserService {
-	constructor(
-		private readonly userRepository: UserRepository,
-		private readonly userInitService: UserInitService,
-	) {
+	constructor(private readonly userRepository: UserRepository) {
 		console.log('UserService constructor called')
 		console.log('UserRepository initialized:', !!this.userRepository)
-		console.log('UserInitService initialized:', !!this.userInitService)
 	}
 
 	async registerUser(
@@ -25,17 +20,23 @@ export class UserService {
 			console.log(
 				'Starting user registration process for:',
 				createUserDto.email,
+				'with defaultTimerPreset:',
+				createUserDto.defaultTimerPreset || 'not provided',
 			)
+
 			const { email, password } = createUserDto
+
 			// Validate email format
 			if (!regularExp.email.test(email)) {
 				throw CustomError.badRequest('Invalid email format')
 			}
+
 			// Check if user already exists
 			const existingUser = await this.userRepository.findByEmail(email)
 			if (existingUser) {
 				throw CustomError.badRequest('User already exists')
 			}
+
 			// Convert DTO to UserEntity
 			const userEntity: UserEntity = {
 				name: createUserDto.name,
@@ -50,10 +51,21 @@ export class UserService {
 				updatedAt: new Date(),
 			}
 
-			console.log('Creating user in database...')
+			console.log('Creating user in database with entity:', {
+				...userEntity,
+				password: '[REDACTED]',
+				defaultTimerPreset:
+					userEntity.defaultTimerPreset || 'not provided',
+			})
+
 			// Create user
 			const user = await this.userRepository.create(userEntity)
-			console.log('User created successfully with ID:', user._id)
+			console.log(
+				'User created successfully with ID:',
+				user._id,
+				'and defaultTimerPreset:',
+				user.defaultTimerPreset || 'not set',
+			)
 
 			// Initialize user with default settings - with more robust error handling
 			try {
@@ -71,25 +83,30 @@ export class UserService {
 					throw new Error('User ID is missing after creation')
 				}
 
-				// IMPORTANTE: Convertir el user a UserEntity para la inicialización
-				const userEntityForInit: UserEntity = {
+				// Prepare the entity for initialization
+				const userEntityForInit: User = {
 					...user,
-					id: user._id, // Establecer el id explícitamente
+					_id: user._id, // Set _id explicitly for compatibility
 				}
 
-				// Wait for initialization to complete
-				await this.userInitService.initializeUser(userEntityForInit)
-				console.log('User initialization completed successfully')
+				// Get the user again to confirm that defaultTimerPreset has been saved
+				const updatedUser = await this.userRepository.findById(user._id)
+				if (updatedUser) {
+					console.log(
+						'Updated user after initialization:',
+						'defaultTimerPreset =',
+						updatedUser.defaultTimerPreset || 'not set',
+					)
+
+					// Update local reference
+					Object.assign(user, updatedUser)
+				}
 			} catch (initError) {
 				// Log error but don't fail the registration
 				console.error('Error during user initialization:', initError)
 				console.error(
 					'Will continue with registration despite initialization failure',
 				)
-
-				// We could consider deleting the user if initialization completely fails
-				// await this.userRepository.delete(user._id);
-				// throw CustomError.internalServer('Error setting up user account');
 			}
 
 			// Generate JWT token
@@ -119,10 +136,13 @@ export class UserService {
 			console.log('User not found:', email)
 			throw CustomError.unauthorized('Invalid credentials')
 		}
-		console.log('User found:', user.email)
-		console.log('Stored hashed password:', user.password)
-		console.log('Provided password:', password)
-		//TODO: Ocultar password
+		console.log(
+			'User found:',
+			user.email,
+			'with defaultTimerPreset:',
+			user.defaultTimerPreset || 'not set',
+		)
+
 		// Check if comparePassword method exists
 		if (!user.comparePassword) {
 			console.error(
@@ -130,6 +150,7 @@ export class UserService {
 			)
 			throw CustomError.internalServer('Authentication system error')
 		}
+
 		// Validate password
 		const isPasswordValid = user.comparePassword(password)
 		console.log('Password validation result:', isPasswordValid)
@@ -137,6 +158,7 @@ export class UserService {
 			console.log('Invalid password for user:', email)
 			throw CustomError.unauthorized('Invalid credentials')
 		}
+
 		// Generate JWT token
 		const token = await JwtAdapter.generateToken({ id: user._id })
 		if (!token) throw CustomError.internalServer('Error generating token')
@@ -159,17 +181,30 @@ export class UserService {
 		userId: string,
 		updateUserDto: UpdateUserDTO,
 	): Promise<User> {
+		console.log('Updating user with ID:', userId, 'and data:', {
+			...updateUserDto,
+			defaultTimerPreset:
+				updateUserDto.defaultTimerPreset || 'not changed',
+		})
+
 		const user = await this.userRepository.findById(userId)
 		if (!user) {
 			throw CustomError.notFound('User not found')
 		}
+
 		const updatedUser = await this.userRepository.update(
 			userId,
 			updateUserDto,
 		)
+
 		if (!updatedUser) {
 			throw CustomError.internalServer('Error updating user')
 		}
+
+		console.log(
+			'User updated successfully with new defaultTimerPreset:',
+			updatedUser.defaultTimerPreset || 'not set',
+		)
 		return updatedUser
 	}
 

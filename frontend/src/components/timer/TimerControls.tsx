@@ -31,7 +31,24 @@ export const TimerControls = ({
 	const [showShortSessionModal, setShowShortSessionModal] = useState(false)
 	const [showStopConfirmationModal, setShowStopConfirmationModal] =
 		useState(false)
+	const [showProjectRequiredModal, setShowProjectRequiredModal] = useState(false)
 	const [modalAction, setModalAction] = useState<'next' | 'stop'>('next')
+
+	const handleStart = () => {
+		if (!projectId) {
+			setShowProjectRequiredModal(true)
+			return
+		}
+		start()
+	}
+
+	const handleResume = () => {
+		if (!projectId) {
+			setShowProjectRequiredModal(true)
+			return
+		}
+		resume()
+	}
 
 	const handleSkipToNext = () => {
 		// When in infinite mode or in break mode, don't show the warning modal
@@ -106,18 +123,16 @@ export const TimerControls = ({
 		setShowShortSessionModal(false)
 	}
 
+	const handleCloseProjectRequiredModal = () => {
+		setShowProjectRequiredModal(false)
+	}
+
 	return (
 		<>
 			<div className="flex justify-center space-x-6 mt-8 mb-6">
 				{status === 'idle' && (
 					<button
-						onClick={() => {
-							if (!projectId) {
-								alert(t('timeEntries.selectProject'))
-								return
-							}
-							start()
-						}}
+						onClick={handleStart}
 						className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle hover:opacity-90 transition-opacity shadow-sm"
 						title={t('timer.start')}
 					>
@@ -209,7 +224,7 @@ export const TimerControls = ({
 				{status === 'paused' && (
 					<>
 						<button
-							onClick={() => resume()}
+							onClick={handleResume}
 							className="w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle hover:opacity-90 transition-opacity shadow-sm"
 							title={t('timer.resume')}
 						>
@@ -331,6 +346,23 @@ export const TimerControls = ({
 					</>
 				)}
 			</div>
+
+			{/* Project Required Modal */}
+			<ConfirmModal
+				isOpen={showProjectRequiredModal}
+				title={t('timer.projectRequired', 'Project Required')}
+				message={t(
+					'timer.projectRequiredMessage',
+					'Please select a project before starting the timer.'
+				)}
+				confirmButtonText={t('common.ok')}
+				cancelButtonText=""
+				onConfirm={handleCloseProjectRequiredModal}
+				onCancel={() => setShowProjectRequiredModal(false)}
+				isLoading={false}
+				danger={false}
+				showCancelButton={false}
+			/>
 
 			{/* Short session modal for Next/Skip button */}
 			<ConfirmModal

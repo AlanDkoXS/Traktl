@@ -1,7 +1,6 @@
 import { Router } from 'express'
 import { UserController } from '../controllers'
 import { UserService } from '../../domain/services/user/userService'
-import { UserInitService } from '../../domain/services/user/userInitService'
 import { VerificationService } from '../../domain/services/user/verificationService'
 import { MongoUserRepository } from '../../infrastructure/repositories/mongodb/mongoUserRepository'
 import { MongoProjectRepository } from '../../infrastructure/repositories/mongodb/mongoProjectRepository'
@@ -11,34 +10,28 @@ import { GoogleAuthController } from '../controllers/googleAuthController'
 import { EmailService } from '../../service/emailService'
 
 // Create repositories
-console.log('Creating repositories for user routes...');
+console.log('Creating repositories for user routes...')
 const userRepository = new MongoUserRepository()
 const projectRepository = new MongoProjectRepository()
 const timerPresetRepository = new MongoTimerPresetRepository()
 
 // Create services
-console.log('Creating services for user routes...');
+console.log('Creating services for user routes...')
 const emailService = new EmailService()
 
 // Initialize user initialization service
-console.log('Creating UserInitService...');
-const userInitService = new UserInitService(
-    timerPresetRepository,
-    projectRepository,
-    userRepository
-)
 
 // Initialize user service with user init service
-console.log('Creating UserService with UserInitService...');
-const userService = new UserService(userRepository, userInitService)
+console.log('Creating UserService with UserInitService...')
+const userService = new UserService(userRepository)
 
 const verificationService = new VerificationService(
-    userRepository,
-    emailService,
+	userRepository,
+	emailService,
 )
 
 // Create controllers
-console.log('Creating controllers for user routes...');
+console.log('Creating controllers for user routes...')
 const controller = new UserController(userService, verificationService)
 const googleAuthController = new GoogleAuthController(userService)
 
@@ -64,16 +57,16 @@ router.put('/change-password', validateJWT, controller.changePassword)
 
 // Email verification routes
 router.post(
-    '/request-verification',
-    validateJWT,
-    controller.requestVerification,
+	'/request-verification',
+	validateJWT,
+	controller.requestVerification,
 )
 router.post('/verify-email', controller.verifyEmail)
 router.get(
-    '/verification-status',
-    validateJWT,
-    controller.getVerificationStatus,
+	'/verification-status',
+	validateJWT,
+	controller.getVerificationStatus,
 )
 
-console.log('User routes configured successfully');
+console.log('User routes configured successfully')
 export const userRoutes = router

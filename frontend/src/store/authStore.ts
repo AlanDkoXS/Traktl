@@ -31,6 +31,7 @@ interface AuthState {
 		password: string,
 		preferredLanguage: string,
 		theme: string,
+		defaultTimerPreset?: string
 	) => Promise<void>
 	logout: () => void
 	loadUser: () => Promise<void>
@@ -176,9 +177,20 @@ export const useAuthStore = create<AuthState>()(
 				password,
 				preferredLanguage,
 				theme,
+				defaultTimerPreset
 			) => {
 				try {
 					set({ isLoading: true, error: null })
+
+					// Log the registration data for debugging
+					console.log('Register data:', {
+						name,
+						email,
+						password: '******',
+						preferredLanguage,
+						theme,
+						defaultTimerPreset: defaultTimerPreset || 'not provided'
+					})
 
 					const { token, user } = await authService.register(
 						name,
@@ -186,6 +198,7 @@ export const useAuthStore = create<AuthState>()(
 						password,
 						preferredLanguage,
 						theme,
+						defaultTimerPreset
 					)
 
 					console.log('Register successful, token received:', token)

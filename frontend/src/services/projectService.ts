@@ -2,12 +2,14 @@ import api from './api'
 import { Project } from '../types'
 
 // Helper to transform MongoDB _id to id in our frontend
-const formatProject = (project: any): Project => {
+const formatProject = (
+	project: Partial<Project> & { _id?: string; user?: { _id?: string } },
+): Project => {
 	if (!project) return project
 
 	return {
-		id: project._id || project.id,
-		name: project.name,
+		id: project._id || project.id || '',
+		name: project.name || '',
 		description: project.description || '',
 		color: project.color || '#3b82f6',
 		client: project.client || undefined,

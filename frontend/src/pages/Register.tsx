@@ -75,11 +75,16 @@ export const Register = () => {
 			setError('')
 
 			// Note: changed 'system' to 'light' here to match backend validation
-			await register(name, email, password, 'en', 'light')
+			// Pass 'undefined' explicitly for defaultTimerPreset to ensure it goes through correctly
+			await register(name, email, password, 'en', 'light', undefined)
 
 			navigate('/')
-		} catch (err: any) {
-			setError(err.message || t('errors.serverError'))
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				setError(err.message || t('errors.serverError'))
+			} else {
+				setError(t('errors.serverError'))
+			}
 		} finally {
 			setIsSubmitting(false)
 		}
