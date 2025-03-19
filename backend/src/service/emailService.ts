@@ -1,15 +1,12 @@
 import nodemailer from 'nodemailer'
 import { CustomError } from '../domain/errors/custom.errors'
-
 export interface EmailOptions {
 	to: string
 	subject: string
 	html: string
 }
-
 export class EmailService {
 	private transporter
-
 	constructor() {
 		this.transporter = nodemailer.createTransport({
 			host: process.env.EMAIL_HOST,
@@ -21,31 +18,26 @@ export class EmailService {
 			},
 		})
 	}
-
 	async sendEmail(options: EmailOptions): Promise<boolean> {
 		try {
 			const { to, subject, html } = options
-
 			await this.transporter.sendMail({
 				from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM}>`,
 				to,
 				subject,
 				html,
 			})
-
 			return true
 		} catch (error) {
 			console.error('Email sending error:', error)
 			throw CustomError.internalServer('Error sending email')
 		}
 	}
-
 	async sendVerificationEmail(
 		email: string,
 		token: string,
 	): Promise<boolean> {
-		const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`
-
+		const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${token}`
 		const emailOptions: EmailOptions = {
 			to: email,
 			subject: 'Verify Your Email',
@@ -62,7 +54,31 @@ export class EmailService {
         </div>
       `,
 		}
+		return this.sendEmail(emailOptions)
+	}
 
+	async sendPasswordResetEmail(
+		email: string,
+		token: string,
+	): Promise<boolean> {
+		const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`
+		const emailOptions: EmailOptions = {
+			to: email,
+			subject: 'Reset Your Password',
+			html: `
+        <div>
+          <h1>Password Reset</h1>
+          <p>You requested a password reset for your account. Please click the button below to reset your password:</p>
+          <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+            Reset Password
+          </a>
+          <p>If the button doesn't work, you can also click on this link:</p>
+          <a href="${resetUrl}">${resetUrl}</a>
+          <p>This link will expire in 1 hour.</p>
+          <p>If you did not request a password reset, please ignore this email.</p>
+        </div>
+      `,
+		}
 		return this.sendEmail(emailOptions)
 	}
 }

@@ -28,9 +28,9 @@ const userInitService = new UserInitService(
     userRepository
 )
 
-// Initialize user service with user init service
-console.log('Creating UserService with UserInitService...');
-const userService = new UserService(userRepository, userInitService)
+// Initialize user service with user init service and email service
+console.log('Creating UserService with UserInitService and EmailService...');
+const userService = new UserService(userRepository, userInitService, emailService)
 
 const verificationService = new VerificationService(
     userRepository,
