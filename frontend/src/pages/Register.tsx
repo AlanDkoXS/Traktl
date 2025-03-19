@@ -75,7 +75,6 @@ export const Register = () => {
 			setError('')
 
 			// Note: changed 'system' to 'light' here to match backend validation
-			// Pass 'undefined' explicitly for defaultTimerPreset to ensure it goes through correctly
 			await register(name, email, password, 'en', 'light', undefined)
 
 			navigate('/')

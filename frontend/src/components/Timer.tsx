@@ -20,6 +20,10 @@ import { ConfirmModal } from './ui/ConfirmModal'
 import { useTimerStore } from '../store/timerStore'
 import { setProjectColor } from '../utils/dynamicColors'
 
+// Define the specific types needed for the timer components
+type TimerStatus = 'idle' | 'running' | 'paused' | 'break';
+type TimerMode = 'work' | 'break';
+
 export const Timer = () => {
 	const { t } = useTranslation()
 	const {
@@ -130,13 +134,17 @@ export const Timer = () => {
 		repetitions,
 	}
 
+	// Ensure correct typing for components
+	const timerMode = mode as TimerMode; 
+	const timerStatus = status as TimerStatus;
+
 	return (
 		<div className="flex flex-col space-y-6 dashboard-timer">
 			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 				{/* Notification Manager */}
 				<NotificationManager
 					showNotification={showNotification}
-					mode={mode}
+					mode={timerMode}
 					onRequestPermission={handleRequestPermission}
 					notificationPermission={notificationPermission}
 					onCloseNotification={handleCloseNotification}
@@ -166,13 +174,13 @@ export const Timer = () => {
 				<TimerDisplay
 					progress={progress}
 					formattedTime={formattedTime}
-					mode={mode}
+					mode={timerMode}
 					isInfiniteMode={infiniteMode}
 				/>
 
 				{/* Timer Controls */}
 				<TimerControls
-					status={status}
+					status={timerStatus}
 					elapsed={elapsed}
 					start={start}
 					pause={pause}
@@ -181,7 +189,7 @@ export const Timer = () => {
 					skipToNext={skipToNext}
 					projectId={projectId}
 					infiniteMode={infiniteMode}
-					mode={mode}
+					mode={timerMode}
 				/>
 
 				{/* Project & Task Selection (only visible when idle) */}
@@ -211,7 +219,7 @@ export const Timer = () => {
 					workDuration={workDuration}
 					breakDuration={breakDuration}
 					repetitions={repetitions}
-					status={status}
+					status={timerStatus}
 					setWorkDuration={setWorkDuration}
 					setBreakDuration={setBreakDuration}
 					setRepetitions={setRepetitions}

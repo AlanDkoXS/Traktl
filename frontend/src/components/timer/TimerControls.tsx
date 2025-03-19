@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmModal } from '../ui/ConfirmModal'
 
@@ -33,6 +33,13 @@ export const TimerControls = ({
 		useState(false)
 	const [showProjectRequiredModal, setShowProjectRequiredModal] = useState(false)
 	const [modalAction, setModalAction] = useState<'next' | 'stop'>('next')
+
+	// Check if project is selected when component mounts or when projectId changes
+	useEffect(() => {
+		if (status === 'idle' && !projectId) {
+			setShowProjectRequiredModal(true);
+		}
+	}, [status, projectId]);
 
 	const handleStart = () => {
 		if (!projectId) {

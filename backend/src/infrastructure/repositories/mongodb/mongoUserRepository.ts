@@ -11,45 +11,10 @@ export class MongoUserRepository implements UserRepository {
 		// Log the incoming user object to debug
 		console.log('Creating user with data:', {
 			...user,
-			password: '[REDACTED]',
-			defaultTimerPreset: user.defaultTimerPreset || 'not provided',
+			password: '[REDACTED]', // Don't log the actual password
 		})
 
-		// Prepare data for MongoDB
-		const userData: any = {
-			name: user.name,
-			email: user.email,
-			password: user.password,
-			preferredLanguage: user.preferredLanguage || 'en',
-			theme: user.theme || 'light',
-			googleId: user.googleId,
-			picture: user.picture,
-			createdAt: user.createdAt || new Date(),
-			updatedAt: user.updatedAt || new Date(),
-		}
-
-		// Add defaultTimerPreset only if it exists
-		if (user.defaultTimerPreset) {
-			// If it's a string, convert it to ObjectId
-			try {
-				userData.defaultTimerPreset = new mongoose.Types.ObjectId(
-					user.defaultTimerPreset,
-				)
-				console.log(
-					'Converted defaultTimerPreset to ObjectId:',
-					userData.defaultTimerPreset,
-				)
-			} catch (error) {
-				console.error(
-					'Failed to convert defaultTimerPreset to ObjectId:',
-					error,
-				)
-				// Don't set the field if there's an error
-			}
-		}
-
-		const newUser = await User.create(userData)
-		console.log('User created successfully with _id:', newUser._id)
+		const newUser = await User.create(user)
 		return this.mapToDomain(newUser)
 	}
 
@@ -71,57 +36,13 @@ export class MongoUserRepository implements UserRepository {
 		console.log('Updating user with ID:', id, 'Data:', {
 			...userData,
 			password: userData.password ? '[REDACTED]' : undefined,
-			defaultTimerPreset: userData.defaultTimerPreset || 'not changed',
 		})
 
-		// Prepare data for update
-		const updateData: any = { ...userData, updatedAt: new Date() }
-
-		// If there's a defaultTimerPreset, ensure it's an ObjectId
-		if (userData.defaultTimerPreset !== undefined) {
-			if (userData.defaultTimerPreset) {
-				try {
-					updateData.defaultTimerPreset = new mongoose.Types.ObjectId(
-						userData.defaultTimerPreset,
-					)
-					console.log(
-						'Converted defaultTimerPreset to ObjectId for update:',
-						updateData.defaultTimerPreset,
-					)
-				} catch (error) {
-					console.error(
-						'Failed to convert defaultTimerPreset to ObjectId for update:',
-						error,
-					)
-					delete updateData.defaultTimerPreset // Remove to avoid errors
-				}
-			} else {
-				// If null or empty, set to null
-				updateData.defaultTimerPreset = null
-				console.log('Setting defaultTimerPreset to null')
-			}
-		}
-
-		// Remove id if present (MongoDB uses _id)
-		if ('id' in updateData) {
-			delete updateData.id
-		}
-
-		const updatedUser = await User.findByIdAndUpdate(id, updateData, {
-			new: true,
-		})
-
-		if (updatedUser) {
-			console.log(
-				'User updated successfully. New defaultTimerPreset:',
-				updatedUser.defaultTimerPreset
-					? updatedUser.defaultTimerPreset.toString()
-					: 'not set',
-			)
-		} else {
-			console.log('User update failed. User not found with ID:', id)
-		}
-
+		const updatedUser = await User.findByIdAndUpdate(
+			id,
+			{ ...userData, updatedAt: new Date() },
+			{ new: true },
+		)
 		return updatedUser ? this.mapToDomain(updatedUser) : null
 	}
 
@@ -150,49 +71,27 @@ export class MongoUserRepository implements UserRepository {
 		return users.map((user) => this.mapToDomain(user))
 	}
 
-	private mapToDomain(user: mongoose.Document): UserEntity {
-		// Need to cast user as unknown to access private fields
-		const userDoc = user as unknown as {
-			_id: mongoose.Types.ObjectId
-			name: string
-			email: string
-			password: string
-			preferredLanguage: string
-			theme: string
-			defaultTimerPreset?: mongoose.Types.ObjectId
-			createdAt: Date
-			updatedAt: Date
-			googleId?: string
-			picture?: string
-			comparePassword: (password: string) => boolean
-		}
-
-		// Log the mapping process
-		console.log('Mapping MongoDB user to domain:', {
-			_id: userDoc._id.toString(),
-			defaultTimerPreset: userDoc.defaultTimerPreset
-				? userDoc.defaultTimerPreset.toString()
-				: 'not set',
-		})
-
-		// Create the domain entity
+	private mapToDomain(user: any): UserEntity {
 		const mappedUser: UserEntity = {
-			_id: userDoc._id.toString(),
-			name: userDoc.name,
-			email: userDoc.email,
-			password: userDoc.password,
-			preferredLanguage: userDoc.preferredLanguage as 'es' | 'en',
-			theme: userDoc.theme as 'light' | 'dark',
-			defaultTimerPreset: userDoc.defaultTimerPreset
-				? userDoc.defaultTimerPreset.toString()
-				: undefined,
-			createdAt: userDoc.createdAt,
-			updatedAt: userDoc.updatedAt,
-			googleId: userDoc.googleId,
-			picture: userDoc.picture,
+			_id: user._id.toString(),
+			name: user.name,
+			email: user.email,
+			password: user.password,
+			preferredLanguage: user.preferredLanguage as 'es' | 'en',
+			theme: user.theme as 'light' | 'dark',
+			createdAt: user.createdAt,
+			updatedAt: user.updatedAt,
+			googleId: user.googleId,
+			picture: user.picture,
 			comparePassword: (password: string) =>
-				userDoc.comparePassword(password),
+				user.comparePassword(password),
 		}
+
+		// Log the final mapped object
+		console.log('Mapped user result:', {
+			...mappedUser,
+			password: '[REDACTED]',
+		})
 
 		return mappedUser
 	}

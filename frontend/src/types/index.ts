@@ -4,7 +4,6 @@ export interface User {
 	email: string
 	preferredLanguage: 'es' | 'en' | 'tr'
 	theme: 'light' | 'dark'
-	defaultTimerPreset?: string
 	picture?: string
 }
 
@@ -21,9 +20,9 @@ export interface Project {
 }
 
 export interface Client {
-    id: string
+	id: string
 	name: string
-    projects?: string
+	projects?: string
 	contactInfo: string
 	color: string
 	user: string

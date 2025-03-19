@@ -22,7 +22,6 @@ interface AuthState {
 	isPendingVerification: boolean
 	preferredLanguage: string | null
 	theme: string | null
-	defaultTimerPreset: string | null
 	login: (email: string, password: string) => Promise<void>
 	loginWithGoogle: (tokenId: string) => Promise<void>
 	register: (
@@ -31,7 +30,6 @@ interface AuthState {
 		password: string,
 		preferredLanguage: string,
 		theme: string,
-		defaultTimerPreset?: string
 	) => Promise<void>
 	logout: () => void
 	loadUser: () => Promise<void>
@@ -56,20 +54,17 @@ export const useAuthStore = create<AuthState>()(
 			isPendingVerification: false,
 			preferredLanguage: null,
 			theme: null,
-			defaultTimerPreset: null,
 
 			// Helper function to update user preferences
 			updateUserPreferences: (user: User) => {
 				console.log('🔵 authStore: Updating user preferences:', {
 					preferredLanguage: user.preferredLanguage,
 					theme: user.theme,
-					defaultTimerPreset: user.defaultTimerPreset,
 				})
 
 				set({
 					preferredLanguage: user.preferredLanguage || null,
 					theme: user.theme || null,
-					defaultTimerPreset: user.defaultTimerPreset || null,
 				})
 			},
 
@@ -177,7 +172,6 @@ export const useAuthStore = create<AuthState>()(
 				password,
 				preferredLanguage,
 				theme,
-				defaultTimerPreset
 			) => {
 				try {
 					set({ isLoading: true, error: null })
@@ -189,7 +183,6 @@ export const useAuthStore = create<AuthState>()(
 						password: '******',
 						preferredLanguage,
 						theme,
-						defaultTimerPreset: defaultTimerPreset || 'not provided'
 					})
 
 					const { token, user } = await authService.register(
@@ -198,7 +191,6 @@ export const useAuthStore = create<AuthState>()(
 						password,
 						preferredLanguage,
 						theme,
-						defaultTimerPreset
 					)
 
 					console.log('Register successful, token received:', token)
@@ -252,7 +244,6 @@ export const useAuthStore = create<AuthState>()(
 					isPendingVerification: false,
 					preferredLanguage: null,
 					theme: null,
-					defaultTimerPreset: null,
 				})
 			},
 
@@ -421,7 +412,6 @@ export const useAuthStore = create<AuthState>()(
 					isPendingVerification: state.isPendingVerification,
 					preferredLanguage: state.preferredLanguage,
 					theme: state.theme,
-					defaultTimerPreset: state.defaultTimerPreset,
 				})
 
 				return {
@@ -432,7 +422,6 @@ export const useAuthStore = create<AuthState>()(
 					// Also persist user preferences
 					preferredLanguage: state.preferredLanguage,
 					theme: state.theme,
-					defaultTimerPreset: state.defaultTimerPreset,
 					// Don't persist isAuthenticated, as it should be verified on load
 					isAuthenticated: false,
 				}
@@ -445,7 +434,6 @@ export const useAuthStore = create<AuthState>()(
 						isAuthenticated: state.isAuthenticated,
 						preferredLanguage: state.preferredLanguage,
 						theme: state.theme,
-						defaultTimerPreset: state.defaultTimerPreset,
 					})
 				} else {
 					console.log('🔴 Failed to rehydrate auth state')

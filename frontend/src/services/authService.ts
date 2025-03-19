@@ -108,7 +108,6 @@ export const authService = {
 		password: string,
 		preferredLanguage: string = 'en',
 		theme: string = 'light',
-		defaultTimerPreset?: string, // Added parameter for defaultTimerPreset
 	): Promise<RegisterResponse> => {
 		try {
 			// Make sure we only send 'light' or 'dark', not 'system'
@@ -116,28 +115,12 @@ export const authService = {
 				theme === 'light' || theme === 'dark' ? theme : 'light'
 
 			// Prepare payload with required fields
-			const payload: {
-				name: string
-				email: string
-				password: string
-				preferredLanguage: string
-				theme: string
-				defaultTimerPreset?: string
-			} = {
+			const payload = {
 				name,
 				email,
 				password,
 				preferredLanguage,
 				theme: safeTheme,
-			}
-
-			// Add defaultTimerPreset to payload if provided
-			if (defaultTimerPreset) {
-				console.log(
-					'Including defaultTimerPreset in registration:',
-					defaultTimerPreset,
-				)
-				payload.defaultTimerPreset = defaultTimerPreset
 			}
 
 			// Log the payload for debugging

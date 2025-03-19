@@ -198,9 +198,7 @@
         "language": "Dil",
         "theme": "Tema",
         "saved": "Ayarlar başarıyla kaydedildi",
-        "timers": "Zamanlayıcılar",
-        "defaultTimerPreset": "Varsayılan Zamanlayıcı Ön Ayarı",
-        "noDefaultPreset": "Varsayılan ön ayar yok"
+        "timers": "Zamanlayıcılar"
     },
     "common": {
         "save": "Kaydet",

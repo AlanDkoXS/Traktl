@@ -12,7 +12,6 @@ export interface IUser extends Document {
 	password: string
 	preferredLanguage: string
 	theme: string
-	defaultTimerPreset?: mongoose.Types.ObjectId
 	createdAt: Date
 	updatedAt: Date
 	googleId?: string
@@ -48,10 +47,7 @@ const UserSchema = new Schema<IUser>(
 			enum: ['light', 'dark'],
 			default: 'light',
 		},
-		defaultTimerPreset: {
-			type: Schema.Types.ObjectId,
-			ref: 'TimerPreset',
-		},
+
 		googleId: String,
 		picture: String,
 		status: {

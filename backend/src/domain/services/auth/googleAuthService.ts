@@ -122,7 +122,6 @@ export class GoogleAuthService {
 						'en',
 						'light',
 						undefined,
-						googleUserInfo.sub,
 						googleUserInfo.picture,
 					)
 

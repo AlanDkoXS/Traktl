@@ -1,29 +1,33 @@
+import { useEffect, useRef, useCallback } from 'react'
 import { useTimerStore } from '../store/timerStore'
 
+// Define specific types for timer states
+export type TimerStatus = 'idle' | 'running' | 'paused' | 'break'
+export type TimerMode = 'work' | 'break'
+
 export const useTimer = () => {
+	// Use the timer store
+	const store = useTimerStore()
 	const {
 		status,
 		mode,
-		elapsed: storeElapsed,
 		workDuration,
 		breakDuration,
 		repetitions,
 		currentRepetition,
+		elapsed,
 		projectId,
 		taskId,
 		notes,
 		tags,
-		workStartTime,
-		showCompletionModal,
-		closeCompletionModal,
 		infiniteMode,
-		selectedEntryId,
-		start: storeStart,
-		pause: storePause,
-		resume: storeResume,
-		stop: storeStop,
-		reset: storeReset,
-		switchToNext: storeSwitchToNext,
+
+		// Methods
+		start: startTimer,
+		pause: pauseTimer,
+		resume: resumeTimer,
+		stop: stopTimer,
+
 		setWorkDuration,
 		setBreakDuration,
 		setRepetitions,
@@ -31,81 +35,134 @@ export const useTimer = () => {
 		setTaskId,
 		setNotes,
 		setTags,
+
+		switchToNext,
+		closeCompletionModal,
 		setInfiniteMode,
-		createTimeEntryFromWorkSession,
-	} = useTimerStore()
 
-	// Use elapsed time directly from the store without local state
-	const elapsed = storeElapsed
+		showCompletionModal,
+	} = store
 
-	// Calculate the remaining time or elapsed time for infinite mode
-	const remainingTime =
-		mode === 'work' && infiniteMode
-			? 0 // For infinite mode in work mode, there's no remaining time
-			: Math.max(
-					0,
-					(mode === 'work' ? workDuration : breakDuration) * 60 -
-						elapsed,
-				)
+	// Get the TimeEntryStore
 
-	// Format the time
-	const formatTime = (seconds: number): string => {
-		if (infiniteMode && mode === 'work') {
-			// For infinite mode, show the elapsed time
-			const hours = Math.floor(elapsed / 3600)
-			const minutes = Math.floor((elapsed % 3600) / 60)
-			const secs = elapsed % 60
-			return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
-		} else {
-			// For normal mode, show the remaining time
-			const minutes = Math.floor(seconds / 60)
-			const secs = seconds % 60
-			return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+	// Local refs to track timer state
+	const startTimeRef = useRef<Date | null>(null)
+	const pausedTimeRef = useRef<number>(0)
+
+	// Calculate progress percentage
+	const getProgress = useCallback(() => {
+		const totalTime =
+			mode === 'break' ? breakDuration * 60 : workDuration * 60
+		return ((totalTime - (totalTime - elapsed)) / totalTime) * 100
+	}, [elapsed, workDuration, breakDuration, mode])
+
+	// Format time for display
+	const formatTime = useCallback(() => {
+		const totalTime =
+			mode === 'break' ? breakDuration * 60 : workDuration * 60
+		const remaining = totalTime - elapsed
+
+		const minutes = Math.floor(remaining / 60)
+		const seconds = remaining % 60
+		return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+	}, [elapsed, workDuration, breakDuration, mode])
+
+	// Get current status
+	const getStatus = useCallback((): TimerStatus => {
+		return status
+	}, [status])
+
+	// Get current mode
+	const getMode = useCallback((): TimerMode => {
+		return mode
+	}, [mode])
+
+	// Start the timer
+	const start = useCallback(() => {
+		// Cannot start without a project
+		if (!projectId) {
+			console.error('Cannot start timer without a project')
+			return
 		}
-	}
 
-	// Calculate the progress percentage
-	const progress =
-		infiniteMode && mode === 'work'
-			? 50 // Fixed 50% for infinite mode to display half circle
-			: Math.min(
-					100,
-					(elapsed /
-						((mode === 'work' ? workDuration : breakDuration) *
-							60)) *
-						100,
-				)
+		// Start the timer in the store
+		startTimer(projectId, taskId || null)
+
+		startTimeRef.current = new Date()
+		pausedTimeRef.current = 0
+	}, [projectId, taskId, startTimer])
+
+	// Pause the timer
+	const pause = useCallback(() => {
+		pauseTimer()
+		pausedTimeRef.current = elapsed
+	}, [pauseTimer, elapsed])
+
+	// Resume the timer
+	const resume = useCallback(() => {
+		// Cannot resume without a project
+		if (!projectId) {
+			console.error('Cannot resume timer without a project')
+			return
+		}
+
+		resumeTimer()
+	}, [projectId, resumeTimer])
+
+	// Skip to next session
+	const skipToNext = useCallback(() => {
+		switchToNext()
+	}, [switchToNext])
+
+	// Stop and reset the timer
+	const stop = useCallback(() => {
+		stopTimer()
+
+		// Play complete sound - CORRECCIÓN: Esto se maneja en el store timerStore
+		// para evitar redundancia y asegurar que suene correctamente
+	}, [stopTimer])
+
+	// Additional safeguard: if projectId is removed while timer is active, stop timer
+	useEffect(() => {
+		if (!projectId && (status === 'running' || status === 'paused')) {
+			console.log(
+				'No project selected while timer is active - stopping timer',
+			)
+			stop()
+		}
+	}, [projectId, status, stop])
 
 	return {
-		status,
-		mode,
+		// Timer state
+		status: getStatus(),
+		mode: getMode(),
+		progress: getProgress(),
+		formattedTime: formatTime(),
 		elapsed,
-		remainingTime,
-		formattedTime:
-			infiniteMode && mode === 'work'
-				? formatTime(elapsed)
-				: formatTime(remainingTime),
-		progress,
+
+		// Timer settings
 		workDuration,
 		breakDuration,
 		repetitions,
 		currentRepetition,
+
+		// Project related
 		projectId,
 		taskId,
 		notes,
 		tags,
-		workStartTime,
+		infiniteMode,
 		showCompletionModal,
 		closeCompletionModal,
-		infiniteMode,
-		selectedEntryId,
-		start: storeStart,
-		pause: storePause,
-		resume: storeResume,
-		stop: storeStop,
-		reset: storeReset,
-		skipToNext: storeSwitchToNext,
-		createTimeEntryOnCompletion: createTimeEntryFromWorkSession,
+
+		// Actions
+		start,
+		pause,
+		resume,
+		stop,
+		skipToNext,
+
+		// Setters
 		setWorkDuration,
 		setBreakDuration,
 		setRepetitions,

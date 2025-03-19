@@ -17,13 +17,6 @@ export class UserService {
 		createUserDto: CreateUserDTO,
 	): Promise<{ user: User; token: string }> {
 		try {
-			console.log(
-				'Starting user registration process for:',
-				createUserDto.email,
-				'with defaultTimerPreset:',
-				createUserDto.defaultTimerPreset || 'not provided',
-			)
-
 			const { email, password } = createUserDto
 
 			// Validate email format
@@ -44,28 +37,14 @@ export class UserService {
 				password: createUserDto.password,
 				preferredLanguage: createUserDto.preferredLanguage || 'en',
 				theme: createUserDto.theme || 'light',
-				defaultTimerPreset: createUserDto.defaultTimerPreset,
 				googleId: createUserDto.googleId,
 				picture: createUserDto.picture,
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			}
 
-			console.log('Creating user in database with entity:', {
-				...userEntity,
-				password: '[REDACTED]',
-				defaultTimerPreset:
-					userEntity.defaultTimerPreset || 'not provided',
-			})
-
 			// Create user
 			const user = await this.userRepository.create(userEntity)
-			console.log(
-				'User created successfully with ID:',
-				user._id,
-				'and defaultTimerPreset:',
-				user.defaultTimerPreset || 'not set',
-			)
 
 			// Initialize user with default settings - with more robust error handling
 			try {
@@ -89,15 +68,8 @@ export class UserService {
 					_id: user._id, // Set _id explicitly for compatibility
 				}
 
-				// Get the user again to confirm that defaultTimerPreset has been saved
 				const updatedUser = await this.userRepository.findById(user._id)
 				if (updatedUser) {
-					console.log(
-						'Updated user after initialization:',
-						'defaultTimerPreset =',
-						updatedUser.defaultTimerPreset || 'not set',
-					)
-
 					// Update local reference
 					Object.assign(user, updatedUser)
 				}
@@ -136,12 +108,6 @@ export class UserService {
 			console.log('User not found:', email)
 			throw CustomError.unauthorized('Invalid credentials')
 		}
-		console.log(
-			'User found:',
-			user.email,
-			'with defaultTimerPreset:',
-			user.defaultTimerPreset || 'not set',
-		)
 
 		// Check if comparePassword method exists
 		if (!user.comparePassword) {
@@ -181,12 +147,6 @@ export class UserService {
 		userId: string,
 		updateUserDto: UpdateUserDTO,
 	): Promise<User> {
-		console.log('Updating user with ID:', userId, 'and data:', {
-			...updateUserDto,
-			defaultTimerPreset:
-				updateUserDto.defaultTimerPreset || 'not changed',
-		})
-
 		const user = await this.userRepository.findById(userId)
 		if (!user) {
 			throw CustomError.notFound('User not found')
@@ -201,10 +161,6 @@ export class UserService {
 			throw CustomError.internalServer('Error updating user')
 		}
 
-		console.log(
-			'User updated successfully with new defaultTimerPreset:',
-			updatedUser.defaultTimerPreset || 'not set',
-		)
 		return updatedUser
 	}
 

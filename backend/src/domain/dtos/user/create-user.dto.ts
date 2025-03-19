@@ -8,7 +8,6 @@ const CreateUserSchema = z.object({
 		.min(6, { message: 'Password must be at least 6 characters' }),
 	preferredLanguage: z.enum(['es', 'en']).default('en'),
 	theme: z.enum(['light', 'dark']).default('light'),
-	defaultTimerPreset: z.string().optional(),
 	googleId: z.string().optional(),
 	picture: z.string().optional(),
 })
@@ -22,7 +21,6 @@ export class CreateUserDTO {
 		public readonly password: string,
 		public readonly preferredLanguage: 'es' | 'en',
 		public readonly theme: 'light' | 'dark',
-		public readonly defaultTimerPreset?: string,
 		public readonly googleId?: string,
 		public readonly picture?: string,
 	) {}
@@ -44,7 +42,6 @@ export class CreateUserDTO {
 			password,
 			preferredLanguage,
 			theme,
-			defaultTimerPreset,
 			googleId,
 			picture,
 		} = result.data
@@ -57,7 +54,6 @@ export class CreateUserDTO {
 				password,
 				preferredLanguage,
 				theme,
-				defaultTimerPreset,
 				googleId,
 				picture,
 			),
