@@ -1,9 +1,10 @@
+/* eslint-disable no-dupe-else-if */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import api from './api'
 import { TimeEntry } from '../types'
 
 const formatTimeEntry = (timeEntry: any): TimeEntry => {
 	if (!timeEntry) return timeEntry
-
 	return {
 		id: timeEntry._id || timeEntry.id,
 		user:
@@ -38,6 +39,14 @@ const formatTimeEntry = (timeEntry: any): TimeEntry => {
 	}
 }
 
+// Helper to extract data from API response formats
+const extractData = (response: any) => {
+	if (response.data && response.data.data) {
+		return response.data.data
+	}
+	return response.data
+}
+
 export const timeEntryService = {
 	getTimeEntries: async (
 		projectId?: string,
@@ -54,19 +63,15 @@ export const timeEntryService = {
 			})
 			let url = '/time-entries'
 			const params = new URLSearchParams()
-
 			if (projectId) params.append('projectId', projectId)
 			if (taskId) params.append('taskId', taskId)
 			if (startDate) params.append('startDate', startDate.toISOString())
 			if (endDate) params.append('endDate', endDate.toISOString())
-
 			if (params.toString()) {
 				url += `?${params.toString()}`
 			}
-
 			const response = await api.get(url)
 			console.log('Time entries raw response:', response)
-
 			// Extract data based on API response format
 			let timeEntries = []
 			if (response.data && Array.isArray(response.data.data)) {
@@ -83,7 +88,6 @@ export const timeEntryService = {
 				console.error('Unexpected response format:', response.data)
 				return []
 			}
-
 			return timeEntries.map(formatTimeEntry)
 		} catch (error) {
 			console.error('Error fetching time entries:', error)
@@ -94,10 +98,28 @@ export const timeEntryService = {
 	getTimeEntry: async (id: string): Promise<TimeEntry> => {
 		try {
 			const response = await api.get(`/time-entries/${id}`)
-			const timeEntry = response.data.data || response.data
+			const timeEntry = extractData(response)
 			return formatTimeEntry(timeEntry)
 		} catch (error) {
 			console.error('Error fetching time entry:', error)
+			throw error
+		}
+	},
+
+	getRunningTimeEntry: async (): Promise<TimeEntry | null> => {
+		try {
+			const response = await api.get('/time-entries/running')
+			const timeEntry = extractData(response)
+			return timeEntry ? formatTimeEntry(timeEntry) : null
+		} catch (error) {
+			if (
+				(error as any).response &&
+				(error as any).response.status === 404
+			) {
+				// No running time entry found - return null instead of throwing
+				return null
+			}
+			console.error('Error fetching running time entry:', error)
 			throw error
 		}
 	},
@@ -107,10 +129,46 @@ export const timeEntryService = {
 	): Promise<TimeEntry> => {
 		try {
 			const response = await api.post('/time-entries', timeEntry)
-			const newTimeEntry = response.data.data || response.data
+			const newTimeEntry = extractData(response)
 			return formatTimeEntry(newTimeEntry)
 		} catch (error) {
 			console.error('Error creating time entry:', error)
+			throw error
+		}
+	},
+
+	startTimeEntry: async (timeEntryData: {
+		project: string
+		task?: string
+		tags?: string[]
+		notes?: string
+	}): Promise<TimeEntry> => {
+		try {
+			const response = await api.post(
+				'/time-entries/start',
+				timeEntryData,
+			)
+			const newTimeEntry = extractData(response)
+			return formatTimeEntry(newTimeEntry)
+		} catch (error) {
+			console.error('Error starting time entry:', error)
+			throw error
+		}
+	},
+
+	stopTimeEntry: async (additionalData?: {
+		notes?: string
+		tags?: string[]
+	}): Promise<TimeEntry> => {
+		try {
+			const response = await api.post(
+				'/time-entries/stop',
+				additionalData || {},
+			)
+			const stoppedTimeEntry = extractData(response)
+			return formatTimeEntry(stoppedTimeEntry)
+		} catch (error) {
+			console.error('Error stopping time entry:', error)
 			throw error
 		}
 	},
@@ -123,7 +181,7 @@ export const timeEntryService = {
 	): Promise<TimeEntry> => {
 		try {
 			const response = await api.put(`/time-entries/${id}`, timeEntry)
-			const updatedTimeEntry = response.data.data || response.data
+			const updatedTimeEntry = extractData(response)
 			return formatTimeEntry(updatedTimeEntry)
 		} catch (error) {
 			console.error('Error updating time entry:', error)
@@ -140,3 +198,5 @@ export const timeEntryService = {
 		}
 	},
 }
+
+export default timeEntryService

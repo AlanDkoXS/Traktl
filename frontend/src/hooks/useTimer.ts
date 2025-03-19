@@ -1,10 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
 import { useTimerStore } from '../store/timerStore'
-import { useTranslation } from 'react-i18next'
-import { showTimerNotification } from '../utils/soundNotifications'
 
 export const useTimer = () => {
-	const { t } = useTranslation()
 	const {
 		status,
 		mode,
@@ -22,14 +18,12 @@ export const useTimer = () => {
 		closeCompletionModal,
 		infiniteMode,
 		selectedEntryId,
-
 		start: storeStart,
 		pause: storePause,
 		resume: storeResume,
 		stop: storeStop,
 		reset: storeReset,
 		switchToNext: storeSwitchToNext,
-
 		setWorkDuration,
 		setBreakDuration,
 		setRepetitions,
@@ -105,7 +99,6 @@ export const useTimer = () => {
 		closeCompletionModal,
 		infiniteMode,
 		selectedEntryId,
-
 		start: storeStart,
 		pause: storePause,
 		resume: storeResume,
@@ -113,7 +106,6 @@ export const useTimer = () => {
 		reset: storeReset,
 		skipToNext: storeSwitchToNext,
 		createTimeEntryOnCompletion: createTimeEntryFromWorkSession,
-
 		setWorkDuration,
 		setBreakDuration,
 		setRepetitions,
@@ -121,5 +113,6 @@ export const useTimer = () => {
 		setTaskId,
 		setNotes,
 		setTags,
+		setInfiniteMode,
 	}
 }

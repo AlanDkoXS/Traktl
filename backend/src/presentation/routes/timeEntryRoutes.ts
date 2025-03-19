@@ -14,6 +14,11 @@ const router = Router()
 // All routes require authentication
 router.use(validateJWT)
 
+// Timer specific operations
+router.post('/start', controller.startTimeEntry)
+router.post('/stop', controller.stopTimeEntry)
+router.get('/running', controller.getRunningTimeEntry)
+
 // CRUD operations
 router.post('/', controller.createTimeEntry)
 router.get('/:id', controller.getTimeEntryById)

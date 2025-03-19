@@ -2,16 +2,12 @@ import { TimeEntry, TimeEntryEntity } from '../entities/time-entry.entity'
 
 export interface TimeEntryRepository {
 	create(timeEntry: TimeEntryEntity): Promise<TimeEntry>
-
 	findById(id: string): Promise<TimeEntry | null>
-
 	update(
 		id: string,
 		timeEntry: Partial<TimeEntryEntity>,
 	): Promise<TimeEntry | null>
-
 	delete(id: string): Promise<boolean>
-
 	listByUser(
 		userId: string,
 		page?: number,
@@ -27,13 +23,10 @@ export interface TimeEntryRepository {
 		page?: number,
 		limit?: number,
 	): Promise<TimeEntry[]>
-
 	findByCriteria(criteria: Partial<TimeEntryEntity>): Promise<TimeEntry[]>
-
 	countByUser(userId: string): Promise<number>
 	countByProject(projectId: string): Promise<number>
 	countByTask(taskId: string): Promise<number>
-
 	listByDateRange(
 		userId: string,
 		startDate: Date,
@@ -41,4 +34,6 @@ export interface TimeEntryRepository {
 		page?: number,
 		limit?: number,
 	): Promise<TimeEntry[]>
+	// Added new method to find a running time entry for a user
+	findRunningByUser(userId: string): Promise<TimeEntry | null>
 }

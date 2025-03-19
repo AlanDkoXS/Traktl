@@ -49,6 +49,31 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 		}
 	}
 
+	async findRunningByUser(userId: string): Promise<TimeEntry | null> {
+		// Find the most recent running time entry for this user
+		const timeEntry = await TimeEntryModel.findOne({
+			user: userId,
+			isRunning: true
+		}).sort({ startTime: -1 })
+		
+		if (!timeEntry) return null
+
+		return {
+			_id: timeEntry._id?.toString() || '',
+			user: timeEntry.user.toString(),
+			project: timeEntry.project.toString(),
+			task: timeEntry.task?.toString(),
+			tags: timeEntry.tags.map((tag) => tag.toString()),
+			startTime: timeEntry.startTime,
+			endTime: timeEntry.endTime,
+			duration: timeEntry.duration,
+			notes: timeEntry.notes,
+			isRunning: timeEntry.isRunning,
+			createdAt: timeEntry.createdAt,
+			updatedAt: timeEntry.updatedAt,
+		}
+	}
+
 	async update(
 		id: string,
 		timeEntry: Partial<TimeEntryEntity>,

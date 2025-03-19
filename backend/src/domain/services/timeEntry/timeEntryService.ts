@@ -35,6 +35,54 @@ export class TimeEntryService {
 		return await this.timeEntryRepository.create(timeEntryEntity)
 	}
 
+	async startTimeEntry(
+		userId: string,
+		createTimeEntryDto: CreateTimeEntryDTO,
+	): Promise<TimeEntry> {
+		// Ensure we set the correct start parameters
+		const startTime = new Date();
+		
+		const timeEntryData: CreateTimeEntryDTO = {
+			...createTimeEntryDto,
+			startTime,
+			endTime: undefined, // Will be set when stopped
+			duration: 0, // Will be calculated when stopped
+			isRunning: true,
+		};
+		
+		return this.createTimeEntry(userId, timeEntryData);
+	}
+	
+	async stopTimeEntry(
+		userId: string,
+		timeEntryId: string,
+		updateData?: Partial<UpdateTimeEntryDTO>,
+	): Promise<TimeEntry> {
+		const existingTimeEntry = await this.timeEntryRepository.findById(timeEntryId);
+		
+		if (!existingTimeEntry || existingTimeEntry.user.toString() !== userId) {
+			throw CustomError.notFound('Time entry not found');
+		}
+		
+		if (!existingTimeEntry.isRunning) {
+			throw CustomError.badRequest('Time entry is not running');
+		}
+		
+		const endTime = new Date();
+		const startTime = new Date(existingTimeEntry.startTime);
+		const duration = endTime.getTime() - startTime.getTime();
+		
+		const updateTimeEntryDto: UpdateTimeEntryDTO = {
+			...updateData,
+			endTime,
+			duration,
+			isRunning: false,
+			updatedAt: new Date(),
+		};
+		
+		return this.updateTimeEntry(userId, timeEntryId, updateTimeEntryDto);
+	}
+
 	async updateTimeEntry(
 		userId: string,
 		timeEntryId: string,
@@ -50,17 +98,19 @@ export class TimeEntryService {
 		}
 
 		const duration =
-			updateTimeEntryDto.duration ||
-			(updateTimeEntryDto.endTime && updateTimeEntryDto.startTime
-				? updateTimeEntryDto.endTime.getTime() -
-					updateTimeEntryDto.startTime.getTime()
-				: existingTimeEntry.duration)
+			updateTimeEntryDto.duration !== undefined
+				? updateTimeEntryDto.duration
+				: (updateTimeEntryDto.endTime && updateTimeEntryDto.startTime
+					? updateTimeEntryDto.endTime.getTime() -
+						updateTimeEntryDto.startTime.getTime()
+					: existingTimeEntry.duration);
 
 		const updatedTimeEntry = await this.timeEntryRepository.update(
 			timeEntryId,
 			{
 				...updateTimeEntryDto,
 				duration,
+				updatedAt: new Date(),
 			},
 		)
 
@@ -82,6 +132,10 @@ export class TimeEntryService {
 		}
 
 		return timeEntry
+	}
+	
+	async getRunningTimeEntry(userId: string): Promise<TimeEntry | null> {
+		return await this.timeEntryRepository.findRunningByUser(userId);
 	}
 
 	async listTimeEntries(

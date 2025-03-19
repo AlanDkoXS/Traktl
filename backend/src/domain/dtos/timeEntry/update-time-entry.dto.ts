@@ -9,6 +9,7 @@ const UpdateTimeEntrySchema = z.object({
 	duration: z.number().optional(),
 	notes: z.string().optional(),
 	isRunning: z.boolean().optional(),
+	updatedAt: z.coerce.date().optional(),
 })
 
 export type UpdateTimeEntryInput = z.infer<typeof UpdateTimeEntrySchema>
@@ -23,21 +24,20 @@ export class UpdateTimeEntryDTO {
 		public readonly duration?: number,
 		public readonly notes?: string,
 		public readonly isRunning?: boolean,
+		public readonly updatedAt?: Date,
 	) {}
 
 	static create(
 		props: Record<string, unknown>,
 	): [string?, UpdateTimeEntryDTO?] {
 		const result = UpdateTimeEntrySchema.safeParse(props)
-
 		if (!result.success) {
 			const errorMessages = result.error.errors
 				.map((error) => `${error.path.join('.')}: ${error.message}`)
 				.join(', ')
-
 			return [errorMessages, undefined]
 		}
-
+		
 		const {
 			project,
 			task,
@@ -47,8 +47,9 @@ export class UpdateTimeEntryDTO {
 			duration,
 			notes,
 			isRunning,
+			updatedAt,
 		} = result.data
-
+		
 		return [
 			undefined,
 			new UpdateTimeEntryDTO(
@@ -60,6 +61,7 @@ export class UpdateTimeEntryDTO {
 				duration,
 				notes,
 				isRunning,
+				updatedAt,
 			),
 		]
 	}
