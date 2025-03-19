@@ -1,47 +1,49 @@
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { authService } from '../services/authService'
+import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from '../components/LanguageSelector'
 import { ThemeToggle } from '../components/ThemeToggle'
-import { authService } from '../services/authService'
 
-export const ForgotPassword = () => {
-	const { t } = useTranslation()
+const ForgotPassword: React.FC = () => {
 	const [email, setEmail] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [message, setMessage] = useState('')
 	const [error, setError] = useState('')
-	const [successMessage, setSuccessMessage] = useState('')
+	const { t } = useTranslation()
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
+		setError('')
+		setMessage('')
 
-		if (!email) {
-			setError(t('errors.required'))
+		// Simple email validation
+		if (!email || !email.includes('@')) {
+			setError(
+				t('auth.invalidEmail', 'Please enter a valid email address'),
+			)
 			return
 		}
 
+		setIsSubmitting(true)
+
 		try {
-			setIsSubmitting(true)
-			setError('')
-			setSuccessMessage('')
-
-			// API call to request password reset
 			await authService.requestPasswordReset(email)
-
-			// Show success message even if the email doesn't exist for security reasons
-			setSuccessMessage(
+			setMessage(
 				t(
-					'auth.passwordResetSent',
-					'If an account with that email exists, we have sent password reset instructions.',
+					'auth.resetEmailSent',
+					'If your email exists in our system, you will receive password reset instructions',
 				),
 			)
+			// Clear the form
 			setEmail('')
-		} catch (err: any) {
-			// For security, we don't want to reveal if the email exists or not
-			setSuccessMessage(
+		} catch (error) {
+			console.error('Error requesting password reset:', error)
+			// We don't show specific errors from the server for security reasons
+			setError(
 				t(
-					'auth.passwordResetSent',
-					'If an account with that email exists, we have sent password reset instructions.',
+					'auth.errorRequestingReset',
+					'An error occurred while processing your request',
 				),
 			)
 		} finally {
@@ -56,50 +58,60 @@ export const ForgotPassword = () => {
 				<ThemeToggle />
 			</div>
 
-			<div className="max-w-md w-full space-y-8">
+			<div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
 				<div>
 					<h1 className="text-center text-3xl font-extrabold text-gray-900 dark:text-white">
 						{t('app.name')}
 					</h1>
 					<h2 className="mt-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-						{t('auth.forgotPassword')}
+						{t('auth.forgotPassword', 'Forgot Password')}
 					</h2>
-					<p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-						{t(
-							'auth.forgotPasswordInstructions',
-							'Enter your email to receive password reset instructions.',
-						)}
-					</p>
 				</div>
 
+				{message && (
+					<div className="bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 p-3 rounded-md text-sm">
+						{message}
+					</div>
+				)}
+
+				{error && (
+					<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm">
+						{error}
+					</div>
+				)}
+
 				<form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-					{error && (
-						<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm">
-							{error}
+					<div className="rounded-md shadow-sm -space-y-px">
+						<div>
+							<label htmlFor="email-address" className="sr-only">
+								{t('auth.emailAddress', 'Email address')}
+							</label>
+							<input
+								id="email-address"
+								name="email"
+								type="email"
+								autoComplete="email"
+								required
+								className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+								placeholder={t(
+									'auth.emailAddress',
+									'Email address',
+								)}
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+							/>
 						</div>
-					)}
+					</div>
 
-					{successMessage && (
-						<div className="bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 p-3 rounded-md text-sm">
-							{successMessage}
+					<div className="flex items-center justify-between">
+						<div className="text-sm">
+							<Link
+								to="/login"
+								className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+							>
+								{t('auth.backToLogin', 'Back to login')}
+							</Link>
 						</div>
-					)}
-
-					<div>
-						<label htmlFor="email-address" className="sr-only">
-							{t('auth.email')}
-						</label>
-						<input
-							id="email-address"
-							name="email"
-							type="email"
-							autoComplete="email"
-							required
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-							placeholder={t('auth.email')}
-						/>
 					</div>
 
 					<div>
@@ -109,21 +121,14 @@ export const ForgotPassword = () => {
 							className="btn btn-primary w-full py-2 justify-center"
 						>
 							{isSubmitting
-								? t('common.loading')
-								: t('auth.resetPassword', 'Reset Password')}
+								? t('common.loading', 'Loading...')
+								: t('auth.sendResetLink', 'Send Reset Link')}
 						</button>
-					</div>
-
-					<div className="flex items-center justify-between mt-4">
-						<Link
-							to="/login"
-							className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
-						>
-							{t('auth.backToLogin', 'Back to Login')}
-						</Link>
 					</div>
 				</form>
 			</div>
 		</div>
 	)
 }
+
+export default ForgotPassword

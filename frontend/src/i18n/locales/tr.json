@@ -9,24 +9,24 @@
         "turkish": "Türkçe"
     },
     "dashboard": {
-        "activityHeatmap": "Aktivite Isı Haritası",
+        "activityHeatmap": "Etkinlik Isı Haritası",
         "recentEntries": "Son Zaman Kayıtları",
         "quickLinks": "Hızlı Bağlantılar",
         "more": "Daha Fazla",
         "less": "Daha Az",
         "days": {
-            "mon": "Pts",
+            "mon": "Pzt",
             "tue": "Sal",
             "wed": "Çar",
             "thu": "Per",
             "fri": "Cum",
-            "sat": "Cts",
+            "sat": "Cmt",
             "sun": "Paz"
         },
         "noDataToday": "Bugün için veri yok"
     },
     "nav": {
-        "dashboard": "Panel",
+        "dashboard": "Gösterge Paneli",
         "projects": "Projeler",
         "clients": "Müşteriler",
         "tasks": "Görevler",
@@ -38,6 +38,7 @@
         "signUp": "Kayıt Ol",
         "signOut": "Çıkış Yap",
         "email": "E-posta",
+        "emailAddress": "E-posta adresi",
         "password": "Şifre",
         "name": "Ad",
         "forgotPassword": "Şifremi Unuttum?",
@@ -46,7 +47,29 @@
         "passwordConfirm": "Şifreyi Onayla",
         "passwordMismatch": "Şifreler eşleşmiyor",
         "passwordRequirements": "Şifre en az 8 karakter uzunluğunda olmalı ve en az bir sayı, bir büyük harf ve bir özel karakter içermelidir",
-        "invalidCredentials": "Geçersiz e-posta veya şifre"
+        "invalidCredentials": "Geçersiz e-posta veya şifre",
+        "signInWithGoogle": "Google ile giriş yap",
+        "signUpWithGoogle": "Google ile kayıt ol",
+        "orSignInWith": "Veya şununla giriş yap",
+        "orSignUpWith": "Veya şununla kayıt ol",
+        "googleAuthError": "Google ile giriş yaparken hata oluştu",
+        "passwordResetSent": "Bu e-posta ile bir hesap varsa, şifre sıfırlama talimatlarını gönderdik.",
+        "resetEmailSent": "E-postanız sistemimizde mevcutsa, şifre sıfırlama talimatlarını alacaksınız",
+        "errorRequestingReset": "İsteğinizi işlerken bir hata oluştu",
+        "passwordResetSuccess": "Şifreniz başarıyla sıfırlandı. Artık yeni şifrenizle giriş yapabilirsiniz.",
+        "resetPassword": "Şifreyi Sıfırla",
+        "sendResetLink": "Sıfırlama Bağlantısı Gönder",
+        "forgotPasswordInstructions": "Şifre sıfırlama talimatlarını almak için e-postanızı girin.",
+        "backToLogin": "Girişe Dön",
+        "passwordChanged": "Şifreniz başarıyla değiştirildi.",
+        "emailVerification": "E-posta Doğrulama",
+        "emailVerified": "E-postanız başarıyla doğrulandı.",
+        "emailVerificationSent": "E-posta adresinize bir doğrulama e-postası gönderildi. Lütfen görünmüyorsa Spam klasörünü de kontrol edin.",
+        "verifyEmail": "E-postayı Doğrula",
+        "emailVerificationInstructions": "Lütfen e-postanızı kontrol edin ve doğrulama bağlantısına tıklayın.",
+        "emailVerificationExpired": "Doğrulama bağlantısının süresi doldu. Lütfen yeni bir tane isteyin.",
+        "resendVerification": "Doğrulama E-postasını Yeniden Gönder",
+        "invalidEmail": "Lütfen geçerli bir e-posta adresi girin"
     },
     "theme": {
         "title": "Tema",
@@ -63,21 +86,24 @@
         "reset": "Sıfırla",
         "infiniteMode": "Sonsuz Mod",
         "skipToNext": "Sonrakine Geç",
-        "workTime": "Çalışma Zamanı",
-        "breakTime": "Mola Zamanı",
+        "workTime": "Çalışma Süresi",
+        "breakTime": "Mola Süresi",
         "session": "Oturum",
         "workDuration": "Çalışma Süresi",
         "breakDuration": "Mola Süresi",
         "repetitions": "Tekrarlar",
         "workCompleted": "Çalışma tamamlandı! Mola zamanı.",
-        "breakCompleted": "Mola tamamlandı! Çalışmaya dönüş.",
+        "breakCompleted": "Mola tamamlandı! Çalışmaya geri dön.",
         "enableNotifications": "Zamanlayıcı tamamlandığında uyarı almak için bildirimleri etkinleştirin.",
         "allowNotifications": "Bildirimlere İzin Ver",
-        "selectProject": "Zamanlayıcıyı başlatmadan önce lütfen bir proje seçin",
+        "selectProject": "Lütfen zamanlayıcıyı başlatmadan önce bir proje seçin",
         "settings": "Zamanlayıcı Ayarları",
         "presets": "Hazır Ayarlar",
         "sessionsCompleted": "Tüm oturumlar tamamlandı",
-        "allSessionsCompleted": "Harika iş! Tüm çalışma oturumlarınızı tamamladınız."
+        "allSessionsCompleted": "Harika iş! Tüm çalışma oturumlarını tamamladınız.",
+        "saveSessionTitle": "Oturumu Kaydet",
+        "saveSessionMessage": "Bu zamanlayıcı oturumunu kaydetmek istiyor musunuz?",
+        "stopSessionMessage": "Bu zamanlayıcı oturumunu kaydetmek istiyor musunuz? Bu zamanlayıcıyı durduracak ve başlangıca sıfırlayacak."
     },
     "projects": {
         "title": "Projeler",
@@ -151,10 +177,10 @@
         "details": "Oturum Detayları",
         "session": "Oturum",
         "created": "Zaman kaydı oluşturuldu",
-        "entryCreated": "{{duration}} dakikalık zaman kaydı kaydedildi",
-        "deleteConfirmation": "Bu zaman kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
-        "shortTimeTitle": "Kısa Zaman Kaydı",
-        "shortTimeMessage": "Bu zaman kaydı bir dakikadan az. Yine de kaydetmek istiyor musunuz?"
+        "entryCreated": "{{duration}} dakikalık zaman kaydı oluşturuldu",
+        "deleteConfirmation": "Zaman kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "shortTimeTitle": "Kısa Oturum",
+        "shortTimeMessage": "Bu oturum bir dakikadan kısa. Yine de kaydetmek istiyor musunuz?"
     },
     "tags": {
         "title": "Etiketler",
@@ -167,17 +193,17 @@
         "deleteConfirmation": "\"{{name}}\" etiketini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
     },
     "timerPresets": {
-        "title": "Zamanlayıcı Ön Ayarları",
-        "new": "Yeni Ön Ayar",
-        "edit": "Ön Ayarı Düzenle",
-        "name": "Ön Ayar Adı",
+        "title": "Zamanlayıcı Hazır Ayarları",
+        "new": "Yeni Zamanlayıcı Hazır Ayarı",
+        "edit": "Zamanlayıcı Hazır Ayarını Düzenle",
+        "name": "Hazır Ayar Adı",
         "workDuration": "Çalışma Süresi (dakika)",
         "breakDuration": "Mola Süresi (dakika)",
         "repetitions": "Tekrarlar",
         "cycles": "döngü",
-        "noPresets": "Zamanlayıcı ön ayarı bulunamadı",
-        "notFound": "Zamanlayıcı ön ayarı bulunamadı",
-        "deleteConfirmation": "\"{{name}}\" ön ayarını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+        "noPresets": "Zamanlayıcı hazır ayarı bulunamadı",
+        "notFound": "Zamanlayıcı hazır ayarı bulunamadı",
+        "deleteConfirmation": "\"{{name}}\" zamanlayıcı hazır ayarını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
     },
     "reports": {
         "title": "Raporlar",
@@ -199,8 +225,16 @@
         "theme": "Tema",
         "saved": "Ayarlar başarıyla kaydedildi",
         "timers": "Zamanlayıcılar",
-        "defaultTimerPreset": "Varsayılan Zamanlayıcı Ön Ayarı",
-        "noDefaultPreset": "Varsayılan ön ayar yok"
+        "changePassword": "Şifre Değiştir",
+        "currentPassword": "Mevcut Şifre",
+        "newPassword": "Yeni Şifre",
+        "passwordChanged": "Şifre başarıyla değiştirildi",
+        "verifyEmail": "E-postayı Doğrula",
+        "emailVerificationStatus": "E-posta Doğrulama Durumu",
+        "verified": "E-posta doğrulandı",
+        "notVerified": "E-posta doğrulanmadı",
+        "requestVerification": "İste",
+        "pendingVerification": "Doğrulamak için e-posta gönderildi"
     },
     "common": {
         "save": "Kaydet",
@@ -217,9 +251,9 @@
         "yes": "Evet",
         "no": "Hayır",
         "goBack": "Geri Dön",
-        "viewAll": "Hepsini Gör",
-        "retry": "Tekrar Dene",
-        "done": "Tamamlandı",
+        "viewAll": "Tümünü Görüntüle",
+        "retry": "Yeniden Dene",
+        "done": "Tamam",
         "edit": "Düzenle",
         "close": "Kapat"
     },
@@ -234,7 +268,7 @@
     "about": {
         "title": "Hakkında",
         "version": "Sürüm",
-        "createdBy": "Geliştiren",
+        "createdBy": "Oluşturan",
         "contact": "İletişim"
     }
 }

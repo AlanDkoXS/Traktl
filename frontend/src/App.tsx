@@ -23,8 +23,8 @@ import { Reports } from './pages/Reports'
 import { Settings } from './pages/Settings'
 import { Login } from './pages/Login'
 import { Register } from './pages/Register'
-import { ForgotPassword } from './pages/ForgotPassword'
-import { ResetPassword } from './pages/ResetPassword'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import { VerifyEmail } from './pages/VerifyEmail'
 import { Tags } from './pages/Tags'
 import { CreateTag } from './pages/CreateTag'
@@ -82,7 +82,7 @@ function App() {
 			{/* Add synchronizers for user preferences */}
 			<ThemeSynchronizer />
 			<LanguageSynchronizer />
-			
+
 			{/* Add DataInitializer component here to load data after authentication */}
 			<DataInitializer />
 

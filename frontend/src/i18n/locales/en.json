@@ -64,7 +64,9 @@
         "verifyEmail": "Verify Email",
         "emailVerificationInstructions": "Please check your email and click on the verification link.",
         "emailVerificationExpired": "The verification link has expired. Please request a new one.",
-        "resendVerification": "Resend Verification Email"
+        "resendVerification": "Resend Verification Email",
+        "sendResetEmail": "Send Reset Link",
+        "resetEmailSent": "If an account with that email exists, we have sent password reset instructions."
     },
     "theme": {
         "title": "Theme",
