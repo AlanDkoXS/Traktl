@@ -1,25 +1,8 @@
 import { useEffect } from 'react'
 import { useThemeStore } from '../store/themeStore'
-import { useAuthStore } from '../store/authStore'
 
 export const useTheme = () => {
 	const { theme, setTheme, toggleTheme } = useThemeStore()
-	const { theme: userTheme, isAuthenticated } = useAuthStore()
-
-	// Initialize theme from user preference when authenticated
-	useEffect(() => {
-		if (
-			isAuthenticated &&
-			userTheme &&
-			(userTheme === 'light' || userTheme === 'dark')
-		) {
-			console.log(
-				'🔵 useTheme: Setting theme from user preference:',
-				userTheme,
-			)
-			setTheme(userTheme)
-		}
-	}, [userTheme, setTheme, isAuthenticated])
 
 	// Apply theme to document
 	useEffect(() => {

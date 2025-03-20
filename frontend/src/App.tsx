@@ -41,8 +41,6 @@ import {
 	setDefaultColorForSection,
 } from './utils/dynamicColors'
 import DataInitializer from './components/DataInitializer'
-import { ThemeSynchronizer } from './components/ThemeSynchronizer'
-import { LanguageSynchronizer } from './components/LanguageSynchronizer'
 
 function App() {
 	// Initialize theme
@@ -51,15 +49,15 @@ function App() {
 
 	// Set up default colors for different sections
 	useEffect(() => {
-		// Configuración de colores por defecto para cada sección
-		setDefaultColorForSection('app', '#0284c7') // Azul por defecto para la app en general
-		setDefaultColorForSection('project', '#0284c7') // Azul para la sección de proyectos
-		setDefaultColorForSection('client', '#0284c7') // Azul para clientes
-		setDefaultColorForSection('task', '#0284c7') // Azul para tareas
-		setDefaultColorForSection('timer', '#0284c7') // Azul para temporizador
-		setDefaultColorForSection('tag', '#0284c7') // Azul para etiquetas
+		// Default color configuration for each section
+		setDefaultColorForSection('app', '#0284c7') // Default blue for general app
+		setDefaultColorForSection('project', '#0284c7') // Blue for project section
+		setDefaultColorForSection('client', '#0284c7') // Blue for clients
+		setDefaultColorForSection('task', '#0284c7') // Blue for tasks
+		setDefaultColorForSection('timer', '#0284c7') // Blue for timer
+		setDefaultColorForSection('tag', '#0284c7') // Blue for tags
 
-		// Establecer color inicial de la aplicación
+		// Set initial application color
 		const defaultAppColor =
 			localStorage.getItem('default-app-color') || '#0284c7'
 		setProjectColor(defaultAppColor)
@@ -79,11 +77,7 @@ function App() {
 
 	return (
 		<Router>
-			{/* Add synchronizers for user preferences */}
-			<ThemeSynchronizer />
-			<LanguageSynchronizer />
-			
-			{/* Add DataInitializer component here to load data after authentication */}
+			{/* DataInitializer handles all synchronization */}
 			<DataInitializer />
 
 			<Routes>

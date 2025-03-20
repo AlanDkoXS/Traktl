@@ -4,6 +4,8 @@ import { useProjectStore } from '../store/projectStore'
 import { useTimerStore } from '../store/timerStore'
 import { useAuthStore } from '../store/authStore'
 import { Project, TimerPreset } from '../types'
+import { useTranslation } from 'react-i18next'
+import { useThemeStore } from '../store/themeStore'
 
 /**
  * Component responsible for initializing application data
@@ -11,8 +13,16 @@ import { Project, TimerPreset } from '../types'
  * and sets up default selections for new users.
  */
 const DataInitializer = () => {
-	const { isAuthenticated, user } = useAuthStore()
+	const {
+		isAuthenticated,
+		user,
+		preferredLanguage,
+		theme: userTheme,
+		updateUser,
+	} = useAuthStore()
 	const { fetchProjects, createProject } = useProjectStore()
+	const { i18n } = useTranslation()
+	const { theme, setTheme } = useThemeStore()
 
 	const { fetchTimerPresets, selectTimerPreset, createTimerPreset } =
 		useTimerPresetStore()
@@ -22,13 +32,137 @@ const DataInitializer = () => {
 		setBreakDuration,
 		setRepetitions,
 		setProjectId,
-		projectId: currentProjectId, // Get current projectId
+		projectId: currentProjectId,
 	} = useTimerStore()
 
-	// Flag to track first-time initialization
+	// Flag to track initialization
 	const [initialized, setInitialized] = useState(false)
-	// Ref to track if default creation is in progress
+	// Refs to track processes
 	const isCreatingDefaults = useRef(false)
+	const isSyncingLanguage = useRef(false)
+	const isSyncingTheme = useRef(false)
+	const hasSetInitialPreferences = useRef(false)
+
+	// Set initial preferences (language/theme) from system on first load
+	useEffect(() => {
+		if (isAuthenticated && !hasSetInitialPreferences.current) {
+			hasSetInitialPreferences.current = true
+
+			const systemLanguage = navigator.language.startsWith('es')
+				? 'es'
+				: 'en'
+			const systemTheme = window.matchMedia(
+				'(prefers-color-scheme: dark)',
+			).matches
+				? 'dark'
+				: 'light'
+
+			// Set initial i18n language if not already set
+			if (i18n.language !== systemLanguage && !preferredLanguage) {
+				console.log(
+					'Setting initial language from system:',
+					systemLanguage,
+				)
+				i18n.changeLanguage(systemLanguage)
+			}
+
+			// Set initial theme if not already set
+			if (theme === 'system' && !userTheme) {
+				console.log('Setting initial theme from system:', systemTheme)
+				setTheme(systemTheme)
+			}
+
+			// Save preferences to backend for new user
+			if (user && (!user.preferredLanguage || !user.theme)) {
+				console.log('Saving initial preferences to backend')
+				const updates: Record<string, string> = {}
+
+				if (!user.preferredLanguage) {
+					updates.preferredLanguage = systemLanguage
+				}
+
+				if (!user.theme) {
+					updates.theme = systemTheme
+				}
+
+				if (Object.keys(updates).length > 0) {
+					updateUser(updates)
+				}
+			}
+		}
+	}, [
+		isAuthenticated,
+		user,
+		i18n,
+		theme,
+		preferredLanguage,
+		userTheme,
+		setTheme,
+		updateUser,
+	])
+
+	// Synchronize language from user preferences
+	useEffect(() => {
+		if (
+			preferredLanguage &&
+			i18n.language !== preferredLanguage &&
+			!isSyncingLanguage.current
+		) {
+			console.log(
+				'Setting language from user preference:',
+				preferredLanguage,
+			)
+			i18n.changeLanguage(preferredLanguage)
+		}
+	}, [preferredLanguage, i18n])
+
+	// Sync language changes to backend
+	useEffect(() => {
+		if (
+			isAuthenticated &&
+			user?.preferredLanguage !== i18n.language &&
+			!isSyncingLanguage.current
+		) {
+			isSyncingLanguage.current = true
+			console.log('Syncing language to backend:', i18n.language)
+			updateUser({
+				preferredLanguage: i18n.language as 'es' | 'en' | 'tr',
+			}).finally(() => {
+				isSyncingLanguage.current = false
+			})
+		}
+	}, [i18n.language, user, updateUser, isAuthenticated])
+
+	// Synchronize theme from user preferences
+	useEffect(() => {
+		if (
+			isAuthenticated &&
+			userTheme &&
+			(userTheme === 'light' || userTheme === 'dark') &&
+			theme !== userTheme &&
+			theme !== 'system'
+		) {
+			console.log('Setting theme from user preference:', userTheme)
+			setTheme(userTheme)
+		}
+	}, [isAuthenticated, userTheme, theme, setTheme])
+
+	// Sync theme changes to backend
+	useEffect(() => {
+		if (
+			isAuthenticated &&
+			user &&
+			theme !== 'system' &&
+			theme !== user.theme &&
+			!isSyncingTheme.current
+		) {
+			isSyncingTheme.current = true
+			console.log('Syncing theme to backend:', theme)
+			updateUser({ theme }).finally(() => {
+				isSyncingTheme.current = false
+			})
+		}
+	}, [theme, user, updateUser, isAuthenticated])
 
 	// Load initial data when user is authenticated
 	useEffect(() => {
@@ -53,172 +187,140 @@ const DataInitializer = () => {
 						presets: presetsData.length,
 					})
 
-					// Handle timer presets first
-					await handleTimerPresets(presetsData)
+					// Always create presets if none exist
+					if (presetsData.length === 0) {
+						await createDefaultPresets()
+					} else {
+						selectDefaultPreset(presetsData)
+					}
 
-					// Then handle projects
-					await handleProjects(projectsData)
+					// Handle project selection or creation
+					if (projectsData.length === 0) {
+						await createDefaultProject()
+					} else {
+						handleExistingProjects(projectsData)
+					}
 
 					setInitialized(true)
-					isCreatingDefaults.current = false
 				} catch (error) {
 					console.error('Error loading initial data:', error)
+				} finally {
 					isCreatingDefaults.current = false
 				}
 			}
 		}
 
-		const handleTimerPresets = async (presetsData: TimerPreset[]) => {
-			// Fallback: If no default preset is set but we have presets,
-			// try to use a specific preset like 52/17 or Pomodoro
-			if (presetsData.length > 0) {
-				// Try to find presets in order of preference
-				const preferredPresets = [
-					{ name: '52/17', keyword: '52/17' }, // First choice
-					{ name: 'Pomodoro', keyword: 'Pomodoro' }, // Second choice
-					{ name: 'Any preset', keyword: '' }, // Last resort - use first available
-				]
+		const createDefaultPresets = async () => {
+			try {
+				console.log('Creating default timer presets...')
 
-				let selectedPreset = null
+				// Create Pomodoro preset
+				const pomodoroPreset = await createTimerPreset({
+					name: '🍅 Pomodoro',
+					workDuration: 25,
+					breakDuration: 5,
+					repetitions: 4,
+				})
 
-				for (const preference of preferredPresets) {
-					if (preference.keyword) {
-						selectedPreset = presetsData.find(
-							(preset: TimerPreset) =>
-								preset.name.includes(preference.keyword),
-						)
-					} else {
-						selectedPreset = presetsData[0] // Just use the first one
-					}
+				// Create 52/17 preset
+				await createTimerPreset({
+					name: '💻 52/17',
+					workDuration: 52,
+					breakDuration: 17,
+					repetitions: 4,
+				})
 
-					if (selectedPreset) break
+				// Select Pomodoro as default
+				if (pomodoroPreset) {
+					selectTimerPreset(pomodoroPreset)
+					setWorkDuration(pomodoroPreset.workDuration)
+					setBreakDuration(pomodoroPreset.breakDuration)
+					setRepetitions(pomodoroPreset.repetitions)
 				}
 
-				if (selectedPreset) {
-					console.log(
-						`Automatically selecting ${selectedPreset.name} preset`,
-					)
-					selectTimerPreset(selectedPreset)
-					setWorkDuration(selectedPreset.workDuration)
-					setBreakDuration(selectedPreset.breakDuration)
-					setRepetitions(selectedPreset.repetitions)
-				}
-			} else if (presetsData.length === 0) {
-				// No presets found, create default ones (only if none exist)
-				try {
-					console.log('No timer presets found. Creating defaults...')
-
-					// Create default presets only if we don't have any
-					const pomodoroPreset = await createTimerPreset({
-						name: '🍅 Pomodoro',
-						workDuration: 25,
-						breakDuration: 5,
-						repetitions: 4,
-					})
-
-					if (pomodoroPreset) {
-						selectTimerPreset(pomodoroPreset)
-						setWorkDuration(pomodoroPreset.workDuration)
-						setBreakDuration(pomodoroPreset.breakDuration)
-						setRepetitions(pomodoroPreset.repetitions)
-					}
-
-					// Also create the 52/17 preset
-					await createTimerPreset({
-						name: '💻 52/17',
-						workDuration: 52,
-						breakDuration: 17,
-						repetitions: 4,
-					})
-
-					console.log('Default timer presets created successfully')
-				} catch (createError) {
-					console.error(
-						'Error creating default timer presets:',
-						createError,
-					)
-				}
+				console.log('Default timer presets created successfully')
+			} catch (error) {
+				console.error('Error creating default timer presets:', error)
 			}
 		}
 
-		const handleProjects = async (projectsData: Project[]) => {
-			// Check if we already have a project selected - if so, keep that selection
-			if (currentProjectId) {
-				console.log(
-					'User already has a project selected:',
-					currentProjectId,
-				)
+		const selectDefaultPreset = (presets: TimerPreset[]) => {
+			// Find an appropriate preset to use
+			const preferredPresets = [
+				{ name: '52/17', keyword: '52/17' },
+				{ name: 'Pomodoro', keyword: 'Pomodoro' },
+			]
 
-				// Verify the selected project still exists
-				const projectExists = projectsData.some(
-					(project: Project) => project.id === currentProjectId,
+			let selectedPreset = null
+
+			for (const preference of preferredPresets) {
+				selectedPreset = presets.find((preset) =>
+					preset.name.includes(preference.keyword),
+				)
+				if (selectedPreset) break
+			}
+
+			// If no preferred preset found, use the first one
+			if (!selectedPreset && presets.length > 0) {
+				selectedPreset = presets[0]
+			}
+
+			if (selectedPreset) {
+				console.log(`Selected preset: ${selectedPreset.name}`)
+				selectTimerPreset(selectedPreset)
+				setWorkDuration(selectedPreset.workDuration)
+				setBreakDuration(selectedPreset.breakDuration)
+				setRepetitions(selectedPreset.repetitions)
+			}
+		}
+
+		const createDefaultProject = async () => {
+			try {
+				console.log('Creating default Focus project...')
+				const newProject = await createProject({
+					name: 'Focus',
+					description: 'Default project for focused work sessions',
+					color: '#33d17a',
+					status: 'active',
+				})
+
+				if (newProject) {
+					console.log(
+						'Focus project created successfully:',
+						newProject.id,
+					)
+					setProjectId(newProject.id)
+				}
+			} catch (error) {
+				console.error('Error creating Focus project:', error)
+			}
+		}
+
+		const handleExistingProjects = (projects: Project[]) => {
+			// Check if we already have a project selected
+			if (currentProjectId) {
+				const projectExists = projects.some(
+					(project) => project.id === currentProjectId,
 				)
 
 				if (projectExists) {
-					console.log('Keeping current project selection')
-					return // Keep the current selection
-				} else {
 					console.log(
-						'Selected project no longer exists, will select a new default',
+						'Keeping current project selection:',
+						currentProjectId,
 					)
+					return
 				}
 			}
 
-			// First, check if there's already a Focus project
-			const focusProject = projectsData.find(
-				(project: Project) => project.name === 'Focus',
-			)
-
-			if (focusProject) {
-				console.log(
-					'Focus project exists, using it as default:',
-					focusProject.id,
-				)
-				setProjectId(focusProject.id)
-				return // Exit early - no need to create a project
-			}
-
-			// No Focus project and no projects at all, create one
-			if (projectsData.length === 0) {
-				try {
-					console.log(
-						'No projects found. Creating default Focus project...',
-					)
-					const newFocusProject = await createProject({
-						name: 'Focus',
-						description:
-							'Default project for focused work sessions',
-						color: '#33d17a',
-						status: 'active',
-					})
-
-					console.log(
-						'Focus project created successfully:',
-						newFocusProject?.id,
-					)
-
-					if (newFocusProject) {
-						setProjectId(newFocusProject.id)
-					}
-				} catch (createError) {
-					console.error('Error creating Focus project:', createError)
-				}
-			} else if (projectsData.length > 0) {
-				// No Focus project but we have other projects, use the first one
-				console.log(
-					'Using first available project as default:',
-					projectsData[0].name,
-				)
-				setProjectId(projectsData[0].id)
-			}
+			// Select first project as default
+			console.log('Selecting first project as default:', projects[0].name)
+			setProjectId(projects[0].id)
 		}
 
 		loadInitialData()
 	}, [
 		isAuthenticated,
 		initialized,
-		user,
-		currentProjectId,
 		fetchProjects,
 		createProject,
 		fetchTimerPresets,
@@ -228,6 +330,7 @@ const DataInitializer = () => {
 		setBreakDuration,
 		setRepetitions,
 		setProjectId,
+		currentProjectId,
 	])
 
 	// This component doesn't render anything
