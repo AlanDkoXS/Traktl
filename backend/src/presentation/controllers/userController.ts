@@ -20,17 +20,19 @@ export class UserController extends BaseController {
 		private readonly verificationService: VerificationService,
 	) {
 		super()
-		console.log('UserController initialized with service-based initialization')
+		console.log(
+			'UserController initialized with service-based initialization',
+		)
 	}
 
 	public register = async (req: Request, res: Response) => {
 		try {
 			const [error, createUserDto] = CreateUserDTO.create(req.body)
 			if (error) return res.status(400).json({ error })
-			
-			// Registrar el usuario utilizando el servicio (que ya maneja la inicialización)
+
+			// Register user
 			const result = await this.userService.registerUser(createUserDto!)
-			
+
 			return this.handleSuccess(res, result, 201)
 		} catch (error) {
 			return this.handleError(error, res)

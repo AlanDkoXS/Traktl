@@ -25,7 +25,6 @@ export class VerificationService {
 			{ id: userId, email },
 			'24h',
 		)
-
 		if (!token) {
 			throw CustomError.internalServer(
 				'Error generating verification token',
@@ -35,12 +34,10 @@ export class VerificationService {
 		// Update user with verification token
 		const expiresAt = new Date()
 		expiresAt.setHours(expiresAt.getHours() + 24)
-
 		const emailVerificationTokenData: EmailVerificationToken = {
 			token,
 			expiresAt,
 		}
-
 		const updated = await this.userRepository.update(userId, {
 			emailVerificationToken: emailVerificationTokenData,
 		} as any)
@@ -48,7 +45,6 @@ export class VerificationService {
 		if (!updated) {
 			throw CustomError.internalServer('Error storing verification token')
 		}
-
 		return token
 	}
 
@@ -58,12 +54,12 @@ export class VerificationService {
 			throw CustomError.notFound('User not found')
 		}
 
+		// Si el usuario ya está verificado, no generamos otro token
 		if (user.isVerified) {
 			throw CustomError.badRequest('Email already verified')
 		}
 
 		const token = await this.generateEmailVerificationToken(userId, email)
-
 		return this.emailService.sendVerificationEmail(email, token)
 	}
 
@@ -78,16 +74,18 @@ export class VerificationService {
 			}
 
 			const userId = payload.id
-
 			const user = await this.userRepository.findById(userId)
+
 			if (!user) {
 				throw CustomError.notFound('User not found')
 			}
 
+			// Si ya está verificado, devolvemos true
 			if (user.isVerified) {
 				return true
 			}
 
+			// Actualizamos el usuario: marcar como verificado y eliminar token
 			const updated = await this.userRepository.update(userId, {
 				isVerified: true,
 				emailVerificationToken: undefined,
@@ -108,12 +106,22 @@ export class VerificationService {
 
 	async getVerificationStatus(
 		userId: string,
-	): Promise<{ isVerified: boolean }> {
+	): Promise<{ isVerified: boolean; hasPendingVerification: boolean }> {
 		const user = await this.userRepository.findById(userId)
+
 		if (!user) {
 			throw CustomError.notFound('User not found')
 		}
 
-		return { isVerified: user.isVerified || false }
+		// Verificamos si hay un token de verificación pendiente
+		const hasPendingVerification = !!(
+			user.emailVerificationToken &&
+			new Date(user.emailVerificationToken.expiresAt) > new Date()
+		)
+
+		return {
+			isVerified: user.isVerified || false,
+			hasPendingVerification,
+		}
 	}
 }
