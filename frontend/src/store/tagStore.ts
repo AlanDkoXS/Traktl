@@ -2,13 +2,13 @@ import { create } from 'zustand'
 import { tagService } from '../services/tagService'
 import { Tag } from '../types'
 
-// Define una interfaz para los errores de API
+// Define a custom error interface to handle API errors
 interface ApiError extends Error {
-    response?: {
-        data?: {
-            message?: string;
-        };
-    };
+	response?: {
+		data?: {
+			message?: string
+		}
+	}
 }
 
 interface TagState {
@@ -42,7 +42,7 @@ export const useTagStore = create<TagState>((set) => ({
 			set({ tags, isLoading: false })
 			return tags
 		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const apiError = error as ApiError
 			console.error('Error fetching tags:', error)
 			set({
 				error: apiError.message || 'Failed to fetch tags',
@@ -67,7 +67,7 @@ export const useTagStore = create<TagState>((set) => ({
 			set({ selectedTag: tag, isLoading: false })
 			return tag
 		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const apiError = error as ApiError
 			set({
 				error: apiError.message || 'Failed to fetch tag',
 				isLoading: false,
@@ -86,7 +86,7 @@ export const useTagStore = create<TagState>((set) => ({
 			}))
 			return newTag
 		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const apiError = error as ApiError
 			set({
 				error: apiError.message || 'Failed to create tag',
 				isLoading: false,
@@ -108,7 +108,7 @@ export const useTagStore = create<TagState>((set) => ({
 			}))
 			return updatedTag
 		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const apiError = error as ApiError
 			set({
 				error: apiError.message || 'Failed to update tag',
 				isLoading: false,
@@ -127,7 +127,7 @@ export const useTagStore = create<TagState>((set) => ({
 				isLoading: false,
 			}))
 		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const apiError = error as ApiError
 			set({
 				error: apiError.message || 'Failed to delete tag',
 				isLoading: false,

@@ -34,7 +34,6 @@ export const TimerSettings = ({
 		e: React.ChangeEvent<HTMLInputElement>,
 	) => {
 		const value = parseInt(e.target.value)
-		// Modificado para permitir 0 minutos
 		if (!isNaN(value) && value >= 0 && value <= 30) {
 			setBreakDuration(value)
 		}

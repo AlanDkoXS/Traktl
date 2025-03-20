@@ -2,14 +2,14 @@ import { create } from 'zustand'
 import { taskService } from '../services'
 import { Task } from '../types'
 
-// Define una interfaz para los errores de API
+// Define a
 interface ApiError extends Error {
-    response?: {
-        data?: {
-            error?: string;
-            message?: string;
-        };
-    };
+	response?: {
+		data?: {
+			error?: string
+			message?: string
+		}
+	}
 }
 
 interface TaskState {
@@ -42,9 +42,10 @@ export const useTaskStore = create<TaskState>((set) => ({
 			const tasks = await taskService.getTasks(projectId)
 			set({ tasks, isLoading: false })
 		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const apiError = error as ApiError
 			set({
-				error: apiError.response?.data?.error || 'Failed to fetch tasks',
+				error:
+					apiError.response?.data?.error || 'Failed to fetch tasks',
 				isLoading: false,
 			})
 		}
@@ -55,7 +56,7 @@ export const useTaskStore = create<TaskState>((set) => ({
 			const task = await taskService.getTask(id)
 			set({ selectedTask: task, isLoading: false })
 		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const apiError = error as ApiError
 			set({
 				error: apiError.response?.data?.error || 'Failed to fetch task',
 				isLoading: false,
@@ -71,9 +72,10 @@ export const useTaskStore = create<TaskState>((set) => ({
 				isLoading: false,
 			}))
 		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const apiError = error as ApiError
 			set({
-				error: apiError.response?.data?.error || 'Failed to create task',
+				error:
+					apiError.response?.data?.error || 'Failed to create task',
 				isLoading: false,
 			})
 			throw error
@@ -92,9 +94,10 @@ export const useTaskStore = create<TaskState>((set) => ({
 				isLoading: false,
 			}))
 		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const apiError = error as ApiError
 			set({
-				error: apiError.response?.data?.error || 'Failed to update task',
+				error:
+					apiError.response?.data?.error || 'Failed to update task',
 				isLoading: false,
 			})
 			throw error
@@ -111,9 +114,10 @@ export const useTaskStore = create<TaskState>((set) => ({
 				isLoading: false,
 			}))
 		} catch (error: unknown) {
-			const apiError = error as ApiError;
+			const apiError = error as ApiError
 			set({
-				error: apiError.response?.data?.error || 'Failed to delete task',
+				error:
+					apiError.response?.data?.error || 'Failed to delete task',
 				isLoading: false,
 			})
 			throw error

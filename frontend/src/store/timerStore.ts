@@ -587,7 +587,7 @@ export const useTimerStore = create<TimerState>()(
 				selectedEntryId: state.selectedEntryId,
 			}),
 			version: 1,
-			// Transformar fechas desde el almacenamiento
+			// Transform the rehydrated state
 			onRehydrateStorage: () => (state) => {
 				if (state && state.workStartTime) {
 					try {
@@ -598,7 +598,7 @@ export const useTimerStore = create<TimerState>()(
 					}
 				}
 
-				// Reiniciar el intervalo si el temporizador estaba activo
+				// Restart the global interval if the timer was running
 				if (
 					state &&
 					(state.status === 'running' || state.status === 'break')
@@ -610,7 +610,7 @@ export const useTimerStore = create<TimerState>()(
 	),
 )
 
-// Inicializar el intervalo global cuando se carga el módulo
+// Initialize the global interval after the store is created
 setTimeout(() => {
 	const state = useTimerStore.getState()
 	if (state.status === 'running' || state.status === 'break') {

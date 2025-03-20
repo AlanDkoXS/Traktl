@@ -37,7 +37,7 @@ interface TimeEntryState {
 	addNewTimeEntry: (timeEntry: TimeEntry) => void
 }
 
-// Función auxiliar para formatear fechas
+// Auxiliar function to safely format dates
 const formatDateSafely = (
 	date: Date | string | undefined,
 ): Date | undefined => {
@@ -49,12 +49,12 @@ const formatDateSafely = (
 
 	if (typeof date === 'string') {
 		try {
-			// Si es una fecha ISO (contiene 'T')
+			// If it's an ISO string, parse it directly
 			if (date.includes('T')) {
 				const parsedDate = new Date(date)
 				return isNaN(parsedDate.getTime()) ? undefined : parsedDate
 			} else {
-				// Si es una fecha simple (YYYY-MM-DD)
+				// If it's a date string without time, set it to the start of the day
 				const startOfDay = new Date(`${date}T00:00:00`)
 				return isNaN(startOfDay.getTime()) ? undefined : startOfDay
 			}
@@ -66,7 +66,7 @@ const formatDateSafely = (
 	return undefined
 }
 
-// Crear el store
+// Create the store
 const timeEntryStore = create<TimeEntryState>((set) => ({
 	timeEntries: [],
 	selectedTimeEntry: null,
@@ -85,10 +85,10 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 			// Set loading state first to provide immediate feedback
 			set({ isLoading: true, error: null })
 
-			// Formatear las fechas de manera segura
+			// Format start date
 			const formattedStartDate = formatDateSafely(startDate)
 
-			// Para la fecha final, si es una cadena sin 'T', queremos establecerla al final del día
+			// For end date, if it's a date string without time, set it to the end of the day
 			let formattedEndDate: Date | undefined
 			if (
 				endDate &&
@@ -238,7 +238,7 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 		set({ selectedTimeEntry: null })
 	},
 
-	// Método para añadir una entrada directamente al store sin fetch
+	// Method to add a new time entry to the store
 	addNewTimeEntry: (timeEntry) => {
 		set((state) => ({
 			timeEntries: [timeEntry, ...state.timeEntries],
@@ -246,6 +246,6 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 	},
 }))
 
-// Exportar de dos maneras: default y como variable nombrada
+// Export the store hook
 export default timeEntryStore
 export const useTimeEntryStore = timeEntryStore

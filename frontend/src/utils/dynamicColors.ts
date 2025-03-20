@@ -3,7 +3,6 @@
  * Utility to handle dynamic project colors throughout the application
  */
 
-// Almacena el último color para poder recuperarlo
 let lastUsedColor = '#0284c7'
 
 /**
