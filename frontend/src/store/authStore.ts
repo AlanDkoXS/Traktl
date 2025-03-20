@@ -57,7 +57,7 @@ export const useAuthStore = create<AuthState>()(
 
 			// Helper function to update user preferences
 			updateUserPreferences: (user: User) => {
-				console.log('🔵 authStore: Updating user preferences:', {
+				console.log('Updating user preferences:', {
 					preferredLanguage: user.preferredLanguage,
 					theme: user.theme,
 				})
@@ -89,13 +89,14 @@ export const useAuthStore = create<AuthState>()(
 							user,
 							isAuthenticated: true,
 							isLoading: false,
+							// Set verification status directly from user data
+							isEmailVerified: user.isVerified || false,
+							isPendingVerification:
+								!!user.emailVerificationToken,
 						})
 
 						// Update user preferences
 						get().updateUserPreferences(user)
-
-						// Check verification status after login
-						await get().checkVerificationStatus()
 					} else {
 						throw new Error('No token received from server')
 					}
@@ -138,13 +139,14 @@ export const useAuthStore = create<AuthState>()(
 							user,
 							isAuthenticated: true,
 							isLoading: false,
+							// Set verification status directly from user data
+							isEmailVerified: user.isVerified || false,
+							isPendingVerification:
+								!!user.emailVerificationToken,
 						})
 
 						// Update user preferences
 						get().updateUserPreferences(user)
-
-						// Check verification status after Google login
-						await get().checkVerificationStatus()
 					} else {
 						throw new Error('No token received from server')
 					}
@@ -207,7 +209,8 @@ export const useAuthStore = create<AuthState>()(
 							isLoading: false,
 							// New users are not verified by default
 							isEmailVerified: false,
-							isPendingVerification: false,
+							isPendingVerification:
+								!!user.emailVerificationToken,
 						})
 
 						// Update user preferences
@@ -299,13 +302,13 @@ export const useAuthStore = create<AuthState>()(
 						user,
 						isAuthenticated: true,
 						isLoading: false,
+						// Set verification status directly from user data
+						isEmailVerified: user.isVerified || false,
+						isPendingVerification: !!user.emailVerificationToken,
 					})
 
 					// Update user preferences
 					get().updateUserPreferences(user)
-
-					// Check verification status after loading user
-					await get().checkVerificationStatus()
 				} catch (err: unknown) {
 					console.error('Error loading user:', err)
 					localStorage.removeItem('auth-token')
@@ -324,28 +327,26 @@ export const useAuthStore = create<AuthState>()(
 
 			updateUser: async (userData) => {
 				try {
-					console.log(
-						'⚪ authStore: Updating user with data:',
-						userData,
-					)
+					console.log('Updating user with data:', userData)
 					set({ isLoading: true, error: null })
 
 					const updatedUser =
 						await authService.updateProfile(userData)
-					console.log(
-						'🟢 authStore: User updated successfully:',
-						updatedUser,
-					)
+					console.log('User updated successfully:', updatedUser)
 
 					set({
 						user: updatedUser,
 						isLoading: false,
+						// Update verification status if user data changes
+						isEmailVerified: updatedUser.isVerified || false,
+						isPendingVerification:
+							!!updatedUser.emailVerificationToken,
 					})
 
 					// Update user preferences
 					get().updateUserPreferences(updatedUser)
 				} catch (err: unknown) {
-					console.error('🔴 authStore: Error updating user:', err)
+					console.error('Error updating user:', err)
 					const apiError = err as ApiError
 					const errorMessage =
 						apiError.response?.data?.message ||
@@ -361,22 +362,27 @@ export const useAuthStore = create<AuthState>()(
 
 			// Function to set verification status
 			setVerificationStatus: (isVerified, isPending) => {
-				console.log('⚪ authStore: Setting verification status:', {
+				console.log('Setting verification status:', {
 					isVerified,
 					isPending,
 				})
-				const currentState = get()
-				console.log('🔵 authStore: Current verification state:', {
-					isEmailVerified: currentState.isEmailVerified,
-					isPendingVerification: currentState.isPendingVerification,
-				})
+
+				// Update user object if available
+				if (get().user) {
+					set({
+						user: {
+							...get().user!,
+							isVerified: isVerified,
+						},
+					})
+				}
 
 				set({
 					isEmailVerified: isVerified,
 					isPendingVerification: isPending,
 				})
 
-				console.log('🟢 authStore: Verification status set to:', {
+				console.log('Verification status set to:', {
 					isVerified,
 					isPending,
 				})
@@ -384,18 +390,33 @@ export const useAuthStore = create<AuthState>()(
 
 			// Function to check verification status
 			checkVerificationStatus: async () => {
-				console.log('⚪ authStore: Checking verification status...')
-				const currentState = get()
-				console.log(
-					'🔵 authStore: Current verification state before check:',
-					{
-						isEmailVerified: currentState.isEmailVerified,
-						isPendingVerification:
-							currentState.isPendingVerification,
-					},
-				)
+				console.log('Checking verification status...')
+				const currentUser = get().user
 
 				try {
+					// First, check if we can determine status from user object
+					if (currentUser) {
+						// If we have user data with verification info, use it
+						if (currentUser.isVerified !== undefined) {
+							const isVerified = !!currentUser.isVerified
+							const isPending =
+								!!currentUser.emailVerificationToken
+
+							console.log('Verification status from user data:', {
+								isVerified,
+								isPending,
+							})
+
+							set({
+								isEmailVerified: isVerified,
+								isPendingVerification: isPending,
+							})
+
+							return { isVerified, isPending }
+						}
+					}
+
+					// Otherwise, fetch from server
 					const response = await import(
 						'../services/emailVerificationService'
 					).then((module) =>
@@ -405,26 +426,29 @@ export const useAuthStore = create<AuthState>()(
 					const isVerified = response.isVerified
 					const isPending = response.isPending
 
-					console.log('🟢 authStore: Verification check completed:', {
+					console.log('Verification status from server:', {
 						isVerified,
 						isPending,
 					})
+
+					// Update the user object if available
+					if (currentUser) {
+						set({
+							user: {
+								...currentUser,
+								isVerified: isVerified,
+							},
+						})
+					}
 
 					set({
 						isEmailVerified: isVerified,
 						isPendingVerification: isPending,
 					})
 
-					console.log(
-						'🟢 authStore: Verification state updated in store',
-					)
-
 					return { isVerified, isPending }
 				} catch (err: unknown) {
-					console.error(
-						'🔴 authStore: Error checking verification status:',
-						err,
-					)
+					console.error('Error checking verification status:', err)
 					// Don't change the state on error
 					return {
 						isVerified: get().isEmailVerified,
@@ -436,7 +460,7 @@ export const useAuthStore = create<AuthState>()(
 		{
 			name: 'auth-storage',
 			partialize: (state) => {
-				console.log('🔵 Persisting auth state with values:', {
+				console.log('Persisting auth state with values:', {
 					token: state.token ? '(token exists)' : null,
 					isEmailVerified: state.isEmailVerified,
 					isPendingVerification: state.isPendingVerification,
@@ -458,7 +482,7 @@ export const useAuthStore = create<AuthState>()(
 			},
 			onRehydrateStorage: () => (state) => {
 				if (state) {
-					console.log('🔵 Rehydrated auth state with values:', {
+					console.log('Rehydrated auth state with values:', {
 						isEmailVerified: state.isEmailVerified,
 						isPendingVerification: state.isPendingVerification,
 						isAuthenticated: state.isAuthenticated,
@@ -466,7 +490,7 @@ export const useAuthStore = create<AuthState>()(
 						theme: state.theme,
 					})
 				} else {
-					console.log('🔴 Failed to rehydrate auth state')
+					console.log('Failed to rehydrate auth state')
 				}
 			},
 		},

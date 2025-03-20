@@ -6,7 +6,6 @@ import { ChangePasswordModal } from '../components/auth/ChangePasswordModal'
 import { emailVerificationService } from '../services/emailVerificationService'
 import { Modal } from '../components/ui/Modal'
 import {
-	CheckCircleIcon,
 	XCircleIcon,
 	EnvelopeIcon,
 	ClockIcon,
@@ -42,10 +41,9 @@ export const Settings = () => {
 	const [showVerificationModal, setShowVerificationModal] = useState(false)
 	const [verificationError, setVerificationError] = useState('')
 
-	// Check email verification status when component mounts
 	useEffect(() => {
 		console.log(
-			'�� Settings: Component mounted, checking verification status',
+			'⚪ Settings: Component mounted, checking verification status',
 		)
 
 		const refreshVerificationStatus = async () => {
@@ -66,20 +64,17 @@ export const Settings = () => {
 
 		refreshVerificationStatus()
 
-		// Set up interval to periodically check verification status (every 30 seconds)
 		const intervalId = setInterval(() => {
 			console.log('⚪ Settings: Periodic verification status check')
 			refreshVerificationStatus()
 		}, 30000)
 
-		// Clean up interval on unmount
 		return () => {
 			console.log('🔵 Settings: Component unmounting, clearing interval')
 			clearInterval(intervalId)
 		}
 	}, [checkVerificationStatus])
 
-	// Update form fields when user data changes
 	useEffect(() => {
 		if (user) {
 			console.log(
@@ -95,13 +90,13 @@ export const Settings = () => {
 		}
 	}, [user])
 
-	// Log verification state for debugging
 	useEffect(() => {
 		console.log('🔵 Settings: Verification state changed:', {
 			isEmailVerified,
 			isPendingVerification,
+			userIsVerified: user?.isVerified,
 		})
-	}, [isEmailVerified, isPendingVerification])
+	}, [isEmailVerified, isPendingVerification, user?.isVerified])
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -111,7 +106,6 @@ export const Settings = () => {
 		setSuccessMessage('')
 
 		try {
-			// Update user settings with valid theme value
 			console.log('⚪ Settings: Updating user with data:', {
 				name,
 				email,
@@ -126,14 +120,12 @@ export const Settings = () => {
 			})
 			console.log('🟢 Settings: User updated successfully')
 
-			// Apply changes to app UI
 			setTheme(userTheme === 'light' ? 'light' : 'dark')
 			i18n.changeLanguage(preferredLanguage)
 
 			setSuccessMessage(t('settings.saved'))
 			console.log('🟢 Settings: Success message set')
 
-			// If email changed, refresh verification status
 			console.log(
 				'⚪ Settings: Refreshing verification status after update',
 			)
@@ -176,7 +168,6 @@ export const Settings = () => {
 			console.log('🟢 Settings: Verification requested successfully')
 			setShowVerificationModal(true)
 
-			// Force refresh verification status after requesting verification
 			console.log(
 				'⚪ Settings: Force refreshing verification status after request',
 			)
@@ -184,24 +175,27 @@ export const Settings = () => {
 			console.log(
 				'🟢 Settings: Verification status refreshed after request',
 			)
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error('🔴 Settings: Error requesting verification:', err)
 			setVerificationError(
-				err.message || 'Error al solicitar el correo de verificación',
+				err instanceof Error
+					? err.message
+					: 'Error requesting verification email',
 			)
 		} finally {
 			setIsVerificationLoading(false)
 		}
 	}
 
-	// Render the verification status badge
 	const renderVerificationStatus = () => {
 		console.log('🔵 Settings: Rendering verification status:', {
 			isEmailVerified,
 			isPendingVerification,
+			userIsVerified: user?.isVerified,
 		})
 
-		if (isEmailVerified) {
+		// Check if user is verified by looking at user.isVerified or isEmailVerified
+		if (isEmailVerified || (user && user.isVerified)) {
 			return (
 				<div className="text-sm text-green-600 dark:text-green-400 flex items-center bg-green-50 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
 					<CheckCircleSolid className="w-5 h-5 mr-1" />
@@ -415,14 +409,12 @@ export const Settings = () => {
 				</form>
 			</div>
 
-			{/* Change Password Modal */}
 			<ChangePasswordModal
 				isOpen={showChangePasswordModal}
 				onClose={() => setShowChangePasswordModal(false)}
 				onSuccess={handlePasswordChangeSuccess}
 			/>
 
-			{/* Verification Email Sent Modal */}
 			<Modal
 				isOpen={showVerificationModal}
 				onClose={() => setShowVerificationModal(false)}
