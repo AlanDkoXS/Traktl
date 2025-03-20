@@ -4,20 +4,43 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { LanguageSelector } from '../components/LanguageSelector'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { useAuthStore } from '../store/authStore'
+import { useThemeStore } from '../store/themeStore'
 import { checkCurrentToken } from '../utils/tokenHelper'
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
 
 export const Login = () => {
-	const { t } = useTranslation()
+	const { t, i18n } = useTranslation()
 	const navigate = useNavigate()
 	const location = useLocation()
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
+	const { setTheme } = useThemeStore()
 
 	// Use the login method from the auth store
 	const { login, isAuthenticated, token } = useAuthStore()
+
+	// Detect system preferences on component mount
+	useEffect(() => {
+		// Detect system language
+		const systemLanguage = navigator.language.startsWith('es') ? 'es' : 'en'
+		if (i18n.language !== systemLanguage) {
+			console.log(
+				'Setting login page language from system:',
+				systemLanguage,
+			)
+			i18n.changeLanguage(systemLanguage)
+		}
+
+		// Detect system theme
+		const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+			.matches
+			? 'dark'
+			: 'light'
+		console.log('Setting login page theme from system:', systemTheme)
+		setTheme(systemTheme)
+	}, [i18n, setTheme])
 
 	// Check token on mount for debugging
 	useEffect(() => {
@@ -58,9 +81,11 @@ export const Login = () => {
 			// Login successful, redirect to the previous location
 			console.log('Redirecting to:', from)
 			navigate(from, { replace: true })
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error('Login error:', err)
-			setError(err.message || t('errors.serverError'))
+			setError(
+				err instanceof Error ? err.message : t('errors.serverError'),
+			)
 		} finally {
 			setLoading(false)
 		}

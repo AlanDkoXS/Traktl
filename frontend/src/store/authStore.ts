@@ -234,8 +234,38 @@ export const useAuthStore = create<AuthState>()(
 			},
 
 			logout: () => {
-				console.log('Logging out, removing token')
+				console.log('Logging out, clearing user data')
+
+				// Save reference to current project ID before clearing
+				const currentProjectId = localStorage.getItem('timer-storage')
+
+				// Clear authentication data from localStorage first
 				localStorage.removeItem('auth-token')
+				localStorage.removeItem('auth-storage')
+
+				// If there was an active project, clean it from localStorage
+				// to prevent loading previous user's project
+				if (currentProjectId) {
+					try {
+						const timerData = JSON.parse(currentProjectId)
+						// Remove only the projectId but maintain other timer settings
+						if (timerData.state && timerData.state.projectId) {
+							console.log(
+								'Clearing current project reference:',
+								timerData.state.projectId,
+							)
+							delete timerData.state.projectId
+							localStorage.setItem(
+								'timer-storage',
+								JSON.stringify(timerData),
+							)
+						}
+					} catch (error) {
+						console.error('Error clearing project data:', error)
+					}
+				}
+
+				// Finally, update state
 				set({
 					token: null,
 					user: null,
