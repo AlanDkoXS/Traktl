@@ -50,8 +50,8 @@ export const isTokenExpired = (token: string) => {
 		})
 
 		return currentTime > expirationTime
-	} catch (e) {
-		console.error('Error checking token expiration:', e)
+	} catch {
+		console.error('Error checking token expiration')
 		return true
 	}
 }
@@ -72,7 +72,7 @@ export const getTokenInfo = (token: string | null) => {
 			expired,
 			message: expired ? 'Token has expired' : 'Token is valid',
 		}
-	} catch (e) {
+	} catch {
 		return { valid: false, message: 'Error processing token' }
 	}
 }

@@ -7,7 +7,6 @@ import { useTimeEntryStore } from '../store/timeEntryStore'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRightIcon, PlusIcon } from '@heroicons/react/24/outline'
-import { TimeEntryList } from '../components/TimeEntryList'
 
 export const Dashboard = () => {
 	const { t } = useTranslation()

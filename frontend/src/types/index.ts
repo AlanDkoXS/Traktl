@@ -13,3 +13,8 @@ export interface User {
 	isVerified?: boolean
 	emailVerificationToken?: EmailVerificationToken
 }
+
+export interface Client {
+	id: string
+	name: string
+}

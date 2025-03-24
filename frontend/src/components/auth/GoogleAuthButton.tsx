@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 
@@ -21,6 +21,11 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 			// Load the Google Identity Services script
 			await loadGoogleScript()
 
+			// Verificar que window.google exista
+			if (!window.google?.accounts?.id) {
+				throw new Error('Google Identity Services not available')
+			}
+
 			// Initialize Google Identity Services
 			window.google.accounts.id.initialize({
 				client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
@@ -35,14 +40,22 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 					notification.isNotDisplayed() ||
 					notification.isSkippedMoment()
 				) {
-					// Try manual prompt
 					console.log(
 						'One Tap was skipped or not displayed, falling back to manual prompt',
 					)
-					window.google.accounts.id.renderButton(
-						document.getElementById('google-login-button')!,
-						{ theme: 'outline', size: 'large', width: '100%' },
-					)
+					// Verificación adicional antes de renderButton
+					if (window.google?.accounts?.id) {
+						window.google.accounts.id.renderButton(
+							document.getElementById('google-login-button')!,
+							{ theme: 'outline', size: 'large', width: '100%' },
+						)
+					} else {
+						console.error(
+							'Google API not available for button rendering',
+						)
+						setError('Google authentication service unavailable')
+						setIsLoading(false)
+					}
 				}
 			})
 		} catch (error) {
@@ -60,7 +73,6 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 				: 'none',
 		)
 		try {
-			// Call your backend with the token - be sure to use the correct parameter name
 			await loginWithGoogle(response.credential)
 			console.log('Google login successful')
 		} catch (error) {
@@ -71,11 +83,16 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 		}
 	}
 
-	// Function to load Google Identity Services script
 	const loadGoogleScript = () => {
 		return new Promise<void>((resolve, reject) => {
 			if (document.getElementById('google-identity-script')) {
-				resolve()
+				if (window.google?.accounts?.id) {
+					resolve()
+				} else {
+					reject(
+						new Error('Google script loaded but API not available'),
+					)
+				}
 				return
 			}
 
@@ -84,7 +101,15 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 			script.id = 'google-identity-script'
 			script.async = true
 			script.defer = true
-			script.onload = () => resolve()
+			script.onload = () => {
+				if (window.google?.accounts?.id) {
+					resolve()
+				} else {
+					reject(
+						new Error('Google script loaded but API not available'),
+					)
+				}
+			}
 			script.onerror = () =>
 				reject(new Error('Failed to load Google script'))
 			document.body.appendChild(script)

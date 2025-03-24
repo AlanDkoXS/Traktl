@@ -21,7 +21,7 @@ export const EditTag = () => {
 		const loadTag = async () => {
 			try {
 				await fetchTag(id)
-			} catch (err) {
+			} catch {
 				setNotFound(true)
 			}
 		}

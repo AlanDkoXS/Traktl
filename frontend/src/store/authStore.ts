@@ -19,7 +19,6 @@ interface AuthState {
 	isLoading: boolean
 	error: string | null
 	isEmailVerified: boolean
-	isPendingVerification: boolean
 	preferredLanguage: string | null
 	theme: string | null
 	login: (email: string, password: string) => Promise<void>
@@ -34,11 +33,10 @@ interface AuthState {
 	logout: () => void
 	loadUser: () => Promise<void>
 	updateUser: (userData: Partial<User>) => Promise<void>
-	setVerificationStatus: (isVerified: boolean, isPending: boolean) => void
-	checkVerificationStatus: () => Promise<{
-		isVerified: boolean
-		isPending: boolean
-	}>
+	setVerificationStatus: (isVerified: boolean) => void
+    checkVerificationStatus: () => Promise<{
+        isVerified: boolean
+    }>
 	updateUserPreferences: (user: User) => void
 }
 
@@ -51,7 +49,6 @@ export const useAuthStore = create<AuthState>()(
 			isLoading: false,
 			error: null,
 			isEmailVerified: false,
-			isPendingVerification: false,
 			preferredLanguage: null,
 			theme: null,
 
@@ -89,10 +86,8 @@ export const useAuthStore = create<AuthState>()(
 							user,
 							isAuthenticated: true,
 							isLoading: false,
-							// Set verification status directly from user data
-							isEmailVerified: user.isVerified || false,
-							isPendingVerification:
-								!!user.emailVerificationToken,
+							// Set verification status based on email verification token
+							isEmailVerified: !!user.emailVerificationToken?.token,
 						})
 
 						// Update user preferences
@@ -139,10 +134,8 @@ export const useAuthStore = create<AuthState>()(
 							user,
 							isAuthenticated: true,
 							isLoading: false,
-							// Set verification status directly from user data
-							isEmailVerified: user.isVerified || false,
-							isPendingVerification:
-								!!user.emailVerificationToken,
+							// Set verification status based on email verification token
+							isEmailVerified: !!user.emailVerificationToken?.token,
 						})
 
 						// Update user preferences
@@ -208,9 +201,7 @@ export const useAuthStore = create<AuthState>()(
 							isAuthenticated: true,
 							isLoading: false,
 							// New users are not verified by default
-							isEmailVerified: false,
-							isPendingVerification:
-								!!user.emailVerificationToken,
+							isEmailVerified: !!user.emailVerificationToken?.token,
 						})
 
 						// Update user preferences
@@ -274,7 +265,6 @@ export const useAuthStore = create<AuthState>()(
 					user: null,
 					isAuthenticated: false,
 					isEmailVerified: false,
-					isPendingVerification: false,
 					preferredLanguage: null,
 					theme: null,
 				})
@@ -302,9 +292,8 @@ export const useAuthStore = create<AuthState>()(
 						user,
 						isAuthenticated: true,
 						isLoading: false,
-						// Set verification status directly from user data
-						isEmailVerified: user.isVerified || false,
-						isPendingVerification: !!user.emailVerificationToken,
+						// Set verification status based on email verification token
+						isEmailVerified: !!user.emailVerificationToken?.token,
 					})
 
 					// Update user preferences
@@ -337,10 +326,8 @@ export const useAuthStore = create<AuthState>()(
 					set({
 						user: updatedUser,
 						isLoading: false,
-						// Update verification status if user data changes
-						isEmailVerified: updatedUser.isVerified || false,
-						isPendingVerification:
-							!!updatedUser.emailVerificationToken,
+						// Update verification status based on email verification token
+						isEmailVerified: !!updatedUser.emailVerificationToken?.token,
 					})
 
 					// Update user preferences
@@ -361,10 +348,9 @@ export const useAuthStore = create<AuthState>()(
 			},
 
 			// Function to set verification status
-			setVerificationStatus: (isVerified, isPending) => {
+			setVerificationStatus: (isVerified) => {
 				console.log('Setting verification status:', {
 					isVerified,
-					isPending,
 				})
 
 				// Update user object if available
@@ -379,12 +365,10 @@ export const useAuthStore = create<AuthState>()(
 
 				set({
 					isEmailVerified: isVerified,
-					isPendingVerification: isPending,
 				})
 
 				console.log('Verification status set to:', {
 					isVerified,
-					isPending,
 				})
 			},
 
@@ -396,24 +380,19 @@ export const useAuthStore = create<AuthState>()(
 				try {
 					// First, check if we can determine status from user object
 					if (currentUser) {
-						// If we have user data with verification info, use it
-						if (currentUser.isVerified !== undefined) {
-							const isVerified = !!currentUser.isVerified
-							const isPending =
-								!!currentUser.emailVerificationToken
+						// User is verified if they have an email verification token
+						const isVerified = !!currentUser.emailVerificationToken?.token
 
-							console.log('Verification status from user data:', {
-								isVerified,
-								isPending,
-							})
+						console.log('Verification status from user data:', {
+							isVerified,
+							hasToken: !!currentUser.emailVerificationToken?.token
+						})
 
-							set({
-								isEmailVerified: isVerified,
-								isPendingVerification: isPending,
-							})
+						set({
+							isEmailVerified: isVerified,
+						})
 
-							return { isVerified, isPending }
-						}
+						return { isVerified }
 					}
 
 					// Otherwise, fetch from server
@@ -424,18 +403,16 @@ export const useAuthStore = create<AuthState>()(
 					)
 
 					const isVerified = response.isVerified
-					const isPending = response.isPending
 
 					console.log('Verification status from server:', {
 						isVerified,
-						isPending,
 					})
 
 					// Update the user object if available
 					if (currentUser) {
 						set({
 							user: {
-								...currentUser,
+								...(typeof currentUser === 'object' ? currentUser : {}),
 								isVerified: isVerified,
 							},
 						})
@@ -443,16 +420,14 @@ export const useAuthStore = create<AuthState>()(
 
 					set({
 						isEmailVerified: isVerified,
-						isPendingVerification: isPending,
 					})
 
-					return { isVerified, isPending }
+					return { isVerified }
 				} catch (err: unknown) {
 					console.error('Error checking verification status:', err)
 					// Don't change the state on error
 					return {
 						isVerified: get().isEmailVerified,
-						isPending: get().isPendingVerification,
 					}
 				}
 			},
@@ -463,7 +438,6 @@ export const useAuthStore = create<AuthState>()(
 				console.log('Persisting auth state with values:', {
 					token: state.token ? '(token exists)' : null,
 					isEmailVerified: state.isEmailVerified,
-					isPendingVerification: state.isPendingVerification,
 					preferredLanguage: state.preferredLanguage,
 					theme: state.theme,
 				})
@@ -472,7 +446,6 @@ export const useAuthStore = create<AuthState>()(
 					token: state.token,
 					// Now also persist the verification status
 					isEmailVerified: state.isEmailVerified,
-					isPendingVerification: state.isPendingVerification,
 					// Also persist user preferences
 					preferredLanguage: state.preferredLanguage,
 					theme: state.theme,
@@ -484,7 +457,6 @@ export const useAuthStore = create<AuthState>()(
 				if (state) {
 					console.log('Rehydrated auth state with values:', {
 						isEmailVerified: state.isEmailVerified,
-						isPendingVerification: state.isPendingVerification,
 						isAuthenticated: state.isAuthenticated,
 						preferredLanguage: state.preferredLanguage,
 						theme: state.theme,

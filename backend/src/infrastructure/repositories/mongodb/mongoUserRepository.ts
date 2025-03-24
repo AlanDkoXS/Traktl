@@ -8,12 +8,10 @@ import mongoose from 'mongoose'
 
 export class MongoUserRepository implements UserRepository {
 	async create(user: UserDomain): Promise<UserEntity> {
-		// Log the incoming user object to debug
 		console.log('Creating user with data:', {
 			...user,
-			password: '[REDACTED]', // Don't log the actual password
+			password: '[REDACTED]',
 		})
-
 		const newUser = await User.create(user)
 		return this.mapToDomain(newUser)
 	}
@@ -32,12 +30,10 @@ export class MongoUserRepository implements UserRepository {
 		id: string,
 		userData: Partial<UserDomain>,
 	): Promise<UserEntity | null> {
-		// Log update operation for debugging
 		console.log('Updating user with ID:', id, 'Data:', {
 			...userData,
 			password: userData.password ? '[REDACTED]' : undefined,
 		})
-
 		const updatedUser = await User.findByIdAndUpdate(
 			id,
 			{ ...userData, updatedAt: new Date() },
@@ -49,7 +45,7 @@ export class MongoUserRepository implements UserRepository {
 	async updatePassword(id: string, newPassword: string): Promise<boolean> {
 		const user = await User.findById(id)
 		if (!user) return false
-		user.password = newPassword // The pre-save hook will hash the password
+		user.password = newPassword
 		user.updatedAt = new Date()
 		await user.save()
 		return true
@@ -83,16 +79,11 @@ export class MongoUserRepository implements UserRepository {
 			updatedAt: user.updatedAt,
 			googleId: user.googleId,
 			picture: user.picture,
+			emailVerificationToken: user.emailVerificationToken,
+			isVerified: user.isVerified || !!user.emailVerificationToken?.token,
 			comparePassword: (password: string) =>
 				user.comparePassword(password),
 		}
-
-		// Log the final mapped object
-		console.log('Mapped user result:', {
-			...mappedUser,
-			password: '[REDACTED]',
-		})
-
 		return mappedUser
 	}
 }

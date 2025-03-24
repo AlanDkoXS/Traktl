@@ -16,28 +16,33 @@ export class VerificationService {
 		private readonly emailService: EmailService,
 	) {}
 
+	/**
+	 * Generates a verification token for the user
+	 * Having a token means the user is verified
+	 */
 	async generateEmailVerificationToken(
 		userId: string,
 		email: string,
 	): Promise<string> {
-		// Generate verification token (24 hours expiration)
+		// Generate verification token with no expiration
 		const token = await JwtAdapter.generateToken(
 			{ id: userId, email },
-			'24h',
+			'365d', // Very long expiration (essentially permanent)
 		)
+
 		if (!token) {
 			throw CustomError.internalServer(
 				'Error generating verification token',
 			)
 		}
 
-		// Update user with verification token
-		const expiresAt = new Date()
-		expiresAt.setHours(expiresAt.getHours() + 24)
+		// Create token data without expiration
 		const emailVerificationTokenData: EmailVerificationToken = {
 			token,
-			expiresAt,
+			expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // Far future
 		}
+
+		// Update user with verification token
 		const updated = await this.userRepository.update(userId, {
 			emailVerificationToken: emailVerificationTokenData,
 		} as any)
@@ -45,17 +50,21 @@ export class VerificationService {
 		if (!updated) {
 			throw CustomError.internalServer('Error storing verification token')
 		}
+
 		return token
 	}
 
+	/**
+	 * Requests a verification email to be sent to the user
+	 */
 	async requestVerification(userId: string, email: string): Promise<boolean> {
 		const user = await this.userRepository.findById(userId)
 		if (!user) {
 			throw CustomError.notFound('User not found')
 		}
 
-		// Si el usuario ya está verificado, no generamos otro token
-		if (user.isVerified) {
+		// If user already has a token, they're already verified
+		if (user.emailVerificationToken?.token) {
 			throw CustomError.badRequest('Email already verified')
 		}
 
@@ -63,32 +72,38 @@ export class VerificationService {
 		return this.emailService.sendVerificationEmail(email, token)
 	}
 
+	/**
+	 * Verifies a user's email using a token
+	 * Sets the token in the user record to mark them as verified
+	 */
 	async verifyEmail(token: string): Promise<boolean> {
 		try {
 			const payload = (await JwtAdapter.validateToken(
 				token,
 			)) as TokenPayload
-
 			if (!payload || !payload.id) {
-				throw CustomError.unauthorized('Invalid or expired token')
+				throw CustomError.unauthorized('Invalid token')
 			}
 
 			const userId = payload.id
 			const user = await this.userRepository.findById(userId)
-
 			if (!user) {
 				throw CustomError.notFound('User not found')
 			}
 
-			// Si ya está verificado, devolvemos true
-			if (user.isVerified) {
+			// If user already has the token, they're already verified
+			if (user.emailVerificationToken?.token === token) {
 				return true
 			}
 
-			// Actualizamos el usuario: marcar como verificado y eliminar token
+			// Store the token to mark user as verified
+			const emailVerificationTokenData: EmailVerificationToken = {
+				token,
+				expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // Far future
+			}
+
 			const updated = await this.userRepository.update(userId, {
-				isVerified: true,
-				emailVerificationToken: undefined,
+				emailVerificationToken: emailVerificationTokenData,
 			} as any)
 
 			if (!updated) {
@@ -100,28 +115,24 @@ export class VerificationService {
 			return true
 		} catch (error) {
 			console.error('Verification error:', error)
-			throw CustomError.unauthorized('Invalid or expired token')
+			throw CustomError.unauthorized('Invalid token')
 		}
 	}
 
+	/**
+	 * Gets the verification status of a user
+	 * A user is verified if they have a token
+	 */
 	async getVerificationStatus(
 		userId: string,
-	): Promise<{ isVerified: boolean; hasPendingVerification: boolean }> {
+	): Promise<{ isVerified: boolean }> {
 		const user = await this.userRepository.findById(userId)
-
 		if (!user) {
 			throw CustomError.notFound('User not found')
 		}
 
-		// Verificamos si hay un token de verificación pendiente
-		const hasPendingVerification = !!(
-			user.emailVerificationToken &&
-			new Date(user.emailVerificationToken.expiresAt) > new Date()
-		)
-
 		return {
-			isVerified: user.isVerified || false,
-			hasPendingVerification,
+			isVerified: !!user.emailVerificationToken?.token,
 		}
 	}
 }

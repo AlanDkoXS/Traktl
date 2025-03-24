@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { LanguageSelector } from '../components/LanguageSelector'
 import { ThemeToggle } from '../components/ThemeToggle'
 import api from '../services/api'
@@ -9,11 +9,6 @@ export const ResetPassword = () => {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
 	const { token } = useParams<{ token: string }>()
-	const location = useLocation()
-
-	// Get email from query params if available
-	const queryParams = new URLSearchParams(location.search)
-	const email = queryParams.get('email') || ''
 
 	const [password, setPassword] = useState('')
 	const [confirmPassword, setConfirmPassword] = useState('')
@@ -85,9 +80,10 @@ export const ResetPassword = () => {
 			setTimeout(() => {
 				navigate('/login')
 			}, 3000)
-		} catch (err: any) {
+		} catch (err: unknown) {
 			const errorMessage =
-				err.response?.data?.message || t('errors.serverError')
+				(err as { response?: { data?: { message?: string } } }).response
+					?.data?.message || t('errors.serverError')
 			setError(errorMessage)
 		} finally {
 			setIsSubmitting(false)

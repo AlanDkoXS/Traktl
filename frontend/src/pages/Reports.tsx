@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../store/projectStore'
 import { useTimeEntryStore } from '../store/timeEntryStore'
-import { format, subDays, parseISO, differenceInDays } from 'date-fns'
+import { format, subDays, differenceInDays } from 'date-fns'
 import {
 	LineChart,
 	Line,
@@ -159,11 +159,11 @@ export const Reports = () => {
 
 		// For each day, add all project data
 		const result = daysArray.map((day) => {
-			const dayData: any = {
+			const dayData: { [key: string]: number | string } = {
 				date: day.date,
 				displayDate: day.displayDate,
 				// For total minutes across all projects
-				totalMinutes: 0,
+				totalMinutes: 0 as number,
 			}
 
 			// Add data for each project
@@ -173,7 +173,8 @@ export const Reports = () => {
 						(projectDays[day.date] || 0) / (1000 * 60),
 					)
 					dayData[projectId] = projectMinutes
-					dayData.totalMinutes += projectMinutes
+					dayData.totalMinutes =
+						(dayData.totalMinutes as number) + projectMinutes
 				},
 			)
 
@@ -405,11 +406,7 @@ export const Reports = () => {
 															<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
 																<div className="flex items-center">
 																	<div
-																		className="w-3 h-3 rounded-full mr-2"
-																		style={{
-																			backgroundColor:
-																				entry.color,
-																		}}
+																		className={`w-3 h-3 rounded-full mr-2 ${entry.color}`}
 																	/>
 																	{entry.name}
 																</div>
@@ -474,7 +471,7 @@ export const Reports = () => {
 											}}
 										/>
 										<Tooltip
-											formatter={(value, name, props) => {
+											formatter={(value, name) => {
 												if (name === 'totalMinutes')
 													return [
 														`${value} min`,
@@ -496,7 +493,7 @@ export const Reports = () => {
 										/>
 										<Legend
 											verticalAlign="top"
-											formatter={(value, entry) => {
+											formatter={(value) => {
 												if (value === 'totalMinutes')
 													return 'Total'
 												// Find project name for this dataKey

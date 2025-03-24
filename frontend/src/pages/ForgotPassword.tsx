@@ -36,7 +36,7 @@ export const ForgotPassword = () => {
 				),
 			)
 			setEmail('')
-		} catch (err: any) {
+		} catch {
 			// For security, we don't want to reveal if the email exists or not
 			setSuccessMessage(
 				t(

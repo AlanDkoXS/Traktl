@@ -27,7 +27,7 @@ export const EditTimerPreset = () => {
 		const loadTimerPreset = async () => {
 			try {
 				await fetchTimerPreset(id)
-			} catch (err) {
+			} catch {
 				setNotFound(true)
 			}
 		}

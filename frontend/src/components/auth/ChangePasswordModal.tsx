@@ -89,9 +89,18 @@ export const ChangePasswordModal = ({
 			// Success! Reset form and notify parent
 			onSuccess()
 			onClose()
-		} catch (err: any) {
-			const errorMessage =
-				err.response?.data?.message || t('errors.serverError')
+		} catch (err: unknown) {
+			let errorMessage = t('errors.serverError')
+			if (err instanceof Error) {
+				if (
+					(err as { response?: { data?: { message?: string } } })
+						.response?.data?.message
+				) {
+					errorMessage =
+						(err as { response?: { data?: { message?: string } } })
+							.response?.data?.message || t('errors.serverError')
+				}
+			}
 			setError(errorMessage)
 		} finally {
 			setIsSubmitting(false)

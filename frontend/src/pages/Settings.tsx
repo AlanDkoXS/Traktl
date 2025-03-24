@@ -5,11 +5,7 @@ import { useAuthStore } from '../store/authStore'
 import { ChangePasswordModal } from '../components/auth/ChangePasswordModal'
 import { emailVerificationService } from '../services/emailVerificationService'
 import { Modal } from '../components/ui/Modal'
-import {
-	XCircleIcon,
-	EnvelopeIcon,
-	ClockIcon,
-} from '@heroicons/react/24/outline'
+import { XCircleIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 
 export const Settings = () => {
@@ -20,7 +16,6 @@ export const Settings = () => {
 		updateUser,
 		error,
 		isEmailVerified,
-		isPendingVerification,
 		checkVerificationStatus,
 	} = useAuthStore()
 
@@ -42,10 +37,6 @@ export const Settings = () => {
 	const [verificationError, setVerificationError] = useState('')
 
 	useEffect(() => {
-		console.log(
-			'⚪ Settings: Component mounted, checking verification status',
-		)
-
 		const refreshVerificationStatus = async () => {
 			try {
 				console.log('⚪ Settings: Refreshing verification status...')
@@ -93,46 +84,29 @@ export const Settings = () => {
 	useEffect(() => {
 		console.log('🔵 Settings: Verification state changed:', {
 			isEmailVerified,
-			isPendingVerification,
 			userIsVerified: user?.isVerified,
+			hasToken: !!user?.emailVerificationToken?.token,
 		})
-	}, [isEmailVerified, isPendingVerification, user?.isVerified])
+	}, [isEmailVerified, user?.isVerified, user?.emailVerificationToken])
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
-		console.log('⚪ Settings: Form submitted')
-
 		setIsSubmitting(true)
 		setSuccessMessage('')
 
 		try {
-			console.log('⚪ Settings: Updating user with data:', {
-				name,
-				email,
-				preferredLanguage,
-				theme: userTheme,
-			})
 			await updateUser({
 				name,
 				email,
 				preferredLanguage,
 				theme: userTheme,
 			})
-			console.log('🟢 Settings: User updated successfully')
 
 			setTheme(userTheme === 'light' ? 'light' : 'dark')
 			i18n.changeLanguage(preferredLanguage)
-
 			setSuccessMessage(t('settings.saved'))
-			console.log('🟢 Settings: Success message set')
 
-			console.log(
-				'⚪ Settings: Refreshing verification status after update',
-			)
 			await checkVerificationStatus()
-			console.log(
-				'🟢 Settings: Verification status refreshed after update',
-			)
 		} catch (err) {
 			console.error('🔴 Settings: Failed to save settings:', err)
 		} finally {
@@ -142,41 +116,28 @@ export const Settings = () => {
 
 	const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newLang = e.target.value as 'es' | 'en' | 'tr'
-		console.log('🔵 Settings: Language changed to:', newLang)
 		setPreferredLanguage(newLang)
 		i18n.changeLanguage(newLang)
 	}
 
 	const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newTheme = e.target.value as 'light' | 'dark'
-		console.log('🔵 Settings: Theme changed to:', newTheme)
 		setUserTheme(newTheme)
 		setTheme(newTheme)
 	}
 
 	const handlePasswordChangeSuccess = () => {
-		console.log('🟢 Settings: Password changed successfully')
 		setSuccessMessage(t('settings.passwordChanged'))
 	}
 
 	const handleRequestVerification = async () => {
-		console.log('⚪ Settings: Requesting email verification')
 		setIsVerificationLoading(true)
 		setVerificationError('')
 		try {
 			await emailVerificationService.requestVerification()
-			console.log('🟢 Settings: Verification requested successfully')
 			setShowVerificationModal(true)
-
-			console.log(
-				'⚪ Settings: Force refreshing verification status after request',
-			)
 			await checkVerificationStatus()
-			console.log(
-				'🟢 Settings: Verification status refreshed after request',
-			)
 		} catch (err: unknown) {
-			console.error('🔴 Settings: Error requesting verification:', err)
 			setVerificationError(
 				err instanceof Error
 					? err.message
@@ -188,25 +149,17 @@ export const Settings = () => {
 	}
 
 	const renderVerificationStatus = () => {
-		console.log('🔵 Settings: Rendering verification status:', {
-			isEmailVerified,
-			isPendingVerification,
-			userIsVerified: user?.isVerified,
-		})
+		// Usuario verificado si tiene token o isEmailVerified es true
+		const isVerified =
+			isEmailVerified ||
+			(user && !!user.emailVerificationToken?.token) ||
+			(user && user.isVerified)
 
-		// Check if user is verified by looking at user.isVerified or isEmailVerified
-		if (isEmailVerified || (user && user.isVerified)) {
+		if (isVerified) {
 			return (
 				<div className="text-sm text-green-600 dark:text-green-400 flex items-center bg-green-50 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
 					<CheckCircleSolid className="w-5 h-5 mr-1" />
 					{t('settings.verified')}
-				</div>
-			)
-		} else if (isPendingVerification) {
-			return (
-				<div className="text-sm text-yellow-600 dark:text-yellow-400 flex items-center bg-yellow-50 dark:bg-yellow-900/30 px-3 py-1.5 rounded-full">
-					<ClockIcon className="w-5 h-5 mr-1" />
-					{t('settings.pendingVerification')}
 				</div>
 			)
 		} else {
