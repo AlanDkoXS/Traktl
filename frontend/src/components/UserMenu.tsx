@@ -9,6 +9,7 @@ import { useAuthStore } from '../store/authStore'
 import { ThemeToggle } from './ThemeToggle'
 import { LanguageSelector } from './LanguageSelector'
 import { Dialog } from '@headlessui/react'
+import AQLogo from '../assets/aq-logo'
 
 export const UserMenu = () => {
 	const { t } = useTranslation()
@@ -132,24 +133,28 @@ export const UserMenu = () => {
 							{t('about.title', 'About Traktl')}
 						</Dialog.Title>
 
-						<div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-							<p className="mb-2">
-								{t('app.name')} -{' '}
-								{t('about.version', 'Version')} 0.1.b
-							</p>
-							<p className="mb-4">
-								{t('about.createdBy', 'Created by')} Alan
-								Quintana
-							</p>
-							<p>
-								{t('about.contact', 'Contact')}:
-								<a
-									href="mailto:hello@alanquintana.pro"
-									className="ml-1 text-primary-600 dark:text-primary-400 hover:underline"
-								>
-									hello@alanquintana.pro
-								</a>
-							</p>
+						<div className="mt-4 flex flex-col items-center">
+							<AQLogo />
+
+							<div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+								<p className="mb-1">
+									{t('app.name')} -{' '}
+									{t('about.version', 'Version')} 0.1.b
+								</p>
+								<p className="mb-1">
+									{t('about.createdBy', 'Created by')} Alan
+									Quintana
+								</p>
+								<p>
+									{t('about.contact', 'Contact')}:
+									<a
+										href="mailto:hello@alanquintana.pro"
+										className="ml-1 text-primary-600 dark:text-primary-400 hover:underline"
+									>
+										hello@alanquintana.pro
+									</a>
+								</p>
+							</div>
 						</div>
 
 						<div className="mt-6 flex justify-end">
