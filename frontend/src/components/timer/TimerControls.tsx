@@ -355,7 +355,7 @@ export const TimerControls = ({
 					'timer.projectRequiredMessage',
 					'Please select a project before starting the timer.',
 				)}
-				confirmButtonText={t('common.ok')}
+				confirmButtonText={t('common.ok')} // TODO: Need translation
 				cancelButtonText=""
 				onConfirm={handleCloseProjectRequiredModal}
 				onCancel={() => setShowProjectRequiredModal(false)}

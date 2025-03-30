@@ -250,7 +250,9 @@
         "retry": "Retry",
         "done": "Done",
         "edit": "Edit",
-        "close": "Close"
+        "close": "Close",
+        "ok": "Ok"
+
     },
     "errors": {
         "required": "This field is required",
