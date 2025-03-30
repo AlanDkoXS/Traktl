@@ -14,7 +14,17 @@ import {
 } from '@heroicons/react/24/outline'
 import { ConfirmModal } from './ui/ConfirmModal'
 import { useTimerStore } from '../store/timerStore'
-import { TimeEntry } from '../types'
+
+// Define or import the TimeEntry type
+interface TimeEntry {
+	id: string
+	project: string
+	task?: string
+	notes?: string
+	tags?: string[]
+	startTime: string
+	duration: number
+}
 
 interface TimeEntryListProps {
 	projectId?: string
@@ -48,6 +58,7 @@ export const TimeEntryList = ({
 		setInfiniteMode,
 		selectedEntryId,
 		setSelectedEntryId,
+		toggleEntrySelection,
 	} = useTimerStore()
 
 	const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -171,6 +182,8 @@ export const TimeEntryList = ({
 	const handleEntryClick = (entry: TimeEntry, e: React.MouseEvent) => {
 		e.preventDefault()
 		e.stopPropagation()
+
+		toggleEntrySelection(entry.id)
 
 		console.log(
 			'Entry clicked:',

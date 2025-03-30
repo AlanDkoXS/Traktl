@@ -25,6 +25,7 @@ interface TimerState {
 	showCompletionModal: boolean // Flag for completion modal
 	infiniteMode: boolean // Flag for infinite timer mode
 	selectedEntryId: string | null // Track which entry is selected for infinite mode
+    toggleEntrySelection: (entryId: string | null) => void;
 
 	// Actions
 	start: (projectId?: string | null, taskId?: string | null) => void
@@ -191,19 +192,22 @@ export const useTimerStore = create<TimerState>()(
 
 			closeCompletionModal: () => set({ showCompletionModal: false }),
 
-			setInfiniteMode: (value) =>
-				set({
-					infiniteMode: value,
-					// If turning off infinite mode, also clear selected entry
-					selectedEntryId: value ? get().selectedEntryId : null,
+			toggleEntrySelection: (entryId: string | null) =>
+				set((state) => {
+					if (state.selectedEntryId === entryId) {
+						return {
+							selectedEntryId: null,
+							infiniteMode: false,
+						}
+					}
+					return {
+						selectedEntryId: entryId,
+						infiniteMode: entryId !== null,
+					}
 				}),
 
-			setSelectedEntryId: (id) =>
-				set({
-					selectedEntryId: id,
-					// Always set infinite mode when selecting an entry
-					infiniteMode: id !== null,
-				}),
+			setInfiniteMode: (value) => set({ infiniteMode: value }),
+			setSelectedEntryId: (id) => set({ selectedEntryId: id }),
 
 			tick: () =>
 				set((state) => {

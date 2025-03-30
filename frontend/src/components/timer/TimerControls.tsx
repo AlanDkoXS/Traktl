@@ -31,15 +31,16 @@ export const TimerControls = ({
 	const [showShortSessionModal, setShowShortSessionModal] = useState(false)
 	const [showStopConfirmationModal, setShowStopConfirmationModal] =
 		useState(false)
-	const [showProjectRequiredModal, setShowProjectRequiredModal] = useState(false)
+	const [showProjectRequiredModal, setShowProjectRequiredModal] =
+		useState(false)
 	const [modalAction, setModalAction] = useState<'next' | 'stop'>('next')
 
 	// Check if project is selected when component mounts or when projectId changes
 	useEffect(() => {
 		if (status === 'idle' && !projectId) {
-			setShowProjectRequiredModal(true);
+			setShowProjectRequiredModal(true)
 		}
-	}, [status, projectId]);
+	}, [status, projectId])
 
 	const handleStart = () => {
 		if (!projectId) {
@@ -58,32 +59,24 @@ export const TimerControls = ({
 	}
 
 	const handleSkipToNext = () => {
-		// When in infinite mode or in break mode, don't show the warning modal
 		if (
-			(status === 'running' &&
-				elapsed < 60 &&
-				!infiniteMode &&
-				mode === 'work') ||
-			(status === 'paused' &&
-				elapsed < 60 &&
-				!infiniteMode &&
-				mode === 'work')
+			elapsed < 60 &&
+			!infiniteMode &&
+			mode === 'work' &&
+			(status === 'running' || status === 'paused')
 		) {
 			setModalAction('next')
 			setShowShortSessionModal(true)
 			return
 		}
 
-		// Otherwise proceed normally
 		skipToNext()
 	}
 
 	const handleStop = () => {
 		if (elapsed > 0) {
-			// Always show confirmation when stopping with time recorded (work or break)
 			setShowStopConfirmationModal(true)
 		} else {
-			// For empty timer, just stop and reset
 			stop()
 		}
 	}
@@ -360,7 +353,7 @@ export const TimerControls = ({
 				title={t('timer.projectRequired', 'Project Required')}
 				message={t(
 					'timer.projectRequiredMessage',
-					'Please select a project before starting the timer.'
+					'Please select a project before starting the timer.',
 				)}
 				confirmButtonText={t('common.ok')}
 				cancelButtonText=""
