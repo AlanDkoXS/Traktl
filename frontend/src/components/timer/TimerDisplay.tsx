@@ -17,42 +17,64 @@ export const TimerDisplay = ({
 	const { t } = useTranslation()
 	const circleLength = 263.89 // 2 * PI * 42, circle perimeter
 	const [displayProgress, setDisplayProgress] = useState(progress)
+	const [elapsedTime, setElapsedTime] = useState(0) // For infinite mode
 	const requestRef = useRef<number>()
 	const previousTimeRef = useRef<number>()
+	const startTimeRef = useRef<number | null>(null)
 
-	// Smooth animation using requestAnimationFrame
+	// Smooth animation for progress circle
 	const animate = (time: number) => {
 		if (previousTimeRef.current !== undefined) {
-			// Determine how much to animate in this frame
 			const deltaTime = time - previousTimeRef.current
-
-			// Update progress smoothly
-			// The value 0.05 determines animation speed (lower = smoother but slower)
 			setDisplayProgress((prevProgress) => {
 				const diff = progress - prevProgress
-				const step = diff * Math.min(deltaTime / 200, 0.05) // Limit step size for very large animations
+				const step = diff * Math.min(deltaTime / 200, 0.05)
 				return prevProgress + step
 			})
+
+			// Update elapsed time for infinite mode
+			if (isInfiniteMode && startTimeRef.current !== null) {
+				const elapsedSeconds = Math.floor(
+					(time - startTimeRef.current) / 1000,
+				)
+				setElapsedTime(elapsedSeconds)
+			}
 		}
 
 		previousTimeRef.current = time
 		requestRef.current = requestAnimationFrame(animate)
 	}
 
-	// Set up animation with requestAnimationFrame
+	// Start animation and timer
 	useEffect(() => {
+		if (isInfiniteMode && startTimeRef.current === null) {
+			startTimeRef.current = performance.now()
+		}
 		requestRef.current = requestAnimationFrame(animate)
 		return () => {
 			if (requestRef.current) {
 				cancelAnimationFrame(requestRef.current)
 			}
 		}
-	}, [progress]) // Depend on progress to restart animation when it changes
+	}, [progress, isInfiniteMode])
 
-	// For infinite mode, we show a 100% static circle
-	// Otherwise we calculate it normally
+	// Format elapsed time for infinite mode (e.g., MM:SS)
+	const formatInfiniteTime = (seconds: number) => {
+		const minutes = Math.floor(seconds / 60)
+		const remainingSeconds = seconds % 60
+		return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
+			.toString()
+			.padStart(2, '0')}`
+	}
+
+	// Use infinite mode time or prop-provided formattedTime
+	const displayTime = isInfiniteMode
+		? formatInfiniteTime(elapsedTime)
+		: formattedTime
+
+	// Progress circle: 100% for infinite mode, animated otherwise
 	const progressOffset = isInfiniteMode
-		? circleLength / 0 // Always show total circle for infinite mode
+		? 0 // Full circle (100%)
 		: circleLength - (circleLength * displayProgress) / 100
 
 	return (
@@ -95,9 +117,9 @@ export const TimerDisplay = ({
 					fill="none"
 					strokeWidth="7"
 					strokeLinecap="round"
-					strokeDasharray={circleLength} // 2 * PI * 42
+					strokeDasharray={circleLength}
 					strokeDashoffset={progressOffset}
-					className={`transform origin-center -rotate-90`}
+					className="transform origin-center -rotate-90"
 					stroke={
 						mode === 'work'
 							? 'url(#progressGradient)'
@@ -105,7 +127,7 @@ export const TimerDisplay = ({
 					}
 				/>
 
-				{/* Special gradient for break mode */}
+				{/* Break mode gradient */}
 				<defs>
 					<linearGradient
 						id="breakGradient"
@@ -135,7 +157,7 @@ export const TimerDisplay = ({
 							: 'text-[hsl(var(--color-project-hue),var(--color-project-saturation),50%)]'
 					}`}
 				>
-					{formattedTime}
+					{displayTime}
 				</span>
 
 				{!isInfiniteMode && (

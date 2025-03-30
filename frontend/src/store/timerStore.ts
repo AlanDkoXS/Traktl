@@ -25,7 +25,7 @@ interface TimerState {
 	showCompletionModal: boolean // Flag for completion modal
 	infiniteMode: boolean // Flag for infinite timer mode
 	selectedEntryId: string | null // Track which entry is selected for infinite mode
-    toggleEntrySelection: (entryId: string | null) => void;
+	toggleEntrySelection: (entryId: string | null) => void
 
 	// Actions
 	start: (projectId?: string | null, taskId?: string | null) => void
@@ -100,7 +100,9 @@ export const useTimerStore = create<TimerState>()(
 							projectId: projectId || state.projectId,
 							taskId: taskId || state.taskId,
 							elapsed:
-								state.status === 'paused' ? state.elapsed : 0,
+								state.status === 'paused' && !state.infiniteMode
+									? state.elapsed
+									: 0,
 							workStartTime:
 								state.mode === 'work'
 									? new Date()
@@ -213,6 +215,10 @@ export const useTimerStore = create<TimerState>()(
 				set((state) => {
 					if (state.status === 'running') {
 						const newElapsed = state.elapsed + 1 // Increment by 1 second
+
+						if (state.infiniteMode) {
+							return { elapsed: newElapsed }
+						}
 
 						// If not in infinite mode, check if the timer should end
 						if (!state.infiniteMode) {
