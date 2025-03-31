@@ -31,7 +31,7 @@ interface TimerState {
 	start: (projectId?: string | null, taskId?: string | null) => void
 	pause: () => void
 	resume: () => void
-	stop: () => void
+	stop: (shouldSave?: boolean) => Promise<void>
 	reset: () => void
 	closeCompletionModal: () => void
 	setInfiniteMode: (value: boolean) => void
@@ -143,19 +143,31 @@ export const useTimerStore = create<TimerState>()(
 					return state
 				}),
 
-			stop: async () => {
-				// Access current state in the callback
+			stop: async (shouldSave = true) => {
+                console.log('Ejecutando stop con shouldSave:', shouldSave)
 				const state = get()
 
 				// Only create a time entry if in work mode with a project selected
 				// and elapsed time is at least 1 second
-				if (
+                console.log('Condiciones para guardar:', {
+                    shouldSave,
+                    mode: state.mode,
+                    projectId: state.projectId,
+                    elapsed: state.elapsed,
+                    willSave: shouldSave && state.mode === 'work' && state.projectId && state.elapsed >= 1
+                })
+
+                if (
+					shouldSave &&
 					state.mode === 'work' &&
 					state.projectId &&
 					state.elapsed >= 1
 				) {
+                    console.log('Creando entrada de tiempo')
 					await state.createTimeEntryFromWorkSession()
-				}
+				} else {
+                    console.log('NO se crea entrada de tiempo')
+                }
 
 				// Clear the interval when stopping
 				setupGlobalInterval(get().tick, 'idle')

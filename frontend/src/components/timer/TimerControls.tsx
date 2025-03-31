@@ -8,7 +8,7 @@ interface TimerControlsProps {
 	start: () => void
 	pause: () => void
 	resume: () => void
-	stop: () => void
+	stop: (shouldSave?: boolean) => void
 	skipToNext: () => void
 	projectId: string | null
 	infiniteMode: boolean
@@ -88,8 +88,8 @@ export const TimerControls = ({
 	}
 
 	const handleDontSave = () => {
-		// Clear timer without saving
-		stop()
+		console.log('No seleccionado, deteniendo timer sin guardar')
+		stop(false)
 		setShowStopConfirmationModal(false)
 	}
 
