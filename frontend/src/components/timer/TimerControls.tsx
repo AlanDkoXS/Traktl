@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmModal } from '../ui/ConfirmModal'
+import { useTimerStore } from '../../store/timerStore'
 
 interface TimerControlsProps {
 	status: 'idle' | 'running' | 'paused' | 'break'
@@ -83,18 +84,27 @@ export const TimerControls = ({
 
 	const handleConfirmSave = () => {
 		// Save and stop the timer
-		stop()
+		console.log('handleConfirmSave: Guardando timer (shouldSave=true)')
+		stop(true) // Explícitamente pasando true
 		setShowStopConfirmationModal(false)
 	}
 
 	const handleDontSave = () => {
-		console.log('No seleccionado, deteniendo timer sin guardar')
+		console.log(
+			'handleDontSave: Deteniendo timer sin guardar (shouldSave=false)',
+		)
+
+		// Enfoque simple: usar directamente stop(false)
+		console.log('Usando stop(false) explícitamente')
 		stop(false)
 		setShowStopConfirmationModal(false)
 	}
 
 	const handleCancelStopModal = () => {
-		// Just close the modal without any action
+		// Solo cierra el modal sin detener el timer
+		console.log(
+			'handleCancelStopModal: Solo cerrar modal sin detener timer',
+		)
 		setShowStopConfirmationModal(false)
 	}
 
@@ -390,14 +400,14 @@ export const TimerControls = ({
 					'timer.stopSessionMessage',
 					'Do you want to save this timer session? This will reset the timer and return to Session 1.',
 				)}
-				confirmButtonText={t('common.yes')}
-				cancelButtonText={t('common.no')}
-				onConfirm={handleConfirmSave}
-				onCancel={handleDontSave}
+				confirmButtonText={t('common.yes')} // Botón "Sí" - Guardar y detener
+				cancelButtonText={t('common.no')} // Botón "No" - No guardar pero detener
+				onConfirm={handleConfirmSave} // Sí - Guardar entry y detener timer
+				onCancel={handleDontSave} // No - No guardar pero detener timer
 				isLoading={false}
 				danger={false}
-				showCancelButton={true}
-				onCancelButtonClick={handleCancelStopModal}
+				showCancelButton={true} // Mostrar tercer botón "Cancelar"
+				onCancelButtonClick={handleCancelStopModal} // Cancelar - No detener el timer
 			/>
 		</>
 	)

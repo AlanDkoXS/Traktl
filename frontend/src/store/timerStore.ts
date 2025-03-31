@@ -144,21 +144,47 @@ export const useTimerStore = create<TimerState>()(
 				}),
 
 			stop: async (shouldSave = true) => {
-                console.log('Ejecutando stop con shouldSave:', shouldSave)
+                console.log('Ejecutando stop con shouldSave:', shouldSave, 'typeof:', typeof shouldSave)
+
+                // Verificación estricta para asegurar que shouldSave sea un booleano
+                const shouldSaveFinal = shouldSave === true;
+                console.log('shouldSaveFinal:', shouldSaveFinal);
+
+                // Si shouldSave es explícitamente false, simplemente reseteamos el timer sin guardar
+                if (shouldSaveFinal === false) {
+                    console.log('shouldSave es false, NO se guardará la entrada');
+
+                    // Limpiar el intervalo
+                    setupGlobalInterval(get().tick, 'idle');
+
+                    // Resetear estado
+                    set({
+                        status: 'idle',
+                        mode: 'work',
+                        elapsed: 0,
+                        currentRepetition: 1,
+                        workStartTime: null,
+                        infiniteMode: false,
+                        selectedEntryId: null,
+                    });
+
+                    return; // Salir temprano
+                }
+
 				const state = get()
 
-				// Only create a time entry if in work mode with a project selected
-				// and elapsed time is at least 1 second
+				// Solo crear entrada si es modo trabajo, con proyecto seleccionado y tiempo > 1s
                 console.log('Condiciones para guardar:', {
                     shouldSave,
+                    shouldSaveFinal,
                     mode: state.mode,
                     projectId: state.projectId,
                     elapsed: state.elapsed,
-                    willSave: shouldSave && state.mode === 'work' && state.projectId && state.elapsed >= 1
+                    willSave: shouldSaveFinal && state.mode === 'work' && state.projectId && state.elapsed >= 1
                 })
 
                 if (
-					shouldSave &&
+					shouldSaveFinal &&
 					state.mode === 'work' &&
 					state.projectId &&
 					state.elapsed >= 1
@@ -166,18 +192,24 @@ export const useTimerStore = create<TimerState>()(
                     console.log('Creando entrada de tiempo')
 					await state.createTimeEntryFromWorkSession()
 				} else {
-                    console.log('NO se crea entrada de tiempo')
+                    console.log('NO se crea entrada de tiempo porque:', {
+                        shouldSave,
+                        shouldSaveFinal,
+                        modeIsWork: state.mode === 'work',
+                        hasProject: !!state.projectId,
+                        elapsedTime: state.elapsed
+                    })
                 }
 
-				// Clear the interval when stopping
+				// Limpiar intervalo
 				setupGlobalInterval(get().tick, 'idle')
 
-				// Reset timer state - ALWAYS RESET TO SESSION 1 WHEN STOPPING
+				// Resetear estado - SIEMPRE RESETEAR A SESIÓN 1 AL DETENER
 				set({
 					status: 'idle',
 					mode: 'work',
 					elapsed: 0,
-					currentRepetition: 1, // Explicitly set to 1 here
+					currentRepetition: 1,
 					workStartTime: null,
 					infiniteMode: false,
 					selectedEntryId: null,

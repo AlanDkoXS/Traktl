@@ -42,7 +42,16 @@ export const ConfirmModal = ({
 				as="div"
 				className="relative z-50"
 				initialFocus={cancelButtonRef}
-				onClose={onCancelButtonClick || onCancel}
+				onClose={() => {
+					// Al cerrar el modal con ESC o clicking fuera:
+					// Si tiene botón de Cancelar y onCancelButtonClick, usar esa función
+					// Si no, usar onCancel (que en el caso del modal de stop, debe ser handleDontSave)
+					if (onCancelButtonClick && showCancelButton) {
+						onCancelButtonClick()
+					} else {
+						onCancel()
+					}
+				}}
 			>
 				<Transition.Child
 					as={Fragment}
@@ -106,7 +115,12 @@ export const ConfirmModal = ({
 												? 'bg-red-600 hover:bg-red-700 focus:bg-red-700'
 												: 'dynamic-bg hover:brightness-110 focus:brightness-110'
 										} focus:outline-none`}
-										onClick={onConfirm}
+										onClick={() => {
+											console.log(
+												'Botón de confirmación (Sí) clickeado',
+											)
+											onConfirm()
+										}}
 										disabled={isLoading}
 									>
 										{isLoading
@@ -117,7 +131,12 @@ export const ConfirmModal = ({
 										<button
 											type="button"
 											className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-[rgb(var(--color-border-secondary))] bg-white dark:bg-[rgb(var(--color-bg-overlay))] px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-border-primary))] focus:outline-none sm:mt-0 sm:w-auto sm:text-sm"
-											onClick={onCancel}
+											onClick={() => {
+												console.log(
+													'Botón de cancelación (No) clickeado',
+												)
+												onCancel()
+											}}
 											ref={cancelButtonRef}
 											disabled={isLoading}
 										>
@@ -129,7 +148,12 @@ export const ConfirmModal = ({
 											<button
 												type="button"
 												className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-[rgb(var(--color-border-secondary))] bg-white dark:bg-[rgb(var(--color-bg-overlay))] px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-border-primary))] focus:outline-none sm:mt-0 sm:mx-3 sm:w-auto sm:text-sm"
-												onClick={onCancelButtonClick}
+												onClick={() => {
+													console.log(
+														'Botón de cancelar clickeado',
+													)
+													onCancelButtonClick()
+												}}
 												disabled={isLoading}
 											>
 												{t('common.cancel')}

@@ -115,8 +115,10 @@ export const useTimer = () => {
 	}, [switchToNext])
 
 	// Stop and reset the timer
-	const stop = useCallback(() => {
-		stopTimer()
+	const stop = useCallback((shouldSave?: boolean) => {
+		console.log('useTimer.stop llamado con shouldSave:', shouldSave)
+		// Explícitamente pasamos el parámetro shouldSave al store
+		stopTimer(shouldSave)
 
 		// Play complete sound - CORRECCIÓN: Esto se maneja en el store timerStore
 		// para evitar redundancia y asegurar que suene correctamente
