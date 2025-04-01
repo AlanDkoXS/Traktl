@@ -571,8 +571,8 @@ export const useTimerStore = create<TimerState>()(
 					})
 
 					showTimerNotification('timeEntry', {
-						title: 'Time Entry Created',
-						body: `Time entry of ${durationMinutes} minutes has been recorded`,
+						title: 'Zaman Girişi Oluşturuldu',
+						body: `${durationMinutes} dakikalık bir zaman girişi kaydedildi`,
 						persistent: false,
 					})
 
@@ -650,8 +650,8 @@ export const useTimerStore = create<TimerState>()(
 
 					// Reproducir sonido de finalización de trabajo
 					showTimerNotification('break', {
-						title: 'Break Time',
-						body: 'Work session completed! Time for a break.',
+						title: 'Mola Zamanı',
+						body: 'Çalışma oturumu tamamlandı! Mola zamanı.',
 						persistent: false,
 					});
 
@@ -677,8 +677,8 @@ export const useTimerStore = create<TimerState>()(
 				// Reproducir sonido de inicio de trabajo si venimos de descanso
 				if (get().mode === 'break') {
 					showTimerNotification('work', {
-						title: 'Work Time',
-						body: 'Break completed! Back to work.',
+						title: 'Çalışma Zamanı',
+						body: 'Mola bitti! Çalışmaya geri dönelim.',
 						persistent: false,
 					});
 				}
