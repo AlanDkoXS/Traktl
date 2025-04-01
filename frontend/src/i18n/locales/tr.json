@@ -60,6 +60,7 @@
         "passwordChanged": "Şifreniz başarıyla değiştirildi.",
         "emailVerification": "E-posta Doğrulama",
         "emailVerified": "E-postanız başarıyla doğrulandı.",
+        "emailVerifiedDesc": "Artık uygulamanın tüm özelliklerine erişebilirsiniz.",
         "emailVerificationSent": "E-posta adresinize bir doğrulama e-postası gönderildi. Görünmüyorsa lütfen Spam klasörünü de kontrol edin.",
         "verifyEmail": "E-postayı Doğrula",
         "emailVerificationInstructions": "Lütfen e-postanızı kontrol edin ve doğrulama bağlantısına tıklayın.",
@@ -242,7 +243,9 @@
         "retry": "Tekrar Dene",
         "done": "Tamamlandı",
         "edit": "Düzenle",
-        "close": "Kapat"
+        "close": "Kapat",
+        "continue": "Devam Et",
+        "goToDashboard": "Kontrol Paneline Git"
     },
     "errors": {
         "required": "Bu alan zorunludur",
