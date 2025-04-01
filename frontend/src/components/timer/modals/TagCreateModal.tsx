@@ -46,9 +46,13 @@ export const TagCreateModal = ({
 			// Close modal and notify parent
 			onTagCreated(newTag.id)
 			onClose()
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error('Tag creation error:', err)
-			setError(err.message || t('errors.serverError'))
+			if (err instanceof Error) {
+				setError(err.message || t('errors.serverError'))
+			} else {
+				setError(t('errors.serverError'))
+			}
 		} finally {
 			setIsSubmitting(false)
 		}
@@ -72,6 +76,7 @@ export const TagCreateModal = ({
 						value={name}
 						onChange={(e) => setName(e.target.value)}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+						aria-label={t('tags.name')}
 						required
 					/>
 				</div>
@@ -86,12 +91,14 @@ export const TagCreateModal = ({
 							value={color}
 							onChange={(e) => setColor(e.target.value)}
 							className="h-8 w-8 p-0 rounded-md border border-gray-300 dark:border-gray-600"
+							aria-label={t('tags.color')}
 						/>
 						<input
 							type="text"
 							value={color}
 							onChange={(e) => setColor(e.target.value)}
 							className="ml-2 block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+							aria-label={t('tags.color')}
 						/>
 					</div>
 				</div>

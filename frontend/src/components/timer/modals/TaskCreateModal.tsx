@@ -67,9 +67,11 @@ export const TaskCreateModal = ({
 			// Close modal and notify parent
 			onTaskCreated(newTask.id)
 			onClose()
-		} catch (err: any) {
+		} catch (err: Error | unknown) {
 			console.error('Task creation error:', err)
-			setError(err.message || t('errors.serverError'))
+			const errorMessage =
+				err instanceof Error ? err.message : t('errors.serverError')
+			setError(errorMessage)
 		} finally {
 			setIsSubmitting(false)
 		}
@@ -94,6 +96,8 @@ export const TaskCreateModal = ({
 						onChange={(e) => setName(e.target.value)}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 						required
+						aria-label={t('tasks.name')}
+						placeholder={t('tasks.name')}
 					/>
 				</div>
 
@@ -106,6 +110,8 @@ export const TaskCreateModal = ({
 						onChange={(e) => setDescription(e.target.value)}
 						rows={2}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+						aria-label={t('tasks.description')}
+						placeholder={t('tasks.description')}
 					/>
 				</div>
 
@@ -118,6 +124,8 @@ export const TaskCreateModal = ({
 						onChange={(e) => setSelectedProjectId(e.target.value)}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 						required
+						aria-label={t('tasks.project')}
+						title={t('tasks.project')}
 					>
 						<option value="">{t('tasks.selectProject')}</option>
 						{projects.map((project) => (
@@ -143,6 +151,8 @@ export const TaskCreateModal = ({
 							)
 						}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+						aria-label={t('tasks.status.title')}
+						title={t('tasks.status.title')}
 					>
 						<option value="pending">
 							{t('tasks.status.pending')}

@@ -21,7 +21,7 @@ interface TaskState {
 	fetchTask: (id: string) => Promise<void>
 	createTask: (
 		task: Omit<Task, 'id' | 'user' | 'createdAt' | 'updatedAt'>,
-	) => Promise<void>
+	) => Promise<Task>
 	updateTask: (
 		id: string,
 		task: Partial<Omit<Task, 'id' | 'user' | 'createdAt' | 'updatedAt'>>,
@@ -71,6 +71,7 @@ export const useTaskStore = create<TaskState>((set) => ({
 				tasks: [...state.tasks, newTask],
 				isLoading: false,
 			}))
+			return newTask
 		} catch (error: unknown) {
 			const apiError = error as ApiError
 			set({

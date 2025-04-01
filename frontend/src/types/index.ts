@@ -18,3 +18,14 @@ export interface Client {
 	id: string
 	name: string
 }
+
+export interface Task {
+	id: string
+	name: string
+	description: string
+	project: string
+	status: 'pending' | 'in-progress' | 'completed'
+	user: string
+	createdAt: Date
+	updatedAt: Date
+}
