@@ -109,6 +109,9 @@ export const Settings = () => {
 			setSuccessMessage(t('settings.saved'))
 
 			await checkVerificationStatus()
+
+			// Redirigir al dashboard después de guardar exitosamente
+			window.location.href = '/'
 		} catch (err) {
 			console.error('🔴 Settings: Failed to save settings:', err)
 		} finally {
@@ -351,7 +354,14 @@ export const Settings = () => {
 						</div>
 					</div>
 
-					<div className="flex justify-end">
+					<div className="flex justify-end gap-3">
+						<button
+							type="button"
+							onClick={() => window.history.back()}
+							className="btn btn-secondary text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+						>
+							{t('common.cancel')}
+						</button>
 						<button
 							type="submit"
 							disabled={isSubmitting}
