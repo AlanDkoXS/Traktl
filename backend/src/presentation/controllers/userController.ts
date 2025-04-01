@@ -108,7 +108,10 @@ export class UserController extends BaseController {
 			)
 			if (error) return res.status(400).json({ error })
 
-			await this.userService.forgotPassword(forgotPasswordDto!.email)
+			await this.userService.forgotPassword(
+				forgotPasswordDto!.email,
+				forgotPasswordDto!.language
+			)
 
 			// Always return success even if email doesn't exist (security)
 			return this.handleSuccess(res, {
@@ -144,15 +147,19 @@ export class UserController extends BaseController {
 			const userId = req.user?.id
 			if (!userId) return res.status(401).json({ error: 'Unauthorized' })
 
-			// Get user to retrieve email
+			// Get user to retrieve email and language preference
 			const user = await this.userService.getUserById(userId)
 			if (!user || !user.email) {
 				return res.status(400).json({ error: 'User email not found' })
 			}
 
+			// Extraer idioma de la petición o usar preferencia del usuario o default
+			const language = req.body.language || user.preferredLanguage || 'en'
+
 			await this.verificationService.requestVerification(
 				userId,
 				user.email,
+				language
 			)
 
 			return this.handleSuccess(res, {

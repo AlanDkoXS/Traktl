@@ -2,12 +2,16 @@ import { z } from 'zod'
 
 const ForgotPasswordSchema = z.object({
 	email: z.string().email({ message: 'Valid email is required' }),
+	language: z.string().optional().default('en'),
 })
 
 export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>
 
 export class ForgotPasswordDTO {
-	constructor(public readonly email: string) {}
+	constructor(
+		public readonly email: string,
+		public readonly language: string = 'en'
+	) {}
 
 	static create(
 		props: Record<string, unknown>,
@@ -22,8 +26,8 @@ export class ForgotPasswordDTO {
 			return [errorMessages, undefined]
 		}
 
-		const { email } = result.data
+		const { email, language = 'en' } = result.data
 
-		return [undefined, new ForgotPasswordDTO(email)]
+		return [undefined, new ForgotPasswordDTO(email, language)]
 	}
 }

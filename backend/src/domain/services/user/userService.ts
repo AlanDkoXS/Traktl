@@ -8,7 +8,10 @@ import { JwtAdapter } from '../../../config/jwt.adapter'
 import { regularExp } from '../../../config/regular-exp'
 
 export class UserService {
-	constructor(private readonly userRepository: UserRepository) {
+	constructor(
+		private readonly userRepository: UserRepository,
+		private readonly emailService?: any // Uso any temporalmente para evitar problemas de importación
+	) {
 		console.log('UserService constructor called')
 		console.log('UserRepository initialized:', !!this.userRepository)
 	}
@@ -197,7 +200,7 @@ export class UserService {
 		return true
 	}
 
-	async forgotPassword(email: string): Promise<boolean> {
+	async forgotPassword(email: string, language: string = 'en'): Promise<boolean> {
 		// Find user by email
 		const user = await this.userRepository.findByEmail(email)
 		if (!user) {
@@ -211,9 +214,18 @@ export class UserService {
 			throw CustomError.internalServer('Error generating token')
 		}
 
-		// Here you would typically send an email with the reset link
-		// For now, we'll just return the token for testing
-		console.log(`Password reset token for ${email}: ${token}`)
+		// Si tenemos el servicio de email disponible, enviar correo de restablecimiento
+		if (this.emailService) {
+			try {
+				await this.emailService.sendPasswordResetEmail(email, token, language);
+			} catch (error) {
+				console.error('Error sending password reset email:', error);
+				// No lanzamos excepción para mantener seguridad
+			}
+		} else {
+			// Fallback para pruebas o cuando el servicio no está disponible
+			console.log(`Password reset token for ${email}: ${token}`);
+		}
 
 		return true
 	}

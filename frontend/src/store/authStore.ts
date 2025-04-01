@@ -1,16 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { User } from '../types'
+import { User, ApiError } from '../types'
 import { authService } from '../services/authService'
-
-// Define an interface for API errors
-interface ApiError extends Error {
-	response?: {
-		data?: {
-			message?: string
-		}
-	}
-}
 
 interface AuthState {
 	token: string | null

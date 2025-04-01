@@ -57,7 +57,11 @@ export class VerificationService {
 	/**
 	 * Requests a verification email to be sent to the user
 	 */
-	async requestVerification(userId: string, email: string): Promise<boolean> {
+	async requestVerification(
+		userId: string,
+		email: string,
+		language: string = 'en'
+	): Promise<boolean> {
 		const user = await this.userRepository.findById(userId)
 		if (!user) {
 			throw CustomError.notFound('User not found')
@@ -69,7 +73,7 @@ export class VerificationService {
 		}
 
 		const token = await this.generateEmailVerificationToken(userId, email)
-		return this.emailService.sendVerificationEmail(email, token)
+		return this.emailService.sendVerificationEmail(email, token, language)
 	}
 
 	/**

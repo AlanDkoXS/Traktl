@@ -21,8 +21,8 @@ import { useTimerStore } from '../store/timerStore'
 import { setProjectColor } from '../utils/dynamicColors'
 
 // Define the specific types needed for the timer components
-type TimerStatus = 'idle' | 'running' | 'paused' | 'break';
-type TimerMode = 'work' | 'break';
+type TimerStatus = 'idle' | 'running' | 'paused' | 'break'
+type TimerMode = 'work' | 'break'
 
 export const Timer = () => {
 	const { t } = useTranslation()
@@ -135,8 +135,8 @@ export const Timer = () => {
 	}
 
 	// Ensure correct typing for components
-	const timerMode = mode as TimerMode; 
-	const timerStatus = status as TimerStatus;
+	const timerMode = mode as TimerMode
+	const timerStatus = status as TimerStatus
 
 	return (
 		<div className="flex flex-col space-y-6 dashboard-timer">

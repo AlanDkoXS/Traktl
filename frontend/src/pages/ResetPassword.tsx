@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { LanguageSelector } from '../components/LanguageSelector'
 import { ThemeToggle } from '../components/ThemeToggle'
 import api from '../services/api'
@@ -8,7 +8,12 @@ import api from '../services/api'
 export const ResetPassword = () => {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
-	const { token } = useParams<{ token: string }>()
+	const { token: paramToken } = useParams<{ token: string }>()
+	const [searchParams] = useSearchParams()
+	const queryToken = searchParams.get('token')
+
+	// Usar el token de los parámetros de ruta o el token de la consulta
+	const token = paramToken || queryToken
 
 	const [password, setPassword] = useState('')
 	const [confirmPassword, setConfirmPassword] = useState('')
@@ -17,6 +22,14 @@ export const ResetPassword = () => {
 	const [passwordError, setPasswordError] = useState('')
 	const [confirmError, setConfirmError] = useState('')
 	const [successMessage, setSuccessMessage] = useState('')
+
+	// Redirigir si no hay token
+	useEffect(() => {
+		if (!token) {
+			console.error('No token found in URL parameters or query')
+			navigate('/login')
+		}
+	}, [token, navigate])
 
 	// Password validation
 	useEffect(() => {

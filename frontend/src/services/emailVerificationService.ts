@@ -19,7 +19,10 @@ export const emailVerificationService = {
 		message: string
 	}> => {
 		try {
-			const response = await api.post('/users/request-verification')
+			// Obtener el idioma actual del localStorage
+			const currentLanguage = localStorage.getItem('i18nextLng') || 'en';
+
+			const response = await api.post('/users/request-verification', { language: currentLanguage })
 			console.log('Request verification response:', response.data)
 			useAuthStore.getState().setVerificationStatus(false)
 			return response.data

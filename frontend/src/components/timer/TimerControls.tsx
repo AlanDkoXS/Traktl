@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmModal } from '../ui/ConfirmModal'
-import { useTimerStore } from '../../store/timerStore'
 
 interface TimerControlsProps {
 	status: 'idle' | 'running' | 'paused' | 'break'

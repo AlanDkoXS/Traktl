@@ -262,7 +262,9 @@ export const authService = {
 	// Request password reset
 	requestPasswordReset: async (email: string): Promise<void> => {
 		try {
-			await api.post('/users/forgot-password', { email })
+			// Get current language from i18next
+			const currentLanguage = localStorage.getItem('i18nextLng') || 'en';
+			await api.post('/users/forgot-password', { email, language: currentLanguage })
 		} catch {
 			// Do not throw an error here for security reasons
 			// Even if the email doesn't exist, we don't want to reveal that
