@@ -72,7 +72,7 @@ interface TimerState {
 	setNotes: (notes: string) => void
 	setTags: (tags: string[]) => void
 
-	switchToNext: () => void
+	switchToNext: () => Promise<void>
 	switchToBreak: () => void
 	switchToWork: (nextRepetition?: number) => void
 
@@ -587,11 +587,16 @@ export const useTimerStore = create<TimerState>()(
 				}
 			},
 
-			switchToNext: () => {
+			switchToNext: async () => {
 				const state = get();
 
 				// Determinar si es el final de un ciclo de trabajo o descanso
 				if (state.mode === 'work') {
+					// Guardar la sesión actual si es modo trabajo y hay tiempo transcurrido
+					if (state.projectId && state.elapsed >= 1) {
+						await state.createTimeEntryFromWorkSession();
+					}
+
 					// Reproducir sonido de finalización de ciclo de trabajo
 					showTimerNotification('complete', {
 						title: 'Work Session Complete',

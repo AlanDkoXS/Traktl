@@ -73,7 +73,7 @@ export const TimerControls = ({
 		resume()
 	}
 
-	const handleSkipToNext = () => {
+	const handleSkipToNext = async () => {
 		if (
 			elapsed < 60 &&
 			!infiniteMode &&
@@ -85,7 +85,7 @@ export const TimerControls = ({
 			return
 		}
 
-		skipToNext()
+		await skipToNext()
 	}
 
 	const handleStop = () => {
@@ -122,22 +122,22 @@ export const TimerControls = ({
 		setShowStopConfirmationModal(false)
 	}
 
-	const handleConfirmShortSession = () => {
+	const handleConfirmShortSession = async () => {
 		if (modalAction === 'next') {
-			skipToNext()
+			await skipToNext()
 		} else {
-			stop()
+			stop(true) // Explícitamente pasar true para guardar
 		}
 		setShowShortSessionModal(false)
 	}
 
-	const handleDontSaveShortSession = () => {
+	const handleDontSaveShortSession = async () => {
 		if (modalAction === 'next') {
 			// Don't save but still advance to next phase
-			skipToNext()
+			await skipToNext()
 		} else {
 			// Don't save and stop timer
-			stop()
+			stop(false) // Explícitamente pasar false para no guardar
 		}
 		setShowShortSessionModal(false)
 	}
