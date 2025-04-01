@@ -61,9 +61,13 @@ export const PresetCreateModal = ({
 			// Close modal and notify parent
 			onPresetCreated(newPreset.id)
 			onClose()
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error('Preset creation error:', err)
-			setError(err.message || t('errors.serverError'))
+			if (err instanceof Error) {
+				setError(err.message || t('errors.serverError'))
+			} else {
+				setError(t('errors.serverError'))
+			}
 		} finally {
 			setIsSubmitting(false)
 		}
@@ -87,6 +91,8 @@ export const PresetCreateModal = ({
 						value={name}
 						onChange={(e) => setName(e.target.value)}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+						aria-label={t('timerPresets.name')}
+						placeholder={t('timerPresets.name')}
 						required
 					/>
 				</div>
@@ -102,6 +108,7 @@ export const PresetCreateModal = ({
 							setWorkDuration(parseInt(e.target.value))
 						}
 						min={1}
+						aria-label={t('timerPresets.workDuration')}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 						required
 					/>
@@ -118,6 +125,7 @@ export const PresetCreateModal = ({
 							setBreakDuration(parseInt(e.target.value))
 						}
 						min={0}
+						aria-label={t('timerPresets.breakDuration')}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 						required
 					/>
@@ -134,6 +142,7 @@ export const PresetCreateModal = ({
 							setRepetitions(parseInt(e.target.value))
 						}
 						min={1}
+						aria-label={t('timerPresets.repetitions')}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 						required
 					/>
