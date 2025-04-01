@@ -100,7 +100,9 @@
         "saveSessionMessage": "Do you want to save this timer session?",
         "stopSessionMessage": "Do you want to save this timer session? This will stop the timer and reset it to the beginning.",
         "projectRequired": "Project Required",
-        "projectRequiredMessage": "Please select a project before starting the timer"
+        "projectRequiredMessage": "Please select a project before starting the timer",
+        "shortSessionTitle": "Short Session",
+        "shortSessionMessage": "This session is less than a minute. Do you still want to save it?"
     },
     "projects": {
         "title": "Projects",
@@ -116,7 +118,9 @@
         "status": {
             "title": "Status",
             "active": "Active",
-            "archived": "Archived"
+            "archived": "Archived",
+            "connected": "Connected",
+            "disconnected": "Disconnected"
         },
         "noClient": "No Client"
     },
@@ -253,8 +257,11 @@
         "done": "Done",
         "edit": "Edit",
         "close": "Close",
-        "ok": "Ok"
-
+        "ok": "Ok",
+        "status": {
+            "connected": "Connected",
+            "disconnected": "Disconnected"
+        }
     },
     "errors": {
         "required": "This field is required",

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { ConfirmModal } from '../ui/ConfirmModal'
 import { useProjectStore } from '../../store/projectStore'
 import { useDataInitializer } from '../DataInitializer'
-import { StatusIndicator } from '../StatusIndicator'
 
 interface TimerControlsProps {
 	status: 'idle' | 'running' | 'paused' | 'break'
@@ -372,10 +371,7 @@ export const TimerControls = ({
 				)}
 			</div>
 
-			{/* Connection status indicator */}
-			<div className="flex justify-center mt-2 mb-4">
-				<StatusIndicator />
-			</div>
+			{/* Eliminé el StatusIndicator que estaba aquí */}
 
 			{/* Confirmation Modals */}
 			<ConfirmModal

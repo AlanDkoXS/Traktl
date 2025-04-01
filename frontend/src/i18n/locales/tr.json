@@ -113,7 +113,9 @@
         "disconnected": "Bağlantı kesildi",
         "syncStatus": "Senkronizasyon durumu",
         "dontSave": "Kaydetme",
-        "save": "Kaydet"
+        "save": "Kaydet",
+        "shortSessionTitle": "Kısa Oturum",
+        "shortSessionMessage": "Bu oturum bir dakikadan az sürüyor. Yine de kaydetmek istiyor musunuz?"
     },
     "projects": {
         "title": "Projeler",
@@ -257,7 +259,11 @@
         "edit": "Düzenle",
         "close": "Kapat",
         "continue": "Devam Et",
-        "goToDashboard": "Kontrol Paneline Git"
+        "goToDashboard": "Kontrol Paneline Git",
+        "status": {
+            "connected": "Bağlı",
+            "disconnected": "Bağlantı Kesildi"
+        }
     },
     "errors": {
         "required": "Bu alan zorunludur",

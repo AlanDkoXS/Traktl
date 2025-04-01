@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSocket } from '../../context/SocketContext' // Importamos el contexto del socket
 
 interface TimerDisplayProps {
 	progress: number
@@ -15,6 +16,7 @@ export const TimerDisplay = ({
 	isInfiniteMode = false,
 }: TimerDisplayProps) => {
 	const { t } = useTranslation()
+	const { isConnected } = useSocket() // Obtener el estado de conexión del socket
 	const circleLength = 263.89 // 2 * PI * 42, circle perimeter
 	const [displayProgress, setDisplayProgress] = useState(progress)
 	const [elapsedTime, setElapsedTime] = useState(0) // For infinite mode
@@ -162,7 +164,7 @@ export const TimerDisplay = ({
 
 				{!isInfiniteMode && (
 					<span
-						className={`text-sm mt-1 font-medium ${
+						className={`text-sm mt-1 mb-1 font-medium ${
 							mode === 'work'
 								? 'dynamic-color'
 								: 'text-[hsl(var(--color-project-hue),var(--color-project-saturation),50%)]'
@@ -173,6 +175,39 @@ export const TimerDisplay = ({
 							: t('timer.breakTime')}
 					</span>
 				)}
+
+				{/* Indicador de conexión dentro del círculo */}
+				<div className="mt-1">
+					{isConnected ? (
+						<div className="group relative inline-block">
+							<svg
+								className="w-4 h-4 text-green-500"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2c-3.9-3.9-10.1-3.9-14 0z" />
+							</svg>
+							<span className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs rounded px-2 py-1 absolute -top-8 left-1/2 transform -translate-x-1/2 pointer-events-none whitespace-nowrap">
+								{t('status.connected')}
+							</span>
+						</div>
+					) : (
+						<div className="group relative inline-block">
+							<svg
+								className="w-4 h-4 text-red-500"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path d="M23.64 7c-.45-.34-4.93-4-11.64-4-1.5 0-2.89.19-4.15.48L18.18 13.8 23.64 7zm-6.6 8.22L3.27 1.44 2 2.72l2.05 2.06C1.91 5.76.59 6.82.36 7l11.63 14.49.01.01.01-.01 3.9-4.86 3.32 3.32 1.27-1.27-3.46-3.46z" />
+							</svg>
+							<span className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs rounded px-2 py-1 absolute -top-8 left-1/2 transform -translate-x-1/2 pointer-events-none whitespace-nowrap">
+								{t('status.disconnected')}
+							</span>
+						</div>
+					)}
+				</div>
 			</div>
 		</div>
 	)

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useTimer } from '../../hooks/useTimer'
 import { useLocation } from 'react-router-dom'
-import { PlayIcon, PauseIcon, StopIcon } from '@heroicons/react/24/solid'
 import { ConfirmModal } from '../ui/ConfirmModal'
 
 export const StickyTimer = () => {
@@ -17,8 +16,6 @@ export const StickyTimer = () => {
 		pause,
 		resume,
 		stop,
-		projectId,
-		infiniteMode,
 	} = useTimer()
 
 	const [isVisible, setIsVisible] = useState(false)
@@ -81,15 +78,15 @@ export const StickyTimer = () => {
 	// Get button color classes based on mode
 	const getButtonClasses = (buttonType: 'play' | 'pause' | 'stop') => {
 		if (buttonType === 'stop') {
-			return 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800/50'
+			return 'w-12 h-12 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 hover:opacity-90 transition-opacity shadow-sm'
 		}
 
 		if (mode === 'break') {
-			return 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800/50'
+			return 'w-12 h-12 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-500 hover:opacity-90 transition-opacity shadow-sm'
 		}
 
 		// Use dynamic colors for work mode
-		return 'dynamic-bg-subtle dynamic-color hover:brightness-110 dark:hover:brightness-125'
+		return 'w-12 h-12 flex items-center justify-center rounded-full dynamic-bg-subtle hover:opacity-90 transition-opacity shadow-sm'
 	}
 
 	return (
@@ -117,32 +114,56 @@ export const StickyTimer = () => {
 							</span>
 						</div>
 
-						{/* Controls - using same style as dashboard */}
+						{/* Controls - using same style as TimerControls */}
 						<div className="flex items-center mr-3 space-x-3">
 							{status === 'running' ? (
 								<button
 									onClick={pause}
-									className={`w-12 h-12 flex items-center justify-center rounded-full ${getButtonClasses('pause')} transition-colors shadow-sm`}
+									className={getButtonClasses('pause')}
 									title={t('timer.pause')}
 								>
-									<PauseIcon className="h-6 w-6" />
+									{/* Simple Pause Icon */}
+									<svg
+										className={`w-7 h-7 ${mode === 'break' ? '' : 'dynamic-color'}`}
+										fill="currentColor"
+										viewBox="0 0 24 24"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+									</svg>
 								</button>
 							) : (
 								<button
 									onClick={resume}
-									className={`w-12 h-12 flex items-center justify-center rounded-full ${getButtonClasses('play')} transition-colors shadow-sm`}
+									className={getButtonClasses('play')}
 									title={t('timer.resume')}
 								>
-									<PlayIcon className="h-6 w-6" />
+									{/* Simple Play Icon */}
+									<svg
+										className={`w-7 h-7 ${mode === 'break' ? '' : 'dynamic-color'}`}
+										fill="currentColor"
+										viewBox="0 0 24 24"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path d="M8 5v14l11-7z" />
+									</svg>
 								</button>
 							)}
 
 							<button
 								onClick={handleStop}
-								className={`w-12 h-12 flex items-center justify-center rounded-full ${getButtonClasses('stop')} transition-colors shadow-sm`}
+								className={getButtonClasses('stop')}
 								title={t('timer.stop')}
 							>
-								<StopIcon className="h-6 w-6" />
+								{/* Simple Stop Icon */}
+								<svg
+									className="w-7 h-7 text-red-600 dark:text-red-400"
+									fill="currentColor"
+									viewBox="0 0 24 24"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path d="M6 6h12v12H6z" />
+								</svg>
 							</button>
 						</div>
 					</div>

@@ -113,7 +113,9 @@
         "disconnected": "Desconectado",
         "syncStatus": "Estado de sincronización",
         "dontSave": "No guardar",
-        "save": "Guardar"
+        "save": "Guardar",
+        "shortSessionTitle": "Sesión Corta",
+        "shortSessionMessage": "Esta sesión es menor a un minuto. ¿Aún deseas guardarla?"
     },
     "projects": {
         "title": "Proyectos",
@@ -129,7 +131,9 @@
         "status": {
             "title": "Estado",
             "active": "Activo",
-            "archived": "Archivado"
+            "archived": "Archivado",
+            "connected": "Conectado",
+            "disconnected": "Desconectado"
         },
         "noClient": "Sin Cliente"
     },
@@ -282,5 +286,9 @@
         "version": "Versión",
         "createdBy": "Creado por",
         "contact": "Contacto"
+    },
+    "status": {
+        "connected": "Conectado",
+        "disconnected": "Desconectado"
     }
 }
