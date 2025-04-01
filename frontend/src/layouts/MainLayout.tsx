@@ -1,5 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react'
 import { UserMenu } from '../components/UserMenu'
+import { AppIcon } from '../components/AppIcon'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 import {
@@ -95,7 +96,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 						<Bars3Icon className="h-6 w-6" />
 					</button>
 
-					<div className="text-xl font-bold dynamic-color">
+					<div className="flex items-center text-xl font-bold dynamic-color">
+						<AppIcon className="w-12 h-12 mr-2" />
 						{t('app.name')}
 					</div>
 
@@ -113,9 +115,10 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 					shadow-lg border-r border-gray-200 dark:border-[rgb(var(--color-border-primary))]`}
 			>
 				<div className="h-16 flex items-center justify-between p-4 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-					<h1 className="text-xl font-bold dynamic-color">
+					<div className="flex items-center text-xl font-bold dynamic-color">
+						<AppIcon className="w-12 h-12 mr-2" />
 						{t('app.name')}
-					</h1>
+					</div>
 					<div className="flex items-center">
 						<button
 							onClick={() => setIsMobileMenuOpen(false)}
@@ -169,7 +172,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
 				{/* Footer */}
 				<footer className="py-4 px-6 text-center text-xs text-gray-500 dark:text-gray-400">
-					<p>
+					<p className="flex items-center justify-center">
+						<AppIcon className="w-8 h-8 mr-1" />
 						{t('app.name')} © {new Date().getFullYear()}
 					</p>
 				</footer>

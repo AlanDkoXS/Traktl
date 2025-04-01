@@ -10,6 +10,7 @@ import { ThemeToggle } from './ThemeToggle'
 import { LanguageSelector } from './LanguageSelector'
 import { Dialog } from '@headlessui/react'
 import AQLogo from '../assets/aq-logo'
+import { AppIcon } from './AppIcon'
 
 export const UserMenu = () => {
 	const { t } = useTranslation()
@@ -137,7 +138,8 @@ export const UserMenu = () => {
 							<AQLogo />
 
 							<div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-								<p className="mb-1">
+								<p className="mb-1 flex items-center">
+									<AppIcon className="w-8 h-8 mr-1" />
 									{t('app.name')} -{' '}
 									{t('about.version', 'Version')} 0.1.b
 								</p>
