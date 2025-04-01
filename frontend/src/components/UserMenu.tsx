@@ -10,7 +10,6 @@ import { ThemeToggle } from './ThemeToggle'
 import { LanguageSelector } from './LanguageSelector'
 import { Dialog } from '@headlessui/react'
 import AQLogo from '../assets/aq-logo'
-import { AppIcon } from './AppIcon'
 
 export const UserMenu = () => {
 	const { t } = useTranslation()
@@ -121,12 +120,12 @@ export const UserMenu = () => {
 				className="relative z-50"
 			>
 				<div
-					className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+					className="fixed inset-0 bg-black/50 backdrop-blur-[2px]"
 					aria-hidden="true"
 				/>
 
 				<div className="fixed inset-0 flex items-center justify-center p-4">
-					<Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-lg bg-white dark:bg-[rgb(var(--color-bg-inset))] p-6 text-left align-middle shadow-xl transition-all">
+					<Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-lg border border-gray-200 dark:border-[rgb(var(--color-border-primary))] bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-6 text-left align-middle shadow-xl transition-all">
 						<Dialog.Title
 							as="h3"
 							className="text-lg font-medium leading-6 text-gray-900 dark:text-white dynamic-color"
@@ -135,25 +134,37 @@ export const UserMenu = () => {
 						</Dialog.Title>
 
 						<div className="mt-4 flex flex-col items-center">
-							<AQLogo />
+							<div className="w-24 h-24 flex items-center justify-center mb-6">
+								<AQLogo />
+							</div>
 
-							<div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-								<p className="mb-1 flex items-center">
-									<AppIcon className="w-8 h-8 mr-1" />
-									{t('app.name')} -{' '}
+							<div className="text-sm text-gray-500 dark:text-gray-400">
+								<p className="mb-1">Traktl</p>
+								<p className="mb-1">
 									{t('about.version', 'Version')} 0.1.b
 								</p>
 								<p className="mb-1">
 									{t('about.createdBy', 'Created by')} Alan
 									Quintana
 								</p>
-								<p>
+								<p className="mb-1">
 									{t('about.contact', 'Contact')}:
 									<a
 										href="mailto:hello@alanquintana.pro"
 										className="ml-1 text-primary-600 dark:text-primary-400 hover:underline"
 									>
 										hello@alanquintana.pro
+									</a>
+								</p>
+								<p>
+									Web:{' '}
+									<a
+										href="https://www.alanquinana.pro"
+										target="_blank"
+										rel="noopener noreferrer"
+										className="ml-1 text-primary-600 dark:text-primary-400 hover:underline"
+									>
+										www.alanquinana.pro
 									</a>
 								</p>
 							</div>
