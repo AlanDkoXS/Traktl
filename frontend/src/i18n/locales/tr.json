@@ -101,7 +101,19 @@
         "settings": "Zamanlayıcı Ayarları",
         "presets": "Hazır Ayarlar",
         "sessionsCompleted": "Tüm oturumlar tamamlandı",
-        "allSessionsCompleted": "Harika iş! Tüm çalışma oturumlarınızı tamamladınız."
+        "allSessionsCompleted": "Harika iş! Tüm çalışma oturumlarınızı tamamladınız.",
+        "saveSessionTitle": "Oturumu Kaydet",
+        "saveSessionMessage": "Bu zamanlayıcı oturumunu kaydetmek istiyor musunuz?",
+        "stopSessionTitle": "Oturumu Durdur",
+        "stopSessionMessage": "Bu zamanlayıcı oturumunu kaydetmek istiyor musunuz? Bu, zamanlayıcıyı durduracak ve başlangıca sıfırlayacaktır.",
+        "projectRequired": "Proje Gerekli",
+        "projectRequiredMessage": "Zamanlayıcıyı başlatmadan önce lütfen bir proje seçin.",
+        "syncEnabled": "Senkronizasyon etkin",
+        "syncDisabled": "Senkronizasyon devre dışı",
+        "disconnected": "Bağlantı kesildi",
+        "syncStatus": "Senkronizasyon durumu",
+        "dontSave": "Kaydetme",
+        "save": "Kaydet"
     },
     "projects": {
         "title": "Projeler",

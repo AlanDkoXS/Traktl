@@ -3,9 +3,9 @@ import { useTimerPresetStore } from '../store/timerPresetStore'
 import { useProjectStore } from '../store/projectStore'
 import { useTimerStore } from '../store/timerStore'
 import { useAuthStore } from '../store/authStore'
-import { Project, TimerPreset } from '../types'
 import { useTranslation } from 'react-i18next'
 import { useThemeStore } from '../store/themeStore'
+import SocketHandler from './SocketHandler'
 
 // Create a context to expose initialization state
 interface DataInitializerContextType {
@@ -275,7 +275,14 @@ const DataInitializer = () => {
 			}
 		}
 
-		const selectDefaultPreset = (presets: TimerPreset[]) => {
+		const selectDefaultPreset = (
+			presets: {
+				name: string
+				workDuration: number
+				breakDuration: number
+				repetitions: number
+			}[],
+		) => {
 			// Find an appropriate preset to use
 			const preferredPresets = [
 				{ name: '52/17', keyword: '52/17' },
@@ -327,7 +334,9 @@ const DataInitializer = () => {
 			}
 		}
 
-		const handleExistingProjects = (projects: Project[]) => {
+		const handleExistingProjects = (
+			projects: { id: string; name: string }[],
+		) => {
 			// Check if we already have a project selected
 			if (currentProjectId) {
 				const projectExists = projects.some(
@@ -364,12 +373,13 @@ const DataInitializer = () => {
 		currentProjectId,
 	])
 
-	// This component doesn't render anything but provides context
+	// Provide initialization state to the context and render the SocketHandler
 	return (
 		<DataInitializerContext.Provider
 			value={{ isInitialized: initialized, isLoading }}
 		>
-			{null}
+			{/* Socket handler manages WebSocket connections */}
+			{isAuthenticated && <SocketHandler />}
 		</DataInitializerContext.Provider>
 	)
 }

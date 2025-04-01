@@ -9,6 +9,23 @@ export type TimerMode = 'work' | 'break'
 // Global interval reference
 let globalTimerInterval: number | null = null
 
+// Type for timer action data
+interface TimerActionData {
+	status?: TimerStatus
+	mode?: TimerMode
+	elapsed?: number
+	projectId?: string | null
+	taskId?: string | null
+	workStartTime?: Date | string
+	infiniteMode?: boolean
+	workDuration?: number
+	breakDuration?: number
+	repetitions?: number
+	currentRepetition?: number
+	timestamp?: Date | string
+	shouldSave?: boolean
+}
+
 interface TimerState {
 	status: TimerStatus
 	mode: TimerMode
@@ -25,6 +42,15 @@ interface TimerState {
 	showCompletionModal: boolean // Flag for completion modal
 	infiniteMode: boolean // Flag for infinite timer mode
 	selectedEntryId: string | null // Track which entry is selected for infinite mode
+	socketConnected: boolean // Track socket connection status
+	isSyncEnabled: boolean // Flag to enable/disable syncing
+	lastSyncTime: Date | null // Track when the timer was last synced
+
+	// New methods for sync
+	setSyncEnabled: (enabled: boolean) => void
+	setSocketConnected: (connected: boolean) => void
+	syncTimerState: () => void
+	handleRemoteTimerAction: (action: string, data: TimerActionData) => void
 	toggleEntrySelection: (entryId: string | null) => void
 
 	// Actions
@@ -88,6 +114,127 @@ export const useTimerStore = create<TimerState>()(
 			showCompletionModal: false,
 			infiniteMode: false,
 			selectedEntryId: null,
+			socketConnected: false,
+			isSyncEnabled: true, // Enable sync by default
+			lastSyncTime: null,
+
+			// Track socket connection status
+			setSocketConnected: (connected: boolean) => set({ socketConnected: connected }),
+
+			// Enable/disable sync
+			setSyncEnabled: (enabled: boolean) => set({ isSyncEnabled: enabled }),
+
+			// Send current timer state to all connected devices
+			syncTimerState: () => {
+				const state = get()
+
+				// If sync is disabled or socket is not connected, don't sync
+				if (!state.isSyncEnabled || !state.socketConnected) return
+
+				// Get socket from window
+				const socket = window.socket
+				if (!socket) return
+
+				// Create sync object with important timer state
+				const syncData: TimerActionData = {
+					status: state.status,
+					mode: state.mode,
+					elapsed: state.elapsed,
+					workDuration: state.workDuration,
+					breakDuration: state.breakDuration,
+					repetitions: state.repetitions,
+					currentRepetition: state.currentRepetition,
+					projectId: state.projectId,
+					taskId: state.taskId,
+					infiniteMode: state.infiniteMode,
+					timestamp: new Date(),
+				}
+
+				// Emit timer tick event to sync with other devices
+				socket.emit('timer:tick', syncData)
+
+				// Update last sync time
+				set({ lastSyncTime: new Date() })
+			},
+
+			// Handle timer actions from other devices
+			handleRemoteTimerAction: (action: string, data: TimerActionData) => {
+				const state = get()
+
+				// If sync is disabled, don't handle remote actions
+				if (!state.isSyncEnabled) return
+
+				console.log(`Received remote timer action: ${action}`, data)
+
+				switch (action) {
+					case 'timer:start':
+						// Don't restart if already running
+						if (state.status !== 'running') {
+							set({
+								status: 'running',
+								mode: data.mode || 'work',
+								elapsed: data.elapsed || 0,
+								projectId: data.projectId || state.projectId,
+								taskId: data.taskId || state.taskId,
+								workStartTime: data.workStartTime ? new Date(data.workStartTime as string) : new Date(),
+								infiniteMode: data.infiniteMode || false,
+							})
+
+							// Setup interval
+							setupGlobalInterval(get().tick, 'running')
+						}
+						break
+
+					case 'timer:pause':
+						if (state.status === 'running') {
+							set({
+								status: 'paused',
+								elapsed: data.elapsed || state.elapsed
+							})
+							setupGlobalInterval(get().tick, 'paused')
+						}
+						break
+
+					case 'timer:resume':
+						if (state.status === 'paused') {
+							set({ status: 'running' })
+							setupGlobalInterval(get().tick, 'running')
+						}
+						break
+
+					case 'timer:stop':
+						// Just reset the timer state without saving
+						set({
+							status: 'idle',
+							mode: 'work',
+							elapsed: 0,
+							currentRepetition: 1,
+							workStartTime: null,
+							infiniteMode: false,
+							selectedEntryId: null,
+						})
+						setupGlobalInterval(get().tick, 'idle')
+						break
+
+					case 'timer:tick': {
+						// Only update if the timestamp is newer than our last update
+						const remoteTimestamp = new Date(data.timestamp as string)
+						if (!state.lastSyncTime || remoteTimestamp > state.lastSyncTime) {
+							set({
+								status: data.status as TimerStatus,
+								mode: data.mode as TimerMode,
+								elapsed: data.elapsed as number,
+								currentRepetition: data.currentRepetition as number,
+								lastSyncTime: new Date(),
+							})
+						}
+						break
+					}
+
+					default:
+						console.warn(`Unknown remote timer action: ${action}`)
+				}
+			},
 
 			start: (projectId = null, taskId = null) =>
 				set((state) => {
@@ -125,6 +272,17 @@ export const useTimerStore = create<TimerState>()(
 							setupGlobalInterval(get().tick, 'running')
 						}, 0)
 
+						// Sync timer state to other devices
+						if (state.isSyncEnabled && state.socketConnected) {
+							const socket = window.socket
+							if (socket) {
+								socket.emit('timer:start', {
+									...newState,
+									timestamp: new Date(),
+								})
+							}
+						}
+
 						return newState
 					}
 					return state
@@ -135,6 +293,18 @@ export const useTimerStore = create<TimerState>()(
 					if (state.status === 'running') {
 						// Clear the interval when pausing
 						setupGlobalInterval(get().tick, 'paused')
+
+						// Sync pause action to other devices
+						if (state.isSyncEnabled && state.socketConnected) {
+							const socket = window.socket
+							if (socket) {
+								socket.emit('timer:pause', {
+									elapsed: state.elapsed,
+									timestamp: new Date(),
+								})
+							}
+						}
+
 						return { status: 'paused' }
 					}
 					return state
@@ -147,6 +317,18 @@ export const useTimerStore = create<TimerState>()(
 						setTimeout(() => {
 							setupGlobalInterval(get().tick, 'running')
 						}, 0)
+
+						// Sync resume action to other devices
+						if (state.isSyncEnabled && state.socketConnected) {
+							const socket = window.socket
+							if (socket) {
+								socket.emit('timer:resume', {
+									elapsed: state.elapsed,
+									timestamp: new Date(),
+								})
+							}
+						}
+
 						return { status: 'running' }
 					}
 					return state
@@ -158,6 +340,18 @@ export const useTimerStore = create<TimerState>()(
 				// Verificación estricta para asegurar que shouldSave sea un booleano
 				const shouldSaveFinal = shouldSave === true;
 				console.log('shouldSaveFinal:', shouldSaveFinal);
+
+				// Sync stop action to other devices
+				const state = get()
+				if (state.isSyncEnabled && state.socketConnected) {
+					const socket = window.socket
+					if (socket) {
+						socket.emit('timer:stop', {
+							shouldSave: shouldSaveFinal,
+							timestamp: new Date(),
+						})
+					}
+				}
 
 				// Si shouldSave es explícitamente false, simplemente reseteamos el timer sin guardar
 				if (shouldSaveFinal === false) {
@@ -186,8 +380,6 @@ export const useTimerStore = create<TimerState>()(
 
 					return; // Salir temprano
 				}
-
-				const state = get()
 
 				// Solo crear entrada si es modo trabajo, con proyecto seleccionado y tiempo > 1s
 				console.log('Condiciones para guardar:', {
@@ -256,15 +448,18 @@ export const useTimerStore = create<TimerState>()(
 
 			toggleEntrySelection: (entryId: string | null) =>
 				set((state) => {
+					// If the same entry is already selected, deselect it
 					if (state.selectedEntryId === entryId) {
 						return {
 							selectedEntryId: null,
 							infiniteMode: false,
 						}
 					}
+
+					// Otherwise, select the new entry
 					return {
 						selectedEntryId: entryId,
-						infiniteMode: entryId !== null,
+						infiniteMode: !!entryId, // Set infinite mode if an entry is selected
 					}
 				}),
 
@@ -273,41 +468,45 @@ export const useTimerStore = create<TimerState>()(
 
 			tick: () => {
 				set((state) => {
-					const newElapsed = state.elapsed + 1;
-					const currentDuration = state.mode === 'break'
-						? state.breakDuration * 60
-						: state.workDuration * 60;
+					const newElapsed = state.elapsed + 1
+					const totalSeconds = state.mode === 'work'
+						? state.workDuration * 60
+						: state.breakDuration * 60
 
-					// Verificar si el timer está por completarse
-					// const remainingTime = currentDuration - newElapsed;
-					// const progress = (newElapsed / currentDuration) * 100;
-
-					// Si el timer ha llegado al final o lo ha sobrepasado
-					if (newElapsed >= currentDuration) {
-						// Reproducir sonido de finalización en el momento exacto
-						if (state.mode === 'work') {
-							showTimerNotification('complete', {
-								title: 'Work Session Complete',
-								body: 'Time to take a break!',
-							});
-						} else {
-							showTimerNotification('complete', {
-								title: 'Break Complete',
-								body: 'Ready for the next work session?',
-							});
+					// In infinite mode, just increment the timer
+					if (state.infiniteMode && state.mode === 'work') {
+						// If sync is enabled and connected, sync every 5 seconds
+						if (state.isSyncEnabled && state.socketConnected && newElapsed % 5 === 0) {
+							state.syncTimerState()
 						}
 
-						// Call switchToNext separately to avoid return issues
-						setTimeout(() => {
-							state.switchToNext();
-						}, 0);
-
-						// Return just the updated elapsed time
-						return { elapsed: newElapsed };
+						return { elapsed: newElapsed }
 					}
 
-					return { elapsed: newElapsed };
-				});
+					// Check if timer completed
+					if (!state.infiniteMode && newElapsed >= totalSeconds) {
+						if (state.mode === 'work') {
+							// Work session completed
+							state.switchToBreak()
+						} else {
+							// Break session completed
+							state.switchToWork(
+								state.currentRepetition < state.repetitions
+									? state.currentRepetition + 1
+									: 1
+							)
+						}
+						return {} // State already updated in switchToBreak/switchToWork
+					}
+
+					// If sync is enabled and connected, sync every 5 seconds
+					if (state.isSyncEnabled && state.socketConnected && newElapsed % 5 === 0) {
+						state.syncTimerState()
+					}
+
+					// Regular tick, just update elapsed time
+					return { elapsed: newElapsed }
+				})
 			},
 
 			setWorkDuration: (minutes) =>
@@ -494,44 +693,13 @@ export const useTimerStore = create<TimerState>()(
 		}),
 		{
 			name: 'timer-storage',
+			// Only persist the timer settings, not the current state
 			partialize: (state) => ({
-				status: state.status,
-				mode: state.mode,
-				elapsed: state.elapsed,
 				workDuration: state.workDuration,
 				breakDuration: state.breakDuration,
 				repetitions: state.repetitions,
-				currentRepetition: state.currentRepetition,
-				projectId: state.projectId,
-				taskId: state.taskId,
-				notes: state.notes,
-				tags: state.tags,
-				workStartTime: state.workStartTime
-					? state.workStartTime.toISOString()
-					: null,
-				infiniteMode: state.infiniteMode,
-				selectedEntryId: state.selectedEntryId,
+				isSyncEnabled: state.isSyncEnabled,
 			}),
-			version: 1,
-			// Transform the rehydrated state
-			onRehydrateStorage: () => (state) => {
-				if (state && state.workStartTime) {
-					try {
-						state.workStartTime = new Date(state.workStartTime)
-					} catch (e) {
-						console.error('Error parsing workStartTime:', e)
-						state.workStartTime = null
-					}
-				}
-
-				// Restart the global interval if the timer was running
-				if (
-					state &&
-					(state.status === 'running' || state.status === 'break')
-				) {
-					setupGlobalInterval(state.tick, state.status)
-				}
-			},
 		},
 	),
 )

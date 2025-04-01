@@ -104,9 +104,16 @@
         "allSessionsCompleted": "¡Buen trabajo! Has completado todas tus sesiones de trabajo.",
         "saveSessionTitle": "Guardar Sesión",
         "saveSessionMessage": "¿Quieres guardar esta sesión del temporizador?",
+        "stopSessionTitle": "Detener Sesión",
         "stopSessionMessage": "¿Quieres guardar esta sesión del temporizador? Esto detendrá el temporizador y lo reiniciará al principio.",
         "projectRequired": "Proyecto Requerido",
-        "projectRequiredMessage": "Por favor selecciona un proyecto antes de iniciar el temporizador."
+        "projectRequiredMessage": "Por favor selecciona un proyecto antes de iniciar el temporizador.",
+        "syncEnabled": "Sincronización activada",
+        "syncDisabled": "Sincronización desactivada",
+        "disconnected": "Desconectado",
+        "syncStatus": "Estado de sincronización",
+        "dontSave": "No guardar",
+        "save": "Guardar"
     },
     "projects": {
         "title": "Proyectos",
@@ -238,7 +245,6 @@
         "notVerified": "Correo no verificado",
         "requestVerification": "Solicitar",
         "pendingVerification": "Correo enviado para verificacion"
-
     },
     "common": {
         "save": "Guardar",

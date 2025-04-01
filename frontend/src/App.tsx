@@ -35,6 +35,7 @@ import { EditTimerPreset } from './pages/EditTimerPreset'
 import { useTheme } from './hooks/useTheme'
 import { useAuthStore } from './store/authStore'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { SocketProvider } from './context/SocketContext'
 import { checkCurrentToken } from './utils/tokenHelper'
 import {
 	setProjectColor,
@@ -77,265 +78,273 @@ function App() {
 
 	return (
 		<Router>
-			{/* DataInitializer handles all synchronization */}
-			<DataInitializer />
+			<SocketProvider>
+				{/* DataInitializer handles all synchronization */}
+				<DataInitializer />
 
-			<Routes>
-				{/* Public routes */}
-				<Route path="/login" element={<Login />} />
-				<Route path="/register" element={<Register />} />
-				<Route path="/forgot-password" element={<ForgotPassword />} />
-				<Route
-					path="/reset-password/:token"
-					element={<ResetPassword />}
-				/>
-				<Route path="/reset-password" element={<ResetPassword />} />
-				<Route path="/verify-email/:token" element={<VerifyEmail />} />
-				<Route path="/verify-email" element={<VerifyEmail />} />
+				<Routes>
+					{/* Public routes */}
+					<Route path="/login" element={<Login />} />
+					<Route path="/register" element={<Register />} />
+					<Route
+						path="/forgot-password"
+						element={<ForgotPassword />}
+					/>
+					<Route
+						path="/reset-password/:token"
+						element={<ResetPassword />}
+					/>
+					<Route path="/reset-password" element={<ResetPassword />} />
+					<Route
+						path="/verify-email/:token"
+						element={<VerifyEmail />}
+					/>
+					<Route path="/verify-email" element={<VerifyEmail />} />
 
-				{/* Protected routes */}
-				<Route
-					path="/"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<Dashboard />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					{/* Protected routes */}
+					<Route
+						path="/"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<Dashboard />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				{/* Projects */}
-				<Route
-					path="/projects"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<Projects />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					{/* Projects */}
+					<Route
+						path="/projects"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<Projects />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/projects/new"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<CreateProject />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/projects/new"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<CreateProject />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/projects/:id"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<EditProject />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/projects/:id"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<EditProject />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				{/* Clients */}
-				<Route
-					path="/clients"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<Clients />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					{/* Clients */}
+					<Route
+						path="/clients"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<Clients />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/clients/new"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<CreateClient />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/clients/new"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<CreateClient />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/clients/:id"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<EditClient />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/clients/:id"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<EditClient />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				{/* Tasks */}
-				<Route
-					path="/tasks"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<Tasks />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					{/* Tasks */}
+					<Route
+						path="/tasks"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<Tasks />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/tasks/new"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<CreateTask />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/tasks/new"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<CreateTask />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/tasks/:id"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<EditTask />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/tasks/:id"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<EditTask />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				{/* Time Entries */}
-				<Route
-					path="/time-entries"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<TimeEntries />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					{/* Time Entries */}
+					<Route
+						path="/time-entries"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<TimeEntries />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/time-entries/new"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<CreateTimeEntry />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/time-entries/new"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<CreateTimeEntry />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/time-entries/:id"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<EditTimeEntry />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/time-entries/:id"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<EditTimeEntry />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				{/* Tags */}
-				<Route
-					path="/tags"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<Tags />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					{/* Tags */}
+					<Route
+						path="/tags"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<Tags />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/tags/new"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<CreateTag />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/tags/new"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<CreateTag />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/tags/:id"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<EditTag />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/tags/:id"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<EditTag />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				{/* Timer Presets */}
-				<Route
-					path="/timer-presets"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<TimerPresets />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					{/* Timer Presets */}
+					<Route
+						path="/timer-presets"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<TimerPresets />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/timer-presets/new"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<CreateTimerPreset />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/timer-presets/new"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<CreateTimerPreset />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				<Route
-					path="/timer-presets/:id"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<EditTimerPreset />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/timer-presets/:id"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<EditTimerPreset />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				{/* Reports */}
-				<Route
-					path="/reports"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<Reports />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					{/* Reports */}
+					<Route
+						path="/reports"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<Reports />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				{/* Settings */}
-				<Route
-					path="/settings"
-					element={
-						<ProtectedRoute>
-							<MainLayout>
-								<Settings />
-							</MainLayout>
-						</ProtectedRoute>
-					}
-				/>
+					{/* Settings */}
+					<Route
+						path="/settings"
+						element={
+							<ProtectedRoute>
+								<MainLayout>
+									<Settings />
+								</MainLayout>
+							</ProtectedRoute>
+						}
+					/>
 
-				{/* Fallback route */}
-				<Route path="*" element={<Navigate to="/" replace />} />
-			</Routes>
+					{/* Fallback route */}
+					<Route path="*" element={<Navigate to="/" replace />} />
+				</Routes>
+			</SocketProvider>
 		</Router>
 	)
 }

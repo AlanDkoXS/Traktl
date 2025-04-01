@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ConfirmModal } from '../ui/ConfirmModal'
 import { useProjectStore } from '../../store/projectStore'
 import { useDataInitializer } from '../DataInitializer'
+import { StatusIndicator } from '../StatusIndicator'
 
 interface TimerControlsProps {
 	status: 'idle' | 'running' | 'paused' | 'break'
@@ -322,12 +323,12 @@ export const TimerControls = ({
 					<>
 						<button
 							onClick={() => pause()}
-							className="w-14 h-14 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 hover:opacity-90 transition-opacity shadow-sm"
+							className="w-14 h-14 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-500 hover:opacity-90 transition-opacity shadow-sm"
 							title={t('timer.pause')}
 						>
 							{/* Simple Pause Icon */}
 							<svg
-								className="w-7 h-7 text-green-600 dark:text-green-400"
+								className="w-7 h-7"
 								fill="currentColor"
 								viewBox="0 0 24 24"
 								xmlns="http://www.w3.org/2000/svg"
@@ -337,13 +338,13 @@ export const TimerControls = ({
 						</button>
 
 						<button
-							onClick={skipToNext}
-							className="w-14 h-14 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 hover:opacity-90 transition-opacity shadow-sm"
-							title={t('timer.skipToNext')}
+							onClick={handleSkipToNext}
+							className="w-14 h-14 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-500 hover:opacity-90 transition-opacity shadow-sm"
+							title={t('timer.skipToWork')}
 						>
-							{/* Simple Skip Icon */}
+							{/* Skip to Work Icon */}
 							<svg
-								className="w-7 h-7 text-green-600 dark:text-green-400"
+								className="w-7 h-7"
 								fill="currentColor"
 								viewBox="0 0 24 24"
 								xmlns="http://www.w3.org/2000/svg"
@@ -371,33 +372,32 @@ export const TimerControls = ({
 				)}
 			</div>
 
-			{/* Project Required Modal */}
+			{/* Connection status indicator */}
+			<div className="flex justify-center mt-2 mb-4">
+				<StatusIndicator />
+			</div>
+
+			{/* Confirmation Modals */}
 			<ConfirmModal
-				isOpen={showProjectRequiredModal}
-				title={t('timer.projectRequired', 'Project Required')}
-				message={t(
-					'timer.projectRequiredMessage',
-					'Please select a project before starting the timer.',
-				)}
-				confirmButtonText={t('common.ok')} // TODO: Need translation
-				cancelButtonText=""
-				onConfirm={handleCloseProjectRequiredModal}
-				onCancel={() => setShowProjectRequiredModal(false)}
+				isOpen={showStopConfirmationModal}
+				title={t('timer.stopSessionTitle')}
+				message={t('timer.stopSessionMessage')}
+				confirmButtonText={t('timer.save')}
+				cancelButtonText={t('timer.dontSave')}
+				onConfirm={handleConfirmSave}
+				onCancel={handleDontSave}
 				isLoading={false}
 				danger={false}
-				showCancelButton={false}
+				showCancelButton={true}
+				onCancelButtonClick={handleCancelStopModal}
 			/>
 
-			{/* Short session modal for Next/Skip button */}
 			<ConfirmModal
 				isOpen={showShortSessionModal}
-				title={t('timeEntries.shortTimeTitle', 'Short Session')}
-				message={t(
-					'timeEntries.shortTimeMessage',
-					'This session is less than a minute. Do you still want to save it?',
-				)}
-				confirmButtonText={t('common.yes')}
-				cancelButtonText={t('common.no')}
+				title={t('timer.shortSessionTitle')}
+				message={t('timer.shortSessionMessage')}
+				confirmButtonText={t('timer.save')}
+				cancelButtonText={t('timer.dontSave')}
 				onConfirm={handleConfirmShortSession}
 				onCancel={handleDontSaveShortSession}
 				isLoading={false}
@@ -406,22 +406,17 @@ export const TimerControls = ({
 				onCancelButtonClick={handleCancelShortSession}
 			/>
 
-			{/* Stop confirmation modal */}
 			<ConfirmModal
-				isOpen={showStopConfirmationModal}
-				title={t('timer.saveSessionTitle', 'Save Session')}
-				message={t(
-					'timer.stopSessionMessage',
-					'Do you want to save this timer session? This will reset the timer and return to Session 1.',
-				)}
-				confirmButtonText={t('common.yes')} // Botón "Sí" - Guardar y detener
-				cancelButtonText={t('common.no')} // Botón "No" - No guardar pero detener
-				onConfirm={handleConfirmSave} // Sí - Guardar entry y detener timer
-				onCancel={handleDontSave} // No - No guardar pero detener timer
+				isOpen={showProjectRequiredModal}
+				title={t('timer.projectRequiredTitle')}
+				message={t('timer.projectRequiredMessage')}
+				confirmButtonText={t('common.ok')}
+				cancelButtonText={t('common.cancel')}
+				onConfirm={handleCloseProjectRequiredModal}
+				onCancel={handleCloseProjectRequiredModal}
 				isLoading={false}
 				danger={false}
-				showCancelButton={true} // Mostrar tercer botón "Cancelar"
-				onCancelButtonClick={handleCancelStopModal} // Cancelar - No detener el timer
+				showCancelButton={false}
 			/>
 		</>
 	)

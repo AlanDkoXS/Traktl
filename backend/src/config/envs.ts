@@ -20,6 +20,9 @@ export const envs = {
 	GOOGLE_CLIENT_ID: get('GOOGLE_CLIENT_ID').required().asString(),
 	GOOGLE_CLIENT_SECRET: get('GOOGLE_CLIENT_SECRET').required().asString(),
 
+	// Frontend
+	FRONTEND_URL: get('FRONTEND_URL').default('http://localhost:5173').asString(),
+
 	// Environment
 	NODE_ENV: get('NODE_ENV').default('development').asString(),
 }
