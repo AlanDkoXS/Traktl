@@ -67,9 +67,11 @@ export const ProjectCreateModal = ({
 			// Close modal and notify parent
 			onProjectCreated(newProject.id)
 			onClose()
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error('Project creation error:', err)
-			setError(err.message || t('errors.serverError'))
+			setError(
+				err instanceof Error ? err.message : t('errors.serverError'),
+			)
 		} finally {
 			setIsSubmitting(false)
 		}
@@ -92,6 +94,8 @@ export const ProjectCreateModal = ({
 						type="text"
 						value={name}
 						onChange={(e) => setName(e.target.value)}
+						placeholder={t('projects.name')}
+						title={t('projects.name')}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 						required
 					/>
@@ -105,6 +109,8 @@ export const ProjectCreateModal = ({
 						value={description}
 						onChange={(e) => setDescription(e.target.value)}
 						rows={2}
+						title={t('projects.description')}
+						placeholder={t('projects.description')}
 						className="mt-1 mb-0 block w-full rounded-md border-gray-300 shadow-sm focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
 					/>
 				</div>
@@ -119,12 +125,15 @@ export const ProjectCreateModal = ({
 							value={color}
 							onChange={(e) => setColor(e.target.value)}
 							className="h-8 w-8 p-0 rounded-md"
+							title={t('projects.color')}
 						/>
 						<input
 							type="text"
 							value={color}
 							onChange={(e) => setColor(e.target.value)}
 							className="ml-2 block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+							title={t('projects.color')}
+							placeholder={t('projects.color')}
 						/>
 					</div>
 				</div>

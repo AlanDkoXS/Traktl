@@ -80,9 +80,11 @@ export const TimerSettings = ({
 					</div>
 					<div className="flex items-center">
 						<input
+							id="work-duration-number"
 							type="number"
 							min="1"
 							max="60"
+							aria-label={t('timer.workDuration')}
 							value={workDuration}
 							onChange={handleWorkDurationChange}
 							disabled={status !== 'idle'}
@@ -116,9 +118,11 @@ export const TimerSettings = ({
 					</div>
 					<div className="flex items-center">
 						<input
+							id="break-duration-number"
 							type="number"
 							min="0"
 							max="30"
+							aria-label={t('timer.breakDuration')}
 							value={breakDuration}
 							onChange={handleBreakDurationChange}
 							disabled={status !== 'idle'}
@@ -155,6 +159,8 @@ export const TimerSettings = ({
 							type="number"
 							min="1"
 							max="10"
+							id="repetitions-number"
+							aria-label={t('timer.repetitions')}
 							value={repetitions}
 							onChange={handleRepetitionsChange}
 							disabled={status !== 'idle'}

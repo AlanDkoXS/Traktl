@@ -31,6 +31,7 @@ interface ProjectState {
 	deleteProject: (id: string) => Promise<void>
 	selectProject: (project: Project | null) => void
 	clearSelectedProject: () => void
+	clearProjects: () => void
 }
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -172,5 +173,13 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
 	clearSelectedProject: () => {
 		set({ selectedProject: null })
+	},
+
+	clearProjects: () => {
+		console.log('Clearing all projects from store');
+		set({
+			projects: [],
+			selectedProject: null
+		})
 	},
 }))

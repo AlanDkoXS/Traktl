@@ -91,13 +91,22 @@ export const useTimerStore = create<TimerState>()(
 
 			start: (projectId = null, taskId = null) =>
 				set((state) => {
+					// Check if we have a project ID either from parameters or state
+					const selectedProjectId = projectId || state.projectId;
+
+					// Don't start the timer if no project is selected
+					if (!selectedProjectId) {
+						console.error('Cannot start timer without a project');
+						return state;
+					}
+
 					if (state.status === 'idle' || state.status === 'paused') {
 						// Ensure infiniteMode is properly set based on selectedEntryId
 						const updatedInfiniteMode = !!state.selectedEntryId
 
 						const newState = {
 							status: 'running' as TimerStatus,
-							projectId: projectId || state.projectId,
+							projectId: selectedProjectId,
 							taskId: taskId || state.taskId,
 							elapsed:
 								state.status === 'paused' && !state.infiniteMode
@@ -264,14 +273,14 @@ export const useTimerStore = create<TimerState>()(
 
 			tick: () => {
 				set((state) => {
-					let newElapsed = state.elapsed + 1;
+					const newElapsed = state.elapsed + 1;
 					const currentDuration = state.mode === 'break'
 						? state.breakDuration * 60
 						: state.workDuration * 60;
 
 					// Verificar si el timer está por completarse
-					const remainingTime = currentDuration - newElapsed;
-					const progress = (newElapsed / currentDuration) * 100;
+					// const remainingTime = currentDuration - newElapsed;
+					// const progress = (newElapsed / currentDuration) * 100;
 
 					// Si el timer ha llegado al final o lo ha sobrepasado
 					if (newElapsed >= currentDuration) {
@@ -288,8 +297,13 @@ export const useTimerStore = create<TimerState>()(
 							});
 						}
 
-						// Cambiar al siguiente estado
-						return state.switchToNext();
+						// Call switchToNext separately to avoid return issues
+						setTimeout(() => {
+							state.switchToNext();
+						}, 0);
+
+						// Return just the updated elapsed time
+						return { elapsed: newElapsed };
 					}
 
 					return { elapsed: newElapsed };

@@ -229,32 +229,62 @@ export const useAuthStore = create<AuthState>()(
 			logout: () => {
 				console.log('Logging out, clearing user data')
 
-				// Save reference to current project ID before clearing
-				const currentProjectId = localStorage.getItem('timer-storage')
+				// Save reference to current timer data before clearing
+				const timerData = localStorage.getItem('timer-storage')
 
 				// Clear authentication data from localStorage first
 				localStorage.removeItem('auth-token')
 				localStorage.removeItem('auth-storage')
 
-				// If there was an active project, clean it from localStorage
-				// to prevent loading previous user's project
-				if (currentProjectId) {
+				// Reset timerStore state directly - this completely resets the timer state
+				import('../store/timerStore').then(({ useTimerStore }) => {
+					useTimerStore.getState().reset();
+					console.log('Timer store reset directly');
+				});
+
+				// Also clear any other stores that might contain user data
+				import('../store/projectStore').then(({ useProjectStore }) => {
+					useProjectStore.getState().clearProjects();
+					console.log('Projects cleared');
+				}).catch(err => console.error('Error clearing projects:', err));
+
+				// Clear time entries
+				import('../store/timeEntryStore').then(({ useTimeEntryStore }) => {
+					useTimeEntryStore.getState().clearTimeEntries();
+					console.log('Time entries cleared');
+				}).catch(err => console.error('Error clearing time entries:', err));
+
+				// Reset localStorage data for timer
+				if (timerData) {
 					try {
-						const timerData = JSON.parse(currentProjectId)
-						// Remove only the projectId but maintain other timer settings
-						if (timerData.state && timerData.state.projectId) {
-							console.log(
-								'Clearing current project reference:',
-								timerData.state.projectId,
-							)
-							delete timerData.state.projectId
+						const parsedTimerData = JSON.parse(timerData)
+						// Reset the timer state completely to default values
+						if (parsedTimerData.state) {
+							console.log('Resetting all timer data')
+							parsedTimerData.state = {
+								status: 'idle',
+								mode: 'work',
+								elapsed: 0,
+								workDuration: 25,
+								breakDuration: 5,
+								repetitions: 4,
+								currentRepetition: 1,
+								projectId: null,
+								taskId: null,
+								notes: '',
+								tags: [],
+								workStartTime: null,
+								showCompletionModal: false,
+								infiniteMode: false,
+								selectedEntryId: null,
+							}
 							localStorage.setItem(
 								'timer-storage',
-								JSON.stringify(timerData),
+								JSON.stringify(parsedTimerData)
 							)
 						}
 					} catch (error) {
-						console.error('Error clearing project data:', error)
+						console.error('Error resetting timer data:', error)
 					}
 				}
 
@@ -267,6 +297,9 @@ export const useAuthStore = create<AuthState>()(
 					preferredLanguage: null,
 					theme: null,
 				})
+
+				// Force a page reload to ensure all components reset their state
+				window.location.href = '/login';
 			},
 
 			loadUser: async () => {

@@ -35,6 +35,8 @@ interface TimeEntryState {
 	clearSelectedTimeEntry: () => void
 
 	addNewTimeEntry: (timeEntry: TimeEntry) => void
+
+	clearTimeEntries: () => void
 }
 
 // Auxiliar function to safely format dates
@@ -243,6 +245,15 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 		set((state) => ({
 			timeEntries: [timeEntry, ...state.timeEntries],
 		}))
+	},
+
+	clearTimeEntries: () => {
+		console.log('Clearing all time entries from store');
+		set({
+			timeEntries: [],
+			selectedTimeEntry: null,
+			// Mantener otros estados como error o isLoading sin cambios
+		});
 	},
 }))
 

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmModal } from '../ui/ConfirmModal'
+import { useProjectStore } from '../../store/projectStore'
+import { useDataInitializer } from '../DataInitializer'
 
 interface TimerControlsProps {
 	status: 'idle' | 'running' | 'paused' | 'break'
@@ -28,6 +30,8 @@ export const TimerControls = ({
 	mode,
 }: TimerControlsProps) => {
 	const { t } = useTranslation()
+	const { isLoading: projectsLoading } = useProjectStore()
+	const { isInitialized, isLoading: dataLoading } = useDataInitializer()
 	const [showShortSessionModal, setShowShortSessionModal] = useState(false)
 	const [showStopConfirmationModal, setShowStopConfirmationModal] =
 		useState(false)
@@ -37,10 +41,21 @@ export const TimerControls = ({
 
 	// Check if project is selected when component mounts or when projectId changes
 	useEffect(() => {
-		if (status === 'idle' && !projectId) {
+		// Only show project required modal when:
+		// 1. In idle status
+		// 2. No project is selected
+		// 3. Projects have finished loading
+		// 4. Data initialization is complete
+		if (
+			status === 'idle' &&
+			!projectId &&
+			!projectsLoading &&
+			!dataLoading &&
+			isInitialized
+		) {
 			setShowProjectRequiredModal(true)
 		}
-	}, [status, projectId])
+	}, [status, projectId, projectsLoading, dataLoading, isInitialized])
 
 	const handleStart = () => {
 		if (!projectId) {

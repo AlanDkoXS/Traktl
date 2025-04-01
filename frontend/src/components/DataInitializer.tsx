@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, createContext, useContext } from 'react'
 import { useTimerPresetStore } from '../store/timerPresetStore'
 import { useProjectStore } from '../store/projectStore'
 import { useTimerStore } from '../store/timerStore'
@@ -6,6 +6,22 @@ import { useAuthStore } from '../store/authStore'
 import { Project, TimerPreset } from '../types'
 import { useTranslation } from 'react-i18next'
 import { useThemeStore } from '../store/themeStore'
+
+// Create a context to expose initialization state
+interface DataInitializerContextType {
+	isInitialized: boolean
+	isLoading: boolean
+}
+
+export const DataInitializerContext = createContext<DataInitializerContextType>(
+	{
+		isInitialized: false,
+		isLoading: false,
+	},
+)
+
+// Custom hook to use the context
+export const useDataInitializer = () => useContext(DataInitializerContext)
 
 /**
  * Component responsible for initializing application data
@@ -37,11 +53,24 @@ const DataInitializer = () => {
 
 	// Flag to track initialization
 	const [initialized, setInitialized] = useState(false)
+	// Flag to track loading state
+	const [isLoading, setIsLoading] = useState(false)
 	// Refs to track processes
 	const isCreatingDefaults = useRef(false)
 	const isSyncingLanguage = useRef(false)
 	const isSyncingTheme = useRef(false)
 	const hasSetInitialPreferences = useRef(false)
+
+	// Reset initialization state when authentication changes
+	useEffect(() => {
+		// When user logs out (isAuthenticated changes to false), reset initialization state
+		if (!isAuthenticated) {
+			console.log('User logged out, resetting DataInitializer state')
+			setInitialized(false)
+			hasSetInitialPreferences.current = false
+			isCreatingDefaults.current = false
+		}
+	}, [isAuthenticated])
 
 	// Set initial preferences (language/theme) from system on first load
 	useEffect(() => {
@@ -175,6 +204,7 @@ const DataInitializer = () => {
 				try {
 					console.log('Loading initial data for user')
 					isCreatingDefaults.current = true
+					setIsLoading(true)
 
 					// Fetch projects and timer presets
 					const [projectsData, presetsData] = await Promise.all([
@@ -206,6 +236,7 @@ const DataInitializer = () => {
 					console.error('Error loading initial data:', error)
 				} finally {
 					isCreatingDefaults.current = false
+					setIsLoading(false)
 				}
 			}
 		}
@@ -333,8 +364,14 @@ const DataInitializer = () => {
 		currentProjectId,
 	])
 
-	// This component doesn't render anything
-	return null
+	// This component doesn't render anything but provides context
+	return (
+		<DataInitializerContext.Provider
+			value={{ isInitialized: initialized, isLoading }}
+		>
+			{null}
+		</DataInitializerContext.Provider>
+	)
 }
 
 export default DataInitializer
