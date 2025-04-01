@@ -43,7 +43,7 @@ export const Settings = () => {
 				const result = await checkVerificationStatus()
 				console.log(
 					'🟢 Settings: Verification status refreshed:',
-					result,
+					result.isVerified,
 				)
 			} catch (err) {
 				console.error(
@@ -84,10 +84,12 @@ export const Settings = () => {
 	useEffect(() => {
 		console.log('🔵 Settings: Verification state changed:', {
 			isEmailVerified,
-			userIsVerified: user?.isVerified,
+			hasUser: !!user,
+			userId: user?.id,
+			userVerified: user?.isVerified,
 			hasToken: !!user?.emailVerificationToken?.token,
 		})
-	}, [isEmailVerified, user?.isVerified, user?.emailVerificationToken])
+	}, [isEmailVerified, user])
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -149,13 +151,14 @@ export const Settings = () => {
 	}
 
 	const renderVerificationStatus = () => {
-		// Usuario verificado si tiene token o isEmailVerified es true
-		const isVerified =
-			isEmailVerified ||
-			(user && !!user.emailVerificationToken?.token) ||
-			(user && user.isVerified)
+		const verificationStatus = isEmailVerified
 
-		if (isVerified) {
+		console.log('Render verification status:', {
+			storeValue: isEmailVerified,
+			computed: verificationStatus,
+		})
+
+		if (verificationStatus) {
 			return (
 				<div className="text-sm text-green-600 dark:text-green-400 flex items-center bg-green-50 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
 					<CheckCircleSolid className="w-5 h-5 mr-1" />

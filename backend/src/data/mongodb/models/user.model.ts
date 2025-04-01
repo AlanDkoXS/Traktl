@@ -17,6 +17,10 @@ export interface IUser extends Document {
 	googleId?: string
 	picture?: string
 	status: Status
+	emailVerificationToken?: {
+		token: string
+		expiresAt: Date
+	}
 	comparePassword(password: string): boolean
 }
 
@@ -54,6 +58,10 @@ const UserSchema = new Schema<IUser>(
 			type: String,
 			enum: Object.values(Status),
 			default: Status.ACTIVE,
+		},
+		emailVerificationToken: {
+			token: String,
+			expiresAt: Date
 		},
 	},
 	{

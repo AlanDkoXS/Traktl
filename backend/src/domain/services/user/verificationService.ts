@@ -129,7 +129,7 @@ export class VerificationService {
 	 */
 	async getVerificationStatus(
 		userId: string,
-	): Promise<{ isVerified: boolean }> {
+	): Promise<{ isVerified: boolean, emailVerificationToken?: EmailVerificationToken }> {
 		const user = await this.userRepository.findById(userId)
 		if (!user) {
 			throw CustomError.notFound('User not found')
@@ -137,6 +137,7 @@ export class VerificationService {
 
 		return {
 			isVerified: !!user.emailVerificationToken?.token,
+			emailVerificationToken: user.emailVerificationToken
 		}
 	}
 }

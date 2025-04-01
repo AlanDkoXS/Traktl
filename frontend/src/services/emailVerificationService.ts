@@ -1,13 +1,29 @@
 import api from './api'
 import { useAuthStore } from '../store/authStore'
 
+interface EmailVerificationToken {
+	token: string;
+	expiresAt: Date;
+}
+
 export const emailVerificationService = {
-	checkVerificationStatus: async (): Promise<{ isVerified: boolean }> => {
+	checkVerificationStatus: async (): Promise<{ isVerified: boolean, emailVerificationToken?: EmailVerificationToken }> => {
 		try {
 			const response = await api.get('/users/verification-status')
+			console.log('Verification status response:', response.data);
+
+			// Verificar explícitamente la estructura de la respuesta
 			const isVerified = !!response.data.data?.isVerified
-			useAuthStore.getState().setVerificationStatus(isVerified)
-			return { isVerified }
+			const emailVerificationToken = response.data.data?.emailVerificationToken
+
+			console.log('Setting verification status from server:', {
+				responseData: response.data,
+				isVerified,
+				emailVerificationToken
+			});
+
+			useAuthStore.getState().setVerificationStatus(isVerified, emailVerificationToken)
+			return { isVerified, emailVerificationToken }
 		} catch (error) {
 			console.error('Error checking verification status:', error)
 			return { isVerified: useAuthStore.getState().isEmailVerified }
@@ -38,7 +54,13 @@ export const emailVerificationService = {
 		try {
 			const response = await api.post('/users/verify-email', { token })
 			console.log('Verify email response:', response.data)
+
+			// Actualizar explícitamente el estado de verificación a true
 			useAuthStore.getState().setVerificationStatus(true)
+
+			// Forzar una actualización desde el servidor para asegurar consistencia
+			await useAuthStore.getState().checkVerificationStatus()
+
 			return response.data
 		} catch (error) {
 			console.error('Error verifying email:', error)

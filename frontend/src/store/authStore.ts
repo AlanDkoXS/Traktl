@@ -1,7 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { User, ApiError } from '../types'
+import { User } from '../types'
 import { authService } from '../services/authService'
+
+interface ApiError extends Error {
+	response?: {
+		data?: {
+			message?: string
+		}
+	}
+}
 
 interface AuthState {
 	token: string | null
@@ -24,7 +32,7 @@ interface AuthState {
 	logout: () => void
 	loadUser: () => Promise<void>
 	updateUser: (userData: Partial<User>) => Promise<void>
-	setVerificationStatus: (isVerified: boolean) => void
+	setVerificationStatus: (isVerified: boolean, emailVerificationToken?: { token: string; expiresAt: Date }) => void
     checkVerificationStatus: () => Promise<{
         isVerified: boolean
     }>
@@ -279,13 +287,32 @@ export const useAuthStore = create<AuthState>()(
 					const user = await authService.getProfile()
 					console.log('User profile loaded:', user)
 
+					// Verificar explícitamente si el usuario tiene token de verificación
+					const hasToken = !!user.emailVerificationToken?.token;
+					console.log('User verification token status:', {
+						hasToken,
+						token: user.emailVerificationToken?.token,
+						userId: user.id
+					});
+
 					set({
 						user,
 						isAuthenticated: true,
 						isLoading: false,
 						// Set verification status based on email verification token
-						isEmailVerified: !!user.emailVerificationToken?.token,
+						isEmailVerified: hasToken,
 					})
+
+					// Asegurar que el checkVerificationStatus se ejecute para sincronizar estado
+					setTimeout(() => {
+						get().checkVerificationStatus()
+						.then(result => {
+							console.log('Verification check after loadUser:', result);
+						})
+						.catch(error => {
+							console.error('Error in verification check after loadUser:', error);
+						});
+					}, 500);
 
 					// Update user preferences
 					get().updateUserPreferences(user)
@@ -339,27 +366,48 @@ export const useAuthStore = create<AuthState>()(
 			},
 
 			// Function to set verification status
-			setVerificationStatus: (isVerified) => {
+			setVerificationStatus: (isVerified, emailVerificationToken) => {
 				console.log('Setting verification status:', {
 					isVerified,
+					emailVerificationToken,
+					currentUser: get().user
 				})
 
 				// Update user object if available
 				if (get().user) {
+					// Actualizar ambos campos: isVerified y emailVerificationToken si es necesario
+					const currentUser = get().user!;
+
+					// Si está verificado y no tiene token, usar el proporcionado o crear uno dummy
+					let updatedEmailVerificationToken = emailVerificationToken;
+					if (isVerified && !updatedEmailVerificationToken) {
+						updatedEmailVerificationToken = {
+							token: 'verified',
+							expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // Far future
+						};
+					}
+
+					// Asegurarse de mantener el ID del usuario intacto
 					set({
 						user: {
-							...get().user!,
+							...currentUser,
+							id: currentUser.id, // Asegurar que el ID se mantiene
 							isVerified: isVerified,
+							emailVerificationToken: isVerified ? updatedEmailVerificationToken : undefined,
 						},
+						isEmailVerified: isVerified,
+					})
+
+					console.log('User object after verification update:', get().user);
+				} else {
+					set({
+						isEmailVerified: isVerified,
 					})
 				}
 
-				set({
-					isEmailVerified: isVerified,
-				})
-
 				console.log('Verification status set to:', {
 					isVerified,
+					user: get().user
 				})
 			},
 
@@ -368,25 +416,16 @@ export const useAuthStore = create<AuthState>()(
 				console.log('Checking verification status...')
 				const currentUser = get().user
 
+				console.log('Current user before verification check:', {
+					hasUser: !!currentUser,
+					userId: currentUser?.id,
+					userEmail: currentUser?.email,
+					hasToken: !!currentUser?.emailVerificationToken?.token,
+					isEmailVerified: get().isEmailVerified
+				})
+
 				try {
-					// First, check if we can determine status from user object
-					if (currentUser) {
-						// User is verified if they have an email verification token
-						const isVerified = !!currentUser.emailVerificationToken?.token
-
-						console.log('Verification status from user data:', {
-							isVerified,
-							hasToken: !!currentUser.emailVerificationToken?.token
-						})
-
-						set({
-							isEmailVerified: isVerified,
-						})
-
-						return { isVerified }
-					}
-
-					// Otherwise, fetch from server
+					// Siempre intentar obtener el estado más reciente del servidor
 					const response = await import(
 						'../services/emailVerificationService'
 					).then((module) =>
@@ -402,20 +441,51 @@ export const useAuthStore = create<AuthState>()(
 					// Update the user object if available
 					if (currentUser) {
 						set({
+							isEmailVerified: isVerified,
 							user: {
-								...(typeof currentUser === 'object' ? currentUser : {}),
+								...currentUser,
+								id: currentUser.id, // Asegurar que el ID se mantiene
 								isVerified: isVerified,
-							},
+								// Si está verificado, asegurar que tenga un token
+								emailVerificationToken: isVerified
+									? (currentUser.emailVerificationToken || {
+										token: 'verified',
+										expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+									})
+									: undefined
+							}
+						})
+
+						// Validar que el objeto de usuario se actualizó correctamente
+						const updatedUser = get().user;
+						console.log('User after verification update:', {
+							userId: updatedUser?.id,
+							isVerified: updatedUser?.isVerified,
+							hasToken: !!updatedUser?.emailVerificationToken?.token,
+							token: updatedUser?.emailVerificationToken?.token
+						});
+					} else {
+						set({
+							isEmailVerified: isVerified
 						})
 					}
-
-					set({
-						isEmailVerified: isVerified,
-					})
 
 					return { isVerified }
 				} catch (err: unknown) {
 					console.error('Error checking verification status:', err)
+
+					// Si hay un error al verificar con el servidor, usamos los datos locales
+					if (currentUser) {
+						// User is verified if they have an email verification token or isVerified is true
+						const isVerified = !!currentUser.emailVerificationToken?.token || !!currentUser.isVerified
+
+						set({
+							isEmailVerified: isVerified
+						})
+
+						return { isVerified }
+					}
+
 					// Don't change the state on error
 					return {
 						isVerified: get().isEmailVerified,
