@@ -19,6 +19,7 @@ interface ProjectTaskSelectorProps {
 	setTaskId: (id: string | null) => void
 	setNotes: (notes: string) => void
 	setSelectedTags: (tags: string[]) => void
+	isDisabled?: boolean
 }
 
 export const ProjectTaskSelector = ({
@@ -30,6 +31,7 @@ export const ProjectTaskSelector = ({
 	setTaskId,
 	setNotes,
 	setSelectedTags,
+	isDisabled = false,
 }: ProjectTaskSelectorProps) => {
 	const { t } = useTranslation()
 	const [isOpen, setIsOpen] = useState(false)
@@ -85,6 +87,12 @@ export const ProjectTaskSelector = ({
 	}
 
 	const handleTagToggle = (tagId: string) => {
+		console.log(
+			'Tag clicked:',
+			tagId,
+			'Current selected tags:',
+			selectedTags,
+		)
 		if (selectedTags.includes(tagId)) {
 			setSelectedTags(selectedTags.filter((id) => id !== tagId))
 		} else {
@@ -131,7 +139,8 @@ export const ProjectTaskSelector = ({
 		<>
 			<button
 				onClick={openModal}
-				className="w-full p-3 text-left flex justify-between items-center bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm"
+				className={`w-full p-3 text-left flex justify-between items-center bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm ${isDisabled ? 'opacity-50' : ''}`}
+				disabled={isDisabled}
 			>
 				<div>
 					<div className="font-medium dynamic-color">
@@ -214,6 +223,7 @@ export const ProjectTaskSelector = ({
 															handleProjectChange
 														}
 														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-800 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
+														disabled={isDisabled}
 													>
 														<option value="">
 															{t(
@@ -247,6 +257,7 @@ export const ProjectTaskSelector = ({
 														title={t(
 															'projects.new',
 														)}
+														disabled={isDisabled}
 													>
 														<PlusIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
 													</button>
@@ -272,7 +283,10 @@ export const ProjectTaskSelector = ({
 															)
 														}
 														className="flex-1 rounded-md shadow-sm bg-gray-50 dark:bg-gray-800 focus:ring-0 dark:text-white sm:text-sm border-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]"
-														disabled={!projectId}
+														disabled={
+															!projectId ||
+															isDisabled
+														}
 													>
 														<option value="">
 															{t(
@@ -299,6 +313,9 @@ export const ProjectTaskSelector = ({
 															title={t(
 																'tasks.new',
 															)}
+															disabled={
+																isDisabled
+															}
 														>
 															<PlusIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
 														</button>
@@ -324,6 +341,7 @@ export const ProjectTaskSelector = ({
 														'timeEntries.notes',
 													)}
 													rows={2}
+													disabled={isDisabled}
 												/>
 											</div>
 
@@ -336,24 +354,26 @@ export const ProjectTaskSelector = ({
 														<button
 															key={tag.id}
 															type="button"
-															onClick={() =>
+															onClick={(e) => {
+																e.preventDefault()
+																e.stopPropagation()
 																handleTagToggle(
 																	tag.id,
 																)
-															}
-															className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium`}
+															}}
+															className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-200 cursor-pointer hover:opacity-80 ${isDisabled ? 'opacity-50' : ''}`}
 															style={{
 																backgroundColor:
 																	selectedTags.includes(
 																		tag.id,
 																	)
-																		? `${tag.color}20`
-																		: '#f3f4f6',
+																		? `${tag.color}30`
+																		: 'rgb(var(--color-bg-inset))',
 																color: selectedTags.includes(
 																	tag.id,
 																)
 																	? tag.color
-																	: '#374151',
+																	: 'rgb(var(--color-text-primary))',
 																borderColor:
 																	tag.color,
 																borderWidth:
@@ -362,7 +382,16 @@ export const ProjectTaskSelector = ({
 																	)
 																		? '1px'
 																		: '0',
+																boxShadow:
+																	selectedTags.includes(
+																		tag.id,
+																	)
+																		? `0 0 0 1px ${tag.color}`
+																		: 'none',
 															}}
+															disabled={
+																isDisabled
+															}
 														>
 															<div
 																className="w-2 h-2 rounded-full mr-1.5"
@@ -380,7 +409,8 @@ export const ProjectTaskSelector = ({
 																true,
 															)
 														}
-														className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium dynamic-bg-subtle dynamic-color"
+														className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+														disabled={isDisabled}
 													>
 														<PlusIcon className="h-3 w-3 mr-1" />
 														{t('tags.new')}

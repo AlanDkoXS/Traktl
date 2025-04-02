@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useTimer } from '../hooks/useTimer'
 import { useProjectStore } from '../store/projectStore'
@@ -46,11 +46,26 @@ export const Timer = () => {
 		setRepetitions,
 		setProjectId,
 		setTaskId,
+		setNotes: setTimerNotes,
+		setTags,
 	} = useTimer()
 
 	const { showCompletionModal, closeCompletionModal } = useTimerStore()
 	const { projects } = useProjectStore()
 	const { fetchTimeEntries } = useTimeEntryStore()
+
+	const [selectedTags, setSelectedTags] = useState<string[]>([])
+	const [localNotes, setLocalNotes] = useState('')
+
+	// Update timer tags when selectedTags change
+	useEffect(() => {
+		setTags(selectedTags)
+	}, [selectedTags, setTags])
+
+	// Update timer notes when notes change
+	useEffect(() => {
+		setTimerNotes(localNotes)
+	}, [localNotes, setTimerNotes])
 
 	// Apply project color when project changes or component mounts
 	useEffect(() => {
@@ -153,12 +168,17 @@ export const Timer = () => {
 				<ProjectTaskSelector
 					projectId={projectId}
 					taskId={taskId}
-					notes=""
-					selectedTags={[]}
+					notes={localNotes}
+					selectedTags={selectedTags}
 					setProjectId={setProjectId}
 					setTaskId={setTaskId}
-					setNotes={() => {}}
-					setSelectedTags={() => {}}
+					setNotes={setLocalNotes}
+					setSelectedTags={setSelectedTags}
+					isDisabled={
+						status === 'running' ||
+						status === 'paused' ||
+						status === 'break'
+					}
 				/>
 
 				{/* Timer Settings */}
@@ -180,7 +200,7 @@ export const Timer = () => {
 			<ActivityHeatmap />
 
 			{/* Time Entry List */}
-			<TimeEntryList />
+			<TimeEntryList limit={5} />
 
 			{/* Completion Modal */}
 			<ConfirmModal
