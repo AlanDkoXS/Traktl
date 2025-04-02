@@ -58,9 +58,7 @@ export const ProjectForm = ({
 				await new Promise((resolve) => setTimeout(resolve, 500))
 
 				// Verificar que el proyecto se actualizó correctamente
-				if (updatedProject) {
-					navigate('/projects')
-				} else {
+				if (!updatedProject) {
 					setError(t('errors.updateFailed'))
 				}
 			} else {

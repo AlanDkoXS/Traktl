@@ -17,7 +17,7 @@ interface ProjectState {
 	isLoading: boolean
 	error: string | null
 
-	fetchProjects: () => Promise<Project[]>
+	fetchProjects: (includeArchived?: boolean) => Promise<Project[]>
 	fetchProject: (id: string) => Promise<Project | null>
 	createProject: (
 		project: Omit<Project, 'id' | 'user' | 'createdAt' | 'updatedAt'>,
@@ -40,10 +40,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
 	isLoading: false,
 	error: null,
 
-	fetchProjects: async () => {
+	fetchProjects: async (includeArchived: boolean = true) => {
 		try {
 			set({ isLoading: true, error: null })
-			const projects = await projectService.getProjects()
+			const projects = await projectService.getProjects(includeArchived)
 			set({ projects, isLoading: false })
 			return projects
 		} catch (error: unknown) {

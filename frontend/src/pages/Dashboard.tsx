@@ -24,7 +24,7 @@ const Dashboard = () => {
 				setIsLoading(true)
 				try {
 					// Load data in sequence to avoid cycles
-					await fetchProjects()
+					await fetchProjects(false)
 					await fetchClients()
 					await fetchTasks()
 					// Load only the last 10 time entries
