@@ -23,7 +23,12 @@ const emailService = new EmailService()
 
 // Initialize user service with user init service
 console.log('Creating UserService with UserInitService...')
-const userService = new UserService(userRepository, emailService)
+const userService = new UserService(
+	userRepository,
+	projectRepository,
+	timerPresetRepository,
+	emailService
+)
 
 const verificationService = new VerificationService(
 	userRepository,

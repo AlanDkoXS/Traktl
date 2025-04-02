@@ -28,11 +28,11 @@ export class MongoUserRepository implements UserRepository {
 
 	async update(
 		id: string,
-		userData: Partial<UserDomain>,
+		userData: Partial<UserDomain> | { $set: Partial<UserDomain>; $unset: { [key: string]: number } },
 	): Promise<UserEntity | null> {
 		console.log('Updating user with ID:', id, 'Data:', {
-			...userData,
-			password: userData.password ? '[REDACTED]' : undefined,
+			...(userData as Partial<UserDomain>),
+			password: (userData as Partial<UserDomain>).password ? '[REDACTED]' : undefined,
 		})
 		const updatedUser = await User.findByIdAndUpdate(
 			id,

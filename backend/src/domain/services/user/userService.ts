@@ -6,10 +6,14 @@ import { UpdateUserDTO } from '../../dtos/user/update-user.dto'
 import { CustomError } from '../../errors/custom.errors'
 import { JwtAdapter } from '../../../config/jwt.adapter'
 import { regularExp } from '../../../config/regular-exp'
+import { ProjectRepository } from '../../repositories/projectRepository.interface'
+import { TimerPresetRepository } from '../../repositories/timerPresetRepository.interface'
 
 export class UserService {
 	constructor(
 		private readonly userRepository: UserRepository,
+		private readonly projectRepository: ProjectRepository,
+		private readonly timerPresetRepository: TimerPresetRepository,
 		private readonly emailService?: any // Uso any temporalmente para evitar problemas de importación
 	) {
 		console.log('UserService constructor called')
@@ -270,14 +274,34 @@ export class UserService {
 			throw CustomError.notFound('User not found')
 		}
 
-		// Inactivate user instead of deleting
-		const updated = await this.userRepository.update(userId, {
-			isActive: false,
-			deletedAt: new Date()
-		})
+		// Inactivate user and clear sensitive data
+		const updateData = {
+			$set: {
+				isActive: false,
+				deletedAt: new Date(),
+				defaultTimerPreset: undefined,
+				preferredLanguage: 'en' as const,
+				theme: 'light' as const
+			},
+			$unset: {
+				emailVerificationToken: 1
+			}
+		}
+
+		const updated = await this.userRepository.update(userId, updateData)
 
 		if (!updated) {
 			throw CustomError.internalServer('Error inactivating user')
+		}
+
+		// Delete all user's projects, tasks, and time entries
+		try {
+			await this.projectRepository.deleteAllByUserId(userId)
+			await this.timerPresetRepository.deleteAllByUserId(userId)
+			// Add other repository calls to delete related data
+		} catch (error) {
+			console.error('Error deleting user data:', error)
+			// Continue even if data deletion fails
 		}
 
 		return true
