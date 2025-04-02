@@ -257,7 +257,8 @@
         "dangerZone": "Zona de Peligro",
         "deleteAccount": "Eliminar Cuenta",
         "deleteAccountDescription": "Elimina permanentemente tu cuenta y todos tus datos asociados.",
-        "deleteAccountConfirmation": "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer y se eliminarán todos tus datos, incluyendo proyectos, tareas y registros de tiempo."
+        "deleteAccountConfirmation": "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer y se eliminarán todos tus datos, incluyendo proyectos, tareas y registros de tiempo.",
+        "waitSeconds": "Espere {{seconds}} segundos"
     },
     "common": {
         "save": "Guardar",

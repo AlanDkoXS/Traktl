@@ -244,7 +244,8 @@
         "dangerZone": "Danger Zone",
         "deleteAccount": "Delete Account",
         "deleteAccountDescription": "Permanently delete your account and all associated data.",
-        "pendingVerification": "Email sent to verify"
+        "pendingVerification": "Email sent to verify",
+        "waitSeconds": "Wait {{seconds}} seconds"
     },
     "common": {
         "save": "Save",

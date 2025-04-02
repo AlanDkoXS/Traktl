@@ -36,15 +36,6 @@ export class VerificationService {
 			)
 		}
 
-		// Update user with last verification request only
-		const updated = await this.userRepository.update(userId, {
-			lastVerificationRequest: new Date(),
-		} as any)
-
-		if (!updated) {
-			throw CustomError.internalServer('Error storing verification request')
-		}
-
 		return token
 	}
 
@@ -64,17 +55,6 @@ export class VerificationService {
 		// Check if user is already verified
 		if (user.emailVerificationToken?.token) {
 			throw CustomError.badRequest('Email already verified')
-		}
-
-		// Check cooldown period (1 minute)
-		if (user.lastVerificationRequest) {
-			const lastRequest = new Date(user.lastVerificationRequest)
-			const now = new Date()
-			const diffInMinutes = (now.getTime() - lastRequest.getTime()) / (1000 * 60)
-
-			if (diffInMinutes < 1) {
-				throw CustomError.badRequest('Please wait 1 minute before requesting another verification email')
-			}
 		}
 
 		const token = await this.generateEmailVerificationToken(userId, email)

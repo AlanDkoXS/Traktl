@@ -9,6 +9,7 @@ import {
 	XCircleIcon,
 	EnvelopeIcon,
 	TrashIcon,
+	ClockIcon,
 } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 
@@ -42,6 +43,19 @@ const Settings = () => {
 	const [verificationError, setVerificationError] = useState('')
 	const [showDeleteModal, setShowDeleteModal] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
+	const [countdown, setCountdown] = useState(0)
+
+	useEffect(() => {
+		let timer: NodeJS.Timeout
+		if (countdown > 0) {
+			timer = setInterval(() => {
+				setCountdown((prev) => prev - 1)
+			}, 1000)
+		}
+		return () => {
+			if (timer) clearInterval(timer)
+		}
+	}, [countdown])
 
 	useEffect(() => {
 		const refreshVerificationStatus = async () => {
@@ -149,6 +163,7 @@ const Settings = () => {
 			await emailVerificationService.requestVerification()
 			setShowVerificationModal(true)
 			await checkVerificationStatus()
+			setCountdown(60) // Start countdown after successful request
 		} catch (err: unknown) {
 			setVerificationError(
 				err instanceof Error
@@ -198,8 +213,8 @@ const Settings = () => {
 						<button
 							type="button"
 							onClick={handleRequestVerification}
-							disabled={isVerificationLoading}
-							className="btn btn-primary dynamic-bg text-white hover:brightness-110 text-sm px-3 py-1.5 rounded-full"
+							disabled={isVerificationLoading || countdown > 0}
+							className="btn btn-primary dynamic-bg text-white hover:brightness-110 text-sm px-3 py-1.5 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
 						>
 							{isVerificationLoading ? (
 								<span className="flex items-center">
@@ -224,6 +239,13 @@ const Settings = () => {
 										></path>
 									</svg>
 									{t('common.loading')}
+								</span>
+							) : countdown > 0 ? (
+								<span className="flex items-center">
+									<ClockIcon className="w-4 h-4 mr-1" />
+									{t('settings.waitSeconds', {
+										seconds: countdown,
+									})}
 								</span>
 							) : (
 								<span className="flex items-center">

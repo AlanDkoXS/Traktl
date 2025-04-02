@@ -20,7 +20,6 @@ export interface User {
 	deletedAt?: Date
 	emailVerificationToken?: EmailVerificationToken
 	comparePassword?(password: string): boolean
-	lastVerificationRequest?: Date
 }
 
 export interface UserEntity {

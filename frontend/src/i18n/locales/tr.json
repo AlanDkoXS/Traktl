@@ -255,7 +255,8 @@
         "dangerZone": "Tehlikeli Bölge",
         "deleteAccount": "Hesabı Sil",
         "deleteAccountDescription": "Hesabınızı ve ilişkili tüm verileri kalıcı olarak silin.",
-        "deleteAccountConfirmation": "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve projeleriniz, görevleriniz ve zaman kayıtlarınız dahil tüm verileriniz kalıcı olarak silinecektir."
+        "deleteAccountConfirmation": "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve projeleriniz, görevleriniz ve zaman kayıtlarınız dahil tüm verileriniz kalıcı olarak silinecektir.",
+        "waitSeconds": "{{seconds}} saniye bekleyin"
     },
     "common": {
         "save": "Kaydet",
