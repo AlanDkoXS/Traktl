@@ -322,36 +322,40 @@ export const TimeEntryList = ({
 	return (
 		<>
 			{selectedTimeEntries.length > 0 && (
-				<div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm mb-4 flex items-center justify-between">
-					<div className="text-sm text-gray-600 dark:text-gray-300">
+				<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-3 rounded-lg shadow-sm mb-4 flex items-center justify-between border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+					<div className="text-sm font-medium dynamic-color">
 						{t('timeEntries.selectedCount', {
 							count: selectedTimeEntries.length,
-						})}
+						})
+							.split(' ')
+							.map((word, index) =>
+								index === 0
+									? word.charAt(0).toUpperCase() +
+										word.slice(1)
+									: word,
+							)
+							.join(' ')}
 					</div>
 					<div className="flex space-x-2">
 						<button
-							onClick={() => {
-								// TODO: Implementar acción de edición en masa
-								console.log(
-									'Edit selected entries:',
-									selectedTimeEntries,
-								)
-							}}
-							className="btn btn-secondary btn-sm"
-						>
-							{t('common.edit')}
-						</button>
-						<button
 							onClick={() => setShowBulkDeleteModal(true)}
-							className="btn btn-danger btn-sm"
+							className="btn btn-sm bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-800/50"
 						>
 							{t('common.delete')}
 						</button>
 						<button
 							onClick={clearSelectedTimeEntries}
-							className="btn btn-secondary btn-sm"
+							className="btn btn-sm bg-[hsla(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness),0.1)] text-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] hover:bg-[hsla(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness),0.2)] dark:bg-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),var(--color-project-lightness),0.2)] dark:text-[hsl(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),var(--color-project-lightness))] dark:hover:bg-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),var(--color-project-lightness),0.3)]"
 						>
-							{t('common.clearSelection')}
+							{t('common.clearSelection')
+								.split(' ')
+								.map((word, index) =>
+									index === 0
+										? word.charAt(0).toUpperCase() +
+											word.slice(1)
+										: word,
+								)
+								.join(' ')}
 						</button>
 					</div>
 				</div>
