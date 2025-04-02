@@ -3,7 +3,7 @@ import { z } from 'zod'
 const UpdateUserSchema = z.object({
 	name: z.string().min(1, { message: 'Name is required' }).optional(),
 	email: z.string().email({ message: 'Invalid email format' }).optional(),
-	preferredLanguage: z.enum(['es', 'en']).optional(),
+	preferredLanguage: z.enum(['es', 'en', 'tr']).optional(),
 	theme: z.enum(['light', 'dark']).optional(),
 	defaultTimerPreset: z.string().optional(),
 	picture: z.string().optional(),
@@ -15,7 +15,7 @@ export class UpdateUserDTO {
 	constructor(
 		public readonly name?: string,
 		public readonly email?: string,
-		public readonly preferredLanguage?: 'es' | 'en',
+		public readonly preferredLanguage?: 'es' | 'en' | 'tr',
 		public readonly theme?: 'light' | 'dark',
 		public readonly defaultTimerPreset?: string,
 		public readonly picture?: string,
