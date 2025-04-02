@@ -38,8 +38,12 @@ export const TagForm = ({ tag, isEditing = false }: TagFormProps) => {
 			}
 
 			navigate('/tags')
-		} catch (err: any) {
-			setError(err.message || t('errors.serverError'))
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				setError(err.message || t('errors.serverError'))
+			} else {
+				setError(t('errors.serverError'))
+			}
 		} finally {
 			setIsSubmitting(false)
 		}

@@ -29,3 +29,50 @@ export interface Task {
 	createdAt: Date
 	updatedAt: Date
 }
+
+export interface TimerPreset {
+	id: string
+	name: string
+	workDuration: number
+	breakDuration: number
+	repetitions: number
+	user: string
+	createdAt: Date
+	updatedAt: Date
+}
+
+export interface Tag {
+	id: string
+	name: string
+	color: string
+	user: string
+	createdAt: Date
+	updatedAt: Date
+}
+
+export interface TimeEntry {
+	id: string
+	project: string
+	task?: string
+	startTime: Date
+	endTime?: Date
+	duration: number
+	notes?: string
+	isRunning: boolean
+	tags: string[]
+	user: string
+	createdAt: Date
+	updatedAt: Date
+}
+
+export interface Project {
+	id: string
+	name: string
+	description?: string
+	color: string
+	client?: string
+	status: 'active' | 'archived'
+	user: string
+	createdAt: Date
+	updatedAt: Date
+}

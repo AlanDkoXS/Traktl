@@ -59,8 +59,12 @@ export const TimerPresetForm = ({
 			}
 
 			navigate('/timer-presets')
-		} catch (err: any) {
-			setError(err.message || t('errors.serverError'))
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				setError(err.message || t('errors.serverError'))
+			} else {
+				setError(t('errors.serverError'))
+			}
 		} finally {
 			setIsSubmitting(false)
 		}
