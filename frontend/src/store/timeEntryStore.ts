@@ -5,6 +5,7 @@ import { TimeEntry } from '../types'
 interface TimeEntryState {
 	timeEntries: TimeEntry[]
 	selectedTimeEntries: TimeEntry[]
+	selectedTimeEntry: TimeEntry | null
 	isLoading: boolean
 	error: string | null
 
@@ -73,6 +74,7 @@ const formatDateSafely = (
 const timeEntryStore = create<TimeEntryState>((set) => ({
 	timeEntries: [],
 	selectedTimeEntries: [],
+	selectedTimeEntry: null,
 	isLoading: false,
 	error: null,
 
@@ -141,7 +143,7 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 		try {
 			set({ isLoading: true, error: null })
 			const timeEntry = await timeEntryService.getTimeEntry(id)
-			set({ selectedTimeEntries: [timeEntry], isLoading: false })
+			set({ selectedTimeEntry: timeEntry, isLoading: false })
 			return timeEntry
 		} catch (error) {
 			const errorMessage =
@@ -151,6 +153,7 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 			set({
 				error: errorMessage,
 				isLoading: false,
+				selectedTimeEntry: null,
 			})
 			return null
 		}
@@ -193,6 +196,7 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 				selectedTimeEntries: state.selectedTimeEntries.map((te) =>
 					te.id === id ? updatedTimeEntry : te,
 				),
+				selectedTimeEntry: state.selectedTimeEntry?.id === id ? updatedTimeEntry : state.selectedTimeEntry,
 				isLoading: false,
 			}))
 			return updatedTimeEntry
@@ -222,6 +226,7 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 				return {
 					timeEntries: updatedTimeEntries,
 					selectedTimeEntries: updatedSelectedTimeEntries,
+					selectedTimeEntry: state.selectedTimeEntry?.id === id ? null : state.selectedTimeEntry,
 					isLoading: false,
 				}
 			})
@@ -265,6 +270,7 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 		set({
 			timeEntries: [],
 			selectedTimeEntries: [],
+			selectedTimeEntry: null,
 			// Mantener otros estados como error o isLoading sin cambios
 		});
 	},

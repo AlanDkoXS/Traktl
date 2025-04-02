@@ -11,7 +11,7 @@ export interface ITimeEntry extends Document {
 	notes: string
 	createdAt: Date
 	updatedAt: Date
-	isRunning: boolean
+	isRunning?: boolean
 }
 
 const TimeEntrySchema = new Schema<ITimeEntry>(
@@ -53,7 +53,6 @@ const TimeEntrySchema = new Schema<ITimeEntry>(
 		},
 		isRunning: {
 			type: Boolean,
-			default: false,
 		},
 	},
 	{

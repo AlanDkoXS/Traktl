@@ -10,7 +10,7 @@ export interface TimeEntry {
 	notes: string
 	createdAt: Date
 	updatedAt: Date
-	isRunning: boolean
+	isRunning?: boolean
 }
 
 export interface TimeEntryEntity extends Omit<TimeEntry, '_id'> {
