@@ -5,6 +5,7 @@ import { VerificationService } from '../../domain/services/user/verificationServ
 import { MongoUserRepository } from '../../infrastructure/repositories/mongodb/mongoUserRepository'
 import { MongoProjectRepository } from '../../infrastructure/repositories/mongodb/mongoProjectRepository'
 import { MongoTimerPresetRepository } from '../../infrastructure/repositories/mongodb/mongoTimerPresetRepository'
+import { MongoTimeEntryRepository } from '../../infrastructure/repositories/mongodb/mongoTimeEntryRepository'
 import { validateJWT } from '../middlewares'
 import { GoogleAuthController } from '../controllers/googleAuthController'
 import { EmailService } from '../../service/emailService'
@@ -14,16 +15,21 @@ console.log('Creating repositories for user routes...')
 const userRepository = new MongoUserRepository()
 const projectRepository = new MongoProjectRepository()
 const timerPresetRepository = new MongoTimerPresetRepository()
+const timeEntryRepository = new MongoTimeEntryRepository()
 
 // Create services
 console.log('Creating services for user routes...')
 const emailService = new EmailService()
 
-// Initialize user initialization service
-
-// Initialize user service with user init service
-console.log('Creating UserService with UserInitService...')
-const userService = new UserService(userRepository, emailService)
+// Initialize user service with all repositories
+console.log('Creating UserService with all repositories...')
+const userService = new UserService(
+    userRepository,
+    projectRepository,
+    timerPresetRepository,
+    timeEntryRepository,
+    emailService
+)
 
 const verificationService = new VerificationService(
 	userRepository,

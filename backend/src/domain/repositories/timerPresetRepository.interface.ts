@@ -21,4 +21,6 @@ export interface TimerPresetRepository {
 	findByCriteria(criteria: Partial<TimerPresetEntity>): Promise<TimerPreset[]>
 
 	countByUser(userId: string): Promise<number>
+
+	deleteAllByUserId(userId: string): Promise<boolean>
 }

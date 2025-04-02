@@ -18,4 +18,6 @@ export interface ProjectRepository {
 	findByCriteria(criteria: Partial<ProjectEntity>): Promise<Project[]>
 
 	countByUser(userId: string): Promise<number>
+
+	deleteAllByUserId(userId: string): Promise<boolean>
 }

@@ -55,7 +55,7 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 			user: userId,
 			isRunning: true
 		}).sort({ startTime: -1 })
-		
+
 		if (!timeEntry) return null
 
 		return {
@@ -250,5 +250,15 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 			createdAt: entry.createdAt,
 			updatedAt: entry.updatedAt,
 		}))
+	}
+
+	async deleteAllByUserId(userId: string): Promise<boolean> {
+		try {
+			await TimeEntryModel.deleteMany({ user: userId })
+			return true
+		} catch (error) {
+			console.error('Error deleting all time entries for user:', error)
+			return false
+		}
 	}
 }

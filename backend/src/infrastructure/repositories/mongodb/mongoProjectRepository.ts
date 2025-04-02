@@ -66,6 +66,16 @@ export class MongoProjectRepository implements ProjectRepository {
 		return await Project.countDocuments({ user: userId })
 	}
 
+	async deleteAllByUserId(userId: string): Promise<boolean> {
+		try {
+			await Project.deleteMany({ user: userId })
+			return true
+		} catch (error) {
+			console.error('Error deleting all projects for user:', error)
+			return false
+		}
+	}
+
 	private mapToDomain(project: any): ProjectEntity {
 		return {
 			_id: project._id.toString(),

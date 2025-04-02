@@ -108,4 +108,14 @@ export class MongoTimerPresetRepository implements TimerPresetRepository {
 	async countByUser(userId: string): Promise<number> {
 		return await TimerPresetModel.countDocuments({ user: userId })
 	}
+
+	async deleteAllByUserId(userId: string): Promise<boolean> {
+		try {
+			await TimerPresetModel.deleteMany({ user: userId })
+			return true
+		} catch (error) {
+			console.error('Error deleting all timer presets for user:', error)
+			return false
+		}
+	}
 }
