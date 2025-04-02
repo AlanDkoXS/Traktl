@@ -79,7 +79,7 @@ interface TimerState {
 	// Helper to create time entries
 	createTimeEntryFromWorkSession: () => Promise<void>
 
-	showNotification: (type: 'work' | 'break', message: string) => void
+	showNotification: (type: 'work' | 'break' | 'complete') => void
 }
 
 // Helper to manage the global interval
@@ -375,7 +375,7 @@ export const useTimerStore = create<TimerState>()(
 					console.log('shouldSave es false, NO se guardará la entrada')
 
 					// Mostrar notificación de finalización
-					state.showNotification('work', 'Timer stopped without saving')
+					state.showNotification('work')
 
 					// Limpiar el intervalo
 					setupGlobalInterval(get().tick, 'idle')
@@ -581,7 +581,7 @@ export const useTimerStore = create<TimerState>()(
 						isRunning: false,
 					})
 
-					state.showNotification('work', 'Time entry saved successfully')
+					state.showNotification('work')
 
 					console.log('Time entry created successfully')
 
@@ -605,19 +605,19 @@ export const useTimerStore = create<TimerState>()(
 					}
 
 					// Mostrar notificación de finalización de ciclo de trabajo
-					state.showNotification('work', 'Work session completed! Time for a break.')
+					state.showNotification('work')
 
 					return state.switchToBreak()
 				} else {
 					// Estamos en break
 					if (state.currentRepetition < state.repetitions) {
 						// Mostrar notificación de finalización de descanso
-						state.showNotification('break', 'Break completed! Ready for the next work session.')
+						state.showNotification('break')
 
 						return state.switchToWork(state.currentRepetition + 1)
 					} else {
 						// Hemos completado todas las repeticiones
-						state.showNotification('work', "Great job! You've completed all your work sessions.")
+						state.showNotification('complete')
 
 						// Resetear el timer y mostrar modal
 						setupGlobalInterval(get().tick, 'idle')
@@ -644,7 +644,7 @@ export const useTimerStore = create<TimerState>()(
 					}
 
 					// Mostrar notificación de finalización de trabajo
-					state.showNotification('break', 'Work session completed! Time for a break.')
+					state.showNotification('work')
 
 					// Create time entry if switching from work mode with a project
 					if (
@@ -667,7 +667,7 @@ export const useTimerStore = create<TimerState>()(
 			switchToWork: (nextRepetition) => {
 				// Mostrar notificación de inicio de trabajo si venimos de descanso
 				if (get().mode === 'break') {
-					get().showNotification('work', 'Break completed! Back to work.')
+					get().showNotification('break')
 				}
 
 				// Setup interval for work mode
@@ -683,8 +683,8 @@ export const useTimerStore = create<TimerState>()(
 				}))
 			},
 
-			showNotification: async (type: 'work' | 'break', message: string) => {
-				useNotificationStore.getState().showNotification(type, message)
+			showNotification: async (type: 'work' | 'break' | 'complete') => {
+				useNotificationStore.getState().showNotification(type)
 			},
 		}),
 		{

@@ -404,7 +404,7 @@ export const TimerControls = ({
 
 			<ConfirmModal
 				isOpen={showProjectRequiredModal}
-				title={t('timer.projectRequiredTitle')}
+				title={t('timer.projectRequired')}
 				message={t('timer.projectRequiredMessage')}
 				confirmButtonText={t('common.ok')}
 				cancelButtonText={t('common.cancel')}

@@ -2,12 +2,10 @@ import { create } from 'zustand'
 
 interface NotificationState {
   showModal: boolean
-  modalMessage: string
   modalType: 'work' | 'break' | 'complete'
   setShowModal: (show: boolean) => void
-  setModalMessage: (message: string) => void
   setModalType: (type: 'work' | 'break' | 'complete') => void
-  showNotification: (type: 'work' | 'break' | 'complete', message: string) => void
+  showNotification: (type: 'work' | 'break' | 'complete') => void
   closeNotification: () => void
 }
 
@@ -89,19 +87,16 @@ class AudioPlayer {
 // Create notification store
 export const useNotificationStore = create<NotificationState>((set) => ({
   showModal: false,
-  modalMessage: '',
   modalType: 'work',
   setShowModal: (show) => set({ showModal: show }),
-  setModalMessage: (message) => set({ modalMessage: message }),
   setModalType: (type) => set({ modalType: type }),
-  showNotification: (type, message) => {
+  showNotification: (type) => {
     // Play sound
     AudioPlayer.getInstance().play(type)
 
     // Show modal
     set({
       showModal: true,
-      modalMessage: message,
       modalType: type,
     })
 

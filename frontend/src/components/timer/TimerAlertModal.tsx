@@ -6,8 +6,7 @@ import { useNotificationStore } from '../../services/notificationService'
 
 export const TimerAlertModal = () => {
 	const { t } = useTranslation()
-	const { showModal, modalMessage, modalType, closeNotification } =
-		useNotificationStore()
+	const { showModal, modalType, closeNotification } = useNotificationStore()
 
 	// Determine icon based on type
 	const getIcon = () => {
@@ -29,6 +28,20 @@ export const TimerAlertModal = () => {
 				)
 			default:
 				return <PlayIcon className="h-8 w-8 dynamic-color" />
+		}
+	}
+
+	// Get translated message based on type
+	const getMessage = () => {
+		switch (modalType) {
+			case 'work':
+				return t('timer.workSessionComplete')
+			case 'break':
+				return t('timer.breakSessionComplete')
+			case 'complete':
+				return t('timer.allSessionsComplete')
+			default:
+				return ''
 		}
 	}
 
@@ -81,7 +94,7 @@ export const TimerAlertModal = () => {
 
 								<div className="mt-3">
 									<p className="text-gray-600 dark:text-gray-300">
-										{modalMessage}
+										{getMessage()}
 									</p>
 								</div>
 
