@@ -14,6 +14,9 @@ export const setProjectColor = (hexColor: string = '#0284c7'): void => {
 	const color = hexColor || lastUsedColor || '#0284c7'
 	lastUsedColor = color // Guarda el último color usado
 
+	// Save project color to localStorage
+	localStorage.setItem('project-color', color)
+
 	// Convert hex to RGB
 	const r = parseInt(color.slice(1, 3), 16) / 255
 	const g = parseInt(color.slice(3, 5), 16) / 255

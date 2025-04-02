@@ -64,16 +64,17 @@ function App() {
 	useEffect(() => {
 		// Default color configuration for each section
 		setDefaultColorForSection('app', '#0284c7') // Default blue for general app
-		setDefaultColorForSection('project', '#0284c7') // Blue for project section
 		setDefaultColorForSection('client', '#0284c7') // Blue for clients
 		setDefaultColorForSection('task', '#0284c7') // Blue for tasks
-		setDefaultColorForSection('timer', '#0284c7') // Blue for timer
 		setDefaultColorForSection('tag', '#0284c7') // Blue for tags
 
-		// Set initial application color
+		// Set initial application color only if no project color is set
 		const defaultAppColor =
 			localStorage.getItem('default-app-color') || '#0284c7'
-		setProjectColor(defaultAppColor)
+		const projectColor = localStorage.getItem('project-color')
+		if (!projectColor) {
+			setProjectColor(defaultAppColor)
+		}
 	}, [])
 
 	useEffect(() => {

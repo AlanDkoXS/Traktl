@@ -6,6 +6,8 @@ import { useAuthStore } from '../store/authStore'
 import { useTranslation } from 'react-i18next'
 import { useThemeStore } from '../store/themeStore'
 import SocketHandler from './SocketHandler'
+import { setProjectColor } from '../utils/dynamicColors'
+import { TimerPreset } from '../types'
 
 // Create a context to expose initialization state
 interface DataInitializerContextType {
@@ -231,6 +233,12 @@ const DataInitializer = () => {
 						handleExistingProjects(projectsData)
 					}
 
+					// Restore project color if exists
+					const projectColor = localStorage.getItem('project-color')
+					if (projectColor) {
+						setProjectColor(projectColor)
+					}
+
 					setInitialized(true)
 				} catch (error) {
 					console.error('Error loading initial data:', error)
@@ -275,14 +283,7 @@ const DataInitializer = () => {
 			}
 		}
 
-		const selectDefaultPreset = (
-			presets: {
-				name: string
-				workDuration: number
-				breakDuration: number
-				repetitions: number
-			}[],
-		) => {
+		const selectDefaultPreset = (presets: TimerPreset[]) => {
 			// Find an appropriate preset to use
 			const preferredPresets = [
 				{ name: '52/17', keyword: '52/17' },

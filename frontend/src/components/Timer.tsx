@@ -52,7 +52,7 @@ export const Timer = () => {
 	const { projects } = useProjectStore()
 	const { fetchTimeEntries } = useTimeEntryStore()
 
-	// Apply project color when project changes
+	// Apply project color when project changes or component mounts
 	useEffect(() => {
 		if (projectId) {
 			const project = projects.find((p) => p.id === projectId)
@@ -82,12 +82,7 @@ export const Timer = () => {
 		if (progress >= 100) {
 			useNotificationStore
 				.getState()
-				.showNotification(
-					mode,
-					mode === 'work'
-						? t('timer.workCompleted')
-						: t('timer.breakCompleted'),
-				)
+				.showNotification(mode as 'work' | 'break')
 		}
 	}, [mode, progress, t])
 
