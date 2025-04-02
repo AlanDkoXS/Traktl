@@ -151,9 +151,9 @@ export const TimerDisplay = ({
 			</svg>
 
 			{/* Timer text */}
-			<div className="absolute inset-0 flex flex-col items-center justify-center">
+			<div className="absolute inset-0 flex flex-col items-center justify-center translate-y-4">
 				<span
-					className={`text-4xl sm:text-5xl font-bold ${
+					className={`text-5xl sm:text-6xl font-bold ${
 						mode === 'work'
 							? 'dynamic-color'
 							: 'text-[hsl(var(--color-project-hue),var(--color-project-saturation),50%)]'
@@ -181,7 +181,7 @@ export const TimerDisplay = ({
 					{isConnected ? (
 						<div className="group relative inline-block">
 							<svg
-								className="w-4 h-4 text-green-500"
+								className="w-4 h-4 dynamic-color"
 								fill="currentColor"
 								viewBox="0 0 24 24"
 								xmlns="http://www.w3.org/2000/svg"
