@@ -12,7 +12,7 @@ export class MongoClientRepository implements ClientRepository {
 	}
 
 	async findById(id: string): Promise<ClientEntity | null> {
-		const client = await Client.findById(id)
+		const client = await Client.findById(id).populate('projects')
 		return client ? this.mapToDomain(client) : null
 	}
 
@@ -24,7 +24,7 @@ export class MongoClientRepository implements ClientRepository {
 			id,
 			{ ...clientData, updatedAt: new Date() },
 			{ new: true },
-		)
+		).populate('projects')
 		return updatedClient ? this.mapToDomain(updatedClient) : null
 	}
 
@@ -42,13 +42,14 @@ export class MongoClientRepository implements ClientRepository {
 		const clients = await Client.find({ user: userId })
 			.skip(skip)
 			.limit(limit)
+			.populate('projects')
 		return clients.map((client) => this.mapToDomain(client))
 	}
 
 	async findByCriteria(
 		criteria: Partial<ClientDomain>,
 	): Promise<ClientEntity[]> {
-		const clients = await Client.find(criteria)
+		const clients = await Client.find(criteria).populate('projects')
 		return clients.map((client) => this.mapToDomain(client))
 	}
 
@@ -65,6 +66,7 @@ export class MongoClientRepository implements ClientRepository {
 			user: client.user.toString(),
 			createdAt: client.createdAt,
 			updatedAt: client.updatedAt,
+			projects: client.projects?.map((project: any) => project._id.toString()) || [],
 		}
 	}
 }

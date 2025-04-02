@@ -30,9 +30,22 @@ export class MongoProjectRepository implements ProjectRepository {
 		id: string,
 		projectData: Partial<ProjectDomain>,
 	): Promise<ProjectEntity | null> {
+		// Si client es null, necesitamos usar $unset para eliminar el campo
+		const updateData = { ...projectData, updatedAt: new Date() }
+
+		if (projectData.client === null) {
+			delete updateData.client
+			const updatedProject = await Project.findByIdAndUpdate(
+				id,
+				{ $unset: { client: 1 }, ...updateData },
+				{ new: true },
+			)
+			return updatedProject ? this.mapToDomain(updatedProject) : null
+		}
+
 		const updatedProject = await Project.findByIdAndUpdate(
 			id,
-			{ ...projectData, updatedAt: new Date() },
+			updateData,
 			{ new: true },
 		)
 		return updatedProject ? this.mapToDomain(updatedProject) : null

@@ -9,7 +9,7 @@ const UpdateProjectSchema = z.object({
 			message: 'Invalid color format (should be hex)',
 		})
 		.optional(),
-	client: z.string().optional(),
+	client: z.string().nullable().optional(),
 	status: z.enum(['active', 'archived']).optional(),
 })
 
@@ -20,7 +20,7 @@ export class UpdateProjectDTO {
 		public readonly name?: string,
 		public readonly description?: string,
 		public readonly color?: string,
-		public readonly client?: string,
+		public readonly client?: string | null,
 		public readonly status?: 'active' | 'archived',
 	) {}
 

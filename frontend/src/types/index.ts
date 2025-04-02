@@ -17,6 +17,12 @@ export interface User {
 export interface Client {
 	id: string
 	name: string
+	contactInfo?: string
+	color: string
+	user: string
+	createdAt: Date
+	updatedAt: Date
+	projects?: string[]
 }
 
 export interface Task {
@@ -68,9 +74,9 @@ export interface TimeEntry {
 export interface Project {
 	id: string
 	name: string
-	description?: string
+	description: string
 	color: string
-	client?: string
+	client: string | null | undefined
 	status: 'active' | 'archived'
 	user: string
 	createdAt: Date

@@ -7,6 +7,7 @@ export interface IClient extends Document {
 	createdAt: Date
 	updatedAt: Date
 	user: mongoose.Types.ObjectId
+	projects?: mongoose.Types.ObjectId[]
 }
 
 const ClientSchema = new Schema<IClient>(
@@ -32,7 +33,16 @@ const ClientSchema = new Schema<IClient>(
 	{
 		timestamps: true,
 		versionKey: false,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
 	},
 )
+
+// Virtual para los proyectos del cliente
+ClientSchema.virtual('projects', {
+	ref: 'Project',
+	localField: '_id',
+	foreignField: 'client',
+})
 
 export const Client = mongoose.model<IClient>('Client', ClientSchema)

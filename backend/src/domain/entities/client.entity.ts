@@ -6,6 +6,7 @@ export interface Client {
 	createdAt: Date
 	updatedAt: Date
 	user: string
+	projects?: string[]
 }
 
 export interface ClientEntity extends Omit<Client, '_id'> {

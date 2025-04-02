@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '../store/projectStore'
 import { useClientStore } from '../store/clientStore'
 import { Project } from '../types'
-import { toObjectIdOrUndefined } from '../utils/validationHelpers'
 
 interface ProjectFormProps {
 	project?: Project
@@ -45,29 +44,35 @@ export const ProjectForm = ({
 		setIsSubmitting(true)
 		setError('')
 
-		// Convert clientId to a valid ObjectId or undefined to prevent the error
-		const validClientId = toObjectIdOrUndefined(clientId)
-
 		try {
 			if (isEditing && project) {
-				await updateProject(project.id, {
+				const updatedProject = await updateProject(project.id, {
 					name,
 					description,
 					color,
-					client: validClientId,
+					client: clientId || null,
 					status,
 				})
+
+				// Esperar un momento para asegurar que la actualización se complete
+				await new Promise((resolve) => setTimeout(resolve, 500))
+
+				// Verificar que el proyecto se actualizó correctamente
+				if (updatedProject) {
+					navigate('/projects')
+				} else {
+					setError(t('errors.updateFailed'))
+				}
 			} else {
 				await createProject({
 					name,
 					description,
 					color,
-					client: validClientId,
+					client: clientId || null,
 					status,
 				})
+				navigate('/projects')
 			}
-
-			navigate('/projects')
 		} catch (err: unknown) {
 			console.error('Project submission error:', err)
 			if (err instanceof Error) {

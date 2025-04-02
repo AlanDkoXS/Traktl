@@ -77,10 +77,10 @@ export const projectService = {
 		project: Omit<Project, 'id' | 'user' | 'createdAt' | 'updatedAt'>,
 	): Promise<Project> => {
 		try {
-			// Remove empty string client to prevent ObjectId casting errors
+			// Set client to null if empty string
 			const projectData = { ...project }
 			if (projectData.client === '') {
-				delete projectData.client
+				projectData.client = null
 			}
 
 			console.log('Creating project with data:', projectData)
@@ -109,10 +109,10 @@ export const projectService = {
 		>,
 	): Promise<Project> => {
 		try {
-			// Remove empty string client to prevent ObjectId casting errors
+			// Set client to null if empty string
 			const projectData = { ...project }
 			if (projectData.client === '') {
-				delete projectData.client
+				projectData.client = null
 			}
 
 			console.log(`Updating project ${id} with data:`, projectData)

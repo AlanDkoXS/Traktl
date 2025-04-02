@@ -1,18 +1,40 @@
 import api from './api'
 import { Client } from '../types'
 
+interface ApiClient {
+	_id?: string
+	id?: string
+	name: string
+	contactInfo?: string
+	color?: string
+	user?: {
+		_id: string
+	} | string
+	createdAt?: string | Date
+	updatedAt?: string | Date
+	projects?: string[]
+}
+
 // Helper to transform MongoDB _id to id in our frontend
-const formatClient = (client: any): Client => {
+const formatClient = (client: ApiClient): Client => {
 	if (!client) return client
 
+	const id = client._id || client.id
+	if (!id) {
+		throw new Error('Client must have an id')
+	}
+
+	const userId = typeof client.user === 'object' ? client.user._id : client.user
+
 	return {
-		id: client._id || client.id,
+		id,
 		name: client.name,
 		contactInfo: client.contactInfo || '',
 		color: client.color || '#3b82f6',
-		user: client.user?._id || client.user || '',
+		user: userId || '',
 		createdAt: client.createdAt ? new Date(client.createdAt) : new Date(),
 		updatedAt: client.updatedAt ? new Date(client.updatedAt) : new Date(),
+		projects: client.projects || [],
 	}
 }
 
