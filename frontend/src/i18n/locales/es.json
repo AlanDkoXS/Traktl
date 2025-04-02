@@ -248,12 +248,16 @@
         "currentPassword": "Contraseña Actual",
         "newPassword": "Nueva Contraseña",
         "passwordChanged": "Contraseña cambiada correctamente",
+        "emailVerificationStatus": "Estado de verificación",
+        "verified": "Verificado",
+        "notVerified": "No verificado",
+        "requestVerification": "Solicitar verificación",
         "verifyEmail": "Verificar Correo",
-        "emailVerificationStatus": "Correo Verificado",
-        "verified": "Correo verificado",
-        "notVerified": "Correo no verificado",
-        "requestVerification": "Solicitar",
-        "pendingVerification": "Correo enviado para verificacion"
+        "verificationEmailSent": "Se ha enviado un correo de verificación a tu dirección de correo electrónico.",
+        "dangerZone": "Zona de Peligro",
+        "deleteAccount": "Eliminar Cuenta",
+        "deleteAccountDescription": "Elimina permanentemente tu cuenta y todos tus datos asociados.",
+        "deleteAccountConfirmation": "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer y se eliminarán todos tus datos, incluyendo proyectos, tareas y registros de tiempo."
     },
     "common": {
         "save": "Guardar",

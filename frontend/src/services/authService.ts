@@ -249,12 +249,22 @@ export const authService = {
 		newPassword: string,
 	): Promise<void> => {
 		try {
-			await api.put('/users/change-password', {
+			await api.post('/users/change-password', {
 				currentPassword,
 				newPassword,
 			})
 		} catch (error) {
 			console.error('Change password error in service:', error)
+			throw error
+		}
+	},
+
+	// Delete user account
+	deleteUser: async (): Promise<void> => {
+		try {
+			await api.delete('/users/profile')
+		} catch (error) {
+			console.error('Delete user error in service:', error)
 			throw error
 		}
 	},

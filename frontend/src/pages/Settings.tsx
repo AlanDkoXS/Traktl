@@ -5,7 +5,11 @@ import { useAuthStore } from '../store/authStore'
 import { ChangePasswordModal } from '../components/auth/ChangePasswordModal'
 import { emailVerificationService } from '../services/emailVerificationService'
 import { Modal } from '../components/ui/Modal'
-import { XCircleIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
+import {
+	XCircleIcon,
+	EnvelopeIcon,
+	TrashIcon,
+} from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 
 const Settings = () => {
@@ -17,6 +21,7 @@ const Settings = () => {
 		error,
 		isEmailVerified,
 		checkVerificationStatus,
+		deleteUser,
 	} = useAuthStore()
 
 	const [name, setName] = useState(user?.name || '')
@@ -35,6 +40,8 @@ const Settings = () => {
 	const [isVerificationLoading, setIsVerificationLoading] = useState(false)
 	const [showVerificationModal, setShowVerificationModal] = useState(false)
 	const [verificationError, setVerificationError] = useState('')
+	const [showDeleteModal, setShowDeleteModal] = useState(false)
+	const [isDeleting, setIsDeleting] = useState(false)
 
 	useEffect(() => {
 		const refreshVerificationStatus = async () => {
@@ -150,6 +157,18 @@ const Settings = () => {
 			)
 		} finally {
 			setIsVerificationLoading(false)
+		}
+	}
+
+	const handleDeleteAccount = async () => {
+		setIsDeleting(true)
+		try {
+			await deleteUser()
+		} catch (err) {
+			console.error('Failed to delete account:', err)
+		} finally {
+			setIsDeleting(false)
+			setShowDeleteModal(false)
 		}
 	}
 
@@ -354,6 +373,32 @@ const Settings = () => {
 						</div>
 					</div>
 
+					<div className="mt-8">
+						<h2 className="text-lg font-medium text-red-600 dark:text-red-400 mb-4">
+							{t('settings.dangerZone')}
+						</h2>
+						<div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+								<div>
+									<h3 className="text-base font-medium text-red-800 dark:text-red-200">
+										{t('settings.deleteAccount')}
+									</h3>
+									<p className="mt-1 text-sm text-red-700 dark:text-red-300">
+										{t('settings.deleteAccountDescription')}
+									</p>
+								</div>
+								<button
+									type="button"
+									onClick={() => setShowDeleteModal(true)}
+									className="btn bg-red-600 hover:bg-red-700 text-white shadow-sm transition-colors duration-200 flex items-center gap-2"
+								>
+									<TrashIcon className="w-5 h-5" />
+									{t('settings.deleteAccount')}
+								</button>
+							</div>
+						</div>
+					</div>
+
 					<div className="flex justify-end gap-3">
 						<button
 							type="button"
@@ -375,30 +420,82 @@ const Settings = () => {
 				</form>
 			</div>
 
+			{/* Delete Account Confirmation Modal */}
+			<Modal
+				isOpen={showDeleteModal}
+				onClose={() => setShowDeleteModal(false)}
+				title={t('settings.deleteAccount')}
+			>
+				<div className="mt-4">
+					<p className="text-sm text-gray-700 dark:text-gray-300">
+						{t('settings.deleteAccountConfirmation')}
+					</p>
+				</div>
+				<div className="mt-6 flex justify-end gap-3">
+					<button
+						type="button"
+						onClick={() => setShowDeleteModal(false)}
+						className="btn btn-secondary"
+					>
+						{t('common.cancel')}
+					</button>
+					<button
+						type="button"
+						onClick={handleDeleteAccount}
+						disabled={isDeleting}
+						className="btn bg-red-600 hover:bg-red-700 text-white shadow-sm transition-colors duration-200 flex items-center gap-2"
+					>
+						{isDeleting ? (
+							<>
+								<svg
+									className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+								>
+									<circle
+										className="opacity-25"
+										cx="12"
+										cy="12"
+										r="10"
+										stroke="currentColor"
+										strokeWidth="4"
+									></circle>
+									<path
+										className="opacity-75"
+										fill="currentColor"
+										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+									></path>
+								</svg>
+								{t('common.loading')}
+							</>
+						) : (
+							<>
+								<TrashIcon className="w-5 h-5" />
+								{t('settings.deleteAccount')}
+							</>
+						)}
+					</button>
+				</div>
+			</Modal>
+
+			{/* Change Password Modal */}
 			<ChangePasswordModal
 				isOpen={showChangePasswordModal}
 				onClose={() => setShowChangePasswordModal(false)}
 				onSuccess={handlePasswordChangeSuccess}
 			/>
 
+			{/* Email Verification Modal */}
 			<Modal
 				isOpen={showVerificationModal}
 				onClose={() => setShowVerificationModal(false)}
-				title={t('auth.emailVerification')}
+				title={t('settings.verifyEmail')}
 			>
-				<div className="flex flex-col items-center">
-					<div className="h-16 w-16 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 mb-4">
-						<EnvelopeIcon className="h-8 w-8 text-green-600 dark:text-green-400" />
-					</div>
-					<p className="text-center text-gray-800 dark:text-gray-200 mb-6">
-						{t('auth.emailVerificationSent')}
+				<div className="p-6">
+					<p className="text-sm text-gray-500 dark:text-gray-400">
+						{t('settings.verificationEmailSent')}
 					</p>
-					<button
-						className="btn btn-primary dynamic-bg text-white"
-						onClick={() => setShowVerificationModal(false)}
-					>
-						{t('common.close')}
-					</button>
 				</div>
 			</Modal>
 		</div>

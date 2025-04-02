@@ -241,7 +241,21 @@
         "language": "Dil",
         "theme": "Tema",
         "saved": "Ayarlar başarıyla kaydedildi",
-        "timers": "Zamanlayıcılar"
+        "timers": "Zamanlayıcılar",
+        "changePassword": "Şifreyi Değiştir",
+        "currentPassword": "Mevcut Şifre",
+        "newPassword": "Yeni Şifre",
+        "passwordChanged": "Şifre başarıyla değiştirildi",
+        "emailVerificationStatus": "E-posta Doğrulama Durumu",
+        "verified": "Doğrulandı",
+        "notVerified": "Doğrulanmadı",
+        "requestVerification": "Doğrulama iste",
+        "verifyEmail": "E-postayı Doğrula",
+        "verificationEmailSent": "E-posta adresinize bir doğrulama e-postası gönderildi.",
+        "dangerZone": "Tehlikeli Bölge",
+        "deleteAccount": "Hesabı Sil",
+        "deleteAccountDescription": "Hesabınızı ve ilişkili tüm verileri kalıcı olarak silin.",
+        "deleteAccountConfirmation": "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve projeleriniz, görevleriniz ve zaman kayıtlarınız dahil tüm verileriniz kalıcı olarak silinecektir."
     },
     "common": {
         "save": "Kaydet",

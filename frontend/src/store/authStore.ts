@@ -37,6 +37,7 @@ interface AuthState {
         isVerified: boolean
     }>
 	updateUserPreferences: (user: User) => void
+	deleteUser: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -62,6 +63,44 @@ export const useAuthStore = create<AuthState>()(
 					preferredLanguage: user.preferredLanguage || null,
 					theme: user.theme || null,
 				})
+			},
+
+			deleteUser: async () => {
+				try {
+					set({ isLoading: true, error: null })
+					await authService.deleteUser()
+
+					// Clear all user data and redirect to login
+					localStorage.removeItem('auth-token')
+					localStorage.removeItem('auth-storage')
+
+					// Reset timerStore state
+					import('../store/timerStore').then(({ useTimerStore }) => {
+						useTimerStore.getState().reset()
+					})
+
+					// Clear projects
+					import('../store/projectStore').then(({ useProjectStore }) => {
+						useProjectStore.getState().clearProjects()
+					})
+
+					set({
+						token: null,
+						user: null,
+						isAuthenticated: false,
+						isLoading: false,
+						isEmailVerified: false,
+						preferredLanguage: null,
+						theme: null,
+					})
+
+					window.location.href = '/login'
+				} catch (err: unknown) {
+					const apiError = err as ApiError
+					const errorMessage = apiError.response?.data?.message || 'Failed to delete account'
+					set({ error: errorMessage, isLoading: false })
+					throw new Error(errorMessage)
+				}
 			},
 
 			login: async (email, password) => {
