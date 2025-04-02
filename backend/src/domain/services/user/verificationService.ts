@@ -24,10 +24,10 @@ export class VerificationService {
 		userId: string,
 		email: string,
 	): Promise<string> {
-		// Generate verification token with no expiration
+		// Generate verification token with 24 hours expiration
 		const token = await JwtAdapter.generateToken(
 			{ id: userId, email },
-			'365d', // Very long expiration (essentially permanent)
+			'24h',
 		)
 
 		if (!token) {
@@ -36,10 +36,10 @@ export class VerificationService {
 			)
 		}
 
-		// Create token data without expiration
+		// Create token data with 24 hours expiration
 		const emailVerificationTokenData: EmailVerificationToken = {
 			token,
-			expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // Far future
+			expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
 		}
 
 		// Update user with verification token
@@ -67,12 +67,32 @@ export class VerificationService {
 			throw CustomError.notFound('User not found')
 		}
 
-		// If user already has a token, they're already verified
+		// Check if user already has a valid token
 		if (user.emailVerificationToken?.token) {
-			throw CustomError.badRequest('Email already verified')
+			// Check if the token is still valid
+			const tokenExpiration = new Date(user.emailVerificationToken.expiresAt)
+			if (tokenExpiration > new Date()) {
+				throw CustomError.badRequest('Email already verified')
+			}
+		}
+
+		// Check if there was a recent verification request (within last minute)
+		if (user.lastVerificationRequest) {
+			const lastRequest = new Date(user.lastVerificationRequest)
+			const now = new Date()
+			const diffInMinutes = (now.getTime() - lastRequest.getTime()) / (1000 * 60)
+			if (diffInMinutes < 1) {
+				throw CustomError.badRequest('Please wait 1 minute before requesting another verification email')
+			}
 		}
 
 		const token = await this.generateEmailVerificationToken(userId, email)
+
+		// Update last verification request time
+		await this.userRepository.update(userId, {
+			lastVerificationRequest: new Date()
+		} as any)
+
 		return this.emailService.sendVerificationEmail(email, token, language)
 	}
 
@@ -125,7 +145,7 @@ export class VerificationService {
 
 	/**
 	 * Gets the verification status of a user
-	 * A user is verified if they have a token
+	 * A user is verified if they have a valid token
 	 */
 	async getVerificationStatus(
 		userId: string,
@@ -135,9 +155,13 @@ export class VerificationService {
 			throw CustomError.notFound('User not found')
 		}
 
+		// Check if the token is still valid
+		const hasValidToken = !!user.emailVerificationToken?.token &&
+			new Date(user.emailVerificationToken.expiresAt) > new Date()
+
 		return {
-			isVerified: !!user.emailVerificationToken?.token,
-			emailVerificationToken: user.emailVerificationToken
+			isVerified: hasValidToken,
+			emailVerificationToken: hasValidToken ? user.emailVerificationToken : undefined
 		}
 	}
 }

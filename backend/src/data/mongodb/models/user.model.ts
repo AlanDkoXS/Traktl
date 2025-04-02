@@ -43,7 +43,7 @@ const UserSchema = new Schema<IUser>(
 		},
 		preferredLanguage: {
 			type: String,
-			enum: ['es', 'en'],
+			enum: ['es', 'en', 'tr'],
 			default: 'en',
 		},
 		theme: {
