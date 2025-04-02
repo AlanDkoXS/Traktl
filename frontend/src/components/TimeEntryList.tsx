@@ -14,17 +14,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { ConfirmModal } from './ui/ConfirmModal'
 import { useTimerStore } from '../store/timerStore'
-
-// Define or import the TimeEntry type
-interface TimeEntry {
-	id: string
-	project: string
-	task?: string
-	notes?: string
-	tags?: string[]
-	startTime: string
-	duration: number
-}
+import { TimeEntry } from '../types'
 
 interface TimeEntryListProps {
 	projectId?: string
@@ -42,8 +32,16 @@ export const TimeEntryList = ({
 	limit,
 }: TimeEntryListProps) => {
 	const { t } = useTranslation()
-	const { timeEntries, fetchTimeEntries, deleteTimeEntry, error } =
-		useTimeEntryStore()
+	const {
+		timeEntries,
+		fetchTimeEntries,
+		deleteTimeEntry,
+		error,
+		selectedTimeEntries,
+		selectTimeEntry,
+		deselectTimeEntry,
+		clearSelectedTimeEntries,
+	} = useTimeEntryStore()
 	const { projects, fetchProjects } = useProjectStore()
 	const { tasks, fetchTasks } = useTaskStore()
 	const { tags, fetchTags } = useTagStore()
@@ -58,7 +56,6 @@ export const TimeEntryList = ({
 		setInfiniteMode,
 		selectedEntryId,
 		setSelectedEntryId,
-		toggleEntrySelection,
 	} = useTimerStore()
 
 	const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -66,6 +63,7 @@ export const TimeEntryList = ({
 	const [deleteLoading, setDeleteLoading] = useState(false)
 	const [dataInitialized, setDataInitialized] = useState(false)
 	const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null)
+	const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false)
 
 	// Initial data load
 	useEffect(() => {
@@ -170,6 +168,9 @@ export const TimeEntryList = ({
 				setSelectedEntryId(null)
 				setInfiniteMode(false)
 			}
+
+			// Refresh the time entries list
+			await fetchTimeEntries(projectId, taskId, startDate, endDate)
 		} catch (error) {
 			console.error('Failed to delete time entry:', error)
 		} finally {
@@ -183,24 +184,45 @@ export const TimeEntryList = ({
 		e.preventDefault()
 		e.stopPropagation()
 
-		toggleEntrySelection(entry.id)
+		// Si se mantiene presionada la tecla Ctrl/Cmd, alternar selección individual
+		if (e.ctrlKey || e.metaKey) {
+			if (selectedTimeEntries.some((te) => te.id === entry.id)) {
+				deselectTimeEntry(entry)
+			} else {
+				selectTimeEntry(entry)
+			}
+			return
+		}
 
-		console.log(
-			'Entry clicked:',
-			entry.id,
-			'current selectedEntryId:',
-			selectedEntryId,
-		)
+		// Si se mantiene presionada la tecla Shift, seleccionar rango
+		if (e.shiftKey && selectedTimeEntries.length > 0) {
+			const lastSelectedIndex = timeEntries.findIndex(
+				(te) =>
+					te.id ===
+					selectedTimeEntries[selectedTimeEntries.length - 1].id,
+			)
+			const currentIndex = timeEntries.findIndex(
+				(te) => te.id === entry.id,
+			)
 
-		// If we're clicking the currently selected entry, unselect it and turn off infinite mode
-		if (selectedEntryId === entry.id) {
-			console.log('Unselecting entry')
-			setSelectedEntryId(null)
-			setInfiniteMode(false)
+			const start = Math.min(lastSelectedIndex, currentIndex)
+			const end = Math.max(lastSelectedIndex, currentIndex)
+
+			// Limpiar selección actual
+			clearSelectedTimeEntries()
+
+			// Seleccionar el rango
+			for (let i = start; i <= end; i++) {
+				selectTimeEntry(timeEntries[i])
+			}
+			return
+		}
+
+		// Si no hay teclas modificadoras, alternar selección individual
+		if (selectedTimeEntries.some((te) => te.id === entry.id)) {
+			deselectTimeEntry(entry)
 		} else {
-			console.log('Selecting entry')
-			setSelectedEntryId(entry.id)
-			setInfiniteMode(true) // Enable infinite mode when selecting an entry
+			selectTimeEntry(entry)
 		}
 	}
 
@@ -229,6 +251,27 @@ export const TimeEntryList = ({
 
 	const handleRetry = () => {
 		setDataInitialized(false)
+	}
+
+	const handleBulkDelete = async () => {
+		setDeleteLoading(true)
+		try {
+			// Eliminar todas las entradas seleccionadas
+			await Promise.all(
+				selectedTimeEntries.map((entry) => deleteTimeEntry(entry.id)),
+			)
+
+			// Limpiar la selección
+			clearSelectedTimeEntries()
+
+			// Refrescar la lista de entradas
+			await fetchTimeEntries(projectId, taskId, startDate, endDate)
+		} catch (error) {
+			console.error('Failed to delete time entries:', error)
+		} finally {
+			setDeleteLoading(false)
+			setShowBulkDeleteModal(false)
+		}
 	}
 
 	if (error) {
@@ -278,9 +321,46 @@ export const TimeEntryList = ({
 
 	return (
 		<>
+			{selectedTimeEntries.length > 0 && (
+				<div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm mb-4 flex items-center justify-between">
+					<div className="text-sm text-gray-600 dark:text-gray-300">
+						{t('timeEntries.selectedCount', {
+							count: selectedTimeEntries.length,
+						})}
+					</div>
+					<div className="flex space-x-2">
+						<button
+							onClick={() => {
+								// TODO: Implementar acción de edición en masa
+								console.log(
+									'Edit selected entries:',
+									selectedTimeEntries,
+								)
+							}}
+							className="btn btn-secondary btn-sm"
+						>
+							{t('common.edit')}
+						</button>
+						<button
+							onClick={() => setShowBulkDeleteModal(true)}
+							className="btn btn-danger btn-sm"
+						>
+							{t('common.delete')}
+						</button>
+						<button
+							onClick={clearSelectedTimeEntries}
+							className="btn btn-secondary btn-sm"
+						>
+							{t('common.clearSelection')}
+						</button>
+					</div>
+				</div>
+			)}
 			<div className="space-y-2">
 				{displayEntries.map((entry) => {
-					const isSelected = selectedEntryId === entry.id
+					const isSelected = selectedTimeEntries.some(
+						(te) => te.id === entry.id,
+					)
 					const isHovered = hoveredEntryId === entry.id
 					const projectColor = getProjectColor(entry.project)
 
@@ -331,9 +411,10 @@ export const TimeEntryList = ({
 									<div className="flex items-center min-w-0">
 										<div
 											className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-800'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
-											onClick={(e) =>
+											onClick={(e) => {
+												e.stopPropagation()
 												handlePlayClick(entry, e)
-											}
+											}}
 											style={
 												isSelected
 													? {}
@@ -478,6 +559,21 @@ export const TimeEntryList = ({
 				cancelButtonText={t('common.cancel')}
 				onConfirm={handleConfirmDelete}
 				onCancel={() => setShowDeleteModal(false)}
+				isLoading={deleteLoading}
+				danger={true}
+			/>
+
+			{/* Bulk delete confirmation modal */}
+			<ConfirmModal
+				isOpen={showBulkDeleteModal}
+				title={t('common.confirmDelete')}
+				message={t('timeEntries.bulkDeleteConfirmation', {
+					count: selectedTimeEntries.length,
+				})}
+				confirmButtonText={t('common.delete')}
+				cancelButtonText={t('common.cancel')}
+				onConfirm={handleBulkDelete}
+				onCancel={() => setShowBulkDeleteModal(false)}
 				isLoading={deleteLoading}
 				danger={true}
 			/>

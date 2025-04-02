@@ -103,8 +103,18 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 	}
 
 	async delete(id: string): Promise<boolean> {
-		const result = await TimeEntryModel.findByIdAndDelete(id)
-		return !!result
+		try {
+			const result = await TimeEntryModel.findByIdAndDelete(id)
+			if (!result) {
+				console.error(`Time entry with id ${id} not found for deletion`)
+				return false
+			}
+			console.log(`Successfully deleted time entry with id ${id}`)
+			return true
+		} catch (error) {
+			console.error(`Error deleting time entry with id ${id}:`, error)
+			return false
+		}
 	}
 
 	async listByUser(

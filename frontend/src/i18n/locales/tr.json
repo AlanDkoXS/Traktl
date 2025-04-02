@@ -197,7 +197,9 @@
         "entryCreated": "{{duration}} dakikalık zaman kaydı kaydedildi",
         "deleteConfirmation": "Bu zaman kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
         "shortTimeTitle": "Kısa Zaman Kaydı",
-        "shortTimeMessage": "Bu zaman kaydı bir dakikadan az. Yine de kaydetmek istiyor musunuz?"
+        "shortTimeMessage": "Bu zaman kaydı bir dakikadan az. Yine de kaydetmek istiyor musunuz?",
+        "selectedCount": "{{count}} kayıt seçildi",
+        "bulkDeleteConfirmation": "{{count}} zaman kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
     },
     "tags": {
         "title": "Etiketler",
@@ -284,7 +286,8 @@
             "connected": "Bağlı",
             "disconnected": "Bağlantı Kesildi"
         },
-        "back": "Dön"
+        "back": "Dön",
+        "clearSelection": "Seçimi Temizle"
     },
     "errors": {
         "required": "Bu alan zorunludur",

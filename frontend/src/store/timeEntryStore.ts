@@ -4,7 +4,7 @@ import { TimeEntry } from '../types'
 
 interface TimeEntryState {
 	timeEntries: TimeEntry[]
-	selectedTimeEntry: TimeEntry | null
+	selectedTimeEntries: TimeEntry[]
 	isLoading: boolean
 	error: string | null
 
@@ -30,9 +30,9 @@ interface TimeEntryState {
 
 	deleteTimeEntry: (id: string) => Promise<void>
 
-	selectTimeEntry: (timeEntry: TimeEntry | null) => void
-
-	clearSelectedTimeEntry: () => void
+	selectTimeEntry: (timeEntry: TimeEntry) => void
+	deselectTimeEntry: (timeEntry: TimeEntry) => void
+	clearSelectedTimeEntries: () => void
 
 	addNewTimeEntry: (timeEntry: TimeEntry) => void
 
@@ -71,7 +71,7 @@ const formatDateSafely = (
 // Create the store
 const timeEntryStore = create<TimeEntryState>((set) => ({
 	timeEntries: [],
-	selectedTimeEntry: null,
+	selectedTimeEntries: [],
 	isLoading: false,
 	error: null,
 
@@ -138,7 +138,7 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 		try {
 			set({ isLoading: true, error: null })
 			const timeEntry = await timeEntryService.getTimeEntry(id)
-			set({ selectedTimeEntry: timeEntry, isLoading: false })
+			set({ selectedTimeEntries: [timeEntry], isLoading: false })
 			return timeEntry
 		} catch (error) {
 			const errorMessage =
@@ -187,10 +187,9 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 				timeEntries: state.timeEntries.map((te) =>
 					te.id === id ? updatedTimeEntry : te,
 				),
-				selectedTimeEntry:
-					state.selectedTimeEntry?.id === id
-						? updatedTimeEntry
-						: state.selectedTimeEntry,
+				selectedTimeEntries: state.selectedTimeEntries.map((te) =>
+					te.id === id ? updatedTimeEntry : te,
+				),
 				isLoading: false,
 			}))
 			return updatedTimeEntry
@@ -211,19 +210,20 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 		try {
 			set({ isLoading: true, error: null })
 			await timeEntryService.deleteTimeEntry(id)
-			set((state) => ({
-				timeEntries: state.timeEntries.filter((te) => te.id !== id),
-				selectedTimeEntry:
-					state.selectedTimeEntry?.id === id
-						? null
-						: state.selectedTimeEntry,
-				isLoading: false,
-			}))
+
+			// Update the store state
+			set((state) => {
+				const updatedTimeEntries = state.timeEntries.filter((te) => te.id !== id)
+				const updatedSelectedTimeEntries = state.selectedTimeEntries.filter((te) => te.id !== id)
+
+				return {
+					timeEntries: updatedTimeEntries,
+					selectedTimeEntries: updatedSelectedTimeEntries,
+					isLoading: false,
+				}
+			})
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error
-					? error.message
-					: 'Failed to delete time entry'
+			const errorMessage = error instanceof Error ? error.message : 'Failed to delete time entry'
 			set({
 				error: errorMessage,
 				isLoading: false,
@@ -232,12 +232,22 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 		}
 	},
 
-	selectTimeEntry: (timeEntry) => {
-		set({ selectedTimeEntry: timeEntry })
+	selectTimeEntry: (timeEntry: TimeEntry) => {
+		set((state) => ({
+			selectedTimeEntries: [...state.selectedTimeEntries, timeEntry],
+		}))
 	},
 
-	clearSelectedTimeEntry: () => {
-		set({ selectedTimeEntry: null })
+	deselectTimeEntry: (timeEntry: TimeEntry) => {
+		set((state) => ({
+			selectedTimeEntries: state.selectedTimeEntries.filter(
+				(entry) => entry.id !== timeEntry.id,
+			),
+		}))
+	},
+
+	clearSelectedTimeEntries: () => {
+		set({ selectedTimeEntries: [] })
 	},
 
 	// Method to add a new time entry to the store
@@ -251,7 +261,7 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 		console.log('Clearing all time entries from store');
 		set({
 			timeEntries: [],
-			selectedTimeEntry: null,
+			selectedTimeEntries: [],
 			// Mantener otros estados como error o isLoading sin cambios
 		});
 	},

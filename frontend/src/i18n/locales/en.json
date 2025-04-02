@@ -186,7 +186,9 @@
         "entryCreated": "Time entry of {{duration}} minutes has been recorded",
         "deleteConfirmation": "Are you sure you want to delete the time entry? This action cannot be undone.",
         "shortTimeTitle": "Short Session",
-        "shortTimeMessage": "This session is less than a minute. Do you still want to save it?"
+        "shortTimeMessage": "This session is less than a minute. Do you still want to save it?",
+        "selectedCount": "{{count}} entries selected",
+        "bulkDeleteConfirmation": "Are you sure you want to delete {{count}} time entries? This action cannot be undone."
     },
     "tags": {
         "title": "Tags",
@@ -272,7 +274,8 @@
         "status": {
             "connected": "Connected",
             "disconnected": "Disconnected"
-        }
+        },
+        "clearSelection": "Clear Selection"
     },
     "errors": {
         "required": "This field is required",

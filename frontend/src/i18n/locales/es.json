@@ -199,7 +199,9 @@
         "entryCreated": "Se ha registrado una entrada de tiempo de {{duration}} minutos",
         "deleteConfirmation": "¿Estás seguro de que quieres eliminar el registro de tiempo? Esta acción no se puede deshacer.",
         "shortTimeTitle": "Entrada de Tiempo Corta",
-        "shortTimeMessage": "Esta entrada de tiempo es menor a un minuto. ¿Aún deseas guardarla?"
+        "shortTimeMessage": "Esta entrada de tiempo es menor a un minuto. ¿Aún deseas guardarla?",
+        "selectedCount": "{{count}} registros seleccionados",
+        "bulkDeleteConfirmation": "¿Estás seguro de que quieres eliminar {{count}} registros de tiempo? Esta acción no se puede deshacer."
     },
     "tags": {
         "title": "Etiquetas",
@@ -282,7 +284,8 @@
         "close": "Cerrar",
         "continue": "Continuar",
         "goToDashboard": "Ir al Panel",
-        "back": "Volver"
+        "back": "Volver",
+        "clearSelection": "Limpiar Selección"
     },
     "errors": {
         "required": "Este campo es obligatorio",
