@@ -1,10 +1,10 @@
 import { create } from 'zustand'
 
 interface NotificationState {
-  showModal: boolean
-  modalType: 'work' | 'break' | 'complete'
-  setShowModal: (show: boolean) => void
-  setModalType: (type: 'work' | 'break' | 'complete') => void
+  showToast: boolean
+  toastType: 'work' | 'break' | 'complete'
+  setShowToast: (show: boolean) => void
+  setToastType: (type: 'work' | 'break' | 'complete') => void
   showNotification: (type: 'work' | 'break' | 'complete') => void
   closeNotification: () => void
 }
@@ -86,27 +86,27 @@ class AudioPlayer {
 
 // Create notification store
 export const useNotificationStore = create<NotificationState>((set) => ({
-  showModal: false,
-  modalType: 'work',
-  setShowModal: (show) => set({ showModal: show }),
-  setModalType: (type) => set({ modalType: type }),
+  showToast: false,
+  toastType: 'work',
+  setShowToast: (show) => set({ showToast: show }),
+  setToastType: (type) => set({ toastType: type }),
   showNotification: (type) => {
     // Play sound
     AudioPlayer.getInstance().play(type)
 
-    // Show modal
+    // Show toast
     set({
-      showModal: true,
-      modalType: type,
+      showToast: true,
+      toastType: type,
     })
 
-    // Auto-close after 4 seconds
+    // Auto-close after 3 seconds
     AudioPlayer.getInstance().setAutoClose(() => {
-      set({ showModal: false })
-    }, 4000)
+      set({ showToast: false })
+    }, 3000)
   },
   closeNotification: () => {
     AudioPlayer.getInstance().stop()
-    set({ showModal: false })
+    set({ showToast: false })
   },
 }))
