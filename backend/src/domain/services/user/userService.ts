@@ -6,16 +6,10 @@ import { UpdateUserDTO } from '../../dtos/user/update-user.dto'
 import { CustomError } from '../../errors/custom.errors'
 import { JwtAdapter } from '../../../config/jwt.adapter'
 import { regularExp } from '../../../config/regular-exp'
-import { ProjectRepository } from '../../repositories/projectRepository.interface'
-import { TimerPresetRepository } from '../../repositories/timerPresetRepository.interface'
-import { TimeEntryRepository } from '../../repositories/timeEntryRepository.interface'
 
 export class UserService {
 	constructor(
 		private readonly userRepository: UserRepository,
-		private readonly projectRepository: ProjectRepository,
-		private readonly timerPresetRepository: TimerPresetRepository,
-		private readonly timeEntryRepository: TimeEntryRepository,
 		private readonly emailService?: any // Uso any temporalmente para evitar problemas de importación
 	) {
 		console.log('UserService constructor called')
@@ -270,36 +264,22 @@ export class UserService {
 	}
 
 	async deleteUser(userId: string): Promise<boolean> {
-		try {
-			// Find user by ID
-			const user = await this.userRepository.findById(userId)
-			if (!user) {
-				throw CustomError.notFound('User not found')
-			}
-
-			// Delete all user's projects
-			await this.projectRepository.deleteAllByUserId(userId)
-
-			// Delete all user's timer presets
-			await this.timerPresetRepository.deleteAllByUserId(userId)
-
-			// Delete all user's time entries
-			await this.timeEntryRepository.deleteAllByUserId(userId)
-
-			// Inactivate user instead of deleting
-			const updated = await this.userRepository.update(userId, {
-				isActive: false,
-				deletedAt: new Date()
-			})
-
-			if (!updated) {
-				throw CustomError.internalServer('Error inactivating user')
-			}
-
-			return true
-		} catch (error) {
-			console.error('Error during user deletion:', error)
-			throw error
+		// Find user by ID
+		const user = await this.userRepository.findById(userId)
+		if (!user) {
+			throw CustomError.notFound('User not found')
 		}
+
+		// Inactivate user instead of deleting
+		const updated = await this.userRepository.update(userId, {
+			isActive: false,
+			deletedAt: new Date()
+		})
+
+		if (!updated) {
+			throw CustomError.internalServer('Error inactivating user')
+		}
+
+		return true
 	}
 }
