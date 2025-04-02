@@ -504,7 +504,16 @@ export const useTimerStore = create<TimerState>()(
 					if (!state.infiniteMode && newElapsed >= totalSeconds) {
 						if (state.mode === 'work') {
 							// Work session completed
-							state.switchToBreak()
+							if (state.breakDuration > 0) {
+								state.switchToBreak()
+							} else {
+								// Si no hay descanso configurado, pasar directamente a la siguiente sesión de trabajo
+								state.switchToWork(
+									state.currentRepetition < state.repetitions
+										? state.currentRepetition + 1
+										: 1
+								)
+							}
 						} else {
 							// Break session completed
 							state.switchToWork(
@@ -611,7 +620,31 @@ export const useTimerStore = create<TimerState>()(
 					// Mostrar notificación de finalización de ciclo de trabajo
 					state.showNotification('work')
 
-					return state.switchToBreak()
+					if (state.breakDuration > 0) {
+						return state.switchToBreak()
+					} else {
+						// Si no hay descanso configurado, pasar directamente a la siguiente sesión de trabajo
+						if (state.currentRepetition < state.repetitions) {
+							return state.switchToWork(state.currentRepetition + 1)
+						} else {
+							// Hemos completado todas las repeticiones
+							state.showNotification('complete')
+
+							// Resetear el timer y mostrar modal
+							setupGlobalInterval(get().tick, 'idle')
+
+							set({
+								mode: 'work',
+								status: 'idle',
+								elapsed: 0,
+								currentRepetition: 1,
+								workStartTime: null,
+								showCompletionModal: true,
+								infiniteMode: false,
+								selectedEntryId: null
+							})
+						}
+					}
 				} else {
 					// Estamos en break
 					if (state.currentRepetition < state.repetitions) {
