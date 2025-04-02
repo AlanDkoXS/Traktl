@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { ProjectForm } from '../components/ProjectForm'
 import { useProjectStore } from '../store/projectStore'
 import { ConfirmModal } from '../components/ui/ConfirmModal'
-import { TrashIcon } from '@heroicons/react/24/outline'
+import { TrashIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { setProjectColor } from '../utils/dynamicColors'
 
 const EditProject = () => {
@@ -92,13 +92,22 @@ const EditProject = () => {
 				<h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
 					{t('projects.edit')}
 				</h1>
-				<button
-					onClick={() => setShowDeleteModal(true)}
-					className="btn btn-secondary bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-800/50"
-				>
-					<TrashIcon className="h-5 w-5 mr-1" />
-					{t('common.delete')}
-				</button>
+				<div className="flex gap-2">
+					<button
+						onClick={() => navigate('/projects')}
+						className="btn btn-secondary"
+					>
+						<ArrowLeftIcon className="h-5 w-5 mr-1" />
+						{t('common.goBack')}
+					</button>
+					<button
+						onClick={() => setShowDeleteModal(true)}
+						className="btn btn-secondary bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-200 dark:hover:bg-red-800/50"
+					>
+						<TrashIcon className="h-5 w-5 mr-1" />
+						{t('common.delete')}
+					</button>
+				</div>
 			</div>
 
 			<div className="card-project">
