@@ -361,6 +361,10 @@ export const TimeEntryList = ({
 					const isSelected = selectedTimeEntries.some(
 						(te) => te.id === entry.id,
 					)
+					const isLastSelected =
+						selectedTimeEntries.length > 0 &&
+						selectedTimeEntries[selectedTimeEntries.length - 1]
+							.id === entry.id
 					const isHovered = hoveredEntryId === entry.id
 					const projectColor = getProjectColor(entry.project)
 
@@ -410,26 +414,30 @@ export const TimeEntryList = ({
 								<div className="flex items-center justify-between pr-16">
 									<div className="flex items-center min-w-0">
 										<div
-											className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-800'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
+											className={`flex-shrink-0 h-7 w-7 ${isSelected ? 'bg-gray-100 dark:bg-gray-800' : 'bg-gray-100 dark:bg-gray-800'} rounded-full flex items-center justify-center mr-2 cursor-pointer transition-colors`}
 											onClick={(e) => {
 												e.stopPropagation()
 												handlePlayClick(entry, e)
 											}}
 											style={
 												isSelected
-													? {}
+													? {
+															backgroundColor: `${projectColor}20`,
+														}
 													: {
 															backgroundColor: `${projectColor}20`,
 														}
 											}
 										>
-											{isSelected ? (
+											{isLastSelected ? (
 												<PlayIcon className="h-3.5 w-3.5 text-green-600 dark:text-green-300" />
 											) : (
 												<ClockIcon
 													className="h-3.5 w-3.5"
 													style={{
-														color: projectColor,
+														color: isSelected
+															? projectColor
+															: projectColor,
 													}}
 												/>
 											)}
@@ -504,25 +512,27 @@ export const TimeEntryList = ({
 								)}
 							</div>
 
-							<div className="absolute top-2 right-2 flex space-x-1">
-								<Link
-									to={`/time-entries/${entry.id}`}
-									className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-white dark:bg-gray-800 rounded"
-									title={t('common.edit')}
-									onClick={(e) => e.stopPropagation()}
-								>
-									<PencilIcon className="h-4 w-4" />
-								</Link>
-								<button
-									onClick={(e) =>
-										handleDeleteClick(entry.id, e)
-									}
-									className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded"
-									title={t('common.delete')}
-								>
-									<TrashIcon className="h-4 w-4" />
-								</button>
-							</div>
+							{isLastSelected && (
+								<div className="absolute top-2 right-2 flex space-x-1">
+									<Link
+										to={`/time-entries/${entry.id}`}
+										className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-white dark:bg-gray-800 rounded"
+										title={t('common.edit')}
+										onClick={(e) => e.stopPropagation()}
+									>
+										<PencilIcon className="h-4 w-4" />
+									</Link>
+									<button
+										onClick={(e) =>
+											handleDeleteClick(entry.id, e)
+										}
+										className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 bg-white dark:bg-gray-800 rounded"
+										title={t('common.delete')}
+									>
+										<TrashIcon className="h-4 w-4" />
+									</button>
+								</div>
+							)}
 						</div>
 					)
 				})}
