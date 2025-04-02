@@ -33,9 +33,6 @@ i18n.use(LanguageDetector)
 			lookupFromSubdomainIndex: 0,
 			// Don't use cookies to avoid unnecessary headers
 			lookupCookie: 'i18next',
-			cookieExpirationDate: new Date(
-				Date.now() + 2 * 365 * 24 * 60 * 60 * 1000,
-			), // 2 years
 			// HTML lang attribute
 			htmlTag: document.documentElement,
 		},
