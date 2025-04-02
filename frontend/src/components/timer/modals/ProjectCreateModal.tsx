@@ -18,7 +18,7 @@ export const ProjectCreateModal = ({
 	onProjectCreated,
 }: ProjectCreateModalProps) => {
 	const { t } = useTranslation()
-	const { createProject } = useProjectStore()
+	const { createProject, fetchProjects } = useProjectStore()
 	const { clients, fetchClients } = useClientStore()
 
 	const [name, setName] = useState('')
@@ -66,6 +66,8 @@ export const ProjectCreateModal = ({
 
 			// Close modal and notify parent
 			onProjectCreated(newProject.id)
+			// Update projects list without archived projects
+			await fetchProjects(false)
 			onClose()
 		} catch (err: unknown) {
 			console.error('Project creation error:', err)
