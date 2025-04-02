@@ -45,6 +45,7 @@ interface TimerState {
 	socketConnected: boolean // Track socket connection status
 	isSyncEnabled: boolean // Flag to enable/disable syncing
 	lastSyncTime: Date | null // Track when the timer was last synced
+	selectedPresetId: string | null
 
 	// New methods for sync
 	setSyncEnabled: (enabled: boolean) => void
@@ -80,6 +81,8 @@ interface TimerState {
 	createTimeEntryFromWorkSession: () => Promise<void>
 
 	showNotification: (type: 'work' | 'break' | 'complete') => void
+
+	setSelectedPresetId: (id: string | null) => void
 }
 
 // Helper to manage the global interval
@@ -119,6 +122,7 @@ export const useTimerStore = create<TimerState>()(
 			socketConnected: false,
 			isSyncEnabled: true, // Enable sync by default
 			lastSyncTime: null,
+			selectedPresetId: null,
 
 			// Track socket connection status
 			setSocketConnected: (connected: boolean) => set({ socketConnected: connected }),
@@ -686,6 +690,8 @@ export const useTimerStore = create<TimerState>()(
 			showNotification: async (type: 'work' | 'break' | 'complete') => {
 				useNotificationStore.getState().showNotification(type)
 			},
+
+			setSelectedPresetId: (id: string | null) => set({ selectedPresetId: id }),
 		}),
 		{
 			name: 'timer-storage',
@@ -704,6 +710,7 @@ export const useTimerStore = create<TimerState>()(
 				workStartTime: state.workStartTime,
 				infiniteMode: state.infiniteMode,
 				selectedEntryId: state.selectedEntryId,
+				selectedPresetId: state.selectedPresetId,
 			}),
 		},
 	),
