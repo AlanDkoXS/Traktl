@@ -139,7 +139,7 @@ export const ProjectTaskSelector = ({
 		<>
 			<button
 				onClick={openModal}
-				className={`w-full p-3 text-left flex justify-between items-center bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm ${isDisabled ? 'opacity-50' : ''}`}
+				className={`w-full p-3 text-left flex justify-between items-center bg-white dark:bg-[rgb(var(--color-bg-inset))] rounded-lg shadow-sm ${isDisabled ? 'opacity-50' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
 				disabled={isDisabled}
 			>
 				<div>
@@ -361,7 +361,7 @@ export const ProjectTaskSelector = ({
 																	tag.id,
 																)
 															}}
-															className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-200 cursor-pointer hover:opacity-80 ${isDisabled ? 'opacity-50' : ''}`}
+															className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${isDisabled ? 'opacity-50' : 'cursor-pointer hover:opacity-80'}`}
 															style={{
 																backgroundColor:
 																	selectedTags.includes(
