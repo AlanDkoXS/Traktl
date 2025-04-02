@@ -36,12 +36,6 @@ export class VerificationService {
 			)
 		}
 
-		// Create token data with 24 hours expiration
-		const emailVerificationTokenData: EmailVerificationToken = {
-			token,
-			expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-		}
-
 		// Update user with last verification request only
 		const updated = await this.userRepository.update(userId, {
 			lastVerificationRequest: new Date(),

@@ -8,7 +8,7 @@ export interface User {
 	name: string
 	email: string
 	password: string
-	preferredLanguage: 'es' | 'en'
+	preferredLanguage: 'es' | 'en' | 'tr'
 	theme: 'light' | 'dark'
 	defaultTimerPreset?: string
 	createdAt: Date
@@ -28,7 +28,7 @@ export interface UserEntity {
 	name: string
 	email: string
 	password: string
-	preferredLanguage: 'es' | 'en'
+	preferredLanguage: 'es' | 'en' | 'tr'
 	theme: 'light' | 'dark'
 	defaultTimerPreset?: string
 	createdAt: Date
