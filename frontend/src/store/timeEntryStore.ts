@@ -13,6 +13,7 @@ interface TimeEntryState {
 		taskId?: string,
 		startDate?: Date | string,
 		endDate?: Date | string,
+		limit?: number,
 	) => Promise<TimeEntry[]>
 
 	fetchTimeEntry: (id: string) => Promise<TimeEntry | null>
@@ -75,12 +76,13 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 	isLoading: false,
 	error: null,
 
-	fetchTimeEntries: async (projectId, taskId, startDate, endDate) => {
+	fetchTimeEntries: async (projectId, taskId, startDate, endDate, limit) => {
 		console.log('fetchTimeEntries called with params:', {
 			projectId,
 			taskId,
 			startDate,
 			endDate,
+			limit,
 		})
 
 		try {
@@ -115,6 +117,7 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 				taskId,
 				formattedStartDate,
 				formattedEndDate,
+				limit,
 			)
 
 			console.log('Fetched time entries:', timeEntries.length)

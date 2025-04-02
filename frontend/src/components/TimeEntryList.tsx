@@ -77,6 +77,7 @@ export const TimeEntryList = ({
 						taskId,
 						startDate,
 						endDate,
+						limit,
 					)
 					await fetchProjects()
 					await fetchTasks()
@@ -88,7 +89,7 @@ export const TimeEntryList = ({
 
 			loadData()
 		}
-	}, [projectId, taskId, startDate, endDate, dataInitialized])
+	}, [projectId, taskId, startDate, endDate, limit, dataInitialized])
 
 	// Refresh time entries when timer stops
 	useEffect(() => {
@@ -101,6 +102,7 @@ export const TimeEntryList = ({
 						taskId,
 						startDate,
 						endDate,
+						limit,
 					)
 				} catch (err) {
 					console.error('Error refreshing time entries:', err)
@@ -177,7 +179,7 @@ export const TimeEntryList = ({
 			}
 
 			// Refresh the time entries list
-			await fetchTimeEntries(projectId, taskId, startDate, endDate)
+			await fetchTimeEntries(projectId, taskId, startDate, endDate, limit)
 		} catch (error) {
 			console.error('Failed to delete time entry:', error)
 		} finally {
@@ -272,7 +274,7 @@ export const TimeEntryList = ({
 			clearSelectedTimeEntries()
 
 			// Refrescar la lista de entradas
-			await fetchTimeEntries(projectId, taskId, startDate, endDate)
+			await fetchTimeEntries(projectId, taskId, startDate, endDate, limit)
 		} catch (error) {
 			console.error('Failed to delete time entries:', error)
 		} finally {
@@ -317,7 +319,7 @@ export const TimeEntryList = ({
 			new Date(b.startTime).getTime() - new Date(a.startTime).getTime(),
 	)
 
-	// Limit the number of entries if specified
+	// Only apply limit if it's explicitly set
 	const displayEntries = limit ? sortedEntries.slice(0, limit) : sortedEntries
 
 	// Check if timer is active

@@ -13,7 +13,7 @@ const Dashboard = () => {
 	const { projects, fetchProjects } = useProjectStore()
 	const { clients, fetchClients } = useClientStore()
 	const { tasks, fetchTasks } = useTaskStore()
-	const { timeEntries } = useTimeEntryStore()
+	const { timeEntries, fetchTimeEntries } = useTimeEntryStore()
 
 	const [isLoading, setIsLoading] = useState(true)
 	const [dataInitialized, setDataInitialized] = useState(false)
@@ -27,6 +27,14 @@ const Dashboard = () => {
 					await fetchProjects()
 					await fetchClients()
 					await fetchTasks()
+					// Load only the last 10 time entries
+					await fetchTimeEntries(
+						undefined,
+						undefined,
+						undefined,
+						undefined,
+						10,
+					)
 					setDataInitialized(true)
 				} catch (err) {
 					console.error('Error loading dashboard data:', err)

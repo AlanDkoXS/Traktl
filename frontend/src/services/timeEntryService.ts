@@ -53,6 +53,7 @@ export const timeEntryService = {
 		taskId?: string,
 		startDate?: Date,
 		endDate?: Date,
+		limit?: number,
 	): Promise<TimeEntry[]> => {
 		try {
 			console.log('Fetching time entries with params:', {
@@ -60,6 +61,7 @@ export const timeEntryService = {
 				taskId,
 				startDate,
 				endDate,
+				limit,
 			})
 			let url = '/time-entries'
 			const params = new URLSearchParams()
@@ -67,6 +69,7 @@ export const timeEntryService = {
 			if (taskId) params.append('taskId', taskId)
 			if (startDate) params.append('startDate', startDate.toISOString())
 			if (endDate) params.append('endDate', endDate.toISOString())
+			if (limit) params.append('limit', limit.toString())
 			if (params.toString()) {
 				url += `?${params.toString()}`
 			}

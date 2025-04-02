@@ -119,14 +119,18 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 
 	async listByUser(
 		userId: string,
-		page = 1,
-		limit = 10,
+		page?: number,
+		limit?: number,
 	): Promise<TimeEntry[]> {
-		const skip = (page - 1) * limit
-		const timeEntries = await TimeEntryModel.find({ user: userId })
-			.skip(skip)
-			.limit(limit)
+		const query = TimeEntryModel.find({ user: userId })
 			.sort({ createdAt: -1 })
+
+		if (page && limit) {
+			const skip = (page - 1) * limit
+			query.skip(skip).limit(limit)
+		}
+
+		const timeEntries = await query
 
 		return timeEntries.map((entry) => ({
 			_id: entry._id?.toString() || '',
@@ -146,14 +150,18 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 
 	async listByProject(
 		projectId: string,
-		page = 1,
-		limit = 10,
+		page?: number,
+		limit?: number,
 	): Promise<TimeEntry[]> {
-		const skip = (page - 1) * limit
-		const timeEntries = await TimeEntryModel.find({ project: projectId })
-			.skip(skip)
-			.limit(limit)
+		const query = TimeEntryModel.find({ project: projectId })
 			.sort({ createdAt: -1 })
+
+		if (page && limit) {
+			const skip = (page - 1) * limit
+			query.skip(skip).limit(limit)
+		}
+
+		const timeEntries = await query
 
 		return timeEntries.map((entry) => ({
 			_id: entry._id?.toString() || '',
@@ -173,14 +181,18 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 
 	async listByTask(
 		taskId: string,
-		page = 1,
-		limit = 10,
+		page?: number,
+		limit?: number,
 	): Promise<TimeEntry[]> {
-		const skip = (page - 1) * limit
-		const timeEntries = await TimeEntryModel.find({ task: taskId })
-			.skip(skip)
-			.limit(limit)
+		const query = TimeEntryModel.find({ task: taskId })
 			.sort({ createdAt: -1 })
+
+		if (page && limit) {
+			const skip = (page - 1) * limit
+			query.skip(skip).limit(limit)
+		}
+
+		const timeEntries = await query
 
 		return timeEntries.map((entry) => ({
 			_id: entry._id?.toString() || '',
@@ -234,17 +246,20 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 		userId: string,
 		startDate: Date,
 		endDate: Date,
-		page = 1,
-		limit = 10,
+		page?: number,
+		limit?: number,
 	): Promise<TimeEntry[]> {
-		const skip = (page - 1) * limit
-		const timeEntries = await TimeEntryModel.find({
+		const query = TimeEntryModel.find({
 			user: userId,
 			startTime: { $gte: startDate, $lte: endDate },
-		})
-			.skip(skip)
-			.limit(limit)
-			.sort({ startTime: -1 })
+		}).sort({ startTime: -1 })
+
+		if (page && limit) {
+			const skip = (page - 1) * limit
+			query.skip(skip).limit(limit)
+		}
+
+		const timeEntries = await query
 
 		return timeEntries.map((entry) => ({
 			_id: entry._id?.toString() || '',
