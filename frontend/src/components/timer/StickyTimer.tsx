@@ -7,16 +7,8 @@ import { ConfirmModal } from '../ui/ConfirmModal'
 export const StickyTimer = () => {
 	const { t } = useTranslation()
 	const location = useLocation()
-	const {
-		status,
-		mode,
-		formattedTime,
-		progress,
-		elapsed,
-		pause,
-		resume,
-		stop,
-	} = useTimer()
+	const { status, mode, formattedTime, progress, pause, resume, stop } =
+		useTimer()
 
 	const [isVisible, setIsVisible] = useState(false)
 	const [animateIn, setAnimateIn] = useState(false)
@@ -49,22 +41,17 @@ export const StickyTimer = () => {
 
 	// Handle stop confirmation
 	const handleStop = () => {
-		if (elapsed > 0) {
-			// Always show confirmation when stopping with time recorded (work or break)
-			setShowStopConfirmationModal(true)
-		} else {
-			// For empty timer, just stop and reset
-			stop()
-		}
+		// Siempre mostrar el modal de confirmación
+		setShowStopConfirmationModal(true)
 	}
 
 	const handleConfirmSave = () => {
-		stop()
+		stop(true)
 		setShowStopConfirmationModal(false)
 	}
 
 	const handleDontSave = () => {
-		stop()
+		stop(false)
 		setShowStopConfirmationModal(false)
 	}
 

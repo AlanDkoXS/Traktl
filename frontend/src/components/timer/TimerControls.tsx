@@ -89,11 +89,8 @@ export const TimerControls = ({
 	}
 
 	const handleStop = () => {
-		if (elapsed > 0) {
-			setShowStopConfirmationModal(true)
-		} else {
-			stop()
-		}
+		// Siempre mostrar el modal de confirmación
+		setShowStopConfirmationModal(true)
 	}
 
 	const handleConfirmSave = () => {
