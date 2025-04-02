@@ -41,7 +41,11 @@ export const StickyTimer = () => {
 
 	// Handle stop confirmation
 	const handleStop = () => {
-		// Siempre mostrar el modal de confirmación
+		// Solo mostrar el modal de confirmación si no estamos en modo break
+		if (mode === 'break') {
+			stop(false)
+			return
+		}
 		setShowStopConfirmationModal(true)
 	}
 

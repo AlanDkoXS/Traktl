@@ -374,9 +374,9 @@ export const useTimerStore = create<TimerState>()(
 					}
 				}
 
-				// Si shouldSave es explícitamente false, simplemente reseteamos el timer sin guardar
-				if (shouldSaveFinal === false) {
-					console.log('shouldSave es false, NO se guardará la entrada')
+				// Si estamos en modo break o shouldSave es explícitamente false, simplemente reseteamos el timer sin guardar
+				if (state.mode === 'break' || shouldSaveFinal === false) {
+					console.log('Modo break o shouldSave es false, NO se guardará la entrada')
 
 					// Mostrar notificación de finalización
 					state.showNotification('work')
