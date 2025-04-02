@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { useProjectStore } from '../store/projectStore'
 import { useTimeEntryStore } from '../store/timeEntryStore'
 import { format, subDays, differenceInDays } from 'date-fns'
@@ -15,6 +16,7 @@ import {
 	Pie,
 	Cell,
 } from 'recharts'
+import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 
 const Reports = () => {
 	const { t } = useTranslation()
@@ -201,9 +203,15 @@ const Reports = () => {
 
 	return (
 		<div>
-			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6 dynamic-color">
-				{t('reports.title')}
-			</h1>
+			<div className="flex justify-between items-center mb-6">
+				<h1 className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
+					{t('reports.title')}
+				</h1>
+				<Link to="/" className="btn btn-secondary">
+					<ArrowLeftIcon className="h-5 w-5 mr-1" />
+					{t('common.back')}
+				</Link>
+			</div>
 
 			{/* Filters */}
 			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 rounded-md shadow-sm mb-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
@@ -276,11 +284,9 @@ const Reports = () => {
 			</div>
 
 			{isLoading ? (
-				<div className="flex justify-center items-center py-4 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-					<div className="animate-spin rounded-full h-6 w-6 border-b-2 dynamic-border"></div>
-					<span className="ml-2 dynamic-color">
-						{t('common.loading')}
-					</span>
+				<div className="flex justify-center items-center py-8">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 dynamic-border"></div>
+					<span className="ml-2">{t('common.loading')}</span>
 				</div>
 			) : error ? (
 				<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-4 rounded-md">
@@ -288,42 +294,37 @@ const Reports = () => {
 				</div>
 			) : (
 				<div className="space-y-6">
-					{/* Summary */}
-					<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-4 rounded-lg shadow-sm border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">
-							{t('reports.summary')}
-						</h2>
-						<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-							<div className="dynamic-bg-subtle p-4 rounded-md">
-								<p className="text-sm text-gray-500 dark:text-gray-400">
-									{t('reports.totalTime')}
-								</p>
-								<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
-									{formatTime(totalTime)}
-								</p>
-							</div>
-							<div className="dynamic-bg-subtle p-4 rounded-md">
-								<p className="text-sm text-gray-500 dark:text-gray-400">
-									{t('reports.entries')}
-								</p>
-								<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
-									{timeEntries.length}
-								</p>
-							</div>
-							<div className="dynamic-bg-subtle p-4 rounded-md">
-								<p className="text-sm text-gray-500 dark:text-gray-400">
-									{t('reports.avgDaily')}
-								</p>
-								<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
-									{timeByDayAndProjectData.dayData.length > 0
-										? formatTime(
-												totalTime /
-													timeByDayAndProjectData
-														.dayData.length,
-											)
-										: '0h 0m'}
-								</p>
-							</div>
+					{/* Summary Stats */}
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+						<div className="dynamic-bg-subtle p-4 rounded-md">
+							<p className="text-sm text-gray-500 dark:text-gray-400">
+								{t('reports.totalTime')}
+							</p>
+							<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
+								{formatTime(totalTime)}
+							</p>
+						</div>
+						<div className="dynamic-bg-subtle p-4 rounded-md">
+							<p className="text-sm text-gray-500 dark:text-gray-400">
+								{t('reports.entries')}
+							</p>
+							<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
+								{timeEntries.length}
+							</p>
+						</div>
+						<div className="dynamic-bg-subtle p-4 rounded-md">
+							<p className="text-sm text-gray-500 dark:text-gray-400">
+								{t('reports.avgDaily')}
+							</p>
+							<p className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color">
+								{timeByDayAndProjectData.dayData.length > 0
+									? formatTime(
+											totalTime /
+												timeByDayAndProjectData.dayData
+													.length,
+										)
+									: '0h 0m'}
+							</p>
 						</div>
 					</div>
 

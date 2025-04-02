@@ -276,7 +276,8 @@
         "edit": "Editar",
         "close": "Cerrar",
         "continue": "Continuar",
-        "goToDashboard": "Ir al Panel"
+        "goToDashboard": "Ir al Panel",
+        "back": "Volver"
     },
     "errors": {
         "required": "Este campo es obligatorio",

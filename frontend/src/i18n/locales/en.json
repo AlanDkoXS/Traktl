@@ -248,6 +248,7 @@
         "delete": "Delete",
         "create": "Create",
         "update": "Update",
+        "back": "Back",
         "search": "Search",
         "filter": "Filter",
         "actions": "Actions",

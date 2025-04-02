@@ -268,7 +268,8 @@
         "status": {
             "connected": "Bağlı",
             "disconnected": "Bağlantı Kesildi"
-        }
+        },
+        "back": "Dön"
     },
     "errors": {
         "required": "Bu alan zorunludur",

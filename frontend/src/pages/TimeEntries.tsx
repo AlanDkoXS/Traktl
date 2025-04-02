@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { TimeEntryList } from '../components/TimeEntryList'
-import { PlusIcon, FunnelIcon } from '@heroicons/react/24/outline'
+import {
+	PlusIcon,
+	FunnelIcon,
+	ArrowLeftIcon,
+} from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 import { format, subDays } from 'date-fns'
 
@@ -37,6 +41,10 @@ const TimeEntries = () => {
 					{t('timeEntries.title')}
 				</h1>
 				<div className="flex space-x-2">
+					<Link to="/" className="btn btn-secondary">
+						<ArrowLeftIcon className="h-5 w-5 mr-1" />
+						{t('common.back')}
+					</Link>
 					<button
 						onClick={() => setShowFilters(!showFilters)}
 						className="btn btn-secondary"
