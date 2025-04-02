@@ -51,6 +51,7 @@ router.post('/reset-password', controller.resetPassword)
 // Protected routes
 router.get('/profile', validateJWT, controller.getProfile)
 router.put('/profile', validateJWT, controller.updateProfile)
+router.delete('/profile', validateJWT, controller.deleteUser)
 
 // Password management
 router.put('/change-password', validateJWT, controller.changePassword)

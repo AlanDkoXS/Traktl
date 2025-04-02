@@ -198,4 +198,19 @@ export class UserController extends BaseController {
 			return this.handleError(error, res)
 		}
 	}
+
+	public deleteUser = async (req: Request, res: Response) => {
+		try {
+			const userId = req.user?.id
+			if (!userId) return res.status(401).json({ error: 'Unauthorized' })
+
+			await this.userService.deleteUser(userId)
+
+			return this.handleSuccess(res, {
+				message: 'User account deactivated successfully',
+			})
+		} catch (error) {
+			return this.handleError(error, res)
+		}
+	}
 }

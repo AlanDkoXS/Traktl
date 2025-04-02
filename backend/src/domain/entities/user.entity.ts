@@ -15,6 +15,8 @@ export interface User {
 	googleId?: string
 	picture?: string
 	isVerified?: boolean
+	isActive?: boolean
+	deletedAt?: Date
 	emailVerificationToken?: EmailVerificationToken
 	comparePassword?(password: string): boolean
 }
@@ -32,6 +34,8 @@ export interface UserEntity {
 	googleId?: string
 	picture?: string
 	isVerified?: boolean
+	isActive?: boolean
+	deletedAt?: Date
 	emailVerificationToken?: EmailVerificationToken
 	comparePassword?(password: string): boolean
 }

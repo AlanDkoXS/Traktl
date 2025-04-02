@@ -255,4 +255,24 @@ export class UserService {
 
 		return true
 	}
+
+	async deleteUser(userId: string): Promise<boolean> {
+		// Find user by ID
+		const user = await this.userRepository.findById(userId)
+		if (!user) {
+			throw CustomError.notFound('User not found')
+		}
+
+		// Inactivate user instead of deleting
+		const updated = await this.userRepository.update(userId, {
+			isActive: false,
+			deletedAt: new Date()
+		})
+
+		if (!updated) {
+			throw CustomError.internalServer('Error inactivating user')
+		}
+
+		return true
+	}
 }
