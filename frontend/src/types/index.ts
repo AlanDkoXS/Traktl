@@ -58,7 +58,7 @@ export interface TimeEntry {
 	endTime?: Date
 	duration: number
 	notes?: string
-	isRunning: boolean
+	isRunning?: boolean
 	tags: string[]
 	user: string
 	createdAt: Date

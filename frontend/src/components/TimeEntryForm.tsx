@@ -44,12 +44,11 @@ export const TimeEntryForm = ({
 			: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
 	)
 	const [endTime, setEndTime] = useState(
-		timeEntry?.endTime && !timeEntry.isRunning
+		timeEntry?.endTime
 			? format(new Date(timeEntry.endTime), "yyyy-MM-dd'T'HH:mm")
-			: '',
+			: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
 	)
 	const [notes, setNotes] = useState(timeEntry?.notes || '')
-	const [isRunning, setIsRunning] = useState(timeEntry?.isRunning || false)
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [error, setError] = useState('')
 
@@ -84,7 +83,7 @@ export const TimeEntryForm = ({
 	}
 
 	const calculateDuration = () => {
-		if (isRunning || !endTime) return 0
+		if (!endTime) return 0
 
 		const start = new Date(startTime).getTime()
 		const end = new Date(endTime).getTime()
@@ -95,13 +94,8 @@ export const TimeEntryForm = ({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		if (!projectId || !startTime) {
+		if (!projectId || !startTime || !endTime) {
 			setError(t('errors.required'))
-			return
-		}
-
-		if (!isRunning && !endTime) {
-			setError(t('timeEntries.endTimeRequired'))
 			return
 		}
 
@@ -116,10 +110,9 @@ export const TimeEntryForm = ({
 				project: projectId,
 				task: taskId || undefined,
 				startTime: new Date(startTime),
-				endTime: endTime ? new Date(endTime) : undefined,
-				duration: isRunning ? 0 : duration,
+				endTime: new Date(endTime),
+				duration: duration,
 				notes,
-				isRunning,
 				tags: selectedTags,
 			}
 
@@ -146,15 +139,6 @@ export const TimeEntryForm = ({
 			setIsSubmitting(false)
 		}
 	}
-
-	// Update the end time field when isRunning changes
-	useEffect(() => {
-		if (isRunning) {
-			setEndTime('')
-		} else if (!endTime) {
-			setEndTime(format(new Date(), "yyyy-MM-dd'T'HH:mm"))
-		}
-	}, [isRunning, endTime])
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-6">
@@ -233,7 +217,7 @@ export const TimeEntryForm = ({
 						htmlFor="endTime"
 						className="block text-sm font-medium text-gray-700 dark:text-gray-300"
 					>
-						{t('timeEntries.endTime')} {isRunning ? '' : '*'}
+						{t('timeEntries.endTime')} *
 					</label>
 					<input
 						type="datetime-local"
@@ -241,31 +225,9 @@ export const TimeEntryForm = ({
 						value={endTime}
 						onChange={(e) => setEndTime(e.target.value)}
 						className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
-						disabled={isRunning}
-						required={!isRunning}
+						required
 					/>
 				</div>
-			</div>
-
-			<div>
-				<div className="flex items-center">
-					<input
-						id="isRunning"
-						type="checkbox"
-						checked={isRunning}
-						onChange={(e) => setIsRunning(e.target.checked)}
-						className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded dark:border-gray-600"
-					/>
-					<label
-						htmlFor="isRunning"
-						className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-					>
-						{t('timeEntries.isRunning')}
-					</label>
-				</div>
-				<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-					{t('timeEntries.runningHelp')}
-				</p>
 			</div>
 
 			<div>

@@ -8,7 +8,7 @@ const CreateTimeEntrySchema = z.object({
 	endTime: z.coerce.date().optional(),
 	duration: z.number().optional(),
 	notes: z.string().optional(),
-	isRunning: z.boolean().default(false),
+	isRunning: z.boolean().optional(),
 })
 
 export type CreateTimeEntryInput = z.infer<typeof CreateTimeEntrySchema>
