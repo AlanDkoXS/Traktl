@@ -15,6 +15,7 @@ import {
 import { ConfirmModal } from './ui/ConfirmModal'
 import { useTimerStore } from '../store/timerStore'
 import { TimeEntry } from '../types'
+import { TimeEntryEditModal } from './TimeEntryEditModal'
 
 interface TimeEntryListProps {
 	projectId?: string
@@ -64,6 +65,8 @@ export const TimeEntryList = ({
 	const [dataInitialized, setDataInitialized] = useState(false)
 	const [hoveredEntryId, setHoveredEntryId] = useState<string | null>(null)
 	const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false)
+	const [editModalOpen, setEditModalOpen] = useState(false)
+	const [entryToEdit, setEntryToEdit] = useState<string | null>(null)
 
 	// Initial data load
 	useEffect(() => {
@@ -281,6 +284,13 @@ export const TimeEntryList = ({
 			setDeleteLoading(false)
 			setShowBulkDeleteModal(false)
 		}
+	}
+
+	const handleEditClick = (entryId: string, e: React.MouseEvent) => {
+		e.preventDefault()
+		e.stopPropagation()
+		setEntryToEdit(entryId)
+		setEditModalOpen(true)
 	}
 
 	if (error) {
@@ -529,14 +539,15 @@ export const TimeEntryList = ({
 
 							{isLastSelected && (
 								<div className="absolute top-2 right-2 flex space-x-1">
-									<Link
-										to={`/time-entries/${entry.id}`}
+									<button
+										onClick={(e) =>
+											handleEditClick(entry.id, e)
+										}
 										className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-white dark:bg-gray-800 rounded"
 										title={t('common.edit')}
-										onClick={(e) => e.stopPropagation()}
 									>
 										<PencilIcon className="h-4 w-4" />
-									</Link>
+									</button>
 									<button
 										onClick={(e) =>
 											handleDeleteClick(entry.id, e)
@@ -601,6 +612,15 @@ export const TimeEntryList = ({
 				onCancel={() => setShowBulkDeleteModal(false)}
 				isLoading={deleteLoading}
 				danger={true}
+			/>
+
+			<TimeEntryEditModal
+				isOpen={editModalOpen}
+				onClose={() => {
+					setEditModalOpen(false)
+					setEntryToEdit(null)
+				}}
+				timeEntryId={entryToEdit}
 			/>
 		</>
 	)

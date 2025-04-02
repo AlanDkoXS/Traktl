@@ -33,7 +33,6 @@ const CreateTask = lazy(() => import('./pages/CreateTask'))
 const EditTask = lazy(() => import('./pages/EditTask'))
 const TimeEntries = lazy(() => import('./pages/TimeEntries'))
 const CreateTimeEntry = lazy(() => import('./pages/CreateTimeEntry'))
-const EditTimeEntry = lazy(() => import('./pages/EditTimeEntry'))
 const Reports = lazy(() => import('./pages/Reports'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Login = lazy(() => import('./pages/Login'))
@@ -257,17 +256,6 @@ function App() {
 										<ProtectedRoute>
 											<MainLayout>
 												<CreateTimeEntry />
-											</MainLayout>
-										</ProtectedRoute>
-									}
-								/>
-
-								<Route
-									path="/time-entries/:id"
-									element={
-										<ProtectedRoute>
-											<MainLayout>
-												<EditTimeEntry />
 											</MainLayout>
 										</ProtectedRoute>
 									}

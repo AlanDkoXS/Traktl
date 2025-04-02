@@ -5,17 +5,20 @@ import { useTimeEntryStore } from '../store/timeEntryStore'
 import { useProjectStore } from '../store/projectStore'
 import { useTaskStore } from '../store/taskStore'
 import { useTagStore } from '../store/tagStore'
+import { useClientStore } from '../store/clientStore'
 import { TimeEntry } from '../types'
 import { format } from 'date-fns'
 
 interface TimeEntryFormProps {
 	timeEntry?: TimeEntry
 	isEditing?: boolean
+	onSuccess?: () => void
 }
 
 export const TimeEntryForm = ({
 	timeEntry,
 	isEditing = false,
+	onSuccess,
 }: TimeEntryFormProps) => {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
@@ -24,6 +27,7 @@ export const TimeEntryForm = ({
 	const { projects, fetchProjects } = useProjectStore()
 	const { tasks, fetchTasks } = useTaskStore()
 	const { tags, fetchTags } = useTagStore()
+	const { clients, fetchClients } = useClientStore()
 
 	// Get projectId from query params if available
 	const queryParams = new URLSearchParams(location.search)
@@ -31,6 +35,7 @@ export const TimeEntryForm = ({
 	const queryTaskId = queryParams.get('taskId')
 
 	// Initialize with either existing time entry, query params, or defaults
+	const [clientId, setClientId] = useState('')
 	const [projectId, setProjectId] = useState(
 		timeEntry?.project || queryProjectId || '',
 	)
@@ -54,6 +59,7 @@ export const TimeEntryForm = ({
 
 	useEffect(() => {
 		// Load projects, tasks, and tags
+		fetchClients()
 		fetchProjects()
 		fetchTags()
 
@@ -61,7 +67,24 @@ export const TimeEntryForm = ({
 		if (projectId) {
 			fetchTasks(projectId)
 		}
-	}, [fetchProjects, fetchTags, fetchTasks, projectId])
+	}, [fetchClients, fetchProjects, fetchTags, fetchTasks, projectId])
+
+	// Update clientId when project changes
+	useEffect(() => {
+		if (projectId) {
+			const project = projects.find((p) => p.id === projectId)
+			if (project && project.client) {
+				setClientId(project.client)
+			}
+		}
+	}, [projectId, projects])
+
+	const handleClientChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const newClientId = e.target.value
+		setClientId(newClientId)
+		setProjectId('') // Reset project when client changes
+		setTaskId('') // Reset task when client changes
+	}
 
 	const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newProjectId = e.target.value
@@ -128,7 +151,11 @@ export const TimeEntryForm = ({
 				console.log('Time entry created successfully')
 			}
 
-			navigate('/time-entries')
+			if (onSuccess) {
+				onSuccess()
+			} else {
+				navigate('/time-entries')
+			}
 		} catch (err: unknown) {
 			if (err instanceof Error) {
 				setError(err.message || t('errors.serverError'))
@@ -140,6 +167,11 @@ export const TimeEntryForm = ({
 		}
 	}
 
+	// Filter projects by selected client
+	const filteredProjects = clientId
+		? projects.filter((project) => project.client === clientId)
+		: projects
+
 	return (
 		<form onSubmit={handleSubmit} className="space-y-6">
 			{error && (
@@ -147,6 +179,28 @@ export const TimeEntryForm = ({
 					{error}
 				</div>
 			)}
+
+			<div>
+				<label
+					htmlFor="client"
+					className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+				>
+					{t('timeEntries.client')}
+				</label>
+				<select
+					id="client"
+					value={clientId}
+					onChange={handleClientChange}
+					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+				>
+					<option value="">{t('timeEntries.selectClient')}</option>
+					{clients.map((client) => (
+						<option key={client.id} value={client.id}>
+							{client.name}
+						</option>
+					))}
+				</select>
+			</div>
 
 			<div>
 				<label
@@ -163,7 +217,7 @@ export const TimeEntryForm = ({
 					required
 				>
 					<option value="">{t('timeEntries.selectProject')}</option>
-					{projects.map((project) => (
+					{filteredProjects.map((project) => (
 						<option key={project.id} value={project.id}>
 							{project.name}
 						</option>
@@ -284,13 +338,15 @@ export const TimeEntryForm = ({
 			</div>
 
 			<div className="flex justify-end space-x-3">
-				<button
-					type="button"
-					onClick={() => navigate('/time-entries')}
-					className="btn btn-secondary"
-				>
-					{t('common.cancel')}
-				</button>
+				{!onSuccess && (
+					<button
+						type="button"
+						onClick={() => navigate('/time-entries')}
+						className="btn btn-secondary"
+					>
+						{t('common.cancel')}
+					</button>
+				)}
 				<button
 					type="submit"
 					disabled={isSubmitting}
