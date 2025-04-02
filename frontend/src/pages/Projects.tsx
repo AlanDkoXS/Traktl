@@ -5,7 +5,7 @@ import { ProjectList } from '../components/ProjectList'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 
-export const Projects = () => {
+const Projects = () => {
 	const { t } = useTranslation()
 	const { clearSelectedProject } = useProjectStore()
 
@@ -30,3 +30,5 @@ export const Projects = () => {
 		</div>
 	)
 }
+
+export default Projects

@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
 			port: 3000,
 			open: true,
 			host: true, // Permite que la app sea accesible desde la red local
-			origin: 'https://miscellaneous-plus-organisations-jobs.trycloudflare.com', // Añade el origen permitido
+			origin: env.VITE_APP_ORIGIN || '*', // Origen permitido desde variables de entorno
 			proxy: {
 				'/api': {
 					target: env.VITE_API_URL || 'http://localhost:4000',

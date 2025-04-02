@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { TimerPresetForm } from '../components/timerPreset/TimerPresetForm'
 
-export const CreateTimerPreset = () => {
+const CreateTimerPreset = () => {
 	const { t } = useTranslation()
 
 	return (
 		<div>
-			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6 dynamic-color">
+			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color mb-6">
 				{t('timerPresets.new')}
 			</h1>
 
@@ -18,3 +18,5 @@ export const CreateTimerPreset = () => {
 		</div>
 	)
 }
+
+export default CreateTimerPreset

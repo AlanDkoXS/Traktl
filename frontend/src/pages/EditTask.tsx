@@ -6,7 +6,7 @@ import { useTaskStore } from '../store/taskStore'
 import { ConfirmModal } from '../components/ui/ConfirmModal'
 import { TrashIcon } from '@heroicons/react/24/outline'
 
-export const EditTask = () => {
+const EditTask = () => {
 	const { t } = useTranslation()
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
@@ -117,3 +117,5 @@ export const EditTask = () => {
 		</div>
 	)
 }
+
+export default EditTask

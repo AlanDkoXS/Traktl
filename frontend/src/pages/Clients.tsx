@@ -5,7 +5,7 @@ import { ClientList } from '../components/ClientList'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { useClientStore } from '../store/clientStore'
 
-export const Clients = () => {
+const Clients = () => {
 	const { t } = useTranslation()
 	const { clearSelectedClient } = useClientStore()
 
@@ -30,3 +30,5 @@ export const Clients = () => {
 		</div>
 	)
 }
+
+export default Clients

@@ -6,7 +6,7 @@ import { useTimerPresetStore } from '../store/timerPresetStore'
 import { ConfirmModal } from '../components/ui/ConfirmModal'
 import { TrashIcon } from '@heroicons/react/24/outline'
 
-export const EditTimerPreset = () => {
+const EditTimerPreset = () => {
 	const { t } = useTranslation()
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
@@ -116,3 +116,5 @@ export const EditTimerPreset = () => {
 		</div>
 	)
 }
+
+export default EditTimerPreset

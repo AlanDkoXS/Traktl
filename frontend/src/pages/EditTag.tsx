@@ -6,7 +6,7 @@ import { useTagStore } from '../store/tagStore'
 import { ConfirmModal } from '../components/ui/ConfirmModal'
 import { TrashIcon } from '@heroicons/react/24/outline'
 
-export const EditTag = () => {
+const EditTag = () => {
 	const { t } = useTranslation()
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
@@ -107,3 +107,5 @@ export const EditTag = () => {
 		</div>
 	)
 }
+
+export default EditTag

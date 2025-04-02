@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { ProjectForm } from '../components/ProjectForm'
 
-export const CreateProject = () => {
+const CreateProject = () => {
 	const { t } = useTranslation()
 
 	return (
 		<div>
-			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color mb-6">
 				{t('projects.new')}
 			</h1>
 
@@ -18,3 +18,5 @@ export const CreateProject = () => {
 		</div>
 	)
 }
+
+export default CreateProject

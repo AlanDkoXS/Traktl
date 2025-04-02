@@ -6,7 +6,7 @@ import { ThemeToggle } from '../components/ThemeToggle'
 import { useAuthStore } from '../store/authStore'
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
 
-export const Register = () => {
+const Register = () => {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
 	const { register, isAuthenticated } = useAuthStore()
@@ -239,3 +239,5 @@ export const Register = () => {
 		</div>
 	)
 }
+
+export default Register

@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRightIcon, PlusIcon } from '@heroicons/react/24/outline'
 
-export const Dashboard = () => {
+const Dashboard = () => {
 	const { t } = useTranslation()
 	const { projects, fetchProjects } = useProjectStore()
 	const { clients, fetchClients } = useClientStore()
@@ -169,3 +169,5 @@ const QuickLink = ({ href, title }: QuickLinkProps) => {
 		</Link>
 	)
 }
+
+export default Dashboard

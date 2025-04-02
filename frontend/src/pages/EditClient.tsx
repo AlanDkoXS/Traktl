@@ -6,7 +6,7 @@ import { useClientStore } from '../store/clientStore'
 import { ConfirmModal } from '../components/ui/ConfirmModal'
 import { TrashIcon } from '@heroicons/react/24/outline'
 
-export const EditClient = () => {
+const EditClient = () => {
 	const { t } = useTranslation()
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
@@ -117,3 +117,5 @@ export const EditClient = () => {
 		</div>
 	)
 }
+
+export default EditClient

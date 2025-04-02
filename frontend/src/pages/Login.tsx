@@ -8,7 +8,7 @@ import { useThemeStore } from '../store/themeStore'
 import { checkCurrentToken } from '../utils/tokenHelper'
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
 
-export const Login = () => {
+const Login = () => {
 	const { t, i18n } = useTranslation()
 	const navigate = useNavigate()
 	const location = useLocation()
@@ -194,3 +194,5 @@ export const Login = () => {
 		</div>
 	)
 }
+
+export default Login

@@ -5,7 +5,7 @@ import { LanguageSelector } from '../components/LanguageSelector'
 import { ThemeToggle } from '../components/ThemeToggle'
 import api from '../services/api'
 
-export const ResetPassword = () => {
+const ResetPassword = () => {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
 	const { token: paramToken } = useParams<{ token: string }>()
@@ -217,3 +217,5 @@ export const ResetPassword = () => {
 		</div>
 	)
 }
+
+export default ResetPassword

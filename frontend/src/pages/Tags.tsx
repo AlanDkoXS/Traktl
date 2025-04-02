@@ -5,10 +5,11 @@ import { TagList } from '../components/tag/TagList'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { useTagStore } from '../store/tagStore'
 
-export const Tags = () => {
+const Tags = () => {
 	const { t } = useTranslation()
 	const { clearSelectedTag } = useTagStore()
 
+	// Clear selected tag when entering the tags list
 	useEffect(() => {
 		clearSelectedTag()
 	}, [clearSelectedTag])
@@ -29,3 +30,5 @@ export const Tags = () => {
 		</div>
 	)
 }
+
+export default Tags

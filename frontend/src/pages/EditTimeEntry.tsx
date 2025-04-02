@@ -7,7 +7,7 @@ import { TrashIcon } from '@heroicons/react/24/outline'
 import { ConfirmModal } from '../components/ui/ConfirmModal'
 import { useState } from 'react'
 
-export const EditTimeEntry = () => {
+const EditTimeEntry = () => {
 	const { t } = useTranslation()
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
@@ -114,3 +114,5 @@ export const EditTimeEntry = () => {
 		</div>
 	)
 }
+
+export default EditTimeEntry

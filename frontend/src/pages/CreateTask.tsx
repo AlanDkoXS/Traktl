@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { TaskForm } from '../components/TaskForm'
 
-export const CreateTask = () => {
+const CreateTask = () => {
 	const { t } = useTranslation()
 
 	return (
 		<div>
-			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6 dynamic-color">
+			<h1 className="text-2xl font-semibold text-gray-900 dark:text-white dynamic-color mb-6">
 				{t('tasks.new')}
 			</h1>
 
@@ -18,3 +18,5 @@ export const CreateTask = () => {
 		</div>
 	)
 }
+
+export default CreateTask

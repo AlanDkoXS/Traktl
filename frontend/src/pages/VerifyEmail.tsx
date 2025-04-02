@@ -5,7 +5,7 @@ import { emailVerificationService } from '../services/emailVerificationService'
 import { useAuthStore } from '../store/authStore'
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline'
 
-export const VerifyEmail = () => {
+const VerifyEmail = () => {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
 	const location = useLocation()
@@ -134,3 +134,5 @@ export const VerifyEmail = () => {
 		</div>
 	)
 }
+
+export default VerifyEmail

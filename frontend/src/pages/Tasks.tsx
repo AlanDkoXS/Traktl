@@ -5,7 +5,7 @@ import { TaskList } from '../components/TaskList'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { useTaskStore } from '../store/taskStore'
 
-export const Tasks = () => {
+const Tasks = () => {
 	const { t } = useTranslation()
 	const { clearSelectedTask } = useTaskStore()
 
@@ -30,3 +30,5 @@ export const Tasks = () => {
 		</div>
 	)
 }
+
+export default Tasks

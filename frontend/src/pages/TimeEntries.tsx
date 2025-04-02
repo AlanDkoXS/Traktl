@@ -6,7 +6,7 @@ import { PlusIcon, FunnelIcon } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 import { format, subDays } from 'date-fns'
 
-export const TimeEntries = () => {
+const TimeEntries = () => {
 	const { t } = useTranslation()
 	const { projects, fetchProjects } = useProjectStore()
 
@@ -136,3 +136,5 @@ export const TimeEntries = () => {
 		</div>
 	)
 }
+
+export default TimeEntries

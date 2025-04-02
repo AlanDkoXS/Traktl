@@ -8,7 +8,7 @@ import { Modal } from '../components/ui/Modal'
 import { XCircleIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 
-export const Settings = () => {
+const Settings = () => {
 	const { t, i18n } = useTranslation()
 	const { setTheme } = useTheme()
 	const {
@@ -404,3 +404,5 @@ export const Settings = () => {
 		</div>
 	)
 }
+
+export default Settings

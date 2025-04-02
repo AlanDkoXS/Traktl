@@ -5,7 +5,7 @@ import { LanguageSelector } from '../components/LanguageSelector'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { authService } from '../services/authService'
 
-export const ForgotPassword = () => {
+const ForgotPassword = () => {
 	const { t } = useTranslation()
 	const [email, setEmail] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
@@ -127,3 +127,5 @@ export const ForgotPassword = () => {
 		</div>
 	)
 }
+
+export default ForgotPassword

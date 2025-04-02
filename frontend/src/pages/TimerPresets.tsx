@@ -5,7 +5,7 @@ import { TimerPresetList } from '../components/timerPreset/TimerPresetList'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { useTimerPresetStore } from '../store/timerPresetStore'
 
-export const TimerPresets = () => {
+const TimerPresets = () => {
 	const { t } = useTranslation()
 	const { clearSelectedTimerPreset } = useTimerPresetStore()
 
@@ -29,3 +29,5 @@ export const TimerPresets = () => {
 		</div>
 	)
 }
+
+export default TimerPresets

@@ -16,7 +16,7 @@ import {
 	Cell,
 } from 'recharts'
 
-export const Reports = () => {
+const Reports = () => {
 	const { t } = useTranslation()
 	const { projects, fetchProjects } = useProjectStore()
 	const { timeEntries, fetchTimeEntries, isLoading, error } =
@@ -80,7 +80,7 @@ export const Reports = () => {
 		// Group by project
 		const groupedByProject = timeEntries.reduce(
 			(acc: Record<string, number>, entry) => {
-				const projectId = entry.project
+				const projectId = entry.project.toString() // Convert project ID to string
 				if (!acc[projectId]) {
 					acc[projectId] = 0
 				}
@@ -132,15 +132,15 @@ export const Reports = () => {
 
 		// Group time entries by project and day
 		timeEntries.forEach((entry) => {
-			const projectId = entry.project
+			const projectId = entry.project.toString() // Convert project ID to string
 			const day = format(new Date(entry.startTime), 'yyyy-MM-dd')
 			const project = projects.find((p) => p.id === projectId)
 
 			// Store project info for later use
 			if (project && !projectInfo[projectId]) {
 				projectInfo[projectId] = {
-					name: project.name,
-					color: project.color,
+					name: project.name || 'Unknown Project',
+					color: project.color || '#cccccc',
 				}
 			}
 
@@ -559,3 +559,5 @@ export const Reports = () => {
 		</div>
 	)
 }
+
+export default Reports

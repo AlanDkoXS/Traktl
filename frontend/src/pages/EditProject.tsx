@@ -7,7 +7,7 @@ import { ConfirmModal } from '../components/ui/ConfirmModal'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { setProjectColor } from '../utils/dynamicColors'
 
-export const EditProject = () => {
+const EditProject = () => {
 	const { t } = useTranslation()
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
@@ -125,3 +125,5 @@ export const EditProject = () => {
 		</div>
 	)
 }
+
+export default EditProject
