@@ -19,8 +19,10 @@ export const LanguageSelector = () => {
 	]
 
 	const changeLanguage = (lng: string) => {
+		// Save the selected language to localStorage
+		localStorage.setItem('i18nextLng', lng)
+		// Change the language
 		i18n.changeLanguage(lng)
-		setCurrentLanguage(lng)
 	}
 
 	return (

@@ -9,7 +9,7 @@ import { checkCurrentToken } from '../utils/tokenHelper'
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
 
 const Login = () => {
-	const { t, i18n } = useTranslation()
+	const { t } = useTranslation()
 	const navigate = useNavigate()
 	const location = useLocation()
 	const [email, setEmail] = useState('')
@@ -23,16 +23,6 @@ const Login = () => {
 
 	// Detect system preferences on component mount
 	useEffect(() => {
-		// Detect system language
-		const systemLanguage = navigator.language.startsWith('es') ? 'es' : 'en'
-		if (i18n.language !== systemLanguage) {
-			console.log(
-				'Setting login page language from system:',
-				systemLanguage,
-			)
-			i18n.changeLanguage(systemLanguage)
-		}
-
 		// Detect system theme
 		const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
 			.matches
@@ -40,7 +30,7 @@ const Login = () => {
 			: 'light'
 		console.log('Setting login page theme from system:', systemTheme)
 		setTheme(systemTheme)
-	}, [i18n, setTheme])
+	}, [setTheme])
 
 	// Check token on mount for debugging
 	useEffect(() => {
