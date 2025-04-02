@@ -200,7 +200,7 @@
         "deleteConfirmation": "¿Estás seguro de que quieres eliminar el registro de tiempo? Esta acción no se puede deshacer.",
         "shortTimeTitle": "Entrada de Tiempo Corta",
         "shortTimeMessage": "Esta entrada de tiempo es menor a un minuto. ¿Aún deseas guardarla?",
-        "selectedCount": "{{count}} registros seleccionados",
+        "selectedCount": "{{count}} Registros seleccionados",
         "bulkDeleteConfirmation": "¿Estás seguro de que quieres eliminar {{count}} registros de tiempo? Esta acción no se puede deshacer."
     },
     "tags": {

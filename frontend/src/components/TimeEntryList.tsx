@@ -111,6 +111,13 @@ export const TimeEntryList = ({
 		}
 	}, [timerStatus, workStartTime])
 
+	// Limpiar selección cuando el temporizador comienza
+	useEffect(() => {
+		if (timerStatus === 'running') {
+			clearSelectedTimeEntries()
+		}
+	}, [timerStatus])
+
 	// Format duration with hours, minutes, and seconds
 	const formatDuration = (milliseconds: number) => {
 		if (milliseconds === 0) return '00:00:00'
@@ -360,7 +367,9 @@ export const TimeEntryList = ({
 					</div>
 				</div>
 			)}
-			<div className="space-y-2">
+			<div
+				className={`space-y-2 ${isTimerActive ? 'opacity-40 pointer-events-none' : ''}`}
+			>
 				{displayEntries.map((entry) => {
 					const isSelected = selectedTimeEntries.some(
 						(te) => te.id === entry.id,

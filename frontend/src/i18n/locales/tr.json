@@ -198,7 +198,7 @@
         "deleteConfirmation": "Bu zaman kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
         "shortTimeTitle": "Kısa Zaman Kaydı",
         "shortTimeMessage": "Bu zaman kaydı bir dakikadan az. Yine de kaydetmek istiyor musunuz?",
-        "selectedCount": "{{count}} kayıt seçildi",
+        "selectedCount": "{{count}} Kayıt seçildi",
         "bulkDeleteConfirmation": "{{count}} zaman kaydını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
     },
     "tags": {
