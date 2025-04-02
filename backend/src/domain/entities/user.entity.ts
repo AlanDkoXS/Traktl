@@ -2,12 +2,13 @@ export interface EmailVerificationToken {
 	token: string
 	expiresAt: Date
 }
+
 export interface User {
 	_id: string
 	name: string
 	email: string
 	password: string
-	preferredLanguage: 'es' | 'en' | 'tr'
+	preferredLanguage: 'es' | 'en'
 	theme: 'light' | 'dark'
 	defaultTimerPreset?: string
 	createdAt: Date
@@ -18,8 +19,8 @@ export interface User {
 	isActive?: boolean
 	deletedAt?: Date
 	emailVerificationToken?: EmailVerificationToken
-	lastVerificationRequest?: Date
 	comparePassword?(password: string): boolean
+	lastVerificationRequest?: Date
 }
 
 export interface UserEntity {
@@ -27,7 +28,7 @@ export interface UserEntity {
 	name: string
 	email: string
 	password: string
-	preferredLanguage: 'es' | 'en' | 'tr'
+	preferredLanguage: 'es' | 'en'
 	theme: 'light' | 'dark'
 	defaultTimerPreset?: string
 	createdAt: Date
@@ -38,6 +39,5 @@ export interface UserEntity {
 	isActive?: boolean
 	deletedAt?: Date
 	emailVerificationToken?: EmailVerificationToken
-	lastVerificationRequest?: Date
 	comparePassword?(password: string): boolean
 }

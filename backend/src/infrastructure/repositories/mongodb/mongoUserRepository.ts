@@ -73,7 +73,7 @@ export class MongoUserRepository implements UserRepository {
 			name: user.name,
 			email: user.email,
 			password: user.password,
-			preferredLanguage: user.preferredLanguage as 'es' | 'en' | 'tr',
+			preferredLanguage: user.preferredLanguage as 'es' | 'en',
 			theme: user.theme as 'light' | 'dark',
 			createdAt: user.createdAt,
 			updatedAt: user.updatedAt,

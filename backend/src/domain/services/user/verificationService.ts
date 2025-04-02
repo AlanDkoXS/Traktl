@@ -42,13 +42,13 @@ export class VerificationService {
 			expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
 		}
 
-		// Update user with verification token
+		// Update user with last verification request only
 		const updated = await this.userRepository.update(userId, {
-			emailVerificationToken: emailVerificationTokenData,
+			lastVerificationRequest: new Date(),
 		} as any)
 
 		if (!updated) {
-			throw CustomError.internalServer('Error storing verification token')
+			throw CustomError.internalServer('Error storing verification request')
 		}
 
 		return token
@@ -67,32 +67,23 @@ export class VerificationService {
 			throw CustomError.notFound('User not found')
 		}
 
-		// Check if user already has a valid token
+		// Check if user is already verified
 		if (user.emailVerificationToken?.token) {
-			// Check if the token is still valid
-			const tokenExpiration = new Date(user.emailVerificationToken.expiresAt)
-			if (tokenExpiration > new Date()) {
-				throw CustomError.badRequest('Email already verified')
-			}
+			throw CustomError.badRequest('Email already verified')
 		}
 
-		// Check if there was a recent verification request (within last minute)
+		// Check cooldown period (1 minute)
 		if (user.lastVerificationRequest) {
 			const lastRequest = new Date(user.lastVerificationRequest)
 			const now = new Date()
 			const diffInMinutes = (now.getTime() - lastRequest.getTime()) / (1000 * 60)
+
 			if (diffInMinutes < 1) {
 				throw CustomError.badRequest('Please wait 1 minute before requesting another verification email')
 			}
 		}
 
 		const token = await this.generateEmailVerificationToken(userId, email)
-
-		// Update last verification request time
-		await this.userRepository.update(userId, {
-			lastVerificationRequest: new Date()
-		} as any)
-
 		return this.emailService.sendVerificationEmail(email, token, language)
 	}
 
@@ -123,7 +114,7 @@ export class VerificationService {
 			// Store the token to mark user as verified
 			const emailVerificationTokenData: EmailVerificationToken = {
 				token,
-				expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // Far future
+				expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
 			}
 
 			const updated = await this.userRepository.update(userId, {
@@ -155,13 +146,13 @@ export class VerificationService {
 			throw CustomError.notFound('User not found')
 		}
 
-		// Check if the token is still valid
-		const hasValidToken = !!user.emailVerificationToken?.token &&
+		// Check if token exists and is not expired
+		const isVerified = !!user.emailVerificationToken?.token &&
 			new Date(user.emailVerificationToken.expiresAt) > new Date()
 
 		return {
-			isVerified: hasValidToken,
-			emailVerificationToken: hasValidToken ? user.emailVerificationToken : undefined
+			isVerified,
+			emailVerificationToken: user.emailVerificationToken
 		}
 	}
 }
