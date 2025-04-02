@@ -93,7 +93,7 @@
         "workDuration": "Duración del trabajo",
         "breakDuration": "Duración del descanso",
         "repetitions": "Repeticiones",
-        "workCompleted": "¡Trabajo completado! Tiempo de descanso.",
+        "workCompleted": "¡Sesión de trabajo completada! Tiempo de descanso.",
         "breakCompleted": "¡Descanso completado! De vuelta al trabajo.",
         "enableNotifications": "Habilita las notificaciones para ser alertado cuando el temporizador termine.",
         "allowNotifications": "Permitir Notificaciones",
@@ -115,7 +115,12 @@
         "dontSave": "No guardar",
         "save": "Guardar",
         "shortSessionTitle": "Sesión Corta",
-        "shortSessionMessage": "Esta sesión es menor a un minuto. ¿Aún deseas guardarla?"
+        "shortSessionMessage": "Esta sesión es menor a un minuto. ¿Aún deseas guardarla?",
+        "timeEntrySaved": "Entrada de tiempo guardada exitosamente",
+        "workSessionComplete": "¡Sesión de trabajo completada! Tiempo de descanso.",
+        "breakSessionComplete": "¡Descanso completado! Listo para la siguiente sesión de trabajo.",
+        "allSessionsComplete": "¡Buen trabajo! Has completado todas tus sesiones de trabajo.",
+        "timerStopped": "Temporizador detenido sin guardar"
     },
     "projects": {
         "title": "Proyectos",

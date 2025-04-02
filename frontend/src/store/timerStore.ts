@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { showTimerNotification } from '../utils/soundNotifications'
 import { timeEntryService } from '../services/timeEntryService'
+import { useNotificationStore } from '../services/notificationService'
 
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'break'
 export type TimerMode = 'work' | 'break'
@@ -78,6 +78,8 @@ interface TimerState {
 
 	// Helper to create time entries
 	createTimeEntryFromWorkSession: () => Promise<void>
+
+	showNotification: (type: 'work' | 'break', message: string) => void
 }
 
 // Helper to manage the global interval
@@ -335,15 +337,30 @@ export const useTimerStore = create<TimerState>()(
 				}),
 
 			stop: async (shouldSave = true) => {
-				console.log('Ejecutando stop con shouldSave:', shouldSave, 'typeof:', typeof shouldSave)
-
-				// Verificación estricta para asegurar que shouldSave sea un booleano
-				const shouldSaveFinal = shouldSave === true;
-				console.log('shouldSaveFinal:', shouldSaveFinal);
-
-				// Sync stop action to other devices
 				const state = get()
-				if (state.isSyncEnabled && state.socketConnected) {
+				const shouldSaveFinal = shouldSave && state.mode === 'work'
+
+				// Si estamos en modo infinito, no mostrar modal de confirmación
+				if (state.infiniteMode) {
+					// Limpiar el intervalo
+					setupGlobalInterval(get().tick, 'idle')
+
+					// Resetear estado
+					set({
+						status: 'idle',
+						mode: 'work',
+						elapsed: 0,
+						currentRepetition: 1,
+						workStartTime: null,
+						infiniteMode: false,
+						selectedEntryId: null,
+					})
+
+					return
+				}
+
+				// Emitir evento de stop a otros dispositivos si hay socket
+				if (state.socketConnected) {
 					const socket = window.socket
 					if (socket) {
 						socket.emit('timer:stop', {
@@ -355,17 +372,13 @@ export const useTimerStore = create<TimerState>()(
 
 				// Si shouldSave es explícitamente false, simplemente reseteamos el timer sin guardar
 				if (shouldSaveFinal === false) {
-					console.log('shouldSave es false, NO se guardará la entrada');
+					console.log('shouldSave es false, NO se guardará la entrada')
 
-					// Reproducir sonido de finalización aunque no se guarde
-					showTimerNotification('complete', {
-						title: 'Timer Stopped',
-						body: 'The timer has been stopped without saving.',
-						persistent: false,
-					});
+					// Mostrar notificación de finalización
+					state.showNotification('work', 'Timer stopped without saving')
 
 					// Limpiar el intervalo
-					setupGlobalInterval(get().tick, 'idle');
+					setupGlobalInterval(get().tick, 'idle')
 
 					// Resetear estado
 					set({
@@ -376,9 +389,9 @@ export const useTimerStore = create<TimerState>()(
 						workStartTime: null,
 						infiniteMode: false,
 						selectedEntryId: null,
-					});
+					})
 
-					return; // Salir temprano
+					return // Salir temprano
 				}
 
 				// Solo crear entrada si es modo trabajo, con proyecto seleccionado y tiempo > 1s
@@ -545,8 +558,6 @@ export const useTimerStore = create<TimerState>()(
 						return
 					}
 
-					const durationMinutes = Math.floor(duration / 60000)
-
 					console.log('Creating time entry from work session:', {
 						project: state.projectId,
 						task: state.taskId,
@@ -570,11 +581,7 @@ export const useTimerStore = create<TimerState>()(
 						isRunning: false,
 					})
 
-					showTimerNotification('timeEntry', {
-						title: 'Zaman Girişi Oluşturuldu',
-						body: `${durationMinutes} dakikalık bir zaman girişi kaydedildi`,
-						persistent: false,
-					})
+					state.showNotification('work', 'Time entry saved successfully')
 
 					console.log('Time entry created successfully')
 
@@ -588,44 +595,32 @@ export const useTimerStore = create<TimerState>()(
 			},
 
 			switchToNext: async () => {
-				const state = get();
+				const state = get()
 
 				// Determinar si es el final de un ciclo de trabajo o descanso
 				if (state.mode === 'work') {
 					// Guardar la sesión actual si es modo trabajo y hay tiempo transcurrido
 					if (state.projectId && state.elapsed >= 1) {
-						await state.createTimeEntryFromWorkSession();
+						await state.createTimeEntryFromWorkSession()
 					}
 
-					// Reproducir sonido de finalización de ciclo de trabajo
-					showTimerNotification('complete', {
-						title: 'Work Session Complete',
-						body: 'Time to take a break!',
-						persistent: false
-					});
+					// Mostrar notificación de finalización de ciclo de trabajo
+					state.showNotification('work', 'Work session completed! Time for a break.')
 
-					return state.switchToBreak();
+					return state.switchToBreak()
 				} else {
 					// Estamos en break
 					if (state.currentRepetition < state.repetitions) {
-						// Reproducir sonido de finalización de descanso
-						showTimerNotification('complete', {
-							title: 'Break Complete',
-							body: 'Ready for the next work session!',
-							persistent: false
-						});
+						// Mostrar notificación de finalización de descanso
+						state.showNotification('break', 'Break completed! Ready for the next work session.')
 
-						return state.switchToWork(state.currentRepetition + 1);
+						return state.switchToWork(state.currentRepetition + 1)
 					} else {
 						// Hemos completado todas las repeticiones
-						showTimerNotification('complete', {
-							title: 'All Sessions Completed',
-							body: "Great job! You've completed all your work sessions.",
-							persistent: true
-						});
+						state.showNotification('work', "Great job! You've completed all your work sessions.")
 
 						// Resetear el timer y mostrar modal
-						setupGlobalInterval(get().tick, 'idle');
+						setupGlobalInterval(get().tick, 'idle')
 
 						set({
 							mode: 'work',
@@ -636,7 +631,7 @@ export const useTimerStore = create<TimerState>()(
 							showCompletionModal: true,
 							infiniteMode: false,
 							selectedEntryId: null
-						});
+						})
 					}
 				}
 			},
@@ -648,12 +643,8 @@ export const useTimerStore = create<TimerState>()(
 						return state
 					}
 
-					// Reproducir sonido de finalización de trabajo
-					showTimerNotification('break', {
-						title: 'Mola Zamanı',
-						body: 'Çalışma oturumu tamamlandı! Mola zamanı.',
-						persistent: false,
-					});
+					// Mostrar notificación de finalización de trabajo
+					state.showNotification('break', 'Work session completed! Time for a break.')
 
 					// Create time entry if switching from work mode with a project
 					if (
@@ -674,13 +665,9 @@ export const useTimerStore = create<TimerState>()(
 				}),
 
 			switchToWork: (nextRepetition) => {
-				// Reproducir sonido de inicio de trabajo si venimos de descanso
+				// Mostrar notificación de inicio de trabajo si venimos de descanso
 				if (get().mode === 'break') {
-					showTimerNotification('work', {
-						title: 'Çalışma Zamanı',
-						body: 'Mola bitti! Çalışmaya geri dönelim.',
-						persistent: false,
-					});
+					get().showNotification('work', 'Break completed! Back to work.')
 				}
 
 				// Setup interval for work mode
@@ -694,6 +681,10 @@ export const useTimerStore = create<TimerState>()(
 					currentRepetition: nextRepetition || 1,
 					workStartTime: new Date(),
 				}))
+			},
+
+			showNotification: async (type: 'work' | 'break', message: string) => {
+				useNotificationStore.getState().showNotification(type, message)
 			},
 		}),
 		{

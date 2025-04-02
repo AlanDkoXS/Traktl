@@ -87,7 +87,7 @@
         "workDuration": "Work Duration",
         "breakDuration": "Break Duration",
         "repetitions": "Repetitions",
-        "workCompleted": "Work completed! Time for a break.",
+        "workCompleted": "Work session completed! Time for a break.",
         "breakCompleted": "Break completed! Back to work.",
         "enableNotifications": "Enable notifications to be alerted when timer completes.",
         "allowNotifications": "Allow Notifications",
@@ -102,7 +102,12 @@
         "projectRequired": "Project Required",
         "projectRequiredMessage": "Please select a project before starting the timer",
         "shortSessionTitle": "Short Session",
-        "shortSessionMessage": "This session is less than a minute. Do you still want to save it?"
+        "shortSessionMessage": "This session is less than a minute. Do you still want to save it?",
+        "timeEntrySaved": "Time entry saved successfully",
+        "workSessionComplete": "Work session completed! Time for a break.",
+        "breakSessionComplete": "Break completed! Ready for the next work session.",
+        "allSessionsComplete": "Great job! You've completed all your work sessions.",
+        "timerStopped": "Timer stopped without saving"
     },
     "projects": {
         "title": "Projects",

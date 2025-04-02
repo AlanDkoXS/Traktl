@@ -1,40 +1,17 @@
-import { useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid'
 import { useTranslation } from 'react-i18next'
+import { useNotificationStore } from '../../services/notificationService'
 
-interface TimerAlertModalProps {
-	isOpen: boolean
-	message: string
-	type: 'work' | 'break' | 'complete'
-	onClose: () => void
-	autoCloseDelay?: number
-}
-
-export const TimerAlertModal = ({
-	isOpen,
-	message,
-	type,
-	onClose,
-	autoCloseDelay = 4000,
-}: TimerAlertModalProps) => {
+export const TimerAlertModal = () => {
 	const { t } = useTranslation()
-
-	// Auto-close timer
-	useEffect(() => {
-		if (isOpen && autoCloseDelay > 0) {
-			const timer = setTimeout(() => {
-				onClose()
-			}, autoCloseDelay)
-
-			return () => clearTimeout(timer)
-		}
-	}, [isOpen, autoCloseDelay, onClose])
+	const { showModal, modalMessage, modalType, closeNotification } =
+		useNotificationStore()
 
 	// Determine icon based on type
 	const getIcon = () => {
-		switch (type) {
+		switch (modalType) {
 			case 'work':
 				return <PlayIcon className="h-8 w-8 dynamic-color" />
 			case 'break':
@@ -56,8 +33,12 @@ export const TimerAlertModal = ({
 	}
 
 	return (
-		<Transition show={isOpen} as={Fragment}>
-			<Dialog as="div" className="relative z-50" onClose={onClose}>
+		<Transition show={showModal} as={Fragment}>
+			<Dialog
+				as="div"
+				className="relative z-50"
+				onClose={closeNotification}
+			>
 				<Transition.Child
 					as={Fragment}
 					enter="ease-out duration-300"
@@ -90,9 +71,9 @@ export const TimerAlertModal = ({
 										as="h3"
 										className="text-lg font-medium leading-6 dynamic-color"
 									>
-										{type === 'work'
+										{modalType === 'work'
 											? t('timer.workTime')
-											: type === 'break'
+											: modalType === 'break'
 												? t('timer.breakTime')
 												: t('timer.sessionsCompleted')}
 									</Dialog.Title>
@@ -100,7 +81,7 @@ export const TimerAlertModal = ({
 
 								<div className="mt-3">
 									<p className="text-gray-600 dark:text-gray-300">
-										{message}
+										{modalMessage}
 									</p>
 								</div>
 
@@ -108,7 +89,7 @@ export const TimerAlertModal = ({
 									<button
 										type="button"
 										className="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium dynamic-bg text-white hover:brightness-110 focus:outline-none"
-										onClick={onClose}
+										onClick={closeNotification}
 									>
 										{t('common.done')}
 									</button>

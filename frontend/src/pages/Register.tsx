@@ -75,7 +75,7 @@ const Register = () => {
 			setError('')
 
 			// Note: changed 'system' to 'light' here to match backend validation
-			await register(name, email, password, 'en', 'light', undefined)
+			await register(name, email, password, 'en', 'light')
 
 			navigate('/')
 		} catch (err: unknown) {

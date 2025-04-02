@@ -93,7 +93,7 @@
         "workDuration": "Çalışma Süresi",
         "breakDuration": "Mola Süresi",
         "repetitions": "Tekrarlar",
-        "workCompleted": "Çalışma tamamlandı! Mola zamanı.",
+        "workCompleted": "Çalışma oturumu tamamlandı! Mola zamanı.",
         "breakCompleted": "Mola tamamlandı! Çalışmaya dönüş.",
         "enableNotifications": "Zamanlayıcı tamamlandığında uyarı almak için bildirimleri etkinleştirin.",
         "allowNotifications": "Bildirimlere İzin Ver",
@@ -115,7 +115,12 @@
         "dontSave": "Kaydetme",
         "save": "Kaydet",
         "shortSessionTitle": "Kısa Oturum",
-        "shortSessionMessage": "Bu oturum bir dakikadan az sürüyor. Yine de kaydetmek istiyor musunuz?"
+        "shortSessionMessage": "Bu oturum bir dakikadan az sürüyor. Yine de kaydetmek istiyor musunuz?",
+        "timeEntrySaved": "Zaman girişi başarıyla kaydedildi",
+        "workSessionComplete": "Çalışma oturumu tamamlandı! Mola zamanı.",
+        "breakSessionComplete": "Mola tamamlandı! Bir sonraki çalışma oturumuna hazır.",
+        "allSessionsComplete": "Harika iş! Tüm çalışma oturumlarınızı tamamladınız.",
+        "timerStopped": "Temporizador kaydetmeden durduruldu"
     },
     "projects": {
         "title": "Projeler",

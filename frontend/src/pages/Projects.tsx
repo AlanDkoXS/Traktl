@@ -24,6 +24,10 @@ const Projects = () => {
 					<PlusIcon className="h-5 w-5 mr-1" />
 					{t('projects.new')}
 				</Link>
+				<Link to="/Dashboard" className="btn btn-primary">
+					<PlusIcon className="h-5 w-5 mr-1" />
+					{t('projects.new')}
+				</Link>
 			</div>
 
 			<ProjectList />
