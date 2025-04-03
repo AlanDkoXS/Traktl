@@ -117,9 +117,12 @@ export const PresetSelector = ({
 					<button
 						key={preset.id}
 						onClick={() => handlePresetSelect(preset)}
+						disabled={status === 'running'}
 						className={`px-5 py-4 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 ${
 							selectedPresetId === preset.id
-								? 'dynamic-bg text-white shadow-md scale-105'
+								? `dynamic-bg text-white shadow-md scale-105 ${
+										status === 'running' ? 'opacity-50' : ''
+									}`
 								: `dynamic-bg-subtle dynamic-color ${
 										status === 'running'
 											? 'opacity-50'
@@ -133,6 +136,7 @@ export const PresetSelector = ({
 				<button
 					title={t('timerPresets.new')}
 					onClick={() => setShowCreatePresetModal(true)}
+					disabled={status === 'running'}
 					className={`px-5 py-4 dynamic-bg-subtle rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 dynamic-color ${
 						status === 'running'
 							? 'opacity-50'
