@@ -3,12 +3,22 @@ import { useTranslation } from 'react-i18next'
 import { useTimer } from '../../hooks/useTimer'
 import { useLocation } from 'react-router-dom'
 import { ConfirmModal } from '../ui/ConfirmModal'
+import { InfiniteMode } from './InfiniteMode'
 
 export const StickyTimer = () => {
 	const { t } = useTranslation()
 	const location = useLocation()
-	const { status, mode, formattedTime, progress, pause, resume, stop } =
-		useTimer()
+	const {
+		status,
+		mode,
+		formattedTime,
+		progress,
+		pause,
+		resume,
+		stop,
+		infiniteMode,
+		skipToNext,
+	} = useTimer()
 
 	const [isVisible, setIsVisible] = useState(false)
 	const [animateIn, setAnimateIn] = useState(false)
@@ -67,7 +77,9 @@ export const StickyTimer = () => {
 	if (!isVisible) return null
 
 	// Get button color classes based on mode
-	const getButtonClasses = (buttonType: 'play' | 'pause' | 'stop') => {
+	const getButtonClasses = (
+		buttonType: 'play' | 'pause' | 'stop' | 'next',
+	) => {
 		if (buttonType === 'stop') {
 			return 'w-12 h-12 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 hover:opacity-90 transition-opacity shadow-sm'
 		}
@@ -139,6 +151,26 @@ export const StickyTimer = () => {
 										<path d="M8 5v14l11-7z" />
 									</svg>
 								</button>
+							)}
+
+							{!infiniteMode ? (
+								<button
+									onClick={skipToNext}
+									className={getButtonClasses('next')}
+									title={t('timer.skipToNext')}
+								>
+									{/* Simple Skip Icon */}
+									<svg
+										className={`w-7 h-7 ${mode === 'break' ? '' : 'dynamic-color'}`}
+										fill="currentColor"
+										viewBox="0 0 24 24"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+									</svg>
+								</button>
+							) : (
+								<InfiniteMode isInfiniteMode={infiniteMode} />
 							)}
 
 							<button

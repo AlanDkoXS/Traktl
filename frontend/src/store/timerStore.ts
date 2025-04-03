@@ -73,7 +73,7 @@ interface TimerState {
 	setNotes: (notes: string) => void
 	setTags: (tags: string[]) => void
 
-	switchToNext: () => Promise<void>
+	switchToNext: () => Promise<void | TimerState>
 	switchToBreak: () => void
 	switchToWork: (nextRepetition?: number) => void
 
@@ -617,6 +617,11 @@ export const useTimerStore = create<TimerState>()(
 
 			switchToNext: async () => {
 				const state = get()
+
+				// Si estamos en modo infinito, no hacer nada
+				if (state.infiniteMode) {
+					return state
+				}
 
 				// Determinar si es el final de un ciclo de trabajo o descanso
 				if (state.mode === 'work') {

@@ -51,6 +51,10 @@ export const TimerDisplay = ({
 	useEffect(() => {
 		if (isInfiniteMode && startTimeRef.current === null) {
 			startTimeRef.current = performance.now()
+		} else if (!isInfiniteMode) {
+			// Reset elapsed time when infinite mode is disabled
+			startTimeRef.current = null
+			setElapsedTime(0)
 		}
 		requestRef.current = requestAnimationFrame(animate)
 		return () => {
@@ -192,21 +196,7 @@ export const TimerDisplay = ({
 								{t('status.connected')}
 							</span>
 						</div>
-					) : (
-						<div className="group relative inline-block">
-							<svg
-								className="w-4 h-4 text-red-500"
-								fill="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path d="M23.64 7c-.45-.34-4.93-4-11.64-4-1.5 0-2.89.19-4.15.48L18.18 13.8 23.64 7zm-6.6 8.22L3.27 1.44 2 2.72l2.05 2.06C1.91 5.76.59 6.82.36 7l11.63 14.49.01.01.01-.01 3.9-4.86 3.32 3.32 1.27-1.27-3.46-3.46z" />
-							</svg>
-							<span className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs rounded px-2 py-1 absolute -top-8 left-1/2 transform -translate-x-1/2 pointer-events-none whitespace-nowrap">
-								{t('status.disconnected')}
-							</span>
-						</div>
-					)}
+					) : null}
 				</div>
 			</div>
 		</div>
