@@ -8,6 +8,7 @@ import { useTagStore } from '../store/tagStore'
 import { useClientStore } from '../store/clientStore'
 import { TimeEntry } from '../types'
 import { format } from 'date-fns'
+import { es, enUS, tr } from 'date-fns/locale'
 
 interface TimeEntryFormProps {
 	timeEntry?: TimeEntry
@@ -20,7 +21,7 @@ export const TimeEntryForm = ({
 	isEditing = false,
 	onSuccess,
 }: TimeEntryFormProps) => {
-	const { t } = useTranslation()
+	const { t, i18n } = useTranslation()
 	const navigate = useNavigate()
 	const location = useLocation()
 	const { createTimeEntry, updateTimeEntry } = useTimeEntryStore()
@@ -28,6 +29,18 @@ export const TimeEntryForm = ({
 	const { tasks, fetchTasks } = useTaskStore()
 	const { tags, fetchTags } = useTagStore()
 	const { clients, fetchClients } = useClientStore()
+
+	// Get the correct locale based on current language
+	const getLocale = () => {
+		switch (i18n.language) {
+			case 'es':
+				return es
+			case 'tr':
+				return tr
+			default:
+				return enUS
+		}
+	}
 
 	// Get projectId from query params if available
 	const queryParams = new URLSearchParams(location.search)
@@ -45,13 +58,17 @@ export const TimeEntryForm = ({
 	)
 	const [startTime, setStartTime] = useState(
 		timeEntry?.startTime
-			? format(new Date(timeEntry.startTime), "yyyy-MM-dd'T'HH:mm")
-			: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+			? format(new Date(timeEntry.startTime), "yyyy-MM-dd'T'HH:mm", {
+					locale: getLocale(),
+				})
+			: format(new Date(), "yyyy-MM-dd'T'HH:mm", { locale: getLocale() }),
 	)
 	const [endTime, setEndTime] = useState(
 		timeEntry?.endTime
-			? format(new Date(timeEntry.endTime), "yyyy-MM-dd'T'HH:mm")
-			: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+			? format(new Date(timeEntry.endTime), "yyyy-MM-dd'T'HH:mm", {
+					locale: getLocale(),
+				})
+			: format(new Date(), "yyyy-MM-dd'T'HH:mm", { locale: getLocale() }),
 	)
 	const [notes, setNotes] = useState(timeEntry?.notes || '')
 	const [isSubmitting, setIsSubmitting] = useState(false)

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useProjectStore } from '../store/projectStore'
 import { useTimeEntryStore } from '../store/timeEntryStore'
 import { format, subDays, differenceInDays } from 'date-fns'
+import { es, enUS, tr } from 'date-fns/locale'
 import {
 	LineChart,
 	Line,
@@ -19,15 +20,29 @@ import {
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 
 const Reports = () => {
-	const { t } = useTranslation()
+	const { t, i18n } = useTranslation()
 	const { projects, fetchProjects } = useProjectStore()
 	const { timeEntries, fetchTimeEntries, isLoading, error } =
 		useTimeEntryStore()
 
+	// Get the correct locale based on current language
+	const getLocale = () => {
+		switch (i18n.language) {
+			case 'es':
+				return es
+			case 'tr':
+				return tr
+			default:
+				return enUS
+		}
+	}
+
 	const [startDate, setStartDate] = useState(
-		format(subDays(new Date(), 30), 'yyyy-MM-dd'),
+		format(subDays(new Date(), 30), 'yyyy-MM-dd', { locale: getLocale() }),
 	)
-	const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+	const [endDate, setEndDate] = useState(
+		format(new Date(), 'yyyy-MM-dd', { locale: getLocale() }),
+	)
 	const [projectId, setProjectId] = useState('')
 	const [filterKey, setFilterKey] = useState(0)
 

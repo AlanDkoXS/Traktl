@@ -9,17 +9,30 @@ import {
 } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 import { format, subDays } from 'date-fns'
+import { es, enUS, tr } from 'date-fns/locale'
 
 const TimeEntries = () => {
-	const { t } = useTranslation()
+	const { t, i18n } = useTranslation()
 	const { projects, fetchProjects } = useProjectStore()
+
+	// Get the correct locale based on current language
+	const getLocale = () => {
+		switch (i18n.language) {
+			case 'es':
+				return es
+			case 'tr':
+				return tr
+			default:
+				return enUS
+		}
+	}
 
 	const [projectId, setProjectId] = useState<string>('')
 	const [startDate, setStartDate] = useState<string>(
-		format(subDays(new Date(), 7), 'yyyy-MM-dd'),
+		format(subDays(new Date(), 7), 'yyyy-MM-dd', { locale: getLocale() }),
 	)
 	const [endDate, setEndDate] = useState<string>(
-		format(new Date(), 'yyyy-MM-dd'),
+		format(new Date(), 'yyyy-MM-dd', { locale: getLocale() }),
 	)
 	const [showFilters, setShowFilters] = useState(false)
 	const [filterKey, setFilterKey] = useState(0)

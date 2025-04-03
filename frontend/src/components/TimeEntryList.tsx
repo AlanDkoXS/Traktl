@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
+import { es, enUS, tr } from 'date-fns/locale'
 import { useTimeEntryStore } from '../store/timeEntryStore'
 import { useProjectStore } from '../store/projectStore'
 import { useTaskStore } from '../store/taskStore'
@@ -32,7 +33,7 @@ export const TimeEntryList = ({
 	endDate,
 	limit,
 }: TimeEntryListProps) => {
-	const { t } = useTranslation()
+	const { t, i18n } = useTranslation()
 	const {
 		timeEntries,
 		fetchTimeEntries,
@@ -293,6 +294,18 @@ export const TimeEntryList = ({
 		setEditModalOpen(true)
 	}
 
+	// Get the correct locale based on current language
+	const getLocale = () => {
+		switch (i18n.language) {
+			case 'es':
+				return es
+			case 'tr':
+				return tr
+			default:
+				return enUS
+		}
+	}
+
 	if (error) {
 		return (
 			<div className="bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm flex flex-col">
@@ -516,6 +529,7 @@ export const TimeEntryList = ({
 												{format(
 													new Date(entry.startTime),
 													'MMM d, h:mm a',
+													{ locale: getLocale() },
 												)}
 											</div>
 										</div>
