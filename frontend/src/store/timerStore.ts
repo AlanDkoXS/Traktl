@@ -78,7 +78,7 @@ interface TimerState {
 	switchToWork: (nextRepetition?: number) => void
 
 	// Helper to create time entries
-	createTimeEntryFromWorkSession: () => Promise<void>
+	createTimeEntryFromWorkSession: (showNotification?: boolean) => Promise<void>
 
 	showNotification: (type: 'work' | 'break' | 'complete') => void
 
@@ -349,13 +349,13 @@ export const useTimerStore = create<TimerState>()(
 					// Limpiar el intervalo
 					setupGlobalInterval(get().tick, 'idle')
 
-					// Mostrar notificación de finalización
-					state.showNotification('work')
-
 					// Si se confirma el guardado, crear la entrada de tiempo
 					if (shouldSaveFinal && state.projectId && state.elapsed >= 1) {
-						await state.createTimeEntryFromWorkSession()
+						await state.createTimeEntryFromWorkSession(false) // Pasamos false para no mostrar notificación
 					}
+
+					// Mostrar notificación de finalización
+					state.showNotification('work')
 
 					// Resetear estado
 					set({
@@ -553,7 +553,7 @@ export const useTimerStore = create<TimerState>()(
 			setNotes: (notes) => set(() => ({ notes })),
 			setTags: (tags) => set(() => ({ tags })),
 
-			createTimeEntryFromWorkSession: async () => {
+			createTimeEntryFromWorkSession: async (showNotification = true) => {
 				const state = get()
 
 				// Skip if no project selected
@@ -602,7 +602,9 @@ export const useTimerStore = create<TimerState>()(
 						isRunning: false,
 					})
 
-					state.showNotification('work')
+					if (showNotification) {
+						state.showNotification('work')
+					}
 
 					console.log('Time entry created successfully')
 
