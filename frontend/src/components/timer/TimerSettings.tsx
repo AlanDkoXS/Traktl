@@ -104,7 +104,10 @@ export const TimerSettings = ({
 				console.error('Error syncing initial settings:', error)
 			}
 		}
-		syncSettings()
+		// Solo sincronizar si los valores son diferentes a los valores por defecto
+		if (workDuration !== 52 || breakDuration !== 17 || repetitions !== 4) {
+			syncSettings()
+		}
 	}, [workDuration, breakDuration, repetitions]) // Se ejecuta cuando cambian los ajustes
 
 	return (

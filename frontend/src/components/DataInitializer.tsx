@@ -284,7 +284,21 @@ const DataInitializer = () => {
 		}
 
 		const selectDefaultPreset = (presets: TimerPreset[]) => {
-			// Find an appropriate preset to use
+			// Primero buscar el preset Default Settings
+			const defaultSettingsPreset = presets.find(
+				(preset) => preset.name === 'Default Settings',
+			)
+
+			if (defaultSettingsPreset) {
+				console.log('Found Default Settings preset, selecting it')
+				selectTimerPreset(defaultSettingsPreset)
+				setWorkDuration(defaultSettingsPreset.workDuration)
+				setBreakDuration(defaultSettingsPreset.breakDuration)
+				setRepetitions(defaultSettingsPreset.repetitions)
+				return
+			}
+
+			// Si no hay Default Settings, buscar otros presets preferidos
 			const preferredPresets = [
 				{ name: '52/17', keyword: '52/17' },
 				{ name: 'Pomodoro', keyword: 'Pomodoro' },
@@ -299,7 +313,7 @@ const DataInitializer = () => {
 				if (selectedPreset) break
 			}
 
-			// If no preferred preset found, use the first one
+			// Si no hay preset preferido, usar el primero
 			if (!selectedPreset && presets.length > 0) {
 				selectedPreset = presets[0]
 			}
