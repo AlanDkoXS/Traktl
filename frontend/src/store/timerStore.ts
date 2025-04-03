@@ -344,10 +344,18 @@ export const useTimerStore = create<TimerState>()(
 				const state = get()
 				const shouldSaveFinal = shouldSave && state.mode === 'work'
 
-				// Si estamos en modo infinito, no mostrar modal de confirmación
+				// Si estamos en modo infinito, mostrar modal de confirmación y guardar si se confirma
 				if (state.infiniteMode) {
 					// Limpiar el intervalo
 					setupGlobalInterval(get().tick, 'idle')
+
+					// Mostrar notificación de finalización
+					state.showNotification('work')
+
+					// Si se confirma el guardado, crear la entrada de tiempo
+					if (shouldSaveFinal && state.projectId && state.elapsed >= 1) {
+						await state.createTimeEntryFromWorkSession()
+					}
 
 					// Resetear estado
 					set({
