@@ -112,10 +112,10 @@ export const PresetSelector = ({
 					<button
 						key={preset.id}
 						onClick={() => handlePresetSelect(preset)}
-						className={`px-5 py-4 dynamic-bg-subtle hover:brightness-95 dark:hover:brightness-110 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 ${
+						className={`px-5 py-4 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 ${
 							selectedPresetId === preset.id
-								? 'dynamic-bg dynamic-color'
-								: 'dynamic-color'
+								? 'dynamic-bg text-white shadow-md scale-105'
+								: 'dynamic-bg-subtle dynamic-color hover:brightness-95 dark:hover:brightness-110 hover:scale-105 hover:shadow-sm'
 						}`}
 					>
 						{preset.name}

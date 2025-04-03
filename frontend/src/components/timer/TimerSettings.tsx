@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { useTimerStore } from '../../store/timerStore'
 
 interface TimerSettingsProps {
 	workDuration: number
@@ -20,6 +21,7 @@ export const TimerSettings = ({
 	setRepetitions,
 }: TimerSettingsProps) => {
 	const { t } = useTranslation()
+	const { setSelectedPresetId } = useTimerStore()
 
 	const handleWorkDurationChange = (
 		e: React.ChangeEvent<HTMLInputElement>,
@@ -27,6 +29,7 @@ export const TimerSettings = ({
 		const value = parseInt(e.target.value)
 		if (!isNaN(value) && value >= 1 && value <= 60) {
 			setWorkDuration(value)
+			setSelectedPresetId(null)
 		}
 	}
 
@@ -36,6 +39,7 @@ export const TimerSettings = ({
 		const value = parseInt(e.target.value)
 		if (!isNaN(value) && value >= 0 && value <= 30) {
 			setBreakDuration(value)
+			setSelectedPresetId(null)
 		}
 	}
 
@@ -45,6 +49,7 @@ export const TimerSettings = ({
 		const value = parseInt(e.target.value)
 		if (!isNaN(value) && value >= 1 && value <= 10) {
 			setRepetitions(value)
+			setSelectedPresetId(null)
 		}
 	}
 
@@ -71,9 +76,10 @@ export const TimerSettings = ({
 							max="60"
 							step="1"
 							value={workDuration}
-							onChange={(e) =>
+							onChange={(e) => {
 								setWorkDuration(parseInt(e.target.value))
-							}
+								setSelectedPresetId(null)
+							}}
 							disabled={status !== 'idle'}
 							className="w-full"
 						/>
@@ -109,9 +115,10 @@ export const TimerSettings = ({
 							max="30"
 							step="1"
 							value={breakDuration}
-							onChange={(e) =>
+							onChange={(e) => {
 								setBreakDuration(parseInt(e.target.value))
-							}
+								setSelectedPresetId(null)
+							}}
 							disabled={status !== 'idle'}
 							className="w-full"
 						/>
@@ -147,9 +154,10 @@ export const TimerSettings = ({
 							max="10"
 							step="1"
 							value={repetitions}
-							onChange={(e) =>
+							onChange={(e) => {
 								setRepetitions(parseInt(e.target.value))
-							}
+								setSelectedPresetId(null)
+							}}
 							disabled={status !== 'idle'}
 							className="w-full"
 						/>

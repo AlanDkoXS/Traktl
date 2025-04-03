@@ -50,7 +50,8 @@ export const Timer = () => {
 		setTags,
 	} = useTimer()
 
-	const { showCompletionModal, closeCompletionModal } = useTimerStore()
+	const { showCompletionModal, closeCompletionModal, setSelectedPresetId } =
+		useTimerStore()
 	const { projects } = useProjectStore()
 	const { fetchTimeEntries } = useTimeEntryStore()
 
@@ -106,10 +107,12 @@ export const Timer = () => {
 		workDuration: number
 		breakDuration: number
 		repetitions: number
+		id: string
 	}) => {
 		setWorkDuration(preset.workDuration)
 		setBreakDuration(preset.breakDuration)
 		setRepetitions(preset.repetitions)
+		setSelectedPresetId(preset.id)
 	}
 
 	// Ensure correct typing for components
