@@ -20,5 +20,6 @@ router.get('/:id', controller.getTimerPresetById)
 router.put('/:id', controller.updateTimerPreset)
 router.delete('/:id', controller.deleteTimerPreset)
 router.get('/', controller.listTimerPresets)
+router.post('/sync-settings', controller.syncSettings)
 
 export const timerPresetRoutes = router

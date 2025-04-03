@@ -374,6 +374,37 @@ const DataInitializer = () => {
 		currentProjectId,
 	])
 
+	// Cargar ajustes por defecto
+	useEffect(() => {
+		const loadDefaultSettings = async () => {
+			if (!isAuthenticated || initialized) return
+
+			try {
+				const presets = await fetchTimerPresets()
+				const defaultPreset = presets.find(
+					(preset) => preset.name === 'Default Settings',
+				)
+
+				if (defaultPreset) {
+					setWorkDuration(defaultPreset.workDuration)
+					setBreakDuration(defaultPreset.breakDuration)
+					setRepetitions(defaultPreset.repetitions)
+				}
+			} catch (error) {
+				console.error('Error loading default settings:', error)
+			}
+		}
+
+		loadDefaultSettings()
+	}, [
+		isAuthenticated,
+		initialized,
+		fetchTimerPresets,
+		setWorkDuration,
+		setBreakDuration,
+		setRepetitions,
+	])
+
 	// Provide initialization state to the context and render the SocketHandler
 	return (
 		<DataInitializerContext.Provider

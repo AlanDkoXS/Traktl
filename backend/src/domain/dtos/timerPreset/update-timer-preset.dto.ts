@@ -10,7 +10,7 @@ const UpdateTimerPresetSchema = z.object({
 	breakDuration: z
 		.number()
 		.int()
-		.min(1, { message: 'Break duration must be at least 1 minute' })
+		.min(0, { message: 'Break duration must be at least 0 minutes' })
 		.optional(),
 	repetitions: z
 		.number()

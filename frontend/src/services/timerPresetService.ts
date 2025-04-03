@@ -133,4 +133,19 @@ export const timerPresetService = {
 			throw error
 		}
 	},
+
+	// Sync current timer settings
+	syncCurrentSettings: async (settings: {
+		workDuration: number
+		breakDuration: number
+		repetitions: number
+	}): Promise<void> => {
+		try {
+			console.log('Syncing current timer settings:', settings)
+			await api.post('/timer-presets/sync-settings', settings)
+		} catch (error) {
+			console.error('Error syncing timer settings:', error)
+			throw error
+		}
+	},
 }

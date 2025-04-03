@@ -101,4 +101,40 @@ export class TimerPresetService {
 	async countUserTimerPresets(userId: string): Promise<number> {
 		return await this.timerPresetRepository.countByUser(userId)
 	}
+
+	async syncTimerSettings(
+		userId: string,
+		settings: {
+			workDuration: number
+			breakDuration: number
+			repetitions: number
+		}
+	): Promise<void> {
+		// Buscar el preset por defecto del usuario
+		const defaultPreset = await this.timerPresetRepository.findByCriteria({
+			user: userId,
+			name: 'Default Settings'
+		})
+
+		if (defaultPreset.length > 0) {
+			// Actualizar el preset existente
+			await this.timerPresetRepository.update(defaultPreset[0]._id, {
+				workDuration: settings.workDuration,
+				breakDuration: settings.breakDuration,
+				repetitions: settings.repetitions,
+				updatedAt: new Date()
+			})
+		} else {
+			// Crear un nuevo preset por defecto
+			await this.timerPresetRepository.create({
+				name: 'Default Settings',
+				workDuration: settings.workDuration,
+				breakDuration: settings.breakDuration,
+				repetitions: settings.repetitions,
+				user: userId,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			})
+		}
+	}
 }

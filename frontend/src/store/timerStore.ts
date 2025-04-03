@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { timeEntryService } from '../services/timeEntryService'
 import { useNotificationStore } from '../services/notificationService'
+import { timerPresetService } from '../services/timerPresetService'
 
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'break'
 export type TimerMode = 'work' | 'break'
@@ -550,10 +551,41 @@ export const useTimerStore = create<TimerState>()(
 			},
 
 			setWorkDuration: (minutes) =>
-				set(() => ({ workDuration: minutes })),
+				set((state) => {
+					// Sync with backend
+					timerPresetService.syncCurrentSettings({
+						workDuration: minutes,
+						breakDuration: state.breakDuration,
+						repetitions: state.repetitions
+					}).catch(error => {
+						console.error('Error syncing work duration:', error)
+					})
+					return { workDuration: minutes }
+				}),
 			setBreakDuration: (minutes) =>
-				set(() => ({ breakDuration: minutes })),
-			setRepetitions: (repetitions) => set(() => ({ repetitions })),
+				set((state) => {
+					// Sync with backend
+					timerPresetService.syncCurrentSettings({
+						workDuration: state.workDuration,
+						breakDuration: minutes,
+						repetitions: state.repetitions
+					}).catch(error => {
+						console.error('Error syncing break duration:', error)
+					})
+					return { breakDuration: minutes }
+				}),
+			setRepetitions: (repetitions) =>
+				set((state) => {
+					// Sync with backend
+					timerPresetService.syncCurrentSettings({
+						workDuration: state.workDuration,
+						breakDuration: state.breakDuration,
+						repetitions
+					}).catch(error => {
+						console.error('Error syncing repetitions:', error)
+					})
+					return { repetitions }
+				}),
 			setProjectId: (projectId) => set(() => ({ projectId })),
 			setTaskId: (taskId) => set(() => ({ taskId })),
 			setNotes: (notes) => set(() => ({ notes })),
