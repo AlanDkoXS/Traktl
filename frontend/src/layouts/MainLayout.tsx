@@ -172,8 +172,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
 				{/* Footer */}
 				<footer className="py-4 px-6 text-center text-xs text-gray-500 dark:text-gray-400">
-					<p className="flex items-center justify-center">
-						<AppIcon className="w-8 h-8 mr-1" />
+					<p>
 						{t('app.name')} © {new Date().getFullYear()}
 					</p>
 				</footer>
