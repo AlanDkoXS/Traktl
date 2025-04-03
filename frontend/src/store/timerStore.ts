@@ -101,6 +101,25 @@ const setupGlobalInterval = (tick: () => void, status: TimerStatus) => {
 	}
 }
 
+// Helper to sync timer actions
+const syncTimerAction = (action: string, data: TimerActionData, state: TimerState) => {
+	// If sync is disabled or socket is not connected, don't sync
+	if (!state.isSyncEnabled || !state.socketConnected) return
+
+	// Get socket from window
+	const socket = window.socket
+	if (!socket) return
+
+	// Emit timer action with timestamp
+	socket.emit(action, {
+		...data,
+		timestamp: new Date()
+	})
+
+	// Update last sync time
+	return new Date()
+}
+
 export const useTimerStore = create<TimerState>()(
 	persist(
 		(set, get) => ({
@@ -279,14 +298,17 @@ export const useTimerStore = create<TimerState>()(
 						}, 0)
 
 						// Sync timer state to other devices
-						if (state.isSyncEnabled && state.socketConnected) {
-							const socket = window.socket
-							if (socket) {
-								socket.emit('timer:start', {
-									...newState,
-									timestamp: new Date(),
-								})
-							}
+						const lastSyncTime = syncTimerAction('timer:start', {
+							status: newState.status,
+							mode: state.mode,
+							elapsed: newState.elapsed,
+							projectId: newState.projectId,
+							taskId: newState.taskId,
+							workStartTime: newState.workStartTime || undefined,
+							infiniteMode: newState.infiniteMode
+						}, state)
+						if (lastSyncTime) {
+							set({ lastSyncTime })
 						}
 
 						return newState
@@ -301,14 +323,11 @@ export const useTimerStore = create<TimerState>()(
 						setupGlobalInterval(get().tick, 'paused')
 
 						// Sync pause action to other devices
-						if (state.isSyncEnabled && state.socketConnected) {
-							const socket = window.socket
-							if (socket) {
-								socket.emit('timer:pause', {
-									elapsed: state.elapsed,
-									timestamp: new Date(),
-								})
-							}
+						const lastSyncTime = syncTimerAction('timer:pause', {
+							elapsed: state.elapsed
+						}, state)
+						if (lastSyncTime) {
+							set({ lastSyncTime })
 						}
 
 						return { status: 'paused' }
@@ -325,14 +344,11 @@ export const useTimerStore = create<TimerState>()(
 						}, 0)
 
 						// Sync resume action to other devices
-						if (state.isSyncEnabled && state.socketConnected) {
-							const socket = window.socket
-							if (socket) {
-								socket.emit('timer:resume', {
-									elapsed: state.elapsed,
-									timestamp: new Date(),
-								})
-							}
+						const lastSyncTime = syncTimerAction('timer:resume', {
+							elapsed: state.elapsed
+						}, state)
+						if (lastSyncTime) {
+							set({ lastSyncTime })
 						}
 
 						return { status: 'running' }
@@ -372,14 +388,11 @@ export const useTimerStore = create<TimerState>()(
 				}
 
 				// Emitir evento de stop a otros dispositivos si hay socket
-				if (state.socketConnected) {
-					const socket = window.socket
-					if (socket) {
-						socket.emit('timer:stop', {
-							shouldSave: shouldSaveFinal,
-							timestamp: new Date(),
-						})
-					}
+				const lastSyncTime = syncTimerAction('timer:stop', {
+					shouldSave: shouldSaveFinal
+				}, state)
+				if (lastSyncTime) {
+					set({ lastSyncTime })
 				}
 
 				// Si estamos en modo break o shouldSave es explícitamente false, simplemente reseteamos el timer sin guardar
@@ -565,9 +578,10 @@ export const useTimerStore = create<TimerState>()(
 				}
 
 				try {
-					const startTime =
-						state.workStartTime ||
-						new Date(Date.now() - state.elapsed * 1000)
+					// Ensure startTime is a proper Date object
+					const startTime = state.workStartTime instanceof Date
+						? state.workStartTime
+						: new Date(Date.now() - state.elapsed * 1000)
 					const endTime = new Date()
 					const duration = endTime.getTime() - startTime.getTime()
 
