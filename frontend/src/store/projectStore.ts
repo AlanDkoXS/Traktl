@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { projectService } from '../services/projectService'
 import { Project } from '../types'
+import { setProjectColor } from '../utils/dynamicColors'
 
 // Define an interface for API errors
 interface ApiError extends Error {
@@ -17,7 +18,7 @@ interface ProjectState {
 	isLoading: boolean
 	error: string | null
 
-	fetchProjects: (includeArchived?: boolean) => Promise<Project[]>
+	fetchProjects: () => Promise<Project[]>
 	fetchProject: (id: string) => Promise<Project | null>
 	createProject: (
 		project: Omit<Project, 'id' | 'user' | 'createdAt' | 'updatedAt'>,
@@ -32,6 +33,7 @@ interface ProjectState {
 	selectProject: (project: Project | null) => void
 	clearSelectedProject: () => void
 	clearProjects: () => void
+	setProjectColor: (color: string) => void
 }
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -40,10 +42,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
 	isLoading: false,
 	error: null,
 
-	fetchProjects: async (includeArchived: boolean = true) => {
+	fetchProjects: async () => {
 		try {
 			set({ isLoading: true, error: null })
-			const projects = await projectService.getProjects(includeArchived)
+			const projects = await projectService.getProjects()
 			set({ projects, isLoading: false })
 			return projects
 		} catch (error: unknown) {
@@ -176,10 +178,14 @@ export const useProjectStore = create<ProjectState>((set) => ({
 	},
 
 	clearProjects: () => {
-		console.log('Clearing all projects from store');
+		console.log('Clearing all projects from store')
 		set({
 			projects: [],
-			selectedProject: null
+			selectedProject: null,
 		})
+	},
+
+	setProjectColor: (color: string) => {
+		setProjectColor(color)
 	},
 }))

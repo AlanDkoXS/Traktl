@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '../store/projectStore'
 import { useClientStore } from '../store/clientStore'
+import { useTimerStore } from '../store/timerStore'
 import { Project } from '../types'
 
 interface ProjectFormProps {
@@ -16,7 +17,15 @@ export const ProjectForm = ({
 }: ProjectFormProps) => {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
-	const { createProject, updateProject } = useProjectStore()
+	const {
+		createProject,
+		updateProject,
+		setProjectColor,
+		selectProject,
+		clearSelectedProject,
+		selectedProject,
+	} = useProjectStore()
+	const { setProjectId } = useTimerStore()
 	const { clients, fetchClients } = useClientStore()
 
 	const [name, setName] = useState(project?.name || '')
@@ -54,13 +63,20 @@ export const ProjectForm = ({
 					status,
 				})
 
-				// Esperar un momento para asegurar que la actualización se complete
-				await new Promise((resolve) => setTimeout(resolve, 500))
-
-				// Verificar que el proyecto se actualizó correctamente
-				if (!updatedProject) {
-					setError(t('errors.updateFailed'))
+				// Si el proyecto está activo, actualizar el color y seleccionarlo
+				if (status === 'active') {
+					setProjectColor(color)
+					selectProject(updatedProject)
+					setProjectId(updatedProject.id)
+				} else {
+					// Si el proyecto se archiva, deseleccionarlo si estaba seleccionado
+					if (selectedProject?.id === project.id) {
+						clearSelectedProject()
+						setProjectId(null)
+					}
 				}
+
+				// No navegar a otra página, permanecer en el formulario
 			} else {
 				await createProject({
 					name,
@@ -72,7 +88,7 @@ export const ProjectForm = ({
 				navigate('/projects')
 			}
 		} catch (err: unknown) {
-			console.error('Project submission error:', err)
+			console.error('Error al enviar el proyecto:', err)
 			if (err instanceof Error) {
 				setError(err.message || t('errors.serverError'))
 			} else {

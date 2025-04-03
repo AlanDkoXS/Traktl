@@ -22,7 +22,7 @@ const formatProject = (
 
 export const projectService = {
 	// Get all projects
-	getProjects: async (includeArchived: boolean = true): Promise<Project[]> => {
+	getProjects: async (): Promise<Project[]> => {
 		try {
 			console.log('Fetching projects...')
 			const response = await api.get('/projects')
@@ -43,12 +43,7 @@ export const projectService = {
 			}
 
 			// Format each project to handle _id to id conversion
-			const formattedProjects = projects.map(formatProject)
-
-			// Filter out archived projects if includeArchived is false
-			return includeArchived
-				? formattedProjects
-				: formattedProjects.filter((project: Project) => project.status === 'active')
+			return projects.map(formatProject)
 		} catch (error) {
 			console.error('Error fetching projects:', error)
 			throw error

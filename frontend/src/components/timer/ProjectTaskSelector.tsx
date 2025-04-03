@@ -230,13 +230,8 @@ export const ProjectTaskSelector = ({
 																'timeEntries.selectProject',
 															)}
 														</option>
-														{projects
-															.filter(
-																(project) =>
-																	project.status ===
-																	'active',
-															)
-															.map((project) => (
+														{projects.map(
+															(project) => (
 																<option
 																	key={
 																		project.id
@@ -249,7 +244,8 @@ export const ProjectTaskSelector = ({
 																		project.name
 																	}
 																</option>
-															))}
+															),
+														)}
 													</select>
 													<button
 														onClick={() =>
