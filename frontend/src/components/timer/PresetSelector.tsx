@@ -21,7 +21,7 @@ export const PresetSelector = ({
 }: PresetSelectorProps) => {
 	const { t } = useTranslation()
 	const { timerPresets, fetchTimerPresets, isLoading } = useTimerPresetStore()
-	const { selectedPresetId, setSelectedPresetId } = useTimerStore()
+	const { selectedPresetId, setSelectedPresetId, status } = useTimerStore()
 	const [showCreatePresetModal, setShowCreatePresetModal] = useState(false)
 	const initialSelectionMade = useRef(false)
 
@@ -84,6 +84,7 @@ export const PresetSelector = ({
 	}
 
 	const handlePresetSelect = (preset: TimerPreset) => {
+		if (status === 'running') return
 		onSelectPreset(preset)
 		setSelectedPresetId(preset.id)
 	}
@@ -93,7 +94,11 @@ export const PresetSelector = ({
 			<div className="mt-2 mb-6 flex justify-center">
 				<button
 					onClick={() => setShowCreatePresetModal(true)}
-					className="px-5 py-4 dynamic-bg-subtle hover:brightness-95 dark:hover:brightness-110 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 dynamic-color"
+					className={`px-5 py-4 dynamic-bg-subtle rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 dynamic-color ${
+						status === 'running'
+							? 'opacity-50'
+							: 'hover:brightness-95 dark:hover:brightness-110'
+					}`}
 				>
 					<PlusIcon className="h-5 w-5" />
 					<span className="ml-1">{t('timerPresets.new')}</span>
@@ -115,7 +120,11 @@ export const PresetSelector = ({
 						className={`px-5 py-4 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 ${
 							selectedPresetId === preset.id
 								? 'dynamic-bg text-white shadow-md scale-105'
-								: 'dynamic-bg-subtle dynamic-color hover:brightness-95 dark:hover:brightness-110 hover:scale-105 hover:shadow-sm'
+								: `dynamic-bg-subtle dynamic-color ${
+										status === 'running'
+											? 'opacity-50'
+											: 'hover:brightness-95 dark:hover:brightness-110 hover:scale-105 hover:shadow-sm'
+									}`
 						}`}
 					>
 						{preset.name}
@@ -124,7 +133,11 @@ export const PresetSelector = ({
 				<button
 					title={t('timerPresets.new')}
 					onClick={() => setShowCreatePresetModal(true)}
-					className="px-5 py-4 dynamic-bg-subtle hover:brightness-95 dark:hover:brightness-110 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 dynamic-color"
+					className={`px-5 py-4 dynamic-bg-subtle rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 dynamic-color ${
+						status === 'running'
+							? 'opacity-50'
+							: 'hover:brightness-95 dark:hover:brightness-110'
+					}`}
 				>
 					<PlusIcon className="h-5 w-5" />
 				</button>
