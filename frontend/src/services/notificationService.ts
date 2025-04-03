@@ -100,10 +100,10 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       toastType: type,
     })
 
-    // Auto-close after 3 seconds
+    // Auto-close after 1.5 seconds
     AudioPlayer.getInstance().setAutoClose(() => {
       set({ showToast: false })
-    }, 3000)
+    }, 1500)
   },
   closeNotification: () => {
     AudioPlayer.getInstance().stop()

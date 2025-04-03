@@ -55,12 +55,12 @@ export const Toast = ({ show, type }: ToastProps) => {
 			enter="transform ease-out duration-300 transition"
 			enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
 			enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-			leave="transition ease-in duration-100"
-			leaveFrom="opacity-100"
-			leaveTo="opacity-0"
+			leave="transition ease-in duration-200"
+			leaveFrom="opacity-100 translate-y-0 sm:translate-x-0"
+			leaveTo="opacity-0 translate-y-2 sm:translate-y-0 sm:translate-x-2"
 		>
-			<div className="fixed inset-x-0 top-0 flex items-end justify-center px-4 py-6 pointer-events-none sm:items-start sm:justify-end sm:p-6">
-				<div className="w-full max-w-sm bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+			<div className="fixed inset-x-0 top-0 flex items-end justify-center px-4 py-6 pointer-events-none sm:items-start sm:justify-end sm:p-6 z-50">
+				<div className="w-full max-w-sm bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,1)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,1)] shadow-2xl shadow-black/20 dark:shadow-black/40 rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 					<div className="p-4">
 						<div className="flex items-start">
 							<div className="flex-shrink-0 dynamic-bg-subtle rounded-full p-1.5 mr-3">
