@@ -70,7 +70,7 @@ const EditProject = () => {
 		)
 	}
 
-	if (error || notFound || !selectedProject) {
+	if (error || notFound) {
 		return (
 			<div className="text-center py-8">
 				<p className="text-gray-500 dark:text-gray-400 mb-4">
@@ -121,8 +121,8 @@ const EditProject = () => {
 				isOpen={showDeleteModal}
 				title={t('common.confirmDelete')}
 				message={t('projects.deleteConfirmation', {
-					name: selectedProject.name,
-					defaultValue: `Are you sure you want to delete the project "${selectedProject.name}"? This action cannot be undone.`,
+					name: selectedProject?.name || '',
+					defaultValue: `Are you sure you want to delete the project "${selectedProject?.name || ''}"? This action cannot be undone.`,
 				})}
 				confirmButtonText={t('common.delete')}
 				cancelButtonText={t('common.cancel')}

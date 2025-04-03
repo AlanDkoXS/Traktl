@@ -72,7 +72,11 @@ const Dashboard = () => {
 							<div className="grid grid-cols-2 gap-4">
 								<StatsCard
 									title={t('projects.title')}
-									count={projects.length}
+									count={
+										projects.filter(
+											(p) => p.status === 'active',
+										).length
+									}
 									link="/projects"
 								/>
 								<StatsCard

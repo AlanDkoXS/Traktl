@@ -7,7 +7,7 @@ import { useTimerStore } from '../store/timerStore'
 import { Project } from '../types'
 
 interface ProjectFormProps {
-	project?: Project
+	project: Project | null
 	isEditing?: boolean
 }
 
