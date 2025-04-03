@@ -36,41 +36,11 @@ export const PresetSelector = ({
 	// Automatically select preset when presets are loaded (but only once)
 	useEffect(() => {
 		if (timerPresets.length > 0 && !initialSelectionMade.current) {
-			// Try to find the previously selected preset
-			const selectedPreset = selectedPresetId
-				? timerPresets.find((preset) => preset.id === selectedPresetId)
-				: null
-
-			if (selectedPreset) {
-				console.log(
-					'Selecting previously selected preset:',
-					selectedPreset.name,
-				)
-				onSelectPreset(selectedPreset)
-			} else {
-				// Try to find the Pomodoro preset first (created by default for new users)
-				const pomodoroPreset = timerPresets.find((preset) =>
-					preset.name.includes('Pomodoro'),
-				)
-
-				if (pomodoroPreset) {
-					console.log('Automatically selecting Pomodoro preset')
-					onSelectPreset(pomodoroPreset)
-					setSelectedPresetId(pomodoroPreset.id)
-				} else {
-					// If Pomodoro preset doesn't exist, select the first available preset
-					console.log(
-						'Pomodoro preset not found, selecting first available preset',
-					)
-					onSelectPreset(timerPresets[0])
-					setSelectedPresetId(timerPresets[0].id)
-				}
-			}
-
-			// Mark that we've made the initial selection
+			// Limpiar cualquier selección previa
+			setSelectedPresetId(null)
 			initialSelectionMade.current = true
 		}
-	}, [timerPresets, onSelectPreset, selectedPresetId, setSelectedPresetId])
+	}, [timerPresets, setSelectedPresetId])
 
 	const handlePresetCreated = (presetId: string) => {
 		// Find the newly created preset and select it
@@ -113,26 +83,30 @@ export const PresetSelector = ({
 				{t('timer.presets')}
 			</div>
 			<div className="flex flex-wrap justify-center gap-2">
-				{timerPresets.map((preset) => (
-					<button
-						key={preset.id}
-						onClick={() => handlePresetSelect(preset)}
-						disabled={status === 'running'}
-						className={`px-5 py-4 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 ${
-							selectedPresetId === preset.id
-								? `dynamic-bg text-white shadow-md scale-105 ${
-										status === 'running' ? 'opacity-50' : ''
-									}`
-								: `dynamic-bg-subtle dynamic-color ${
-										status === 'running'
-											? 'opacity-50'
-											: 'hover:brightness-95 dark:hover:brightness-110 hover:scale-105 hover:shadow-sm'
-									}`
-						}`}
-					>
-						{preset.name}
-					</button>
-				))}
+				{timerPresets
+					.filter((preset) => preset.name !== 'Default Settings')
+					.map((preset) => (
+						<button
+							key={preset.id}
+							onClick={() => handlePresetSelect(preset)}
+							disabled={status === 'running'}
+							className={`px-5 py-4 rounded-md text-base font-semibold whitespace-nowrap flex-shrink-0 transition-all duration-200 ${
+								selectedPresetId === preset.id
+									? `dynamic-bg text-white shadow-md scale-105 ${
+											status === 'running'
+												? 'opacity-50'
+												: ''
+										}`
+									: `dynamic-bg-subtle dynamic-color ${
+											status === 'running'
+												? 'opacity-50'
+												: 'hover:brightness-95 dark:hover:brightness-110 hover:scale-105 hover:shadow-sm'
+										}`
+							}`}
+						>
+							{preset.name}
+						</button>
+					))}
 				<button
 					title={t('timerPresets.new')}
 					onClick={() => setShowCreatePresetModal(true)}

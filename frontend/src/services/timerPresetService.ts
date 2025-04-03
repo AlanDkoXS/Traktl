@@ -139,12 +139,31 @@ export const timerPresetService = {
 		workDuration: number
 		breakDuration: number
 		repetitions: number
-	}): Promise<void> => {
+	}) => {
 		try {
-			console.log('Syncing current timer settings:', settings)
-			await api.post('/timer-presets/sync-settings', settings)
-		} catch (error) {
-			console.error('Error syncing timer settings:', error)
+			console.log('[TimerPresetService] Iniciando sincronización de configuraciones:', settings)
+
+			// Verificar que tenemos un token válido
+			const token = localStorage.getItem('auth-token')
+			if (!token) {
+				console.error('[TimerPresetService] No se encontró token de autenticación')
+				throw new Error('No hay token de autenticación')
+			}
+
+			console.log('[TimerPresetService] Enviando solicitud al backend...')
+			const response = await api.post('/timer-presets/sync-settings', settings)
+
+			console.log('[TimerPresetService] Respuesta del backend:', response.data)
+			return response.data
+		} catch (error: unknown) {
+			console.error('[TimerPresetService] Error al sincronizar configuraciones:', error)
+			if (error && typeof error === 'object' && 'response' in error) {
+				const axiosError = error as { response: { status: number; data: unknown } }
+				console.error('[TimerPresetService] Detalles del error del servidor:', {
+					status: axiosError.response.status,
+					data: axiosError.response.data
+				})
+			}
 			throw error
 		}
 	},

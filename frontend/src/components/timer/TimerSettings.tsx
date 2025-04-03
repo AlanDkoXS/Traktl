@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useTimerStore } from '../../store/timerStore'
+import { timerPresetService } from '../../services/timerPresetService'
+import { useEffect } from 'react'
 
 interface TimerSettingsProps {
 	workDuration: number
@@ -30,6 +32,16 @@ export const TimerSettings = ({
 		if (!isNaN(value) && value >= 1 && value <= 60) {
 			setWorkDuration(value)
 			setSelectedPresetId(null)
+			// Sincronizar con Default Settings
+			timerPresetService
+				.syncCurrentSettings({
+					workDuration: value,
+					breakDuration,
+					repetitions,
+				})
+				.catch((error) =>
+					console.error('Error syncing settings:', error),
+				)
 		}
 	}
 
@@ -40,6 +52,16 @@ export const TimerSettings = ({
 		if (!isNaN(value) && value >= 0 && value <= 30) {
 			setBreakDuration(value)
 			setSelectedPresetId(null)
+			// Sincronizar con Default Settings
+			timerPresetService
+				.syncCurrentSettings({
+					workDuration,
+					breakDuration: value,
+					repetitions,
+				})
+				.catch((error) =>
+					console.error('Error syncing settings:', error),
+				)
 		}
 	}
 
@@ -50,8 +72,40 @@ export const TimerSettings = ({
 		if (!isNaN(value) && value >= 1 && value <= 10) {
 			setRepetitions(value)
 			setSelectedPresetId(null)
+			// Sincronizar con Default Settings
+			timerPresetService
+				.syncCurrentSettings({
+					workDuration,
+					breakDuration,
+					repetitions: value,
+				})
+				.catch((error) =>
+					console.error('Error syncing settings:', error),
+				)
 		}
 	}
+
+	// Sincronizar con el backend al cargar
+	useEffect(() => {
+		const syncSettings = async () => {
+			try {
+				console.log('Syncing initial settings:', {
+					workDuration,
+					breakDuration,
+					repetitions,
+				})
+				await timerPresetService.syncCurrentSettings({
+					workDuration,
+					breakDuration,
+					repetitions,
+				})
+				console.log('Initial settings synced successfully')
+			} catch (error) {
+				console.error('Error syncing initial settings:', error)
+			}
+		}
+		syncSettings()
+	}, [workDuration, breakDuration, repetitions]) // Se ejecuta cuando cambian los ajustes
 
 	return (
 		<div className="mt-8 rounded-lg shadow-sm">

@@ -108,10 +108,16 @@ export class TimerPresetController extends BaseController {
 		try {
 			const userId = req.user?.id
 			if (!userId) {
+				console.log('[TimerPresetController] Unauthorized sync attempt - no user ID')
 				return res.status(401).json({ message: 'Unauthorized' })
 			}
 
 			const { workDuration, breakDuration, repetitions } = req.body
+			console.log(`[TimerPresetController] Received sync request for user ${userId}:`, {
+				workDuration,
+				breakDuration,
+				repetitions
+			})
 
 			await this.timerPresetService.syncTimerSettings(userId, {
 				workDuration,
@@ -119,9 +125,10 @@ export class TimerPresetController extends BaseController {
 				repetitions
 			})
 
+			console.log(`[TimerPresetController] Successfully synced settings for user ${userId}`)
 			res.status(200).json({ message: 'Settings synced successfully' })
 		} catch (error) {
-			console.error('Error syncing timer settings:', error)
+			console.error(`[TimerPresetController] Error syncing timer settings:`, error)
 			res.status(500).json({ message: 'Error syncing timer settings' })
 		}
 	}

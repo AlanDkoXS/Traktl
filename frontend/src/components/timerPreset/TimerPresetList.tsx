@@ -58,76 +58,81 @@ export const TimerPresetList = () => {
 	return (
 		<div className="bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow-sm overflow-hidden rounded-lg border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 			<ul className="divide-y divide-gray-200 dark:divide-[rgb(var(--color-border-primary))]">
-				{timerPresets.map((preset) => (
-					<li key={preset.id}>
-						<Link
-							to={`/timer-presets/${preset.id}`}
-							className="block hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-bg-overlay))] transition-colors"
-							onMouseEnter={() => setHoveredPresetId(preset.id)}
-							onMouseLeave={() => setHoveredPresetId(null)}
-						>
-							<div className="px-4 py-4 flex items-center sm:px-6">
-								<div className="min-w-0 flex-1 flex items-center">
-									<div className="flex-shrink-0 h-10 w-10 rounded-md dynamic-bg-subtle flex items-center justify-center">
-										<span
-											className={`font-medium text-lg ${
-												hoveredPresetId === preset.id
-													? 'dynamic-color'
-													: 'text-gray-600 dark:text-gray-300'
-											}`}
-										>
-											{preset.workDuration}
-										</span>
-									</div>
-									<div className="min-w-0 flex-1 px-4">
-										<div>
-											<p
-												className={`text-sm font-medium truncate ${
+				{timerPresets
+					.filter((preset) => preset.name !== 'Default Settings')
+					.map((preset) => (
+						<li key={preset.id}>
+							<Link
+								to={`/timer-presets/${preset.id}`}
+								className="block hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-bg-overlay))] transition-colors"
+								onMouseEnter={() =>
+									setHoveredPresetId(preset.id)
+								}
+								onMouseLeave={() => setHoveredPresetId(null)}
+							>
+								<div className="px-4 py-4 flex items-center sm:px-6">
+									<div className="min-w-0 flex-1 flex items-center">
+										<div className="flex-shrink-0 h-10 w-10 rounded-md dynamic-bg-subtle flex items-center justify-center">
+											<span
+												className={`font-medium text-lg ${
 													hoveredPresetId ===
 													preset.id
 														? 'dynamic-color'
-														: 'text-gray-700 dark:text-gray-300'
+														: 'text-gray-600 dark:text-gray-300'
 												}`}
 											>
-												{preset.name}
-											</p>
-											<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-												{preset.workDuration}m{' '}
-												{t(
-													'timer.workTime',
-												).toLowerCase()}{' '}
-												/ {preset.breakDuration}m{' '}
-												{t(
-													'timer.breakTime',
-												).toLowerCase()}{' '}
-												/ {preset.repetitions}{' '}
-												{t('timerPresets.cycles')}
-											</p>
+												{preset.workDuration}
+											</span>
+										</div>
+										<div className="min-w-0 flex-1 px-4">
+											<div>
+												<p
+													className={`text-sm font-medium truncate ${
+														hoveredPresetId ===
+														preset.id
+															? 'dynamic-color'
+															: 'text-gray-700 dark:text-gray-300'
+													}`}
+												>
+													{preset.name}
+												</p>
+												<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+													{preset.workDuration}m{' '}
+													{t(
+														'timer.workTime',
+													).toLowerCase()}{' '}
+													/ {preset.breakDuration}m{' '}
+													{t(
+														'timer.breakTime',
+													).toLowerCase()}{' '}
+													/ {preset.repetitions}{' '}
+													{t('timerPresets.cycles')}
+												</p>
+											</div>
 										</div>
 									</div>
+									<div>
+										<svg
+											className={`h-5 w-5 ${
+												hoveredPresetId === preset.id
+													? 'dynamic-color'
+													: 'text-gray-400'
+											}`}
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 20 20"
+											fill="currentColor"
+										>
+											<path
+												fillRule="evenodd"
+												d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+												clipRule="evenodd"
+											/>
+										</svg>
+									</div>
 								</div>
-								<div>
-									<svg
-										className={`h-5 w-5 ${
-											hoveredPresetId === preset.id
-												? 'dynamic-color'
-												: 'text-gray-400'
-										}`}
-										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 20 20"
-										fill="currentColor"
-									>
-										<path
-											fillRule="evenodd"
-											d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-											clipRule="evenodd"
-										/>
-									</svg>
-								</div>
-							</div>
-						</Link>
-					</li>
-				))}
+							</Link>
+						</li>
+					))}
 			</ul>
 		</div>
 	)
