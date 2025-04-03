@@ -360,6 +360,15 @@ export const useTimerStore = create<TimerState>()(
 				const state = get()
 				const shouldSaveFinal = shouldSave && state.mode === 'work'
 
+				console.log('Timer stop called with:', {
+					shouldSave,
+					shouldSaveFinal,
+					mode: state.mode,
+					projectId: state.projectId,
+					elapsed: state.elapsed,
+					workStartTime: state.workStartTime
+				})
+
 				// Si estamos en modo infinito, mostrar modal de confirmación y guardar si se confirma
 				if (state.infiniteMode) {
 					// Limpiar el intervalo
@@ -426,6 +435,7 @@ export const useTimerStore = create<TimerState>()(
 					mode: state.mode,
 					projectId: state.projectId,
 					elapsed: state.elapsed,
+					workStartTime: state.workStartTime,
 					willSave: shouldSaveFinal && state.mode === 'work' && state.projectId && state.elapsed >= 1
 				})
 
@@ -443,7 +453,8 @@ export const useTimerStore = create<TimerState>()(
 						shouldSaveFinal,
 						modeIsWork: state.mode === 'work',
 						hasProject: !!state.projectId,
-						elapsedTime: state.elapsed
+						elapsedTime: state.elapsed,
+						workStartTime: state.workStartTime
 					})
 				}
 
@@ -523,27 +534,9 @@ export const useTimerStore = create<TimerState>()(
 
 					// Check if timer completed
 					if (!state.infiniteMode && newElapsed >= totalSeconds) {
-						if (state.mode === 'work') {
-							// Work session completed
-							if (state.breakDuration > 0) {
-								state.switchToBreak()
-							} else {
-								// Si no hay descanso configurado, pasar directamente a la siguiente sesión de trabajo
-								state.switchToWork(
-									state.currentRepetition < state.repetitions
-										? state.currentRepetition + 1
-										: 1
-								)
-							}
-						} else {
-							// Break session completed
-							state.switchToWork(
-								state.currentRepetition < state.repetitions
-									? state.currentRepetition + 1
-									: 1
-							)
-						}
-						return {} // State already updated in switchToBreak/switchToWork
+						// Usar switchToNext en lugar de llamar directamente a switchToBreak/switchToWork
+						state.switchToNext()
+						return {} // State already updated in switchToNext
 					}
 
 					// If sync is enabled and connected, sync every 5 seconds
@@ -571,37 +564,28 @@ export const useTimerStore = create<TimerState>()(
 
 				// Skip if no project selected
 				if (!state.projectId) {
-					console.log(
-						'No project selected, skipping time entry creation',
-					)
 					return
 				}
 
 				try {
 					// Ensure startTime is a proper Date object
-					const startTime = state.workStartTime instanceof Date
-						? state.workStartTime
-						: new Date(Date.now() - state.elapsed * 1000)
+					let startTime: Date
+					if (state.workStartTime instanceof Date) {
+						startTime = state.workStartTime
+					} else if (state.workStartTime) {
+						startTime = new Date(state.workStartTime)
+					} else {
+						// Si no hay workStartTime, calcular basado en elapsed
+						startTime = new Date(Date.now() - state.elapsed * 1000)
+					}
+
 					const endTime = new Date()
 					const duration = endTime.getTime() - startTime.getTime()
 
 					// Only create entries longer than 1 second
 					if (duration < 1000) {
-						console.log(
-							'Session too short, skipping time entry creation',
-						)
 						return
 					}
-
-					console.log('Creating time entry from work session:', {
-						project: state.projectId,
-						task: state.taskId,
-						startTime,
-						endTime,
-						duration,
-						notes: state.notes,
-						tags: state.tags,
-					})
 
 					await timeEntryService.createTimeEntry({
 						project: state.projectId,
@@ -619,8 +603,6 @@ export const useTimerStore = create<TimerState>()(
 					if (showNotification) {
 						state.showNotification('work')
 					}
-
-					console.log('Time entry created successfully')
 
 					window.dispatchEvent(new CustomEvent('time-entry-created'))
 				} catch (error) {
@@ -643,7 +625,11 @@ export const useTimerStore = create<TimerState>()(
 				if (state.mode === 'work') {
 					// Guardar la sesión actual si es modo trabajo y hay tiempo transcurrido
 					if (state.projectId && state.elapsed >= 1) {
-						await state.createTimeEntryFromWorkSession()
+						try {
+							await state.createTimeEntryFromWorkSession()
+						} catch (error) {
+							console.error('Error creating time entry in switchToNext:', error)
+						}
 					}
 
 					// Mostrar notificación de finalización de ciclo de trabajo
