@@ -223,7 +223,10 @@
         "timeByDay": "Time by Day",
         "project": "Project",
         "time": "Time",
-        "percentage": "Percentage"
+        "percentage": "Percentage",
+        "minutes": "minutes",
+        "total": "Total",
+        "date": "Date"
     },
     "settings": {
         "title": "Settings",

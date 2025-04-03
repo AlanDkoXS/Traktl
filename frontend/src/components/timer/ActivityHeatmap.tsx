@@ -11,6 +11,7 @@ import {
 	isSameDay,
 	parseISO,
 } from 'date-fns'
+import { es, enUS, tr } from 'date-fns/locale'
 import { useTimeEntryStore } from '../../store/timeEntryStore'
 import { useProjectStore } from '../../store/projectStore'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
@@ -39,7 +40,7 @@ interface ActivityHeatmapProps {
 }
 
 export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
-	const { t } = useTranslation()
+	const { t, i18n } = useTranslation()
 	const { timeEntries: storeTimeEntries } = useTimeEntryStore()
 	const { projects } = useProjectStore() as { projects: Project[] } // Explicitly type projects
 	const [cellSize, setCellSize] = useState(10)
@@ -238,10 +239,24 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		6: t('dashboard.days.sat'),
 	}
 
+	// Get the correct locale based on current language
+	const getLocale = () => {
+		switch (i18n.language) {
+			case 'es':
+				return es
+			case 'tr':
+				return tr
+			default:
+				return enUS
+		}
+	}
+
 	const renderTooltip = useCallback(
 		(day: DayData) => {
 			if (!day) return null
-			const date = format(day.date, 'MMM d, yyyy')
+			const date = format(day.date, 'MMM d, yyyy', {
+				locale: getLocale(),
+			}).replace(/^\w/, (c) => c.toUpperCase())
 			const minutes = Math.round(day.activity)
 
 			const dayProjects: Record<string, number> = {}
@@ -334,7 +349,9 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 			<div className="flex flex-col sm:flex-row gap-6">
 				<div className="w-full sm:w-1/3">
 					<h3 className="text-xs font-medium text-gray-900 dark:text-white mb-1 text-center">
-						{format(new Date(), 'MMM d')}
+						{format(new Date(), 'MMM d', {
+							locale: getLocale(),
+						}).replace(/^\w/, (c) => c.toUpperCase())}
 					</h3>
 					{todaysPieData.length > 0 ? (
 						<>
@@ -441,6 +458,9 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 															colIndex
 														].date,
 														'MMM d',
+														{ locale: getLocale() },
+													).replace(/^\w/, (c) =>
+														c.toUpperCase(),
 													)}
 												</div>
 											)

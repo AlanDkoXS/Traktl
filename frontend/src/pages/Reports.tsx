@@ -134,7 +134,9 @@ const Reports = () => {
 			const currentDate = new Date(start)
 			currentDate.setDate(start.getDate() + i)
 			const dateString = format(currentDate, 'yyyy-MM-dd')
-			const displayDate = format(currentDate, 'MMM dd')
+			const displayDate = format(currentDate, 'MMM dd', {
+				locale: getLocale(),
+			}).replace(/^\w/, (c) => c.toUpperCase())
 
 			daysArray.push({
 				date: dateString,
@@ -150,7 +152,9 @@ const Reports = () => {
 		// Group time entries by project and day
 		timeEntries.forEach((entry) => {
 			const projectId = entry.project.toString() // Convert project ID to string
-			const day = format(new Date(entry.startTime), 'yyyy-MM-dd')
+			const day = format(new Date(entry.startTime), 'yyyy-MM-dd', {
+				locale: getLocale(),
+			})
 			const project = projects.find((p) => p.id === projectId)
 
 			// Store project info for later use
@@ -480,7 +484,7 @@ const Reports = () => {
 											axisLine={false}
 											tickLine={false}
 											label={{
-												value: 'Minutes',
+												value: t('reports.minutes'),
 												angle: -90,
 												position: 'insideLeft',
 												style: { textAnchor: 'middle' },
@@ -490,8 +494,8 @@ const Reports = () => {
 											formatter={(value, name) => {
 												if (name === 'totalMinutes')
 													return [
-														`${value} min`,
-														'Total',
+														`${value} ${t('reports.minutes')}`,
+														t('reports.total'),
 													]
 												// Find project name for this id
 												const project =
@@ -499,12 +503,12 @@ const Reports = () => {
 														(p) => p.id === name,
 													)
 												return [
-													`${value} min`,
+													`${value} ${t('reports.minutes')}`,
 													project?.name || name,
 												]
 											}}
 											labelFormatter={(label) =>
-												`Date: ${label}`
+												`${t('reports.date')}: ${label}`
 											}
 										/>
 										<Legend

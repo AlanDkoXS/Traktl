@@ -530,6 +530,8 @@ export const TimeEntryList = ({
 													new Date(entry.startTime),
 													'MMM d, h:mm a',
 													{ locale: getLocale() },
+												).replace(/^\w/, (c) =>
+													c.toUpperCase(),
 												)}
 											</div>
 										</div>
@@ -600,7 +602,8 @@ export const TimeEntryList = ({
 									)?.startTime || Date.now(),
 								),
 								'MMM d, h:mm a',
-							)
+								{ locale: getLocale() },
+							).replace(/^\w/, (c) => c.toUpperCase())
 						: '',
 					defaultValue:
 						'Are you sure you want to delete this time entry? This action cannot be undone.',

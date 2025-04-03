@@ -234,7 +234,10 @@
         "timeByDay": "Güne Göre Süre",
         "project": "Proje",
         "time": "Süre",
-        "percentage": "Yüzde"
+        "percentage": "Yüzde",
+        "minutes": "dakika",
+        "total": "Toplam",
+        "date": "Tarih"
     },
     "settings": {
         "title": "Ayarlar",
