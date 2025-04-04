@@ -56,6 +56,8 @@ class AudioPlayer {
           console.warn('Error playing audio:', error)
         })
       }
+    } else {
+      console.warn(`Audio type "${type}" not found`)
     }
   }
 
@@ -100,13 +102,10 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       toastType: type,
     })
 
-    // Auto-close after 1.5 seconds
+    // Auto-close toast after 5 seconds
     AudioPlayer.getInstance().setAutoClose(() => {
       set({ showToast: false })
-    }, 1500)
+    }, 5000)
   },
-  closeNotification: () => {
-    AudioPlayer.getInstance().stop()
-    set({ showToast: false })
-  },
+  closeNotification: () => set({ showToast: false }),
 }))
