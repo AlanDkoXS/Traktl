@@ -1,68 +1,37 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSocket } from '../../context/SocketContext' // Importamos el contexto del socket
+import { useSocket } from '../../context/SocketContext'
+import { useTimer } from '../../hooks/useTimer'
 
 interface TimerDisplayProps {
 	progress: number
 	formattedTime: string
 	mode: 'work' | 'break'
-	isInfiniteMode?: boolean
 }
 
 export const TimerDisplay = ({
 	progress,
 	formattedTime,
 	mode,
-	isInfiniteMode = false,
 }: TimerDisplayProps) => {
 	const { t } = useTranslation()
-	const { isConnected } = useSocket() // Obtener el estado de conexión del socket
+	const { isConnected } = useSocket()
+	const { infiniteMode, infiniteElapsedTime } = useTimer()
 	const circleLength = 263.89 // 2 * PI * 42, circle perimeter
 	const [displayProgress, setDisplayProgress] = useState(progress)
-	const [elapsedTime, setElapsedTime] = useState(0) // For infinite mode
-	const requestRef = useRef<number>()
-	const previousTimeRef = useRef<number>()
-	const startTimeRef = useRef<number | null>(null)
 
 	// Smooth animation for progress circle
-	const animate = (time: number) => {
-		if (previousTimeRef.current !== undefined) {
-			const deltaTime = time - previousTimeRef.current
+	useEffect(() => {
+		const animate = () => {
 			setDisplayProgress((prevProgress) => {
 				const diff = progress - prevProgress
-				const step = diff * Math.min(deltaTime / 200, 0.05)
+				const step = diff * 0.1
 				return prevProgress + step
 			})
-
-			// Update elapsed time for infinite mode
-			if (isInfiniteMode && startTimeRef.current !== null) {
-				const elapsedSeconds = Math.floor(
-					(time - startTimeRef.current) / 1000,
-				)
-				setElapsedTime(elapsedSeconds)
-			}
 		}
-
-		previousTimeRef.current = time
-		requestRef.current = requestAnimationFrame(animate)
-	}
-
-	// Start animation and timer
-	useEffect(() => {
-		if (isInfiniteMode && startTimeRef.current === null) {
-			startTimeRef.current = performance.now()
-		} else if (!isInfiniteMode) {
-			// Reset elapsed time when infinite mode is disabled
-			startTimeRef.current = null
-			setElapsedTime(0)
-		}
-		requestRef.current = requestAnimationFrame(animate)
-		return () => {
-			if (requestRef.current) {
-				cancelAnimationFrame(requestRef.current)
-			}
-		}
-	}, [progress, isInfiniteMode])
+		const interval = setInterval(animate, 16) // ~60fps
+		return () => clearInterval(interval)
+	}, [progress])
 
 	// Format elapsed time for infinite mode (e.g., MM:SS)
 	const formatInfiniteTime = (seconds: number) => {
@@ -74,12 +43,12 @@ export const TimerDisplay = ({
 	}
 
 	// Use infinite mode time or prop-provided formattedTime
-	const displayTime = isInfiniteMode
-		? formatInfiniteTime(elapsedTime)
+	const displayTime = infiniteMode
+		? formatInfiniteTime(infiniteElapsedTime)
 		: formattedTime
 
 	// Progress circle: 100% for infinite mode, animated otherwise
-	const progressOffset = isInfiniteMode
+	const progressOffset = infiniteMode
 		? 0 // Full circle (100%)
 		: circleLength - (circleLength * displayProgress) / 100
 
@@ -166,7 +135,7 @@ export const TimerDisplay = ({
 					{displayTime}
 				</span>
 
-				{!isInfiniteMode && (
+				{!infiniteMode && (
 					<span
 						className={`text-sm mt-1 mb-1 font-medium ${
 							mode === 'work'

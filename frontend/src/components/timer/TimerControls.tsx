@@ -75,9 +75,10 @@ export const TimerControls = ({
 	}
 
 	const handleSkipToNext = async () => {
+		// En modo infinito, no necesitamos verificar la duración mínima
 		if (
-			elapsed < 60 &&
 			!infiniteMode &&
+			elapsed < 60 &&
 			mode === 'work' &&
 			(status === 'running' || status === 'paused')
 		) {
@@ -90,8 +91,8 @@ export const TimerControls = ({
 	}
 
 	const handleStop = () => {
-		// Solo mostrar el modal de confirmación si no estamos en modo break
-		if (mode === 'break') {
+		// En modo infinito o break, no mostrar confirmación
+		if (mode === 'break' || infiniteMode) {
 			stop(false)
 			return
 		}
@@ -210,7 +211,7 @@ export const TimerControls = ({
 								</svg>
 							</button>
 						) : (
-							<InfiniteMode isInfiniteMode={infiniteMode} />
+							<InfiniteMode />
 						)}
 
 						<button
@@ -267,7 +268,7 @@ export const TimerControls = ({
 								</svg>
 							</button>
 						) : (
-							<InfiniteMode isInfiniteMode={infiniteMode} />
+							<InfiniteMode />
 						)}
 
 						<button

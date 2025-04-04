@@ -141,6 +141,7 @@ export const useTimer = () => {
 		progress: getProgress(),
 		formattedTime: formatTime(),
 		elapsed,
+		infiniteElapsedTime: store.infiniteElapsedTime,
 
 		// Timer settings
 		workDuration,

@@ -47,6 +47,7 @@ interface TimerState {
 	isSyncEnabled: boolean // Flag to enable/disable syncing
 	lastSyncTime: Date | null // Track when the timer was last synced
 	selectedPresetId: string | null
+	infiniteElapsedTime: number // Nuevo campo para trackear el tiempo en modo infinito
 
 	// New methods for sync
 	setSyncEnabled: (enabled: boolean) => void
@@ -143,6 +144,7 @@ export const useTimerStore = create<TimerState>()(
 			isSyncEnabled: true, // Enable sync by default
 			lastSyncTime: null,
 			selectedPresetId: null,
+			infiniteElapsedTime: 0,
 
 			// Track socket connection status
 			setSocketConnected: (connected: boolean) => set({ socketConnected: connected }),
@@ -513,41 +515,40 @@ export const useTimerStore = create<TimerState>()(
 					}
 				}),
 
-			setInfiniteMode: (value) => set({ infiniteMode: value }),
+			setInfiniteMode: (value: boolean) => {
+				const state = get()
+				if (value && !state.infiniteElapsedTime) {
+					// Iniciar el tiempo cuando se activa el modo infinito
+					set({ 
+						infiniteMode: true,
+						infiniteElapsedTime: 0,
+						workStartTime: new Date()
+					})
+				} else if (!value) {
+					// Reiniciar el tiempo cuando se desactiva
+					set({ 
+						infiniteMode: false,
+						infiniteElapsedTime: 0,
+						workStartTime: null
+					})
+				}
+			},
 			setSelectedEntryId: (id) => set({ selectedEntryId: id }),
 
 			tick: () => {
-				set((state) => {
-					const newElapsed = state.elapsed + 1
-					const totalSeconds = state.mode === 'work'
-						? state.workDuration * 60
-						: state.breakDuration * 60
-
-					// In infinite mode, just increment the timer
-					if (state.infiniteMode && state.mode === 'work') {
-						// If sync is enabled and connected, sync every 5 seconds
-						if (state.isSyncEnabled && state.socketConnected && newElapsed % 5 === 0) {
-							state.syncTimerState()
-						}
-
-						return { elapsed: newElapsed }
+				const state = get()
+				if (state.status === 'running') {
+					if (state.infiniteMode) {
+						// Actualizar tiempo infinito
+						const now = new Date()
+						const startTime = state.workStartTime ? new Date(state.workStartTime) : now
+						const elapsedSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000)
+						set({ infiniteElapsedTime: elapsedSeconds })
+					} else {
+						// Lógica existente para modo normal
+						set({ elapsed: state.elapsed + 1 })
 					}
-
-					// Check if timer completed
-					if (!state.infiniteMode && newElapsed >= totalSeconds) {
-						// Usar switchToNext en lugar de llamar directamente a switchToBreak/switchToWork
-						state.switchToNext()
-						return {} // State already updated in switchToNext
-					}
-
-					// If sync is enabled and connected, sync every 5 seconds
-					if (state.isSyncEnabled && state.socketConnected && newElapsed % 5 === 0) {
-						state.syncTimerState()
-					}
-
-					// Regular tick, just update elapsed time
-					return { elapsed: newElapsed }
-				})
+				}
 			},
 
 			setWorkDuration: (minutes) =>

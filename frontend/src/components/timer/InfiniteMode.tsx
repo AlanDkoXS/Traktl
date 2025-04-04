@@ -1,17 +1,17 @@
 import { useTranslation } from 'react-i18next'
+import { useTimer } from '../../hooks/useTimer'
 
 interface InfiniteModeProps {
-	isInfiniteMode: boolean
 	className?: string
 }
 
 export const InfiniteMode = ({
-	isInfiniteMode,
 	className = '',
 }: InfiniteModeProps) => {
 	const { t } = useTranslation()
+	const { infiniteMode, setInfiniteMode } = useTimer()
 
-	if (!isInfiniteMode) {
+	if (!infiniteMode) {
 		return null
 	}
 
@@ -19,6 +19,7 @@ export const InfiniteMode = ({
 		<div
 			className={`w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle shadow-sm ${className}`}
 			title={t('timer.infiniteMode')}
+			onClick={() => setInfiniteMode(false)}
 		>
 			{/* Simple Infinity Icon */}
 			<svg

@@ -17,6 +17,7 @@ export const StickyTimer = () => {
 		resume,
 		stop,
 		infiniteMode,
+		infiniteElapsedTime,
 		skipToNext,
 	} = useTimer()
 
@@ -77,7 +78,7 @@ export const StickyTimer = () => {
 
 	// Usar tiempo de modo infinito o tiempo formateado normal
 	const displayTime = infiniteMode
-		? formatInfiniteTime(elapsedTime)
+		? formatInfiniteTime(infiniteElapsedTime)
 		: formattedTime
 
 	// Simplified logic for visibility
@@ -209,6 +210,7 @@ export const StickyTimer = () => {
 								</button>
 							)}
 
+							{/* Show skip button or infinite mode */}
 							{!infiniteMode ? (
 								<button
 									onClick={skipToNext}
@@ -226,7 +228,7 @@ export const StickyTimer = () => {
 									</svg>
 								</button>
 							) : (
-								<InfiniteMode isInfiniteMode={infiniteMode} />
+								<InfiniteMode />
 							)}
 
 							<button
