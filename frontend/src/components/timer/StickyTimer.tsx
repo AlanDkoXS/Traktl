@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useTimer } from '../../hooks/useTimer'
 import { useLocation } from 'react-router-dom'
@@ -24,11 +24,67 @@ export const StickyTimer = () => {
 	const [animateIn, setAnimateIn] = useState(false)
 	const [showStopConfirmationModal, setShowStopConfirmationModal] =
 		useState(false)
+	
+	// Referencias para el modo infinito
+	const [elapsedTime, setElapsedTime] = useState(0)
+	const requestRef = useRef<number>()
+	const previousTimeRef = useRef<number>()
+	const startTimeRef = useRef<number | null>(null)
+
+	// Función para animar el tiempo en modo infinito
+	const animate = (time: number) => {
+		if (previousTimeRef.current !== undefined) {
+			const deltaTime = time - previousTimeRef.current
+			
+			// Actualizar tiempo transcurrido para modo infinito
+			if (infiniteMode && startTimeRef.current !== null) {
+				const elapsedSeconds = Math.floor(
+					(time - startTimeRef.current) / 1000,
+				)
+				setElapsedTime(elapsedSeconds)
+			}
+		}
+
+		previousTimeRef.current = time
+		requestRef.current = requestAnimationFrame(animate)
+	}
+
+	// Iniciar animación cuando cambia el modo infinito
+	useEffect(() => {
+		if (infiniteMode && startTimeRef.current === null) {
+			startTimeRef.current = performance.now()
+		} else if (!infiniteMode) {
+			// Reiniciar tiempo transcurrido cuando se desactiva el modo infinito
+			startTimeRef.current = null
+			setElapsedTime(0)
+		}
+		requestRef.current = requestAnimationFrame(animate)
+		return () => {
+			if (requestRef.current) {
+				cancelAnimationFrame(requestRef.current)
+			}
+		}
+	}, [infiniteMode])
+
+	// Formatear tiempo para modo infinito
+	const formatInfiniteTime = (seconds: number) => {
+		const minutes = Math.floor(seconds / 60)
+		const remainingSeconds = seconds % 60
+		return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
+			.toString()
+			.padStart(2, '0')}`
+	}
+
+	// Usar tiempo de modo infinito o tiempo formateado normal
+	const displayTime = infiniteMode
+		? formatInfiniteTime(elapsedTime)
+		: formattedTime
 
 	// Simplified logic for visibility
 	useEffect(() => {
 		const isTimerActive =
 			status === 'running' || status === 'paused' || status === 'break'
+
 		const isDashboard = location.pathname === '/'
 
 		// Simple rule: show if timer is active and not on dashboard
@@ -113,7 +169,7 @@ export const StickyTimer = () => {
 									: t('timer.breakTime')}
 							</span>
 							<span className="text-2xl font-mono font-bold ml-6 dynamic-color">
-								{formattedTime}
+								{displayTime}
 							</span>
 						</div>
 
