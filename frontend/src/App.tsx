@@ -77,14 +77,9 @@ function App() {
 	}, [])
 
 	useEffect(() => {
-		console.log('App mounted, checking token and loading user...')
 		const tokenInfo = checkCurrentToken()
-
 		if (tokenInfo.valid) {
-			console.log('Token valid, loading user...')
 			loadUser()
-		} else {
-			console.log('Token invalid or expired:', tokenInfo.message)
 		}
 	}, [loadUser])
 

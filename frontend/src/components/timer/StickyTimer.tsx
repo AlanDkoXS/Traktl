@@ -113,6 +113,7 @@ export const StickyTimer = () => {
 			stop(false)
 			return
 		}
+		// Mostrar el modal de confirmación tanto en modo normal como infinito
 		setShowStopConfirmationModal(true)
 	}
 

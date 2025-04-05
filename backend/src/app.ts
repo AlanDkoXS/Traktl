@@ -4,27 +4,40 @@ import { MongoDatabase } from './data/mongodb'
 import { Server } from './presentation/server'
 import { AppRoutes } from './presentation/routes'
 
+const logInfo = (message: string) => {
+	if (envs.NODE_ENV !== 'test') {
+		console.info(`[INFO] ${message}`)
+	}
+}
+
+const logError = (message: string, error: unknown) => {
+	if (envs.NODE_ENV !== 'test') {
+		console.error(`[ERROR] ${message}:`, error)
+	}
+}
+
 async function main() {
 	try {
 		// Connect to database
-		console.log('Connecting to MongoDB...')
+		logInfo('Connecting to MongoDB...')
 		await MongoDatabase.connect()
 
 		// Create server with routes
-		console.log('Initializing server...')
+		logInfo('Initializing server...')
 		const server = new Server({
 			port: envs.PORT,
 			routes: AppRoutes.routes,
 		})
 
 		// Start server
-		console.log('Starting server...')
+		logInfo('Starting server...')
 		await server.start()
 	} catch (error) {
-		console.error('Error starting application:', error)
+		logError('Error starting application', error)
+		process.exit(1)
 	}
 }
 
 // Initialize application
-console.log('Initializing application...')
+logInfo('Initializing application...')
 main()

@@ -402,7 +402,7 @@ export const useTimerStore = create<TimerState>()(
 					shouldSaveFinal,
 					mode: state.mode,
 					projectId: state.projectId,
-					elapsed: state.elapsed,
+					elapsed: state.infiniteMode ? state.infiniteElapsedTime : state.elapsed,
 					workStartTime: state.workStartTime
 				})
 
@@ -412,7 +412,7 @@ export const useTimerStore = create<TimerState>()(
 					setupGlobalInterval(get().tick, 'idle')
 
 					// Si se confirma el guardado, crear la entrada de tiempo
-					if (shouldSaveFinal && state.projectId && state.elapsed >= 1) {
+					if (shouldSaveFinal && state.projectId && state.infiniteElapsedTime >= 1) {
 						await state.createTimeEntryFromWorkSession(false) // Pasamos false para no mostrar notificación
 					}
 
@@ -428,6 +428,7 @@ export const useTimerStore = create<TimerState>()(
 						workStartTime: null,
 						infiniteMode: false,
 						selectedEntryId: null,
+						infiniteElapsedTime: 0,
 					})
 
 					return
@@ -573,7 +574,7 @@ export const useTimerStore = create<TimerState>()(
 				const state = get()
 				if (state.status === 'running') {
 					if (state.infiniteMode) {
-						// Actualizar tiempo infinito
+						// Actualizar tiempo infinito solo si está en estado running
 						const now = new Date()
 						const startTime = state.workStartTime ? new Date(state.workStartTime) : now
 						const elapsedSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000)
@@ -664,20 +665,21 @@ export const useTimerStore = create<TimerState>()(
 						startTime = new Date(state.workStartTime)
 					} else {
 						// Si no hay workStartTime, calcular basado en elapsed
-						startTime = new Date(Date.now() - state.elapsed * 1000)
+						startTime = new Date(Date.now() - (state.infiniteMode ? state.infiniteElapsedTime : state.elapsed) * 1000)
 					}
 
 					// Calcular endTime exactamente basado en startTime y elapsed
-					const endTime = new Date(startTime.getTime() + state.elapsed * 1000)
+					const elapsedTime = state.infiniteMode ? state.infiniteElapsedTime : state.elapsed
+					const endTime = new Date(startTime.getTime() + elapsedTime * 1000)
 
 					// Solo crear la entrada si la duración es mayor a 1 segundo
-					if (state.elapsed > 1) {
+					if (elapsedTime > 1) {
 						const timeEntry = {
 							project: state.projectId,
 							task: state.taskId || undefined,
 							startTime,
 							endTime,
-							duration: state.elapsed * 1000, // Convertir a milisegundos
+							duration: elapsedTime * 1000, // Convertir a milisegundos
 							notes: state.notes || `Work session ${state.currentRepetition}/${state.repetitions}`,
 							tags: state.tags,
 							isRunning: false

@@ -91,11 +91,12 @@ export const TimerControls = ({
 	}
 
 	const handleStop = () => {
-		// En modo infinito o break, no mostrar confirmación
-		if (mode === 'break' || infiniteMode) {
+		// Solo mostrar el modal de confirmación si no estamos en modo break
+		if (mode === 'break') {
 			stop(false)
 			return
 		}
+		// Mostrar el modal de confirmación tanto en modo normal como infinito
 		setShowStopConfirmationModal(true)
 	}
 
