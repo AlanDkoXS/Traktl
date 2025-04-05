@@ -7,12 +7,14 @@ interface TimerDisplayProps {
 	progress: number
 	formattedTime: string
 	mode: 'work' | 'break'
+	isInfiniteMode: boolean
 }
 
 export const TimerDisplay = ({
 	progress,
 	formattedTime,
 	mode,
+	isInfiniteMode,
 }: TimerDisplayProps) => {
 	const { t } = useTranslation()
 	const { isConnected } = useSocket()

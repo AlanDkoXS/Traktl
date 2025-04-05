@@ -95,12 +95,11 @@ export const Timer = () => {
 
 	// Show notification when timer completes
 	useEffect(() => {
-		if (progress >= 100) {
-			useNotificationStore
-				.getState()
-				.showNotification(mode as 'work' | 'break')
+		if (progress >= 100 && status === 'running') {
+			// La notificación ahora se maneja en el store
+			// No necesitamos hacer nada aquí
 		}
-	}, [mode, progress, t])
+	}, [mode, progress, status])
 
 	// Handle preset selection
 	const handlePresetSelect = (preset: {

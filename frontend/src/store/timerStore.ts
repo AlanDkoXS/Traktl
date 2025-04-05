@@ -75,7 +75,7 @@ interface TimerState {
 	setNotes: (notes: string) => void
 	setTags: (tags: string[]) => void
 
-	switchToNext: () => Promise<void | TimerState>
+	switchToNext: () => void
 	switchToBreak: () => void
 	switchToWork: (nextRepetition?: number) => void
 
@@ -323,7 +323,10 @@ export const useTimerStore = create<TimerState>()(
 				set((state) => {
 					if (state.status === 'running') {
 						// Clear the interval when pausing
-						setupGlobalInterval(get().tick, 'paused')
+						if (globalTimerInterval !== null) {
+							clearInterval(globalTimerInterval)
+							globalTimerInterval = null
+						}
 
 						// Si estamos en modo infinito, guardar el tiempo transcurrido
 						if (state.infiniteMode) {
@@ -587,10 +590,21 @@ export const useTimerStore = create<TimerState>()(
 						// Solo actualizar si no hemos alcanzado el tiempo total
 						if (newElapsed <= totalTime) {
 							set({ elapsed: newElapsed })
-						} else {
-							// Si alcanzamos el tiempo total, detener el timer
-							setupGlobalInterval(get().tick, 'idle')
-							state.switchToNext()
+							
+							// Si alcanzamos el tiempo total, detener el timer y mostrar notificación
+							if (newElapsed === totalTime) {
+								// Detener el intervalo inmediatamente
+								if (globalTimerInterval !== null) {
+									clearInterval(globalTimerInterval)
+									globalTimerInterval = null
+								}
+								
+								// Mostrar notificación y reproducir sonido
+								state.showNotification(state.mode)
+								
+								// Cambiar al siguiente estado
+								state.switchToNext()
+							}
 						}
 					}
 				}
@@ -639,76 +653,65 @@ export const useTimerStore = create<TimerState>()(
 
 			createTimeEntryFromWorkSession: async (showNotification = true) => {
 				const state = get()
-
-				// Skip if no project selected
-				if (!state.projectId) {
-					return
-				}
+				if (!state.projectId) return
 
 				try {
-					// Ensure startTime is a proper Date object
+					// Asegurarnos de que startTime sea un objeto Date
 					let startTime: Date
 					if (state.workStartTime instanceof Date) {
 						startTime = state.workStartTime
-					} else if (state.workStartTime) {
+					} else if (typeof state.workStartTime === 'number') {
 						startTime = new Date(state.workStartTime)
 					} else {
 						// Si no hay workStartTime, calcular basado en elapsed
 						startTime = new Date(Date.now() - state.elapsed * 1000)
 					}
 
-					const endTime = new Date()
-					const duration = endTime.getTime() - startTime.getTime()
+					// Calcular endTime exactamente basado en startTime y elapsed
+					const endTime = new Date(startTime.getTime() + state.elapsed * 1000)
 
-					// Only create entries longer than 1 second
-					if (duration < 1000) {
-						return
+					// Solo crear la entrada si la duración es mayor a 1 segundo
+					if (state.elapsed > 1) {
+						const timeEntry = {
+							project: state.projectId,
+							task: state.taskId || undefined,
+							startTime,
+							endTime,
+							duration: state.elapsed * 1000, // Convertir a milisegundos
+							notes: state.notes || `Work session ${state.currentRepetition}/${state.repetitions}`,
+							tags: state.tags,
+							isRunning: false
+						}
+
+						// Crear la entrada de tiempo
+						await timeEntryService.createTimeEntry(timeEntry)
+
+						// Mostrar notificación solo si se solicita y no estamos en modo infinito
+						if (showNotification && !state.infiniteMode) {
+							state.showNotification('work')
+						}
+
+						window.dispatchEvent(new CustomEvent('time-entry-created'))
 					}
-
-					await timeEntryService.createTimeEntry({
-						project: state.projectId,
-						task: state.taskId || undefined,
-						startTime,
-						endTime,
-						duration,
-						notes:
-							state.notes ||
-							`Work session ${state.currentRepetition}/${state.repetitions}`,
-						tags: state.tags,
-						isRunning: false,
-					})
-
-					// Solo mostrar notificación si se solicita explícitamente
-					if (showNotification) {
-						state.showNotification('work')
-					}
-
-					window.dispatchEvent(new CustomEvent('time-entry-created'))
 				} catch (error) {
-					console.error(
-						'Error creating time entry from work session:',
-						error,
-					)
+					console.error('Error creating time entry:', error)
 				}
 			},
 
-			switchToNext: async () => {
+			switchToNext: () => {
 				const state = get()
-
+				
 				// Si estamos en modo infinito, no hacer nada
 				if (state.infiniteMode) {
-					return state
+					return
 				}
 
-				// Determinar si es el final de un ciclo de trabajo o descanso
 				if (state.mode === 'work') {
-					// Guardar la sesión actual si es modo trabajo y hay tiempo transcurrido
-					if (state.projectId && state.elapsed >= 1) {
-						try {
-							await state.createTimeEntryFromWorkSession(false) // No mostrar notificación aquí
-						} catch (error) {
-							console.error('Error creating time entry in switchToNext:', error)
-						}
+					// Guardar la entrada de tiempo antes de cambiar al modo break
+					if (state.projectId) {
+						state.createTimeEntryFromWorkSession(false).catch(error => {
+							console.error('Error creating time entry:', error)
+						})
 					}
 
 					if (state.breakDuration > 0) {
@@ -744,7 +747,6 @@ export const useTimerStore = create<TimerState>()(
 							}, 100)
 						} else {
 							// Hemos completado todas las repeticiones
-							setupGlobalInterval(get().tick, 'idle')
 							set({
 								mode: 'work',
 								status: 'idle',
@@ -780,7 +782,6 @@ export const useTimerStore = create<TimerState>()(
 						}, 100)
 					} else {
 						// Hemos completado todas las repeticiones
-						setupGlobalInterval(get().tick, 'idle')
 						set({
 							mode: 'work',
 							status: 'idle',
