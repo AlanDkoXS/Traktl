@@ -69,13 +69,11 @@ export const TimeEntryList = ({
 	const [editModalOpen, setEditModalOpen] = useState(false)
 	const [entryToEdit, setEntryToEdit] = useState<string | null>(null)
 
-	// Initial data load
 	useEffect(() => {
 		if (!dataInitialized) {
 			const loadData = async () => {
 				try {
-					setDataInitialized(true) // Set this first to prevent loops
-					// Load data in sequence
+					setDataInitialized(true)
 					await fetchTimeEntries(
 						projectId,
 						taskId,
@@ -95,10 +93,8 @@ export const TimeEntryList = ({
 		}
 	}, [projectId, taskId, startDate, endDate, limit, dataInitialized])
 
-	// Refresh time entries when timer stops
 	useEffect(() => {
 		if (timerStatus === 'idle' && workStartTime === null) {
-			// This means the timer has been stopped - refresh entries
 			const refreshData = async () => {
 				try {
 					await fetchTimeEntries(
@@ -117,19 +113,16 @@ export const TimeEntryList = ({
 		}
 	}, [timerStatus, workStartTime])
 
-	// Limpiar selección cuando el temporizador comienza
 	useEffect(() => {
 		if (timerStatus === 'running') {
 			clearSelectedTimeEntries()
 		}
 	}, [timerStatus])
 
-	// Format duration with hours, minutes, and seconds
 	const formatDuration = (milliseconds: number) => {
 		if (milliseconds === 0) return '00:00:00'
 
 		const seconds = Math.floor(milliseconds / 1000)
-		// Round up to a minute if between 59-60 seconds
 		if (seconds >= 59 && seconds < 60) {
 			const hours = 0
 			const minutes = 1
@@ -176,13 +169,11 @@ export const TimeEntryList = ({
 		try {
 			await deleteTimeEntry(entryToDelete)
 
-			// If we're deleting the selected entry, clear selection
 			if (selectedEntryId === entryToDelete) {
 				setSelectedEntryId(null)
 				setInfiniteMode(false)
 			}
 
-			// Refresh the time entries list
 			await fetchTimeEntries(projectId, taskId, startDate, endDate, limit)
 		} catch (error) {
 			console.error('Failed to delete time entry:', error)
@@ -197,7 +188,6 @@ export const TimeEntryList = ({
 		e.preventDefault()
 		e.stopPropagation()
 
-		// Si se mantiene presionada la tecla Ctrl/Cmd, alternar selección individual
 		if (e.ctrlKey || e.metaKey) {
 			if (selectedTimeEntries.some((te) => te.id === entry.id)) {
 				deselectTimeEntry(entry)
@@ -207,7 +197,6 @@ export const TimeEntryList = ({
 			return
 		}
 
-		// Si se mantiene presionada la tecla Shift, seleccionar rango
 		if (e.shiftKey && selectedTimeEntries.length > 0) {
 			const lastSelectedIndex = timeEntries.findIndex(
 				(te) =>
@@ -221,17 +210,14 @@ export const TimeEntryList = ({
 			const start = Math.min(lastSelectedIndex, currentIndex)
 			const end = Math.max(lastSelectedIndex, currentIndex)
 
-			// Limpiar selección actual
 			clearSelectedTimeEntries()
 
-			// Seleccionar el rango
 			for (let i = start; i <= end; i++) {
 				selectTimeEntry(timeEntries[i])
 			}
 			return
 		}
 
-		// Si no hay teclas modificadoras, alternar selección individual
 		if (selectedTimeEntries.some((te) => te.id === entry.id)) {
 			deselectTimeEntry(entry)
 		} else {
@@ -239,26 +225,21 @@ export const TimeEntryList = ({
 		}
 	}
 
-	// Handle click on the play button specifically
 	const handlePlayClick = (entry: TimeEntry, e: React.MouseEvent) => {
 		e.preventDefault()
 		e.stopPropagation()
 
 		console.log('Play clicked, setting up timer with entry:', entry.id)
 
-		// Set up timer with the entry data
 		setProjectId(entry.project)
 		if (entry.task) setTaskId(entry.task)
 		if (entry.notes) setNotes(entry.notes)
 		if (entry.tags) setTags(entry.tags)
 
-		// Make sure this entry is selected for infinite mode
 		setSelectedEntryId(entry.id)
 
-		// Explicitly set infinite mode to true before starting
 		setInfiniteMode(true)
 
-		// Start timer with infinite mode
 		start()
 	}
 
@@ -269,15 +250,12 @@ export const TimeEntryList = ({
 	const handleBulkDelete = async () => {
 		setDeleteLoading(true)
 		try {
-			// Eliminar todas las entradas seleccionadas
 			await Promise.all(
 				selectedTimeEntries.map((entry) => deleteTimeEntry(entry.id)),
 			)
 
-			// Limpiar la selección
 			clearSelectedTimeEntries()
 
-			// Refrescar la lista de entradas
 			await fetchTimeEntries(projectId, taskId, startDate, endDate, limit)
 		} catch (error) {
 			console.error('Failed to delete time entries:', error)
@@ -294,7 +272,6 @@ export const TimeEntryList = ({
 		setEditModalOpen(true)
 	}
 
-	// Get the correct locale based on current language
 	const getLocale = () => {
 		switch (i18n.language) {
 			case 'es':
@@ -336,16 +313,13 @@ export const TimeEntryList = ({
 		)
 	}
 
-	// Sort entries by date (newest first)
 	const sortedEntries = [...timeEntries].sort(
 		(a, b) =>
 			new Date(b.startTime).getTime() - new Date(a.startTime).getTime(),
 	)
 
-	// Only apply limit if it's explicitly set
 	const displayEntries = limit ? sortedEntries.slice(0, limit) : sortedEntries
 
-	// Check if timer is active
 	const isTimerActive =
 		timerStatus === 'running' ||
 		timerStatus === 'paused' ||
@@ -406,31 +380,25 @@ export const TimeEntryList = ({
 					const isHovered = hoveredEntryId === entry.id
 					const projectColor = getProjectColor(entry.project)
 
-					// Create darker and lighter variants of project color for selected state
 					const getDarkerColor = (
 						hexColor: string,
 						factor = 0.85,
 					) => {
-						// Convert hex to RGB
 						const r = parseInt(hexColor.slice(1, 3), 16)
 						const g = parseInt(hexColor.slice(3, 5), 16)
 						const b = parseInt(hexColor.slice(5, 7), 16)
 
-						// Apply darkening factor
 						const darkerR = Math.floor(r * factor)
 						const darkerG = Math.floor(g * factor)
 						const darkerB = Math.floor(b * factor)
 
-						// Convert back to hex
 						return `#${darkerR.toString(16).padStart(2, '0')}${darkerG.toString(16).padStart(2, '0')}${darkerB.toString(16).padStart(2, '0')}`
 					}
 
 					const darkerProjectColor = getDarkerColor(projectColor)
 
-					// Create entry background style that adapts to project colors
 					let entryBgStyle = {}
 					if (isSelected) {
-						// Use a subtle background based on project color
 						entryBgStyle = {
 							background: `linear-gradient(to right, ${projectColor}15, ${projectColor}05)`,
 							borderLeft: `3px solid ${projectColor}`,

@@ -55,7 +55,6 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
 	if (!isAuthenticated) {
 		console.log('ProtectedRoute - Not authenticated, redirecting to login')
-		// Save the location they were trying to go to
 		return <Navigate to="/login" state={{ from: location }} replace />
 	}
 

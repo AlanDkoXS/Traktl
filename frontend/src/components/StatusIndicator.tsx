@@ -2,15 +2,11 @@ import { useSocket } from '../context/SocketContext'
 import { useTranslation } from 'react-i18next'
 import { useTimerStore } from '../store/timerStore'
 
-/**
- * Component that shows the connection status
- */
 export const StatusIndicator = () => {
 	const { isConnected } = useSocket()
 	const { isSyncEnabled, setSyncEnabled } = useTimerStore()
 	const { t } = useTranslation()
 
-	// Get the status text and color
 	const getStatusInfo = () => {
 		if (!isConnected) {
 			return {
@@ -29,7 +25,6 @@ export const StatusIndicator = () => {
 
 	const { text, colorClass } = getStatusInfo()
 
-	// Toggle sync
 	const handleToggleSync = () => {
 		setSyncEnabled(!isSyncEnabled)
 	}

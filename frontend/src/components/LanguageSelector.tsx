@@ -8,7 +8,6 @@ export const LanguageSelector = () => {
 	const [currentLanguage, setCurrentLanguage] = useState(i18n.language)
 
 	useEffect(() => {
-		// Update state when language changes
 		setCurrentLanguage(i18n.language)
 	}, [i18n.language])
 
@@ -19,9 +18,7 @@ export const LanguageSelector = () => {
 	]
 
 	const changeLanguage = (lng: string) => {
-		// Save the selected language to localStorage
 		localStorage.setItem('i18nextLng', lng)
-		// Change the language
 		i18n.changeLanguage(lng)
 	}
 

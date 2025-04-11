@@ -63,20 +63,16 @@ export const ProjectForm = ({
 					status,
 				})
 
-				// Si el proyecto está activo, actualizar el color y seleccionarlo
 				if (status === 'active') {
 					setProjectColor(color)
 					selectProject(updatedProject)
 					setProjectId(updatedProject.id)
 				} else {
-					// Si el proyecto se archiva, deseleccionarlo si estaba seleccionado
 					if (selectedProject?.id === project.id) {
 						clearSelectedProject()
 						setProjectId(null)
 					}
 				}
-
-				// No navegar a otra página, permanecer en el formulario
 			} else {
 				await createProject({
 					name,

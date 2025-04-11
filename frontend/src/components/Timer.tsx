@@ -14,9 +14,7 @@ import { useTimeEntryStore } from '../store/timeEntryStore'
 import { ConfirmModal } from './ui/ConfirmModal'
 import { useTimerStore } from '../store/timerStore'
 import { setProjectColor } from '../utils/dynamicColors'
-import { useNotificationStore } from '../services/notificationService'
 
-// Define the specific types needed for the timer components
 type TimerStatus = 'idle' | 'running' | 'paused' | 'break'
 type TimerMode = 'work' | 'break'
 
@@ -58,17 +56,14 @@ export const Timer = () => {
 	const [selectedTags, setSelectedTags] = useState<string[]>([])
 	const [localNotes, setLocalNotes] = useState('')
 
-	// Update timer tags when selectedTags change
 	useEffect(() => {
 		setTags(selectedTags)
 	}, [selectedTags, setTags])
 
-	// Update timer notes when notes change
 	useEffect(() => {
 		setTimerNotes(localNotes)
 	}, [localNotes, setTimerNotes])
 
-	// Apply project color when project changes or component mounts
 	useEffect(() => {
 		if (projectId) {
 			const project = projects.find((p) => p.id === projectId)
@@ -78,7 +73,6 @@ export const Timer = () => {
 		}
 	}, [projectId, projects])
 
-	// Listen for time entry creation event to refresh the list
 	useEffect(() => {
 		const handleTimeEntryCreated = () => {
 			fetchTimeEntries()
@@ -93,15 +87,12 @@ export const Timer = () => {
 		}
 	}, [fetchTimeEntries])
 
-	// Show notification when timer completes
 	useEffect(() => {
 		if (progress >= 100 && status === 'running') {
-			// La notificación ahora se maneja en el store
-			// No necesitamos hacer nada aquí
+			// Notifications handle now in the store
 		}
 	}, [mode, progress, status])
 
-	// Handle preset selection
 	const handlePresetSelect = (preset: {
 		workDuration: number
 		breakDuration: number
@@ -114,7 +105,6 @@ export const Timer = () => {
 		setSelectedPresetId(preset.id)
 	}
 
-	// Ensure correct typing for components
 	const timerMode = mode as TimerMode
 	const timerStatus = status as TimerStatus
 

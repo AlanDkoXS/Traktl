@@ -16,10 +16,6 @@ export class VerificationService {
 		private readonly emailService: EmailService,
 	) {}
 
-	/**
-	 * Generates a verification token for the user
-	 * Having a token means the user is verified
-	 */
 	async generateEmailVerificationToken(
 		userId: string,
 		email: string,
@@ -38,9 +34,6 @@ export class VerificationService {
 		return token
 	}
 
-	/**
-	 * Requests a verification email to be sent to the user
-	 */
 	async requestVerification(
 		userId: string,
 		email: string,
@@ -59,10 +52,6 @@ export class VerificationService {
 		return this.emailService.sendVerificationEmail(email, token, language)
 	}
 
-	/**
-	 * Verifies a user's email using a token
-	 * Sets the token in the user record to mark them as verified
-	 */
 	async verifyEmail(token: string): Promise<boolean> {
 		try {
 			const payload = (await JwtAdapter.validateToken(
@@ -104,10 +93,6 @@ export class VerificationService {
 		}
 	}
 
-	/**
-	 * Gets the verification status of a user
-	 * A user is verified if they have a valid token
-	 */
 	async getVerificationStatus(userId: string): Promise<{
 		isVerified: boolean
 		emailVerificationToken?: EmailVerificationToken

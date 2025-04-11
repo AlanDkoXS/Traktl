@@ -23,7 +23,6 @@ export const ChangePasswordModal = ({
 	const [passwordError, setPasswordError] = useState('')
 	const [confirmError, setConfirmError] = useState('')
 
-	// Reset form state when modal opens/closes
 	useEffect(() => {
 		if (isOpen) {
 			setCurrentPassword('')
@@ -35,7 +34,6 @@ export const ChangePasswordModal = ({
 		}
 	}, [isOpen])
 
-	// Password validation
 	useEffect(() => {
 		if (newPassword) {
 			const passwordRegex =
@@ -50,7 +48,6 @@ export const ChangePasswordModal = ({
 		}
 	}, [newPassword, t])
 
-	// Confirm password validation
 	useEffect(() => {
 		if (confirmPassword && newPassword !== confirmPassword) {
 			setConfirmError(t('auth.passwordMismatch'))
@@ -62,18 +59,15 @@ export const ChangePasswordModal = ({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		// Validate required fields
 		if (!currentPassword || !newPassword || !confirmPassword) {
 			setError(t('errors.required'))
 			return
 		}
 
-		// Check password validation
 		if (passwordError) {
 			return
 		}
 
-		// Check password match
 		if (newPassword !== confirmPassword) {
 			setConfirmError(t('auth.passwordMismatch'))
 			return
@@ -83,10 +77,8 @@ export const ChangePasswordModal = ({
 			setIsSubmitting(true)
 			setError('')
 
-			// Call API to change password
 			await authService.changePassword(currentPassword, newPassword)
 
-			// Success! Reset form and notify parent
 			onSuccess()
 			onClose()
 		} catch (err: unknown) {

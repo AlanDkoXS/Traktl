@@ -16,8 +16,8 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: 3000,
 			open: true,
-			host: true, // Permite que la app sea accesible desde la red local
-			origin: env.VITE_APP_ORIGIN || '*', // Origen permitido desde variables de entorno
+			host: true,
+			origin: env.VITE_APP_ORIGIN || '*',
 			proxy: {
 				'/api': {
 					target: env.VITE_API_URL || 'http://localhost:4000',

@@ -2,6 +2,49 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 
+// Define interfaces para tipos de Google
+interface GoogleNotification {
+	isNotDisplayed: () => boolean
+	isSkippedMoment: () => boolean
+	isDismissedMoment: () => boolean
+	getMomentType: () => string
+}
+
+interface GoogleCredentialResponse {
+	credential: string
+	select_by: string
+	client_id: string
+}
+
+// Extender el tipo Window para incluir la API de Google
+declare global {
+	interface Window {
+		google?: {
+			accounts?: {
+				id: {
+					initialize: (config: {
+						client_id: string
+						callback: (response: GoogleCredentialResponse) => void
+						auto_select: boolean
+						cancel_on_tap_outside: boolean
+					}) => void
+					prompt: (
+						callback: (notification: GoogleNotification) => void,
+					) => void
+					renderButton: (
+						element: HTMLElement,
+						options: {
+							theme: string
+							size: string
+							width: string
+						},
+					) => void
+				}
+			}
+		}
+	}
+}
+
 interface GoogleAuthButtonProps {
 	isLogin?: boolean
 }
@@ -12,52 +55,63 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
-	// Handle Google Login
 	const handleGoogleLogin = async () => {
 		setIsLoading(true)
 		setError(null)
 
 		try {
-			// Load the Google Identity Services script
 			await loadGoogleScript()
 
-			// Verificar que window.google exista
 			if (!window.google?.accounts?.id) {
 				throw new Error('Google Identity Services not available')
 			}
 
-			// Initialize Google Identity Services
 			window.google.accounts.id.initialize({
-				client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+				client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID as string,
 				callback: handleGoogleResponse,
 				auto_select: false,
 				cancel_on_tap_outside: true,
 			})
 
-			// Prompt the Google One Tap UI
-			window.google.accounts.id.prompt((notification: any) => {
-				if (
-					notification.isNotDisplayed() ||
-					notification.isSkippedMoment()
-				) {
-					console.log(
-						'One Tap was skipped or not displayed, falling back to manual prompt',
-					)
-					// Verificación adicional antes de renderButton
-					if (window.google?.accounts?.id) {
-						window.google.accounts.id.renderButton(
-							document.getElementById('google-login-button')!,
-							{ theme: 'outline', size: 'large', width: '100%' },
+			window.google.accounts.id.prompt(
+				(notification: GoogleNotification) => {
+					if (
+						notification.isNotDisplayed() ||
+						notification.isSkippedMoment()
+					) {
+						console.log(
+							'One Tap was skipped or not displayed, falling back to manual prompt',
 						)
-					} else {
-						console.error(
-							'Google API not available for button rendering',
-						)
-						setError('Google authentication service unavailable')
-						setIsLoading(false)
+						if (window.google?.accounts?.id) {
+							const buttonElement = document.getElementById(
+								'google-login-button',
+							)
+							if (buttonElement) {
+								window.google.accounts.id.renderButton(
+									buttonElement,
+									{
+										theme: 'outline',
+										size: 'large',
+										width: '100%',
+									},
+								)
+							} else {
+								throw new Error(
+									'Google login button element not found',
+								)
+							}
+						} else {
+							console.error(
+								'Google API not available for button rendering',
+							)
+							setError(
+								'Google authentication service unavailable',
+							)
+							setIsLoading(false)
+						}
 					}
-				}
-			})
+				},
+			)
 		} catch (error) {
 			console.error('Error initializing Google Sign-In:', error)
 			setError('Error setting up Google authentication')
@@ -65,7 +119,7 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 		}
 	}
 
-	const handleGoogleResponse = async (response: any) => {
+	const handleGoogleResponse = async (response: GoogleCredentialResponse) => {
 		console.log(
 			'Google response received with credential:',
 			response.credential

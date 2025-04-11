@@ -20,7 +20,6 @@ import {
 } from './utils/dynamicColors'
 import DataInitializer from './components/DataInitializer'
 
-// Lazy loading de componentes
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Projects = lazy(() => import('./pages/Projects'))
 const CreateProject = lazy(() => import('./pages/CreateProject'))
@@ -47,7 +46,6 @@ const TimerPresets = lazy(() => import('./pages/TimerPresets'))
 const CreateTimerPreset = lazy(() => import('./pages/CreateTimerPreset'))
 const EditTimerPreset = lazy(() => import('./pages/EditTimerPreset'))
 
-// Componente de carga
 const LoadingFallback = () => (
 	<div className="min-h-screen flex items-center justify-center">
 		<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -55,19 +53,15 @@ const LoadingFallback = () => (
 )
 
 function App() {
-	// Initialize theme
 	useTheme()
 	const { loadUser } = useAuthStore()
 
-	// Set up default colors for different sections
 	useEffect(() => {
-		// Default color configuration for each section
-		setDefaultColorForSection('app', '#0284c7') // Default blue for general app
-		setDefaultColorForSection('client', '#0284c7') // Blue for clients
-		setDefaultColorForSection('task', '#0284c7') // Blue for tasks
-		setDefaultColorForSection('tag', '#0284c7') // Blue for tags
+		setDefaultColorForSection('app', '#0284c7')
+		setDefaultColorForSection('client', '#0284c7')
+		setDefaultColorForSection('task', '#0284c7')
+		setDefaultColorForSection('tag', '#0284c7')
 
-		// Set initial application color only if no project color is set
 		const defaultAppColor =
 			localStorage.getItem('default-app-color') || '#0284c7'
 		const projectColor = localStorage.getItem('project-color')

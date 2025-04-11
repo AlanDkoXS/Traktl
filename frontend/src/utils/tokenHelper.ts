@@ -1,20 +1,12 @@
-/**
- * Utility functions for token handling
- */
-
-// Function to decode JWT payload
 export const decodeToken = (token: string) => {
 	try {
-		// Split the token by dots
 		const parts = token.split('.')
 		if (parts.length !== 3) {
 			throw new Error('Not a valid JWT token format')
 		}
 
-		// Get the payload part (the middle part)
 		const payload = parts[1]
 
-		// Base64Url decode
 		const base64 = payload.replace(/-/g, '+').replace(/_/g, '/')
 		const jsonPayload = decodeURIComponent(
 			atob(base64)
@@ -33,13 +25,11 @@ export const decodeToken = (token: string) => {
 	}
 }
 
-// Function to check if token is expired
 export const isTokenExpired = (token: string) => {
 	try {
 		const decodedToken = decodeToken(token)
 		if (!decodedToken || !decodedToken.exp) return true
 
-		// exp is in seconds, Date.now() is in milliseconds
 		const expirationTime = decodedToken.exp * 1000
 		const currentTime = Date.now()
 
@@ -56,7 +46,6 @@ export const isTokenExpired = (token: string) => {
 	}
 }
 
-// Function to get token info for debugging
 export const getTokenInfo = (token: string | null) => {
 	if (!token) return { valid: false, message: 'No token provided' }
 
@@ -77,7 +66,6 @@ export const getTokenInfo = (token: string | null) => {
 	}
 }
 
-// Expose a function to check the current token in localStorage
 export const checkCurrentToken = () => {
 	const token = localStorage.getItem('auth-token')
 	console.log(

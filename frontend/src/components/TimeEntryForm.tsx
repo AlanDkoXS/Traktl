@@ -30,7 +30,6 @@ export const TimeEntryForm = ({
 	const { tags, fetchTags } = useTagStore()
 	const { clients, fetchClients } = useClientStore()
 
-	// Get the correct locale based on current language
 	const getLocale = () => {
 		switch (i18n.language) {
 			case 'es':
@@ -42,12 +41,10 @@ export const TimeEntryForm = ({
 		}
 	}
 
-	// Get projectId from query params if available
 	const queryParams = new URLSearchParams(location.search)
 	const queryProjectId = queryParams.get('projectId')
 	const queryTaskId = queryParams.get('taskId')
 
-	// Initialize with either existing time entry, query params, or defaults
 	const [clientId, setClientId] = useState('')
 	const [projectId, setProjectId] = useState(
 		timeEntry?.project || queryProjectId || '',
@@ -75,18 +72,15 @@ export const TimeEntryForm = ({
 	const [error, setError] = useState('')
 
 	useEffect(() => {
-		// Load projects, tasks, and tags
 		fetchClients()
 		fetchProjects()
 		fetchTags()
 
-		// If we have a project ID, fetch tasks for that project
 		if (projectId) {
 			fetchTasks(projectId)
 		}
 	}, [fetchClients, fetchProjects, fetchTags, fetchTasks, projectId])
 
-	// Update clientId when project changes
 	useEffect(() => {
 		if (projectId) {
 			const project = projects.find((p) => p.id === projectId)
@@ -99,16 +93,15 @@ export const TimeEntryForm = ({
 	const handleClientChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newClientId = e.target.value
 		setClientId(newClientId)
-		setProjectId('') // Reset project when client changes
-		setTaskId('') // Reset task when client changes
+		setProjectId('')
+		setTaskId('')
 	}
 
 	const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newProjectId = e.target.value
 		setProjectId(newProjectId)
-		setTaskId('') // Reset task when project changes
+		setTaskId('')
 
-		// If this project changes, fetch tasks for the new project
 		if (newProjectId) {
 			fetchTasks(newProjectId)
 		}
@@ -184,7 +177,6 @@ export const TimeEntryForm = ({
 		}
 	}
 
-	// Filter projects by selected client
 	const filteredProjects = clientId
 		? projects.filter((project) => project.client === clientId)
 		: projects

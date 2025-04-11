@@ -17,7 +17,6 @@ export const TaskForm = ({ task, isEditing = false }: TaskFormProps) => {
 	const { createTask, updateTask } = useTaskStore()
 	const { projects, fetchProjects } = useProjectStore()
 
-	// Get projectId from query params if available
 	const queryParams = new URLSearchParams(location.search)
 	const queryProjectId = queryParams.get('projectId')
 

@@ -9,7 +9,6 @@ import SocketHandler from './SocketHandler'
 import { setProjectColor } from '../utils/dynamicColors'
 import { TimerPreset } from '../types'
 
-// Create a context to expose initialization state
 interface DataInitializerContextType {
 	isInitialized: boolean
 	isLoading: boolean
@@ -22,14 +21,7 @@ export const DataInitializerContext = createContext<DataInitializerContextType>(
 	},
 )
 
-// Custom hook to use the context
 export const useDataInitializer = () => useContext(DataInitializerContext)
-
-/**
- * Component responsible for initializing application data
- * after user authentication. Loads projects, timer presets,
- * and sets up default selections for new users.
- */
 const DataInitializer = () => {
 	const {
 		isAuthenticated,
@@ -53,19 +45,14 @@ const DataInitializer = () => {
 		projectId: currentProjectId,
 	} = useTimerStore()
 
-	// Flag to track initialization
 	const [initialized, setInitialized] = useState(false)
-	// Flag to track loading state
 	const [isLoading, setIsLoading] = useState(false)
-	// Refs to track processes
 	const isCreatingDefaults = useRef(false)
 	const isSyncingLanguage = useRef(false)
 	const isSyncingTheme = useRef(false)
 	const hasSetInitialPreferences = useRef(false)
 
-	// Reset initialization state when authentication changes
 	useEffect(() => {
-		// When user logs out (isAuthenticated changes to false), reset initialization state
 		if (!isAuthenticated) {
 			console.log('User logged out, resetting DataInitializer state')
 			setInitialized(false)
@@ -74,7 +61,6 @@ const DataInitializer = () => {
 		}
 	}, [isAuthenticated])
 
-	// Set initial preferences (language/theme) from system on first load
 	useEffect(() => {
 		if (isAuthenticated && !hasSetInitialPreferences.current) {
 			hasSetInitialPreferences.current = true
@@ -88,7 +74,6 @@ const DataInitializer = () => {
 				? 'dark'
 				: 'light'
 
-			// Set initial i18n language if not already set
 			if (i18n.language !== systemLanguage && !preferredLanguage) {
 				console.log(
 					'Setting initial language from system:',
@@ -97,13 +82,11 @@ const DataInitializer = () => {
 				i18n.changeLanguage(systemLanguage)
 			}
 
-			// Set initial theme if not already set
 			if (theme === 'system' && !userTheme) {
 				console.log('Setting initial theme from system:', systemTheme)
 				setTheme(systemTheme)
 			}
 
-			// Save preferences to backend for new user
 			if (user && (!user.preferredLanguage || !user.theme)) {
 				console.log('Saving initial preferences to backend')
 				const updates: Record<string, string> = {}
@@ -132,7 +115,6 @@ const DataInitializer = () => {
 		updateUser,
 	])
 
-	// Synchronize language from user preferences
 	useEffect(() => {
 		if (
 			preferredLanguage &&
@@ -147,7 +129,6 @@ const DataInitializer = () => {
 		}
 	}, [preferredLanguage, i18n])
 
-	// Sync language changes to backend
 	useEffect(() => {
 		if (
 			isAuthenticated &&
@@ -164,7 +145,6 @@ const DataInitializer = () => {
 		}
 	}, [i18n.language, user, updateUser, isAuthenticated])
 
-	// Synchronize theme from user preferences
 	useEffect(() => {
 		if (
 			isAuthenticated &&
@@ -178,7 +158,6 @@ const DataInitializer = () => {
 		}
 	}, [isAuthenticated, userTheme, theme, setTheme])
 
-	// Sync theme changes to backend
 	useEffect(() => {
 		if (
 			isAuthenticated &&
@@ -195,7 +174,6 @@ const DataInitializer = () => {
 		}
 	}, [theme, user, updateUser, isAuthenticated])
 
-	// Load initial data when user is authenticated
 	useEffect(() => {
 		const loadInitialData = async () => {
 			if (
@@ -208,7 +186,6 @@ const DataInitializer = () => {
 					isCreatingDefaults.current = true
 					setIsLoading(true)
 
-					// Fetch projects and timer presets
 					const [projectsData, presetsData] = await Promise.all([
 						fetchProjects(),
 						fetchTimerPresets(),
@@ -219,21 +196,18 @@ const DataInitializer = () => {
 						presets: presetsData.length,
 					})
 
-					// Always create presets if none exist
 					if (presetsData.length === 0) {
 						await createDefaultPresets()
 					} else {
 						selectDefaultPreset(presetsData)
 					}
 
-					// Handle project selection or creation
 					if (projectsData.length === 0) {
 						await createDefaultProject()
 					} else {
 						handleExistingProjects(projectsData)
 					}
 
-					// Restore project color if exists
 					const projectColor = localStorage.getItem('project-color')
 					if (projectColor) {
 						setProjectColor(projectColor)
@@ -253,7 +227,6 @@ const DataInitializer = () => {
 			try {
 				console.log('Creating default timer presets...')
 
-				// Create Pomodoro preset
 				const pomodoroPreset = await createTimerPreset({
 					name: '🍅 Pomodoro',
 					workDuration: 25,
@@ -261,7 +234,6 @@ const DataInitializer = () => {
 					repetitions: 4,
 				})
 
-				// Create 52/17 preset
 				await createTimerPreset({
 					name: '💻 52/17',
 					workDuration: 52,
@@ -269,7 +241,6 @@ const DataInitializer = () => {
 					repetitions: 4,
 				})
 
-				// Select Pomodoro as default
 				if (pomodoroPreset) {
 					selectTimerPreset(pomodoroPreset)
 					setWorkDuration(pomodoroPreset.workDuration)
@@ -284,7 +255,6 @@ const DataInitializer = () => {
 		}
 
 		const selectDefaultPreset = (presets: TimerPreset[]) => {
-			// Primero buscar el preset Default Settings
 			const defaultSettingsPreset = presets.find(
 				(preset) => preset.name === 'Default Settings',
 			)
@@ -298,7 +268,6 @@ const DataInitializer = () => {
 				return
 			}
 
-			// Si no hay Default Settings, buscar otros presets preferidos
 			const preferredPresets = [
 				{ name: '52/17', keyword: '52/17' },
 				{ name: 'Pomodoro', keyword: 'Pomodoro' },
@@ -313,7 +282,6 @@ const DataInitializer = () => {
 				if (selectedPreset) break
 			}
 
-			// Si no hay preset preferido, usar el primero
 			if (!selectedPreset && presets.length > 0) {
 				selectedPreset = presets[0]
 			}
@@ -334,6 +302,7 @@ const DataInitializer = () => {
 					name: 'Focus',
 					description: 'Default project for focused work sessions',
 					color: '#33d17a',
+					client: null,
 					status: 'active',
 				})
 
@@ -352,7 +321,6 @@ const DataInitializer = () => {
 		const handleExistingProjects = (
 			projects: { id: string; name: string }[],
 		) => {
-			// Check if we already have a project selected
 			if (currentProjectId) {
 				const projectExists = projects.some(
 					(project) => project.id === currentProjectId,
@@ -367,7 +335,6 @@ const DataInitializer = () => {
 				}
 			}
 
-			// Select first project as default
 			console.log('Selecting first project as default:', projects[0].name)
 			setProjectId(projects[0].id)
 		}
@@ -388,7 +355,6 @@ const DataInitializer = () => {
 		currentProjectId,
 	])
 
-	// Cargar ajustes por defecto
 	useEffect(() => {
 		const loadDefaultSettings = async () => {
 			if (!isAuthenticated || initialized) return
@@ -419,7 +385,6 @@ const DataInitializer = () => {
 		setRepetitions,
 	])
 
-	// Provide initialization state to the context and render the SocketHandler
 	return (
 		<DataInitializerContext.Provider
 			value={{ isInitialized: initialized, isLoading }}
