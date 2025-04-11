@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
 
-// Define interfaces para tipos de Google
 interface GoogleNotification {
 	isNotDisplayed: () => boolean
 	isSkippedMoment: () => boolean
@@ -16,7 +15,6 @@ interface GoogleCredentialResponse {
 	client_id: string
 }
 
-// Extender el tipo Window para incluir la API de Google
 declare global {
 	interface Window {
 		google?: {

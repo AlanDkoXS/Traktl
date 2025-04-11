@@ -25,10 +25,8 @@ const ForgotPassword = () => {
 			setError('')
 			setSuccessMessage('')
 
-			// API call to request password reset
 			await authService.requestPasswordReset(email)
 
-			// Show success message even if the email doesn't exist for security reasons
 			setSuccessMessage(
 				t(
 					'auth.passwordResetSent',
@@ -37,7 +35,6 @@ const ForgotPassword = () => {
 			)
 			setEmail('')
 		} catch {
-			// For security, we don't want to reveal if the email exists or not
 			setSuccessMessage(
 				t(
 					'auth.passwordResetSent',

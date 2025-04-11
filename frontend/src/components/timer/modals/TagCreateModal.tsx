@@ -39,11 +39,9 @@ export const TagCreateModal = ({
 				color,
 			})
 
-			// Reset form
 			setName('')
 			setColor('#2ecc71')
 
-			// Close modal and notify parent
 			onTagCreated(newTag.id)
 			onClose()
 		} catch (err: unknown) {

@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { clientService } from '../services/clientService'
 import { Client } from '../types'
 
-// Define an interface for API errors
 interface ApiError extends Error {
 	response?: {
 		data?: {
@@ -54,7 +53,6 @@ export const useClientStore = create<ClientState>((set) => ({
 		}
 	},
 	fetchClient: async (id: string) => {
-		// Validate ID
 		if (!id || id === 'undefined') {
 			console.error('Invalid client ID provided:', id)
 			set({

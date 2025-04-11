@@ -1,15 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/authStore'
-import { GoogleLogo } from './GoogleLogo'
 
-interface GoogleLoginButtonProps {
-	isLogin?: boolean
-}
-
-export const GoogleLoginButton = ({
-	isLogin = true,
-}: GoogleLoginButtonProps) => {
+export const GoogleLoginButton = () => {
 	const { t } = useTranslation()
 	const { loginWithGoogle } = useAuthStore()
 	const [isLoading, setIsLoading] = useState(false)
@@ -18,7 +11,6 @@ export const GoogleLoginButton = ({
 	const scriptLoaded = useRef(false)
 
 	useEffect(() => {
-		// Load the Google Identity Services script
 		const loadGoogleScript = () => {
 			if (scriptLoaded.current) return
 
@@ -41,9 +33,7 @@ export const GoogleLoginButton = ({
 
 		loadGoogleScript()
 
-		// Cleanup function
 		return () => {
-			// Clean up any Google-specific listeners or DOM elements if needed
 			if (googleButtonRef.current) {
 				googleButtonRef.current.innerHTML = ''
 			}
@@ -51,11 +41,15 @@ export const GoogleLoginButton = ({
 	}, [])
 
 	const initializeGoogleSignIn = () => {
-		if (!window.google || !scriptLoaded.current || !googleButtonRef.current)
+		if (
+			!window.google ||
+			!window.google.accounts ||
+			!scriptLoaded.current ||
+			!googleButtonRef.current
+		)
 			return
 
 		try {
-			// Initialize Google Identity Services
 			window.google.accounts.id.initialize({
 				client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
 				callback: handleGoogleResponse,
@@ -63,12 +57,11 @@ export const GoogleLoginButton = ({
 				cancel_on_tap_outside: true,
 			})
 
-			// Render the Google Sign-In button
 			window.google.accounts.id.renderButton(googleButtonRef.current, {
 				theme: 'outline',
 				size: 'large',
-				width: '100%',
-				text: isLogin ? 'signin_with' : 'signup_with',
+				width: '100',
+				// Removed 'type' as it is not a valid property for renderButton
 			})
 		} catch (err) {
 			console.error('Error initializing Google Sign-In:', err)
@@ -77,11 +70,12 @@ export const GoogleLoginButton = ({
 		}
 	}
 
-	const handleGoogleResponse = async (response: any) => {
+	const handleGoogleResponse = async (
+		response: google.accounts.id.CredentialResponse,
+	) => {
 		console.log('Google response received')
 		setIsLoading(true)
 		try {
-			// Call your backend with the token
 			await loginWithGoogle(response.credential)
 			console.log('Google login successful')
 		} catch (error) {

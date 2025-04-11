@@ -17,14 +17,12 @@ const EditClient = () => {
 	const [deleteLoading, setDeleteLoading] = useState(false)
 
 	useEffect(() => {
-		// Check if id is undefined or invalid
 		if (!id || id === 'undefined') {
 			console.error('Invalid client ID:', id)
 			setNotFound(true)
 			return
 		}
 
-		// Add a loading indicator
 		const loadClient = async () => {
 			try {
 				await fetchClient(id)
@@ -37,7 +35,6 @@ const EditClient = () => {
 		loadClient()
 	}, [id, fetchClient])
 
-	// Handle client deletion
 	const handleDelete = async () => {
 		if (!id) return
 

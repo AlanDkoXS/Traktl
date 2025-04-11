@@ -16,7 +16,6 @@ import { useTimeEntryStore } from '../../store/timeEntryStore'
 import { useProjectStore } from '../../store/projectStore'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 
-// Define interfaces
 interface TimeEntry {
 	startTime: string | Date
 	duration: number
@@ -42,7 +41,7 @@ interface ActivityHeatmapProps {
 export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 	const { t, i18n } = useTranslation()
 	const { timeEntries: storeTimeEntries } = useTimeEntryStore()
-	const { projects } = useProjectStore() as { projects: Project[] } // Explicitly type projects
+	const { projects } = useProjectStore() as { projects: Project[] }
 	const [cellSize, setCellSize] = useState(10)
 	const [hoveredDay, setHoveredDay] = useState<string | null>(null)
 
@@ -239,7 +238,6 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 		6: t('dashboard.days.sat'),
 	}
 
-	// Get the correct locale based on current language
 	const getLocale = () => {
 		switch (i18n.language) {
 			case 'es':
@@ -434,7 +432,7 @@ export const ActivityHeatmap = ({ timeEntries = [] }: ActivityHeatmapProps) => {
 					<div className="flex flex-col items-center">
 						<div className="overflow-x-auto pb-4 max-w-full">
 							<div
-								className="inline-grid gap-0.5" // Use Tailwind for gap
+								className="inline-grid gap-0.5"
 								style={{
 									gridTemplateColumns: `auto repeat(${numCols}, ${cellSize}px)`,
 									gridTemplateRows: `auto repeat(7, ${cellSize}px)`,

@@ -28,13 +28,11 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 	const setupSocket = () => {
 		if (!token || !user || !isAuthenticated) return
 
-		// Use the dedicated Socket.io URL from environment variables
 		const socketUrl =
 			import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000'
 		console.log('Intentando conectar Socket.io a:', socketUrl)
 
 		try {
-			// Crear un manager explícito con la configuración base
 			const manager = new Manager(socketUrl, {
 				reconnection: true,
 				reconnectionAttempts: 5,
@@ -44,7 +42,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 				transports: ['websocket', 'polling'],
 			})
 
-			// Conectar explícitamente al namespace por defecto '/'
 			const newSocket = manager.socket('/', {
 				auth: {
 					token,
@@ -54,7 +51,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
 			console.log('Socket inicializado correctamente')
 
-			// Set up socket event listeners
 			newSocket.on('connect', () => {
 				console.log('Socket connected')
 				setIsConnected(true)
@@ -89,7 +85,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
 			setSocket(newSocket)
 
-			// Cleanup function
 			return () => {
 				newSocket.disconnect()
 				setIsConnected(false)
@@ -102,7 +97,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 		}
 	}
 
-	// Reconnect function
 	const reconnect = () => {
 		if (socket) {
 			socket.disconnect()
@@ -112,7 +106,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 		}
 	}
 
-	// Connect when user authenticates
 	useEffect(() => {
 		const cleanup = setupSocket()
 		return () => {
@@ -120,7 +113,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 		}
 	}, [token, user?.id, isAuthenticated])
 
-	// Reconnect when online after being offline
 	useEffect(() => {
 		const handleOnline = () => {
 			console.log('Browser is online, reconnecting socket')

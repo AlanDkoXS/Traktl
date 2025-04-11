@@ -1,19 +1,39 @@
 import api from './api'
 import { TimerPreset } from '../types'
 
-// Helper to transform MongoDB _id to id in our frontend
-const formatTimerPreset = (preset: any): TimerPreset => {
-	if (!preset) return preset
+type RawTimerPreset = {
+	_id?: string
+	id?: string
+	name: string
+	workDuration: number
+	breakDuration: number
+	repetitions?: number
+	user?: string | { _id?: string }
+	createdAt?: string | Date
+	updatedAt?: string | Date
+}
+
+type ApiResponse<T> =
+	| {
+			data?: T | T[]
+	  }
+	| T
+	| T[]
+
+const formatTimerPreset = (
+	preset: RawTimerPreset | null,
+): TimerPreset | null => {
+	if (!preset) return null
 
 	return {
-		id: preset._id || preset.id,
+		id: preset._id || preset.id || '',
 		name: preset.name,
 		workDuration: preset.workDuration,
 		breakDuration: preset.breakDuration,
 		repetitions: preset.repetitions || 1,
 		user:
-			typeof preset.user === 'object' && preset.user?._id
-				? preset.user._id
+			typeof preset.user === 'object'
+				? preset.user._id || ''
 				: preset.user || '',
 		createdAt: preset.createdAt ? new Date(preset.createdAt) : new Date(),
 		updatedAt: preset.updatedAt ? new Date(preset.updatedAt) : new Date(),
@@ -21,19 +41,23 @@ const formatTimerPreset = (preset: any): TimerPreset => {
 }
 
 export const timerPresetService = {
-	// Get all timer presets
 	getTimerPresets: async (): Promise<TimerPreset[]> => {
 		try {
 			console.log('Fetching timer presets...')
-			const response = await api.get('/timer-presets')
+			const response =
+				await api.get<ApiResponse<RawTimerPreset>>('/timer-presets')
 			console.log('Timer presets response:', response.data)
 
-			// Handle different response formats
-			let presets = []
+			let presets: RawTimerPreset[] = []
 			if (Array.isArray(response.data)) {
 				presets = response.data
-			} else if (Array.isArray(response.data.data)) {
-				presets = response.data.data
+			} else if (
+				response.data &&
+				typeof response.data === 'object' &&
+				'data' in response.data &&
+				Array.isArray(response.data.data)
+			) {
+				presets = response.data.data as RawTimerPreset[]
 			} else {
 				console.error(
 					'Unexpected timer presets response format:',
@@ -42,36 +66,48 @@ export const timerPresetService = {
 				return []
 			}
 
-			return presets.map(formatTimerPreset)
-		} catch (error) {
+			return presets
+				.map((preset) => formatTimerPreset(preset))
+				.filter((preset): preset is TimerPreset => preset !== null)
+		} catch (error: unknown) {
 			console.error('Error fetching timer presets:', error)
 			throw error
 		}
 	},
 
-	// Get a single timer preset by ID
 	getTimerPreset: async (id: string): Promise<TimerPreset> => {
 		try {
 			console.log(`Fetching timer preset with id: ${id}`)
-			const response = await api.get(`/timer-presets/${id}`)
+			const response = await api.get<ApiResponse<RawTimerPreset>>(
+				`/timer-presets/${id}`,
+			)
 			console.log('Timer preset response:', response.data)
 
-			// Handle different response formats
-			let preset
-			if (response.data.data) {
-				preset = response.data.data
+			let preset: RawTimerPreset | null = null
+			if (
+				response.data &&
+				typeof response.data === 'object' &&
+				'data' in response.data
+			) {
+				preset = response.data.data as RawTimerPreset
 			} else {
-				preset = response.data
+				preset = response.data as RawTimerPreset
 			}
 
-			return formatTimerPreset(preset)
-		} catch (error) {
+			const formattedPreset = formatTimerPreset(preset)
+			if (!formattedPreset) {
+				throw new Error(
+					`Timer preset with id ${id} not found or invalid format`,
+				)
+			}
+
+			return formattedPreset
+		} catch (error: unknown) {
 			console.error('Error fetching timer preset:', error)
 			throw error
 		}
 	},
 
-	// Create a new timer preset
 	createTimerPreset: async (
 		timerPreset: Omit<
 			TimerPreset,
@@ -80,24 +116,36 @@ export const timerPresetService = {
 	): Promise<TimerPreset> => {
 		try {
 			console.log('Creating timer preset with data:', timerPreset)
-			const response = await api.post('/timer-presets', timerPreset)
+			const response = await api.post<ApiResponse<RawTimerPreset>>(
+				'/timer-presets',
+				timerPreset,
+			)
 
-			// Handle different response formats
-			let newPreset
-			if (response.data.data) {
-				newPreset = response.data.data
+			let newPreset: RawTimerPreset | null = null
+			if (
+				response.data &&
+				typeof response.data === 'object' &&
+				'data' in response.data
+			) {
+				newPreset = response.data.data as RawTimerPreset
 			} else {
-				newPreset = response.data
+				newPreset = response.data as RawTimerPreset
 			}
 
-			return formatTimerPreset(newPreset)
-		} catch (error) {
+			const formattedPreset = formatTimerPreset(newPreset)
+			if (!formattedPreset) {
+				throw new Error(
+					'Failed to create timer preset or invalid format returned',
+				)
+			}
+
+			return formattedPreset
+		} catch (error: unknown) {
 			console.error('Error creating timer preset:', error)
 			throw error
 		}
 	},
 
-	// Update a timer preset
 	updateTimerPreset: async (
 		id: string,
 		timerPreset: Partial<
@@ -106,63 +154,92 @@ export const timerPresetService = {
 	): Promise<TimerPreset> => {
 		try {
 			console.log(`Updating timer preset ${id} with data:`, timerPreset)
-			const response = await api.put(`/timer-presets/${id}`, timerPreset)
+			const response = await api.put<ApiResponse<RawTimerPreset>>(
+				`/timer-presets/${id}`,
+				timerPreset,
+			)
 
-			// Handle different response formats
-			let updatedPreset
-			if (response.data.data) {
-				updatedPreset = response.data.data
+			let updatedPreset: RawTimerPreset | null = null
+			if (
+				response.data &&
+				typeof response.data === 'object' &&
+				'data' in response.data
+			) {
+				updatedPreset = response.data.data as RawTimerPreset
 			} else {
-				updatedPreset = response.data
+				updatedPreset = response.data as RawTimerPreset
 			}
 
-			return formatTimerPreset(updatedPreset)
-		} catch (error) {
+			const formattedPreset = formatTimerPreset(updatedPreset)
+			if (!formattedPreset) {
+				throw new Error(
+					`Failed to update timer preset with id ${id} or invalid format returned`,
+				)
+			}
+
+			return formattedPreset
+		} catch (error: unknown) {
 			console.error('Error updating timer preset:', error)
 			throw error
 		}
 	},
 
-	// Delete a timer preset
 	deleteTimerPreset: async (id: string): Promise<void> => {
 		try {
 			console.log(`Deleting timer preset with id: ${id}`)
 			await api.delete(`/timer-presets/${id}`)
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Error deleting timer preset:', error)
 			throw error
 		}
 	},
 
-	// Sync current timer settings
 	syncCurrentSettings: async (settings: {
 		workDuration: number
 		breakDuration: number
 		repetitions: number
-	}) => {
+	}): Promise<unknown> => {
 		try {
-			console.log('[TimerPresetService] Iniciando sincronización de configuraciones:', settings)
+			console.log(
+				'[TimerPresetService] Iniciando sincronización de configuraciones:',
+				settings,
+			)
 
-			// Verificar que tenemos un token válido
 			const token = localStorage.getItem('auth-token')
 			if (!token) {
-				console.error('[TimerPresetService] No se encontró token de autenticación')
+				console.error(
+					'[TimerPresetService] No se encontró token de autenticación',
+				)
 				throw new Error('No hay token de autenticación')
 			}
 
 			console.log('[TimerPresetService] Enviando solicitud al backend...')
-			const response = await api.post('/timer-presets/sync-settings', settings)
+			const response = await api.post(
+				'/timer-presets/sync-settings',
+				settings,
+			)
 
-			console.log('[TimerPresetService] Respuesta del backend:', response.data)
+			console.log(
+				'[TimerPresetService] Respuesta del backend:',
+				response.data,
+			)
 			return response.data
 		} catch (error: unknown) {
-			console.error('[TimerPresetService] Error al sincronizar configuraciones:', error)
+			console.error(
+				'[TimerPresetService] Error al sincronizar configuraciones:',
+				error,
+			)
 			if (error && typeof error === 'object' && 'response' in error) {
-				const axiosError = error as { response: { status: number; data: unknown } }
-				console.error('[TimerPresetService] Detalles del error del servidor:', {
-					status: axiosError.response.status,
-					data: axiosError.response.data
-				})
+				const axiosError = error as {
+					response: { status: number; data: unknown }
+				}
+				console.error(
+					'[TimerPresetService] Detalles del error del servidor:',
+					{
+						status: axiosError.response.status,
+						data: axiosError.response.data,
+					},
+				)
 			}
 			throw error
 		}

@@ -32,7 +32,6 @@ export const TaskCreateModal = ({
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [error, setError] = useState('')
 
-	// Set default project ID when modal opens
 	useEffect(() => {
 		if (isOpen) {
 			setSelectedProjectId(projectId)
@@ -59,12 +58,10 @@ export const TaskCreateModal = ({
 				status,
 			})
 
-			// Reset form
 			setName('')
 			setDescription('')
 			setStatus('pending')
 
-			// Close modal and notify parent
 			onTaskCreated(newTask.id)
 			onClose()
 		} catch (err: Error | unknown) {

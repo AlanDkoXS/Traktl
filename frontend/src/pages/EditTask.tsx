@@ -17,14 +17,12 @@ const EditTask = () => {
 	const [deleteLoading, setDeleteLoading] = useState(false)
 
 	useEffect(() => {
-		// Check if id is undefined or invalid
 		if (!id || id === 'undefined') {
 			console.error('Invalid task ID:', id)
 			setNotFound(true)
 			return
 		}
 
-		// Add a loading indicator
 		const loadTask = async () => {
 			try {
 				await fetchTask(id)
@@ -37,7 +35,6 @@ const EditTask = () => {
 		loadTask()
 	}, [id, fetchTask])
 
-	// Handle task deletion
 	const handleDelete = async () => {
 		if (!id) return
 

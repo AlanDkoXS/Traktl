@@ -9,7 +9,6 @@ const Projects = () => {
 	const { t } = useTranslation()
 	const { clearSelectedProject } = useProjectStore()
 
-	// Clear selected project when entering the projects list
 	useEffect(() => {
 		clearSelectedProject()
 	}, [clearSelectedProject])

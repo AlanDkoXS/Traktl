@@ -39,7 +39,6 @@ const formatTimeEntry = (timeEntry: any): TimeEntry => {
 	}
 }
 
-// Helper to extract data from API response formats
 const extractData = (response: any) => {
 	if (response.data && response.data.data) {
 		return response.data.data
@@ -75,7 +74,6 @@ export const timeEntryService = {
 			}
 			const response = await api.get(url)
 			console.log('Time entries raw response:', response)
-			// Extract data based on API response format
 			let timeEntries = []
 			if (response.data && Array.isArray(response.data.data)) {
 				timeEntries = response.data.data
@@ -119,7 +117,6 @@ export const timeEntryService = {
 				(error as any).response &&
 				(error as any).response.status === 404
 			) {
-				// No running time entry found - return null instead of throwing
 				return null
 			}
 			console.error('Error fetching running time entry:', error)

@@ -25,19 +25,14 @@ export const StickyTimer = () => {
 	const [animateIn, setAnimateIn] = useState(false)
 	const [showStopConfirmationModal, setShowStopConfirmationModal] =
 		useState(false)
-	
-	// Referencias para el modo infinito
-	const [elapsedTime, setElapsedTime] = useState(0)
+
+	const [, setElapsedTime] = useState(0)
 	const requestRef = useRef<number>()
 	const previousTimeRef = useRef<number>()
 	const startTimeRef = useRef<number | null>(null)
 
-	// Función para animar el tiempo en modo infinito
 	const animate = (time: number) => {
 		if (previousTimeRef.current !== undefined) {
-			const deltaTime = time - previousTimeRef.current
-			
-			// Actualizar tiempo transcurrido para modo infinito
 			if (infiniteMode && startTimeRef.current !== null) {
 				const elapsedSeconds = Math.floor(
 					(time - startTimeRef.current) / 1000,
@@ -50,12 +45,10 @@ export const StickyTimer = () => {
 		requestRef.current = requestAnimationFrame(animate)
 	}
 
-	// Iniciar animación cuando cambia el modo infinito
 	useEffect(() => {
 		if (infiniteMode && startTimeRef.current === null) {
 			startTimeRef.current = performance.now()
 		} else if (!infiniteMode) {
-			// Reiniciar tiempo transcurrido cuando se desactiva el modo infinito
 			startTimeRef.current = null
 			setElapsedTime(0)
 		}
@@ -67,7 +60,6 @@ export const StickyTimer = () => {
 		}
 	}, [infiniteMode])
 
-	// Formatear tiempo para modo infinito
 	const formatInfiniteTime = (seconds: number) => {
 		const minutes = Math.floor(seconds / 60)
 		const remainingSeconds = seconds % 60
@@ -76,44 +68,36 @@ export const StickyTimer = () => {
 			.padStart(2, '0')}`
 	}
 
-	// Usar tiempo de modo infinito o tiempo formateado normal
 	const displayTime = infiniteMode
 		? formatInfiniteTime(infiniteElapsedTime)
 		: formattedTime
 
-	// Simplified logic for visibility
 	useEffect(() => {
 		const isTimerActive =
 			status === 'running' || status === 'paused' || status === 'break'
 
 		const isDashboard = location.pathname === '/'
 
-		// Simple rule: show if timer is active and not on dashboard
 		if (isTimerActive && !isDashboard) {
 			setIsVisible(true)
-			// Add slight delay for animation
 			const animTimeout = setTimeout(() => {
 				setAnimateIn(true)
 			}, 50)
 			return () => clearTimeout(animTimeout)
 		} else {
-			// Hide with animation
 			setAnimateIn(false)
 			const hideTimeout = setTimeout(() => {
 				setIsVisible(false)
-			}, 500) // Match the transition duration in the className
+			}, 500)
 			return () => clearTimeout(hideTimeout)
 		}
 	}, [status, location.pathname])
 
-	// Handle stop confirmation
 	const handleStop = () => {
-		// Solo mostrar el modal de confirmación si no estamos en modo break
 		if (mode === 'break') {
 			stop(false)
 			return
 		}
-		// Mostrar el modal de confirmación tanto en modo normal como infinito
 		setShowStopConfirmationModal(true)
 	}
 
@@ -131,10 +115,8 @@ export const StickyTimer = () => {
 		setShowStopConfirmationModal(false)
 	}
 
-	// Early return if not visible at all
 	if (!isVisible) return null
 
-	// Get button color classes based on mode
 	const getButtonClasses = (
 		buttonType: 'play' | 'pause' | 'stop' | 'next',
 	) => {
@@ -146,7 +128,6 @@ export const StickyTimer = () => {
 			return 'w-12 h-12 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-500 hover:opacity-90 transition-opacity shadow-sm'
 		}
 
-		// Use dynamic colors for work mode
 		return 'w-12 h-12 flex items-center justify-center rounded-full dynamic-bg-subtle hover:opacity-90 transition-opacity shadow-sm'
 	}
 
@@ -161,7 +142,6 @@ export const StickyTimer = () => {
 			>
 				<div className="flex flex-col w-full">
 					<div className="flex w-full items-center">
-						{/* Timer Status */}
 						<div className="px-5 py-3 flex-1 flex items-center">
 							<span className="font-medium text-lg text-gray-800 dark:text-white dynamic-color">
 								{mode === 'work'

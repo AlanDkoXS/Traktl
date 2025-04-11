@@ -18,12 +18,9 @@ const Login = () => {
 	const [loading, setLoading] = useState(false)
 	const { setTheme } = useThemeStore()
 
-	// Use the login method from the auth store
 	const { login, isAuthenticated, token } = useAuthStore()
 
-	// Detect system preferences on component mount
 	useEffect(() => {
-		// Detect system theme
 		const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
 			.matches
 			? 'dark'
@@ -32,21 +29,18 @@ const Login = () => {
 		setTheme(systemTheme)
 	}, [setTheme])
 
-	// Check token on mount for debugging
 	useEffect(() => {
 		console.log('Login component mounted, checking token...')
 		checkCurrentToken()
 
 		console.log('Auth state:', { isAuthenticated, token })
 
-		// If already authenticated, redirect to dashboard
 		if (isAuthenticated && token) {
 			console.log('Already authenticated, redirecting to dashboard')
 			navigate('/')
 		}
 	}, [isAuthenticated, token, navigate])
 
-	// Redirect to the previous location after login
 	const from = location.state?.from?.pathname || '/'
 
 	const handleLogin = async (e: React.FormEvent) => {
@@ -62,13 +56,11 @@ const Login = () => {
 
 			console.log('Attempting login with email:', email)
 
-			// Call the login method from the auth store
 			await login(email, password)
 
 			console.log('Login successful, checking token after login')
 			checkCurrentToken()
 
-			// Login successful, redirect to the previous location
 			console.log('Redirecting to:', from)
 			navigate(from, { replace: true })
 		} catch (err: unknown) {

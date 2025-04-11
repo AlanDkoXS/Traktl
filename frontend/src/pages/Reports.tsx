@@ -25,7 +25,6 @@ const Reports = () => {
 	const { timeEntries, fetchTimeEntries, isLoading, error } =
 		useTimeEntryStore()
 
-	// Get the correct locale based on current language
 	const getLocale = () => {
 		switch (i18n.language) {
 			case 'es':
@@ -46,7 +45,6 @@ const Reports = () => {
 	const [projectId, setProjectId] = useState('')
 	const [filterKey, setFilterKey] = useState(0)
 
-	// Load initial data
 	useEffect(() => {
 		const loadData = async () => {
 			try {
@@ -72,18 +70,15 @@ const Reports = () => {
 		filterKey,
 	])
 
-	// Apply filters
 	const applyFilters = () => {
 		setFilterKey((prev) => prev + 1)
 	}
 
-	// Calculate total time spent
 	const totalTime = timeEntries.reduce(
 		(acc, entry) => acc + entry.duration,
 		0,
 	)
 
-	// Format time (milliseconds to hours and minutes)
 	const formatTime = (milliseconds: number) => {
 		const hours = Math.floor(milliseconds / (1000 * 60 * 60))
 		const minutes = Math.floor(
@@ -92,12 +87,10 @@ const Reports = () => {
 		return `${hours}h ${minutes}m`
 	}
 
-	// Group time entries by project for pie chart
 	const timeByProjectData = useMemo(() => {
-		// Group by project
 		const groupedByProject = timeEntries.reduce(
 			(acc: Record<string, number>, entry) => {
-				const projectId = entry.project.toString() // Convert project ID to string
+				const projectId = entry.project.toString()
 				if (!acc[projectId]) {
 					acc[projectId] = 0
 				}
@@ -107,7 +100,6 @@ const Reports = () => {
 			{},
 		)
 
-		// Convert to chart data format
 		return Object.entries(groupedByProject)
 			.map(([projectId, duration]) => {
 				const project = projects.find((p) => p.id === projectId)
@@ -117,10 +109,9 @@ const Reports = () => {
 					color: project?.color || '#cccccc',
 				}
 			})
-			.sort((a, b) => b.value - a.value) // Sort by duration (descending)
+			.sort((a, b) => b.value - a.value)
 	}, [timeEntries, projects])
 
-	// Group time entries by day and project for line chart
 	const timeByDayAndProjectData = useMemo(() => {
 		if (!startDate || !endDate) return { dayData: [], projectsData: [] }
 
@@ -128,7 +119,6 @@ const Reports = () => {
 		const end = new Date(endDate + 'T23:59:59')
 		const days = differenceInDays(end, start) + 1
 
-		// Initialize day data structure
 		const daysArray = []
 		for (let i = 0; i < days; i++) {
 			const currentDate = new Date(start)
@@ -141,23 +131,19 @@ const Reports = () => {
 			daysArray.push({
 				date: dateString,
 				displayDate,
-				// We'll add project data here later
 			})
 		}
 
-		// Track projects and their time per day
 		const projectTimeByDay: Record<string, Record<string, number>> = {}
 		const projectInfo: Record<string, { name: string; color: string }> = {}
 
-		// Group time entries by project and day
 		timeEntries.forEach((entry) => {
-			const projectId = entry.project.toString() // Convert project ID to string
+			const projectId = entry.project.toString()
 			const day = format(new Date(entry.startTime), 'yyyy-MM-dd', {
 				locale: getLocale(),
 			})
 			const project = projects.find((p) => p.id === projectId)
 
-			// Store project info for later use
 			if (project && !projectInfo[projectId]) {
 				projectInfo[projectId] = {
 					name: project.name || 'Unknown Project',
@@ -165,12 +151,10 @@ const Reports = () => {
 				}
 			}
 
-			// Initialize project object if needed
 			if (!projectTimeByDay[projectId]) {
 				projectTimeByDay[projectId] = {}
 			}
 
-			// Add time to the appropriate day
 			if (!projectTimeByDay[projectId][day]) {
 				projectTimeByDay[projectId][day] = 0
 			}
@@ -178,16 +162,13 @@ const Reports = () => {
 			projectTimeByDay[projectId][day] += entry.duration
 		})
 
-		// For each day, add all project data
 		const result = daysArray.map((day) => {
 			const dayData: { [key: string]: number | string } = {
 				date: day.date,
 				displayDate: day.displayDate,
-				// For total minutes across all projects
 				totalMinutes: 0 as number,
 			}
 
-			// Add data for each project
 			Object.entries(projectTimeByDay).forEach(
 				([projectId, projectDays]) => {
 					const projectMinutes = Math.round(
@@ -202,7 +183,6 @@ const Reports = () => {
 			return dayData
 		})
 
-		// Create project metadata for creating lines
 		const projectsData = Object.entries(projectInfo).map(([id, info]) => ({
 			id,
 			name: info.name,
@@ -215,7 +195,6 @@ const Reports = () => {
 		}
 	}, [timeEntries, startDate, endDate, projects])
 
-	// Create a fallback color for the line chart
 	const getDefaultLineColor = () => {
 		return 'hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness))'
 	}
@@ -497,7 +476,6 @@ const Reports = () => {
 														`${value} ${t('reports.minutes')}`,
 														t('reports.total'),
 													]
-												// Find project name for this id
 												const project =
 													timeByDayAndProjectData.projectsData.find(
 														(p) => p.id === name,
@@ -516,7 +494,6 @@ const Reports = () => {
 											formatter={(value) => {
 												if (value === 'totalMinutes')
 													return 'Total'
-												// Find project name for this dataKey
 												const project =
 													timeByDayAndProjectData.projectsData.find(
 														(p) => p.id === value,

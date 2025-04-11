@@ -55,10 +55,8 @@ export const PresetCreateModal = ({
 				repetitions,
 			})
 
-			// Reset form
 			setName('')
 
-			// Close modal and notify parent
 			onPresetCreated(newPreset.id)
 			onClose()
 		} catch (err: unknown) {

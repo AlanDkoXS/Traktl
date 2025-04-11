@@ -2,27 +2,32 @@ import api from './api'
 import { useAuthStore } from '../store/authStore'
 
 interface EmailVerificationToken {
-	token: string;
-	expiresAt: Date;
+	token: string
+	expiresAt: Date
 }
 
 export const emailVerificationService = {
-	checkVerificationStatus: async (): Promise<{ isVerified: boolean, emailVerificationToken?: EmailVerificationToken }> => {
+	checkVerificationStatus: async (): Promise<{
+		isVerified: boolean
+		emailVerificationToken?: EmailVerificationToken
+	}> => {
 		try {
 			const response = await api.get('/users/verification-status')
-			console.log('Verification status response:', response.data);
+			console.log('Verification status response:', response.data)
 
-			// Verificar explícitamente la estructura de la respuesta
 			const isVerified = !!response.data.data?.isVerified
-			const emailVerificationToken = response.data.data?.emailVerificationToken
+			const emailVerificationToken =
+				response.data.data?.emailVerificationToken
 
 			console.log('Setting verification status from server:', {
 				responseData: response.data,
 				isVerified,
-				emailVerificationToken
-			});
+				emailVerificationToken,
+			})
 
-			useAuthStore.getState().setVerificationStatus(isVerified, emailVerificationToken)
+			useAuthStore
+				.getState()
+				.setVerificationStatus(isVerified, emailVerificationToken)
 			return { isVerified, emailVerificationToken }
 		} catch (error) {
 			console.error('Error checking verification status:', error)
@@ -35,10 +40,11 @@ export const emailVerificationService = {
 		message: string
 	}> => {
 		try {
-			// Obtener el idioma actual del localStorage
-			const currentLanguage = localStorage.getItem('i18nextLng') || 'en';
+			const currentLanguage = localStorage.getItem('i18nextLng') || 'en'
 
-			const response = await api.post('/users/request-verification', { language: currentLanguage })
+			const response = await api.post('/users/request-verification', {
+				language: currentLanguage,
+			})
 			console.log('Request verification response:', response.data)
 			useAuthStore.getState().setVerificationStatus(false)
 			return response.data
@@ -55,10 +61,8 @@ export const emailVerificationService = {
 			const response = await api.post('/users/verify-email', { token })
 			console.log('Verify email response:', response.data)
 
-			// Actualizar explícitamente el estado de verificación a true
 			useAuthStore.getState().setVerificationStatus(true)
 
-			// Forzar una actualización desde el servidor para asegurar consistencia
 			await useAuthStore.getState().checkVerificationStatus()
 
 			return response.data

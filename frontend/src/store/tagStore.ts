@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { tagService } from '../services/tagService'
 import { Tag } from '../types'
 
-// Define a custom error interface to handle API errors
 interface ApiError extends Error {
 	response?: {
 		data?: {

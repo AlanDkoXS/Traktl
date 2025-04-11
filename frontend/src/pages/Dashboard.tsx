@@ -23,7 +23,6 @@ const Dashboard = () => {
 			const loadData = async () => {
 				setIsLoading(true)
 				try {
-					// Load data in sequence to avoid cycles
 					await fetchProjects()
 					await fetchClients()
 					await fetchTasks()
@@ -132,7 +131,6 @@ const Dashboard = () => {
 	)
 }
 
-// Stats Card Component
 interface StatsCardProps {
 	title: string
 	count: number
@@ -163,7 +161,6 @@ const StatsCard = ({ title, count, link }: StatsCardProps) => {
 	)
 }
 
-// Quick Link Component
 interface QuickLinkProps {
 	href: string
 	title: string

@@ -1,33 +1,56 @@
 import api from './api'
 import { Task } from '../types'
 
+interface MongoDBTask {
+	_id?: string
+	id?: string
+	name: string
+	description?: string
+	project?: { _id: string } | string
+	status?: string
+	user?: { _id: string } | string
+	createdAt?: string | Date
+	updatedAt?: string | Date
+}
+
 // Helper to transform MongoDB _id to id in our frontend
-const formatTask = (task: any): Task => {
-	if (!task) return task
+const formatTask = (task: MongoDBTask | null): Task | null => {
+	if (!task) return null
 
 	return {
-		id: task._id || task.id,
+		id: task._id || task.id || '',
 		name: task.name,
 		description: task.description || '',
-		project: task.project?._id || task.project || '',
-		status: task.status || 'pending',
-		user: task.user?._id || task.user || '',
+		project:
+			typeof task.project === 'object'
+				? task.project._id
+				: task.project || '',
+		status: ['pending', 'in-progress', 'completed'].includes(
+			task.status || '',
+		)
+			? (task.status as 'pending' | 'in-progress' | 'completed')
+			: 'pending',
+		user: typeof task.user === 'object' ? task.user._id : task.user || '',
 		createdAt: task.createdAt ? new Date(task.createdAt) : new Date(),
 		updatedAt: task.updatedAt ? new Date(task.updatedAt) : new Date(),
 	}
 }
 
+interface ApiResponse<T> {
+	data: T
+}
+
 export const taskService = {
-	// Get all tasks
 	getTasks: async (projectId?: string): Promise<Task[]> => {
 		try {
 			console.log('Fetching tasks...')
 			const url = projectId ? `/tasks?projectId=${projectId}` : '/tasks'
-			const response = await api.get(url)
+			const response = await api.get<
+				MongoDBTask[] | ApiResponse<MongoDBTask[]>
+			>(url)
 			console.log('Tasks response:', response.data)
 
-			// Handle different response formats
-			let tasks = []
+			let tasks: MongoDBTask[] = []
 			if (Array.isArray(response.data)) {
 				tasks = response.data
 			} else if (Array.isArray(response.data.data)) {
@@ -40,84 +63,99 @@ export const taskService = {
 				return []
 			}
 
-			// Format each task to handle _id to id conversion
-			return tasks.map(formatTask)
+			return tasks
+				.map((task) => formatTask(task))
+				.filter((task): task is Task => task !== null)
 		} catch (error) {
 			console.error('Error fetching tasks:', error)
 			throw error
 		}
 	},
 
-	// Get a single task by ID
 	getTask: async (id: string): Promise<Task> => {
 		try {
 			console.log(`Fetching task with id: ${id}`)
-			const response = await api.get(`/tasks/${id}`)
+			const response = await api.get<
+				MongoDBTask | ApiResponse<MongoDBTask>
+			>(`/tasks/${id}`)
 			console.log('Task response:', response.data)
 
-			// Handle different response formats
-			let task
-			if (response.data.data) {
+			let task: MongoDBTask
+			if ('data' in response.data && response.data.data) {
 				task = response.data.data
 			} else {
-				task = response.data
+				task = response.data as MongoDBTask
 			}
 
-			return formatTask(task)
+			const formattedTask = formatTask(task)
+			if (!formattedTask) {
+				throw new Error('Task not found or invalid format')
+			}
+
+			return formattedTask
 		} catch (error) {
 			console.error('Error fetching task:', error)
 			throw error
 		}
 	},
 
-	// Create a new task
 	createTask: async (
 		task: Omit<Task, 'id' | 'user' | 'createdAt' | 'updatedAt'>,
 	): Promise<Task> => {
 		try {
 			console.log('Creating task with data:', task)
-			const response = await api.post('/tasks', task)
+			const response = await api.post<
+				MongoDBTask | ApiResponse<MongoDBTask>
+			>('/tasks', task)
 
-			// Handle different response formats
-			let newTask
-			if (response.data.data) {
+			let newTask: MongoDBTask
+			if ('data' in response.data && response.data.data) {
 				newTask = response.data.data
 			} else {
-				newTask = response.data
+				newTask = response.data as MongoDBTask
 			}
 
-			return formatTask(newTask)
+			const formattedTask = formatTask(newTask)
+			if (!formattedTask) {
+				throw new Error('Failed to create task or invalid format')
+			}
+
+			return formattedTask
 		} catch (error) {
 			console.error('Error creating task:', error)
 			throw error
 		}
 	},
 
-	// Update a task
 	updateTask: async (
 		id: string,
 		task: Partial<Omit<Task, 'id' | 'user' | 'createdAt' | 'updatedAt'>>,
 	): Promise<Task> => {
 		try {
 			console.log(`Updating task ${id} with data:`, task)
-			const response = await api.put(`/tasks/${id}`, task)
+			const response = await api.put<
+				MongoDBTask | ApiResponse<MongoDBTask>
+			>(`/tasks/${id}`, task)
 
-			// Handle different response formats
-			let updatedTask
-			if (response.data.data) {
+			let updatedTask: MongoDBTask
+			if ('data' in response.data && response.data.data) {
 				updatedTask = response.data.data
 			} else {
-				updatedTask = response.data
+				updatedTask = response.data as MongoDBTask
 			}
 
-			return formatTask(updatedTask)
+			const formattedTask = formatTask(updatedTask)
+			if (!formattedTask) {
+				throw new Error('Failed to update task or invalid format')
+			}
+
+			return formattedTask
 		} catch (error) {
 			console.error('Error updating task:', error)
 			throw error
 		}
 	},
 
-	// Delete a task
 	deleteTask: async (id: string): Promise<void> => {
 		try {
 			console.log(`Deleting task with id: ${id}`)

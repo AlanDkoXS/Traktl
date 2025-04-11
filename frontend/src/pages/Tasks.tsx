@@ -9,7 +9,6 @@ const Tasks = () => {
 	const { t } = useTranslation()
 	const { clearSelectedTask } = useTaskStore()
 
-	// Clear selected task when entering the tasks list
 	useEffect(() => {
 		clearSelectedTask()
 	}, [clearSelectedTask])

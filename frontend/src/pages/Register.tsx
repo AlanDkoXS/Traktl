@@ -19,14 +19,12 @@ const Register = () => {
 	const [confirmError, setConfirmError] = useState('')
 	const [loading, setIsSubmitting] = useState(false)
 
-	// Check if already authenticated
 	useEffect(() => {
 		if (isAuthenticated) {
 			navigate('/')
 		}
 	}, [isAuthenticated, navigate])
 
-	// Password validation
 	useEffect(() => {
 		if (password) {
 			const passwordRegex =
@@ -41,7 +39,6 @@ const Register = () => {
 		}
 	}, [password, t])
 
-	// Confirm password validation
 	useEffect(() => {
 		if (confirmPassword && password !== confirmPassword) {
 			setConfirmError(t('auth.passwordMismatch'))
@@ -53,18 +50,15 @@ const Register = () => {
 	const handleRegister = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		// Validate required fields
 		if (!name || !email || !password || !confirmPassword) {
 			setError(t('errors.required'))
 			return
 		}
 
-		// Check password validation
 		if (passwordError) {
 			return
 		}
 
-		// Check password match
 		if (password !== confirmPassword) {
 			setConfirmError(t('auth.passwordMismatch'))
 			return
@@ -74,7 +68,6 @@ const Register = () => {
 			setIsSubmitting(true)
 			setError('')
 
-			// Note: changed 'system' to 'light' here to match backend validation
 			await register(name, email, password, 'en', 'light')
 
 			navigate('/')

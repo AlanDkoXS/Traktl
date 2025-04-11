@@ -9,7 +9,6 @@ const Clients = () => {
 	const { t } = useTranslation()
 	const { clearSelectedClient } = useClientStore()
 
-	// Clear selected client when entering the clients list
 	useEffect(() => {
 		clearSelectedClient()
 	}, [clearSelectedClient])

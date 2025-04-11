@@ -40,13 +40,7 @@ export const TimerControls = ({
 		useState(false)
 	const [modalAction, setModalAction] = useState<'next' | 'stop'>('next')
 
-	// Check if project is selected when component mounts or when projectId changes
 	useEffect(() => {
-		// Only show project required modal when:
-		// 1. In idle status
-		// 2. No project is selected
-		// 3. Projects have finished loading
-		// 4. Data initialization is complete
 		if (
 			status === 'idle' &&
 			!projectId &&
@@ -75,7 +69,6 @@ export const TimerControls = ({
 	}
 
 	const handleSkipToNext = async () => {
-		// En modo infinito, no necesitamos verificar la duración mínima
 		if (
 			!infiniteMode &&
 			elapsed < 60 &&
@@ -91,19 +84,16 @@ export const TimerControls = ({
 	}
 
 	const handleStop = () => {
-		// Solo mostrar el modal de confirmación si no estamos en modo break
 		if (mode === 'break') {
 			stop(false)
 			return
 		}
-		// Mostrar el modal de confirmación tanto en modo normal como infinito
 		setShowStopConfirmationModal(true)
 	}
 
 	const handleConfirmSave = () => {
-		// Save and stop the timer
 		console.log('handleConfirmSave: Guardando timer (shouldSave=true)')
-		stop(true) // Explícitamente pasando true
+		stop(true)
 		setShowStopConfirmationModal(false)
 	}
 
@@ -112,14 +102,12 @@ export const TimerControls = ({
 			'handleDontSave: Deteniendo timer sin guardar (shouldSave=false)',
 		)
 
-		// Enfoque simple: usar directamente stop(false)
 		console.log('Usando stop(false) explícitamente')
 		stop(false)
 		setShowStopConfirmationModal(false)
 	}
 
 	const handleCancelStopModal = () => {
-		// Solo cierra el modal sin detener el timer
 		console.log(
 			'handleCancelStopModal: Solo cerrar modal sin detener timer',
 		)
@@ -130,24 +118,21 @@ export const TimerControls = ({
 		if (modalAction === 'next') {
 			await skipToNext()
 		} else {
-			stop(true) // Explícitamente pasar true para guardar
+			stop(true)
 		}
 		setShowShortSessionModal(false)
 	}
 
 	const handleDontSaveShortSession = async () => {
 		if (modalAction === 'next') {
-			// Don't save but still advance to next phase
 			await skipToNext()
 		} else {
-			// Don't save and stop timer
-			stop(false) // Explícitamente pasar false para no guardar
+			stop(false)
 		}
 		setShowShortSessionModal(false)
 	}
 
 	const handleCancelShortSession = () => {
-		// Just close the modal without any action
 		setShowShortSessionModal(false)
 	}
 

@@ -12,7 +12,6 @@ const ResetPassword = () => {
 	const [searchParams] = useSearchParams()
 	const queryToken = searchParams.get('token')
 
-	// Usar el token de los parámetros de ruta o el token de la consulta
 	const token = paramToken || queryToken
 
 	const [password, setPassword] = useState('')
@@ -23,7 +22,6 @@ const ResetPassword = () => {
 	const [confirmError, setConfirmError] = useState('')
 	const [successMessage, setSuccessMessage] = useState('')
 
-	// Redirigir si no hay token
 	useEffect(() => {
 		if (!token) {
 			console.error('No token found in URL parameters or query')
@@ -31,7 +29,6 @@ const ResetPassword = () => {
 		}
 	}, [token, navigate])
 
-	// Password validation
 	useEffect(() => {
 		if (password) {
 			const passwordRegex =
@@ -46,7 +43,6 @@ const ResetPassword = () => {
 		}
 	}, [password, t])
 
-	// Confirm password validation
 	useEffect(() => {
 		if (confirmPassword && password !== confirmPassword) {
 			setConfirmError(t('auth.passwordMismatch'))
@@ -58,18 +54,15 @@ const ResetPassword = () => {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		// Validate required fields
 		if (!password || !confirmPassword) {
 			setError(t('errors.required'))
 			return
 		}
 
-		// Check password validation
 		if (passwordError) {
 			return
 		}
 
-		// Check password match
 		if (password !== confirmPassword) {
 			setConfirmError(t('auth.passwordMismatch'))
 			return
@@ -79,10 +72,8 @@ const ResetPassword = () => {
 			setIsSubmitting(true)
 			setError('')
 
-			// Send password reset request
 			await api.post('/users/reset-password', { token, password })
 
-			// Show success message and redirect to login after a delay
 			setSuccessMessage(
 				t(
 					'auth.passwordResetSuccess',

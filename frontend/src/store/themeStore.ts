@@ -12,7 +12,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
 	persist(
 		(set) => ({
-			theme: 'system', // Default theme
+			theme: 'system',
 			setTheme: (theme) => set({ theme }),
 			toggleTheme: () =>
 				set((state) => ({
@@ -20,7 +20,7 @@ export const useThemeStore = create<ThemeState>()(
 				})),
 		}),
 		{
-			name: 'theme-storage', // Name for localStorage
+			name: 'theme-storage',
 		},
 	),
 )

@@ -33,23 +33,19 @@ export const PresetSelector = ({
 		loadPresets()
 	}, [fetchTimerPresets])
 
-	// Automatically select preset when presets are loaded (but only once)
 	useEffect(() => {
 		if (timerPresets.length > 0 && !initialSelectionMade.current) {
-			// Limpiar cualquier selección previa
 			setSelectedPresetId(null)
 			initialSelectionMade.current = true
 		}
 	}, [timerPresets, setSelectedPresetId])
 
 	const handlePresetCreated = (presetId: string) => {
-		// Find the newly created preset and select it
 		const newPreset = timerPresets.find((preset) => preset.id === presetId)
 		if (newPreset) {
 			onSelectPreset(newPreset)
 			setSelectedPresetId(newPreset.id)
 		}
-		// Re-fetch presets to ensure we have the latest list
 		fetchTimerPresets()
 	}
 

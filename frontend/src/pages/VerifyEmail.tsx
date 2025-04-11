@@ -29,7 +29,6 @@ const VerifyEmail = () => {
 				await emailVerificationService.verifyEmail(token)
 				setIsSuccess(true)
 
-				// Update verification status in the auth store
 				await checkVerificationStatus()
 			} catch (err: unknown) {
 				setIsSuccess(false)

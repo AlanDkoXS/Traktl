@@ -43,9 +43,6 @@ export const ConfirmModal = ({
 				className="relative z-50"
 				initialFocus={cancelButtonRef}
 				onClose={() => {
-					// Al cerrar el modal con ESC o clicking fuera:
-					// Si tiene botón de Cancelar y onCancelButtonClick, usar esa función
-					// Si no, usar onCancel (que en el caso del modal de stop, debe ser handleDontSave)
 					if (onCancelButtonClick && showCancelButton) {
 						onCancelButtonClick()
 					} else {

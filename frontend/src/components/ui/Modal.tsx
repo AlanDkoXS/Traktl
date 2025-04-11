@@ -16,7 +16,6 @@ export const Modal = ({
 	children,
 	maxWidth = 'max-w-lg',
 }: ModalProps) => {
-	// Prevent scrolling when modal is open
 	useEffect(() => {
 		if (isOpen) {
 			const originalStyle = window.getComputedStyle(

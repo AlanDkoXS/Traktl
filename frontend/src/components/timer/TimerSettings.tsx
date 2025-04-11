@@ -32,7 +32,6 @@ export const TimerSettings = ({
 		if (!isNaN(value) && value >= 1 && value <= 60) {
 			setWorkDuration(value)
 			setSelectedPresetId(null)
-			// Sincronizar con Default Settings
 			timerPresetService
 				.syncCurrentSettings({
 					workDuration: value,
@@ -52,7 +51,6 @@ export const TimerSettings = ({
 		if (!isNaN(value) && value >= 0 && value <= 30) {
 			setBreakDuration(value)
 			setSelectedPresetId(null)
-			// Sincronizar con Default Settings
 			timerPresetService
 				.syncCurrentSettings({
 					workDuration,
@@ -72,7 +70,6 @@ export const TimerSettings = ({
 		if (!isNaN(value) && value >= 1 && value <= 10) {
 			setRepetitions(value)
 			setSelectedPresetId(null)
-			// Sincronizar con Default Settings
 			timerPresetService
 				.syncCurrentSettings({
 					workDuration,
@@ -85,7 +82,6 @@ export const TimerSettings = ({
 		}
 	}
 
-	// Sincronizar con el backend al cargar
 	useEffect(() => {
 		const syncSettings = async () => {
 			try {
@@ -104,11 +100,10 @@ export const TimerSettings = ({
 				console.error('Error syncing initial settings:', error)
 			}
 		}
-		// Solo sincronizar si los valores son diferentes a los valores por defecto
 		if (workDuration !== 52 || breakDuration !== 17 || repetitions !== 4) {
 			syncSettings()
 		}
-	}, [workDuration, breakDuration, repetitions]) // Se ejecuta cuando cambian los ajustes
+	}, [workDuration, breakDuration, repetitions])
 
 	return (
 		<div className="mt-8 rounded-lg shadow-sm">

@@ -14,7 +14,6 @@ export const TimerDisplay = ({
 	progress,
 	formattedTime,
 	mode,
-	isInfiniteMode,
 }: TimerDisplayProps) => {
 	const { t } = useTranslation()
 	const { isConnected } = useSocket()
@@ -22,7 +21,6 @@ export const TimerDisplay = ({
 	const circleLength = 263.89 // 2 * PI * 42, circle perimeter
 	const [displayProgress, setDisplayProgress] = useState(progress)
 
-	// Smooth animation for progress circle
 	useEffect(() => {
 		const animate = () => {
 			setDisplayProgress((prevProgress) => {
@@ -31,11 +29,10 @@ export const TimerDisplay = ({
 				return prevProgress + step
 			})
 		}
-		const interval = setInterval(animate, 16) // ~60fps
+		const interval = setInterval(animate, 16)
 		return () => clearInterval(interval)
 	}, [progress])
 
-	// Format elapsed time for infinite mode (e.g., MM:SS)
 	const formatInfiniteTime = (seconds: number) => {
 		const minutes = Math.floor(seconds / 60)
 		const remainingSeconds = seconds % 60
@@ -44,14 +41,12 @@ export const TimerDisplay = ({
 			.padStart(2, '0')}`
 	}
 
-	// Use infinite mode time or prop-provided formattedTime
 	const displayTime = infiniteMode
 		? formatInfiniteTime(infiniteElapsedTime)
 		: formattedTime
 
-	// Progress circle: 100% for infinite mode, animated otherwise
 	const progressOffset = infiniteMode
-		? 0 // Full circle (100%)
+		? 0
 		: circleLength - (circleLength * displayProgress) / 100
 
 	return (

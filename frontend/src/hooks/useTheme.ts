@@ -4,7 +4,6 @@ import { useThemeStore } from '../store/themeStore'
 export const useTheme = () => {
 	const { theme, setTheme, toggleTheme } = useThemeStore()
 
-	// Apply theme to document
 	useEffect(() => {
 		if (theme === 'system' || !theme) {
 			const isSystemDark = window.matchMedia(
@@ -18,7 +17,6 @@ export const useTheme = () => {
 		}
 	}, [theme])
 
-	// Listen for system preference change
 	useEffect(() => {
 		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 		const handleChange = () => {

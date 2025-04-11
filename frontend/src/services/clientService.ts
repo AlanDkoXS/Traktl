@@ -7,9 +7,11 @@ interface ApiClient {
 	name: string
 	contactInfo?: string
 	color?: string
-	user?: {
-		_id: string
-	} | string
+	user?:
+		| {
+				_id: string
+		  }
+		| string
 	createdAt?: string | Date
 	updatedAt?: string | Date
 	projects?: string[]
@@ -24,7 +26,8 @@ const formatClient = (client: ApiClient): Client => {
 		throw new Error('Client must have an id')
 	}
 
-	const userId = typeof client.user === 'object' ? client.user._id : client.user
+	const userId =
+		typeof client.user === 'object' ? client.user._id : client.user
 
 	return {
 		id,
@@ -39,14 +42,12 @@ const formatClient = (client: ApiClient): Client => {
 }
 
 export const clientService = {
-	// Get all clients
 	getClients: async (): Promise<Client[]> => {
 		try {
 			console.log('Fetching clients...')
 			const response = await api.get('/clients')
 			console.log('Clients response:', response.data)
 
-			// Handle different response formats
 			let clients = []
 			if (Array.isArray(response.data)) {
 				clients = response.data
@@ -60,7 +61,6 @@ export const clientService = {
 				return []
 			}
 
-			// Format each client to handle _id to id conversion
 			return clients.map(formatClient)
 		} catch (error) {
 			console.error('Error fetching clients:', error)
@@ -68,14 +68,12 @@ export const clientService = {
 		}
 	},
 
-	// Get a single client by ID
 	getClient: async (id: string): Promise<Client> => {
 		try {
 			console.log(`Fetching client with id: ${id}`)
 			const response = await api.get(`/clients/${id}`)
 			console.log('Client response:', response.data)
 
-			// Handle different response formats
 			let client
 			if (response.data.data) {
 				client = response.data.data
@@ -90,7 +88,6 @@ export const clientService = {
 		}
 	},
 
-	// Create a new client
 	createClient: async (
 		client: Omit<Client, 'id' | 'user' | 'createdAt' | 'updatedAt'>,
 	): Promise<Client> => {
@@ -98,7 +95,6 @@ export const clientService = {
 			console.log('Creating client with data:', client)
 			const response = await api.post('/clients', client)
 
-			// Handle different response formats
 			let newClient
 			if (response.data.data) {
 				newClient = response.data.data
@@ -113,7 +109,6 @@ export const clientService = {
 		}
 	},
 
-	// Update a client
 	updateClient: async (
 		id: string,
 		client: Partial<
@@ -124,7 +119,6 @@ export const clientService = {
 			console.log(`Updating client ${id} with data:`, client)
 			const response = await api.put(`/clients/${id}`, client)
 
-			// Handle different response formats
 			let updatedClient
 			if (response.data.data) {
 				updatedClient = response.data.data
@@ -139,7 +133,6 @@ export const clientService = {
 		}
 	},
 
-	// Delete a client
 	deleteClient: async (id: string): Promise<void> => {
 		try {
 			console.log(`Deleting client with id: ${id}`)

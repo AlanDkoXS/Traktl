@@ -26,12 +26,10 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 	const location = useLocation()
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-	// Close mobile menu when location changes
 	useEffect(() => {
 		setIsMobileMenuOpen(false)
 	}, [location.pathname])
 
-	// Close mobile menu when Escape key is pressed
 	useEffect(() => {
 		const handleEsc = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') {
@@ -43,7 +41,6 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 		return () => window.removeEventListener('keydown', handleEsc)
 	}, [])
 
-	// Prevent scrolling when mobile menu is open
 	useEffect(() => {
 		if (isMobileMenuOpen) {
 			document.body.style.overflow = 'hidden'

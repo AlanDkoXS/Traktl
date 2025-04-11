@@ -28,7 +28,6 @@ export const ProjectCreateModal = ({
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [error, setError] = useState('')
 
-	// Fetch clients when modal opens
 	useEffect(() => {
 		if (isOpen) {
 			fetchClients()
@@ -47,7 +46,6 @@ export const ProjectCreateModal = ({
 		setError('')
 
 		try {
-			// Convert clientId to a valid ObjectId or undefined to prevent the error
 			const validClientId = toObjectIdOrUndefined(clientId)
 
 			const newProject = await createProject({
@@ -58,13 +56,11 @@ export const ProjectCreateModal = ({
 				status: 'active',
 			})
 
-			// Reset form
 			setName('')
 			setDescription('')
 			setColor('#3b82f6')
 			setClientId('')
 
-			// Close modal and notify parent
 			onProjectCreated(newProject.id)
 			onClose()
 		} catch (err: unknown) {

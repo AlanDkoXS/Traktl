@@ -3,7 +3,6 @@ import { projectService } from '../services/projectService'
 import { Project } from '../types'
 import { setProjectColor } from '../utils/dynamicColors'
 
-// Define an interface for API errors
 interface ApiError extends Error {
 	response?: {
 		data?: {
@@ -60,7 +59,6 @@ export const useProjectStore = create<ProjectState>((set) => ({
 	},
 
 	fetchProject: async (id: string) => {
-		// Validate ID
 		if (!id || id === 'undefined') {
 			console.error('Invalid project ID provided:', id)
 			set({

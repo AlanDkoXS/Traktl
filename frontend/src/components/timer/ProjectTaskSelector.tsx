@@ -39,7 +39,6 @@ export const ProjectTaskSelector = ({
 	const [showCreateTaskModal, setShowCreateTaskModal] = useState(false)
 	const [showCreateTagModal, setShowCreateTagModal] = useState(false)
 
-	// Get data from stores
 	const {
 		projects,
 		fetchProjects,
@@ -48,7 +47,6 @@ export const ProjectTaskSelector = ({
 	const { tasks, fetchTasks, isLoading: tasksLoading } = useTaskStore()
 	const { tags, fetchTags, isLoading: tagsLoading } = useTagStore()
 
-	// Load data when component mounts
 	useEffect(() => {
 		const loadData = async () => {
 			await fetchProjects()
@@ -61,7 +59,6 @@ export const ProjectTaskSelector = ({
 		loadData()
 	}, [fetchProjects, fetchTags, fetchTasks, projectId])
 
-	// Update project color when project changes
 	useEffect(() => {
 		if (projectId) {
 			const project = projects.find((p) => p.id === projectId)
@@ -74,9 +71,8 @@ export const ProjectTaskSelector = ({
 	const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newProjectId = e.target.value || null
 		setProjectId(newProjectId)
-		setTaskId(null) // Reset task when project changes
+		setTaskId(null)
 
-		// Update dynamic color
 		if (newProjectId) {
 			const project = projects.find((p) => p.id === newProjectId)
 			if (project?.color) {
@@ -108,11 +104,9 @@ export const ProjectTaskSelector = ({
 		setIsOpen(false)
 	}
 
-	// Handle creation callbacks
 	const handleProjectCreated = (newProjectId: string) => {
 		setProjectId(newProjectId)
 		fetchProjects()
-		// Refetch tasks for the new project
 		fetchTasks(newProjectId)
 	}
 
@@ -128,7 +122,6 @@ export const ProjectTaskSelector = ({
 		setSelectedTags([...selectedTags, newTagId])
 	}
 
-	// Find selected project and task names
 	const selectedProject = projects.find((p) => p.id === projectId)
 	const selectedTask = tasks.find((t) => t.id === taskId)
 

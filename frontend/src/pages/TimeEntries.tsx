@@ -15,7 +15,6 @@ const TimeEntries = () => {
 	const { t, i18n } = useTranslation()
 	const { projects, fetchProjects } = useProjectStore()
 
-	// Get the correct locale based on current language
 	const getLocale = () => {
 		switch (i18n.language) {
 			case 'es':
@@ -37,12 +36,10 @@ const TimeEntries = () => {
 	const [showFilters, setShowFilters] = useState(false)
 	const [filterKey, setFilterKey] = useState(0)
 
-	// Load projects on mount
 	useEffect(() => {
 		fetchProjects()
 	}, [fetchProjects])
 
-	// Apply filters handler
 	const applyFilters = () => {
 		setFilterKey((prev) => prev + 1)
 	}

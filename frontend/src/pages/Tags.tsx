@@ -9,7 +9,6 @@ const Tags = () => {
 	const { t } = useTranslation()
 	const { clearSelectedTag } = useTagStore()
 
-	// Clear selected tag when entering the tags list
 	useEffect(() => {
 		clearSelectedTag()
 	}, [clearSelectedTag])

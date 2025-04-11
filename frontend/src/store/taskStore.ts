@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { taskService } from '../services'
 import { Task } from '../types'
 
-// Define a
 interface ApiError extends Error {
 	response?: {
 		data?: {

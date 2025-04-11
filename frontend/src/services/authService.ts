@@ -12,7 +12,6 @@ export interface RegisterResponse {
 }
 
 export const authService = {
-	// Login
 	login: async (email: string, password: string): Promise<LoginResponse> => {
 		try {
 			console.log('Sending login request with:', {
@@ -23,21 +22,17 @@ export const authService = {
 
 			console.log('Login API response:', response.data)
 
-			// Check how the response is structured and extract token and user accordingly
 			let token, user
 
 			if (response.data.ok && response.data.data) {
-				// Format: { ok: true, data: { token, user } }
 				if (response.data.data.token) {
 					token = response.data.data.token
 					user = response.data.data.user
 				} else {
-					// Format: { ok: true, data: { user, token } }
 					token = response.data.data.token
 					user = response.data.data.user
 				}
 			} else if (response.data.token) {
-				// Direct format: { token, user }
 				token = response.data.token
 				user = response.data.user || response.data.data
 			} else {
@@ -45,9 +40,7 @@ export const authService = {
 				throw new Error('Invalid response format from server')
 			}
 
-			// Ensure user object has all required fields
 			if (user) {
-				// Log all user properties for debugging
 				console.log(
 					'Extracted user data:',
 					JSON.stringify(user, null, 2),
@@ -61,26 +54,21 @@ export const authService = {
 		}
 	},
 
-	// Google Login
 	loginWithGoogle: async (credential: string): Promise<LoginResponse> => {
 		try {
 			console.log('Sending Google login request with credential')
-			// Use token as the parameter name to match what the backend controller expects
 			const response = await api.post('/users/google', {
 				token: credential,
 			})
 
 			console.log('Google login API response:', response.data)
 
-			// Extract token and user data
 			let token, user
 
 			if (response.data.ok && response.data.data) {
-				// Format: { ok: true, data: { token, user } }
 				token = response.data.data.token
 				user = response.data.data.user
 			} else if (response.data.token) {
-				// Direct format: { token, user }
 				token = response.data.token
 				user = response.data.user || response.data.data
 			} else {
@@ -88,7 +76,6 @@ export const authService = {
 				throw new Error('Invalid response format from server')
 			}
 
-			// Log all user properties for debugging
 			console.log(
 				'Extracted Google login user data:',
 				JSON.stringify(user, null, 2),
@@ -101,7 +88,6 @@ export const authService = {
 		}
 	},
 
-	// Register
 	register: async (
 		name: string,
 		email: string,
@@ -110,11 +96,9 @@ export const authService = {
 		theme: string = 'light',
 	): Promise<RegisterResponse> => {
 		try {
-			// Make sure we only send 'light' or 'dark', not 'system'
 			const safeTheme =
 				theme === 'light' || theme === 'dark' ? theme : 'light'
 
-			// Prepare payload with required fields
 			const payload = {
 				name,
 				email,
@@ -123,7 +107,6 @@ export const authService = {
 				theme: safeTheme,
 			}
 
-			// Log the payload for debugging
 			console.log('Register payload:', {
 				...payload,
 				password: '******',
@@ -133,15 +116,12 @@ export const authService = {
 
 			console.log('Register API response:', response.data)
 
-			// Handle different response formats
 			let token, user
 
 			if (response.data.ok && response.data.data) {
-				// Format: { ok: true, data: { token, user } }
 				token = response.data.data.token
 				user = response.data.data.user
 			} else if (response.data.token) {
-				// Direct format: { token, user }
 				token = response.data.token
 				user = response.data.user || response.data.data
 			} else {
@@ -149,7 +129,6 @@ export const authService = {
 				throw new Error('Invalid response format from server')
 			}
 
-			// Log all user properties for debugging
 			console.log(
 				'Extracted register user data:',
 				JSON.stringify(user, null, 2),
@@ -162,30 +141,24 @@ export const authService = {
 		}
 	},
 
-	// Get user profile
 	getProfile: async (): Promise<User> => {
 		try {
 			const response = await api.get('/users/profile')
 			console.log('Profile API response:', response.data)
 
-			// Handle different response formats
 			let user
 
 			if (response.data.ok && response.data.data) {
-				// Format: { ok: true, data: { user } }
 				user = response.data.data
 			} else if (response.data.user) {
-				// Direct format: { user }
 				user = response.data.user
 			} else if (response.data.data) {
-				// Direct format: { data }
 				user = response.data.data
 			} else {
 				console.error('Unexpected response format:', response.data)
 				throw new Error('Invalid response format from server')
 			}
 
-			// Log all user properties for debugging
 			console.log(
 				'Extracted profile user data:',
 				JSON.stringify(user, null, 2),
@@ -198,10 +171,8 @@ export const authService = {
 		}
 	},
 
-	// Update user profile
 	updateProfile: async (userData: Partial<User>): Promise<User> => {
 		try {
-			// Make sure we only send 'light' or 'dark', not 'system'
 			const safeUserData = { ...userData }
 			if (
 				safeUserData.theme &&
@@ -213,24 +184,19 @@ export const authService = {
 
 			const response = await api.put('/users/profile', safeUserData)
 
-			// Handle different response formats
 			let user
 
 			if (response.data.ok && response.data.data) {
-				// Format: { ok: true, data: { user } }
 				user = response.data.data
 			} else if (response.data.user) {
-				// Direct format: { user }
 				user = response.data.user
 			} else if (response.data.data) {
-				// Direct format: { data }
 				user = response.data.data
 			} else {
 				console.error('Unexpected response format:', response.data)
 				throw new Error('Invalid response format from server')
 			}
 
-			// Log all user properties for debugging
 			console.log(
 				'Updated profile user data:',
 				JSON.stringify(user, null, 2),
@@ -243,7 +209,6 @@ export const authService = {
 		}
 	},
 
-	// Change password
 	changePassword: async (
 		currentPassword: string,
 		newPassword: string,
@@ -259,7 +224,6 @@ export const authService = {
 		}
 	},
 
-	// Delete user account
 	deleteUser: async (): Promise<void> => {
 		try {
 			await api.delete('/users/profile')
@@ -269,20 +233,18 @@ export const authService = {
 		}
 	},
 
-	// Request password reset
 	requestPasswordReset: async (email: string): Promise<void> => {
 		try {
-			// Get current language from i18next
-			const currentLanguage = localStorage.getItem('i18nextLng') || 'en';
-			await api.post('/users/forgot-password', { email, language: currentLanguage })
+			const currentLanguage = localStorage.getItem('i18nextLng') || 'en'
+			await api.post('/users/forgot-password', {
+				email,
+				language: currentLanguage,
+			})
 		} catch {
-			// Do not throw an error here for security reasons
-			// Even if the email doesn't exist, we don't want to reveal that
 			console.log('Request password reset completed')
 		}
 	},
 
-	// Reset password with token
 	resetPassword: async (token: string, password: string): Promise<void> => {
 		try {
 			await api.post('/users/reset-password', { token, password })

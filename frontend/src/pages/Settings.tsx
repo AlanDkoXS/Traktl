@@ -131,10 +131,7 @@ const Settings = () => {
 
 			await checkVerificationStatus()
 
-			// Redirigir al dashboard después de guardar exitosamente
 			window.location.href = '/'
-		} catch (err) {
-			console.error('🔴 Settings: Failed to save settings:', err)
 		} finally {
 			setIsSubmitting(false)
 		}
@@ -163,7 +160,7 @@ const Settings = () => {
 			await emailVerificationService.requestVerification()
 			setShowVerificationModal(true)
 			await checkVerificationStatus()
-			setCountdown(60) // Start countdown after successful request
+			setCountdown(60)
 		} catch (err: unknown) {
 			setVerificationError(
 				err instanceof Error

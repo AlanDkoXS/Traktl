@@ -21,14 +21,12 @@ const formatProject = (
 }
 
 export const projectService = {
-	// Get all projects
 	getProjects: async (): Promise<Project[]> => {
 		try {
 			console.log('Fetching projects...')
 			const response = await api.get('/projects')
 			console.log('Projects response:', response.data)
 
-			// Handle different response formats
 			let projects = []
 			if (Array.isArray(response.data)) {
 				projects = response.data
@@ -42,7 +40,6 @@ export const projectService = {
 				return []
 			}
 
-			// Format each project to handle _id to id conversion
 			return projects.map(formatProject)
 		} catch (error) {
 			console.error('Error fetching projects:', error)
@@ -50,14 +47,12 @@ export const projectService = {
 		}
 	},
 
-	// Get a single project by ID
 	getProject: async (id: string): Promise<Project> => {
 		try {
 			console.log(`Fetching project with id: ${id}`)
 			const response = await api.get(`/projects/${id}`)
 			console.log('Project response:', response.data)
 
-			// Handle different response formats
 			let project
 			if (response.data.data) {
 				project = response.data.data
@@ -72,12 +67,10 @@ export const projectService = {
 		}
 	},
 
-	// Create a new project
 	createProject: async (
 		project: Omit<Project, 'id' | 'user' | 'createdAt' | 'updatedAt'>,
 	): Promise<Project> => {
 		try {
-			// Set client to null if empty string
 			const projectData = { ...project }
 			if (projectData.client === '') {
 				projectData.client = null
@@ -86,7 +79,6 @@ export const projectService = {
 			console.log('Creating project with data:', projectData)
 			const response = await api.post('/projects', projectData)
 
-			// Handle different response formats
 			let newProject
 			if (response.data.data) {
 				newProject = response.data.data
@@ -101,7 +93,6 @@ export const projectService = {
 		}
 	},
 
-	// Update a project
 	updateProject: async (
 		id: string,
 		project: Partial<
@@ -109,7 +100,6 @@ export const projectService = {
 		>,
 	): Promise<Project> => {
 		try {
-			// Set client to null if empty string
 			const projectData = { ...project }
 			if (projectData.client === '') {
 				projectData.client = null
@@ -118,7 +108,6 @@ export const projectService = {
 			console.log(`Updating project ${id} with data:`, projectData)
 			const response = await api.put(`/projects/${id}`, projectData)
 
-			// Handle different response formats
 			let updatedProject
 			if (response.data.data) {
 				updatedProject = response.data.data
@@ -133,7 +122,6 @@ export const projectService = {
 		}
 	},
 
-	// Delete a project
 	deleteProject: async (id: string): Promise<void> => {
 		try {
 			console.log(`Deleting project with id: ${id}`)

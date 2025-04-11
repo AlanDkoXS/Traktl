@@ -11,7 +11,6 @@ interface ToastProps {
 export const Toast = ({ show, type }: ToastProps) => {
 	const { t } = useTranslation()
 
-	// Determine icon based on type
 	const getIcon = () => {
 		switch (type) {
 			case 'work':
@@ -34,7 +33,6 @@ export const Toast = ({ show, type }: ToastProps) => {
 		}
 	}
 
-	// Get translated message based on type
 	const getMessage = () => {
 		switch (type) {
 			case 'work':

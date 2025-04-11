@@ -18,14 +18,12 @@ const EditProject = () => {
 	const [deleteLoading, setDeleteLoading] = useState(false)
 
 	useEffect(() => {
-		// Check if id is undefined or invalid
 		if (!id || id === 'undefined') {
 			console.error('Invalid project ID:', id)
 			setNotFound(true)
 			return
 		}
 
-		// Add a loading indicator
 		const loadProject = async () => {
 			try {
 				await fetchProject(id)
@@ -38,14 +36,12 @@ const EditProject = () => {
 		loadProject()
 	}, [id, fetchProject])
 
-	// Set project color when selected project changes (solo en dashboard)
 	useEffect(() => {
 		if (selectedProject?.color && window.location.pathname === '/') {
 			setProjectColor(selectedProject.color)
 		}
 	}, [selectedProject])
 
-	// Handle project deletion
 	const handleDelete = async () => {
 		if (!id) return
 
