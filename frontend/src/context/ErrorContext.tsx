@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState, useCallback } from 'react'
-import { ApiResponse } from '../types'
+
+export interface ApiResponse<T> {
+	success: boolean
+	error?: string
+	data?: T
+}
 
 interface ErrorContextType {
 	error: string | null
