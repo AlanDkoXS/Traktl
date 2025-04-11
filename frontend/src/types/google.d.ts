@@ -1,4 +1,3 @@
-// Define Google Identity Services types
 interface GoogleCredentialResponse {
 	credential: string
 	clientId: string
@@ -45,7 +44,6 @@ interface GoogleIdentityServices {
 	}
 }
 
-// Extend Window interface to include Google Identity Services
 declare global {
 	interface Window {
 		google?: GoogleIdentityServices

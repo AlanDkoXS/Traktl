@@ -41,7 +41,6 @@ interface TimeEntryState {
 	clearTimeEntries: () => void
 }
 
-// Auxiliar function to safely format dates
 const formatDateSafely = (
 	date: Date | string | undefined,
 ): Date | undefined => {
@@ -53,12 +52,10 @@ const formatDateSafely = (
 
 	if (typeof date === 'string') {
 		try {
-			// If it's an ISO string, parse it directly
 			if (date.includes('T')) {
 				const parsedDate = new Date(date)
 				return isNaN(parsedDate.getTime()) ? undefined : parsedDate
 			} else {
-				// If it's a date string without time, set it to the start of the day
 				const startOfDay = new Date(`${date}T00:00:00`)
 				return isNaN(startOfDay.getTime()) ? undefined : startOfDay
 			}
@@ -70,7 +67,6 @@ const formatDateSafely = (
 	return undefined
 }
 
-// Create the store
 const timeEntryStore = create<TimeEntryState>((set) => ({
 	timeEntries: [],
 	selectedTimeEntries: [],
@@ -88,13 +84,10 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 		})
 
 		try {
-			// Set loading state first to provide immediate feedback
 			set({ isLoading: true, error: null })
 
-			// Format start date
 			const formattedStartDate = formatDateSafely(startDate)
 
-			// For end date, if it's a date string without time, set it to the end of the day
 			let formattedEndDate: Date | undefined
 			if (
 				endDate &&
@@ -113,7 +106,6 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 				formattedEndDate = formatDateSafely(endDate)
 			}
 
-			// Make API call with processed dates
 			const timeEntries = await timeEntryService.getTimeEntries(
 				projectId,
 				taskId,
@@ -196,7 +188,10 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 				selectedTimeEntries: state.selectedTimeEntries.map((te) =>
 					te.id === id ? updatedTimeEntry : te,
 				),
-				selectedTimeEntry: state.selectedTimeEntry?.id === id ? updatedTimeEntry : state.selectedTimeEntry,
+				selectedTimeEntry:
+					state.selectedTimeEntry?.id === id
+						? updatedTimeEntry
+						: state.selectedTimeEntry,
 				isLoading: false,
 			}))
 			return updatedTimeEntry
@@ -218,20 +213,28 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 			set({ isLoading: true, error: null })
 			await timeEntryService.deleteTimeEntry(id)
 
-			// Update the store state
 			set((state) => {
-				const updatedTimeEntries = state.timeEntries.filter((te) => te.id !== id)
-				const updatedSelectedTimeEntries = state.selectedTimeEntries.filter((te) => te.id !== id)
+				const updatedTimeEntries = state.timeEntries.filter(
+					(te) => te.id !== id,
+				)
+				const updatedSelectedTimeEntries =
+					state.selectedTimeEntries.filter((te) => te.id !== id)
 
 				return {
 					timeEntries: updatedTimeEntries,
 					selectedTimeEntries: updatedSelectedTimeEntries,
-					selectedTimeEntry: state.selectedTimeEntry?.id === id ? null : state.selectedTimeEntry,
+					selectedTimeEntry:
+						state.selectedTimeEntry?.id === id
+							? null
+							: state.selectedTimeEntry,
 					isLoading: false,
 				}
 			})
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to delete time entry'
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Failed to delete time entry'
 			set({
 				error: errorMessage,
 				isLoading: false,
@@ -258,7 +261,6 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 		set({ selectedTimeEntries: [] })
 	},
 
-	// Method to add a new time entry to the store
 	addNewTimeEntry: (timeEntry) => {
 		set((state) => ({
 			timeEntries: [timeEntry, ...state.timeEntries],
@@ -266,16 +268,14 @@ const timeEntryStore = create<TimeEntryState>((set) => ({
 	},
 
 	clearTimeEntries: () => {
-		console.log('Clearing all time entries from store');
+		console.log('Clearing all time entries from store')
 		set({
 			timeEntries: [],
 			selectedTimeEntries: [],
 			selectedTimeEntry: null,
-			// Mantener otros estados como error o isLoading sin cambios
-		});
+		})
 	},
 }))
 
-// Export the store hook
 export default timeEntryStore
 export const useTimeEntryStore = timeEntryStore
