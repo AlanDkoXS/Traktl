@@ -1,40 +1,38 @@
-import { useTranslation } from 'react-i18next'
 import { useTimerStore } from '../store/timerStore'
 
 export const useTimerNotifications = () => {
-  const { t } = useTranslation()
-  const showNotification = useTimerStore(state => state.showNotification)
+	const showNotification = useTimerStore((state) => state.showNotification)
 
-  const notifyTimerStopped = () => {
-    showNotification('work', t('timer.timerStopped'))
-  }
+	const notifyTimerStopped = () => {
+		showNotification('work')
+	}
 
-  const notifyTimeEntrySaved = () => {
-    showNotification('work', t('timer.timeEntrySaved'))
-  }
+	const notifyTimeEntrySaved = () => {
+		showNotification('work')
+	}
 
-  const notifyWorkSessionComplete = () => {
-    showNotification('work', t('timer.workSessionComplete'))
-  }
+	const notifyWorkSessionComplete = () => {
+		showNotification('work')
+	}
 
-  const notifyBreakSessionComplete = () => {
-    showNotification('break', t('timer.breakSessionComplete'))
-  }
+	const notifyBreakSessionComplete = () => {
+		showNotification('break')
+	}
 
-  const notifyAllSessionsComplete = () => {
-    showNotification('work', t('timer.allSessionsComplete'))
-  }
+	const notifyAllSessionsComplete = () => {
+		showNotification('complete')
+	}
 
-  const notifyBreakCompleted = () => {
-    showNotification('work', t('timer.breakCompleted'))
-  }
+	const notifyBreakCompleted = () => {
+		showNotification('work')
+	}
 
-  return {
-    notifyTimerStopped,
-    notifyTimeEntrySaved,
-    notifyWorkSessionComplete,
-    notifyBreakSessionComplete,
-    notifyAllSessionsComplete,
-    notifyBreakCompleted
-  }
+	return {
+		notifyTimerStopped,
+		notifyTimeEntrySaved,
+		notifyWorkSessionComplete,
+		notifyBreakSessionComplete,
+		notifyAllSessionsComplete,
+		notifyBreakCompleted,
+	}
 }
