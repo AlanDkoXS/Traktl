@@ -472,7 +472,6 @@ export const TimeEntryList = ({
 														)}
 													</span>
 												)}
-												{/* Tags */}
 												{entry.tags &&
 													entry.tags.length > 0 && (
 														<div className="flex items-center gap-1.5">
@@ -557,7 +556,6 @@ export const TimeEntryList = ({
 				)}
 			</div>
 
-			{/* Delete confirmation modal */}
 			<ConfirmModal
 				isOpen={showDeleteModal}
 				title={t('common.confirmDelete')}
@@ -584,7 +582,6 @@ export const TimeEntryList = ({
 				danger={true}
 			/>
 
-			{/* Bulk delete confirmation modal */}
 			<ConfirmModal
 				isOpen={showBulkDeleteModal}
 				title={t('common.confirmDelete')}

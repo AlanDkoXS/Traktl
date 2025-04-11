@@ -55,7 +55,6 @@ export const UserMenu = () => {
 							</p>
 						</div>
 
-						{/* Tema */}
 						<div className="border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))] p-2">
 							<div className="px-2 py-1 text-xs text-gray-500 dark:text-[rgb(var(--color-fg-muted))]">
 								{t('theme.title', 'Theme')}
@@ -65,7 +64,6 @@ export const UserMenu = () => {
 							</div>
 						</div>
 
-						{/* Idioma */}
 						<div className="border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))] p-2">
 							<div className="px-2 py-1 text-xs text-gray-500 dark:text-[rgb(var(--color-fg-muted))]">
 								{t('settings.language')}
@@ -75,7 +73,6 @@ export const UserMenu = () => {
 							</div>
 						</div>
 
-						{/* Acerca de */}
 						<Menu.Item>
 							{({ active }) => (
 								<button
@@ -94,7 +91,6 @@ export const UserMenu = () => {
 							)}
 						</Menu.Item>
 
-						{/* Cerrar sesión */}
 						<Menu.Item>
 							{({ active }) => (
 								<button
@@ -113,7 +109,6 @@ export const UserMenu = () => {
 				</Transition>
 			</Menu>
 
-			{/* Modal de Acerca de */}
 			<Dialog
 				open={aboutModalOpen}
 				onClose={() => setAboutModalOpen(false)}

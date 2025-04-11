@@ -155,7 +155,6 @@ export const StickyTimer = () => {
 							</span>
 						</div>
 
-						{/* Controls - using same style as TimerControls */}
 						<div className="flex items-center mr-3 space-x-3">
 							{status === 'running' ? (
 								<button
@@ -163,7 +162,6 @@ export const StickyTimer = () => {
 									className={getButtonClasses('pause')}
 									title={t('timer.pause')}
 								>
-									{/* Simple Pause Icon */}
 									<svg
 										className={`w-7 h-7 ${mode === 'break' ? '' : 'dynamic-color'}`}
 										fill="currentColor"
@@ -179,7 +177,6 @@ export const StickyTimer = () => {
 									className={getButtonClasses('play')}
 									title={t('timer.resume')}
 								>
-									{/* Simple Play Icon */}
 									<svg
 										className={`w-7 h-7 ${mode === 'break' ? '' : 'dynamic-color'}`}
 										fill="currentColor"
@@ -191,14 +188,12 @@ export const StickyTimer = () => {
 								</button>
 							)}
 
-							{/* Show skip button or infinite mode */}
 							{!infiniteMode ? (
 								<button
 									onClick={skipToNext}
 									className={getButtonClasses('next')}
 									title={t('timer.skipToNext')}
 								>
-									{/* Simple Skip Icon */}
 									<svg
 										className={`w-7 h-7 ${mode === 'break' ? '' : 'dynamic-color'}`}
 										fill="currentColor"
@@ -217,7 +212,6 @@ export const StickyTimer = () => {
 								className={getButtonClasses('stop')}
 								title={t('timer.stop')}
 							>
-								{/* Simple Stop Icon */}
 								<svg
 									className="w-7 h-7 text-red-600 dark:text-red-400"
 									fill="currentColor"
@@ -230,7 +224,6 @@ export const StickyTimer = () => {
 						</div>
 					</div>
 
-					{/* Progress bar */}
 					<div className="h-2 w-full bg-gray-200 dark:bg-[rgb(var(--color-border-primary))]">
 						<div
 							className={`h-full transition-all duration-300 ${
@@ -246,7 +239,6 @@ export const StickyTimer = () => {
 				</div>
 			</div>
 
-			{/* Stop confirmation modal */}
 			<ConfirmModal
 				isOpen={showStopConfirmationModal}
 				title={t('timer.saveSessionTitle', 'Save Session')}

@@ -179,7 +179,6 @@ export const TimerControls = ({
 							</svg>
 						</button>
 
-						{/* Show skip button or infinite mode */}
 						{!infiniteMode ? (
 							<button
 								onClick={handleSkipToNext}
@@ -236,7 +235,6 @@ export const TimerControls = ({
 							</svg>
 						</button>
 
-						{/* Show skip button or infinite mode */}
 						{!infiniteMode ? (
 							<button
 								onClick={handleSkipToNext}
@@ -328,7 +326,6 @@ export const TimerControls = ({
 				)}
 			</div>
 
-			{/* Confirmation Modals */}
 			<ConfirmModal
 				isOpen={showShortSessionModal}
 				title={t('timer.shortSessionTitle')}

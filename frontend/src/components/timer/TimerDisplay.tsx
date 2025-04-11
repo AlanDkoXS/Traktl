@@ -146,7 +146,7 @@ export const TimerDisplay = ({
 					</span>
 				)}
 
-				{/* Indicador de conexión dentro del círculo */}
+				{/* Connection Status */}
 				<div className="mt-1">
 					{isConnected ? (
 						<div className="group relative inline-block">

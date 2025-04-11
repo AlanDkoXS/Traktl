@@ -151,7 +151,7 @@ export const TimerSettings = ({
 					</div>
 				</div>
 
-				{/* Break Duration - Modificado el mínimo a 0 */}
+				{/* Break Duration */}
 				<div className="flex items-center gap-3">
 					<label
 						htmlFor="break-duration-slider"

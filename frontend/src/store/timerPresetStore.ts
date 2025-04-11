@@ -7,7 +7,6 @@ interface TimerPresetState {
 	selectedTimerPreset: TimerPreset | null
 	isLoading: boolean
 	error: string | null
-
 	fetchTimerPresets: () => Promise<TimerPreset[]>
 	fetchTimerPreset: (id: string) => Promise<TimerPreset | null>
 	createTimerPreset: (
@@ -27,27 +26,28 @@ interface TimerPresetState {
 	clearSelectedTimerPreset: () => void
 }
 
-export const useTimerPresetStore = create<TimerPresetState>((set, get) => ({
+export const useTimerPresetStore = create<TimerPresetState>((set) => ({
 	timerPresets: [],
 	selectedTimerPreset: null,
 	isLoading: false,
 	error: null,
-
 	fetchTimerPresets: async () => {
 		try {
 			set({ isLoading: true, error: null })
 			const timerPresets = await timerPresetService.getTimerPresets()
 			set({ timerPresets, isLoading: false })
 			return timerPresets
-		} catch (error: any) {
+		} catch (error: unknown) {
 			set({
-				error: error.message || 'Failed to fetch timer presets',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to fetch timer presets',
 				isLoading: false,
 			})
 			return []
 		}
 	},
-
 	fetchTimerPreset: async (id: string) => {
 		if (!id || id === 'undefined') {
 			set({
@@ -57,25 +57,24 @@ export const useTimerPresetStore = create<TimerPresetState>((set, get) => ({
 			})
 			return null
 		}
-
 		try {
 			set({ isLoading: true, error: null })
 			const timerPreset = await timerPresetService.getTimerPreset(id)
-
 			if (!timerPreset) throw new Error('Timer preset not found')
-
 			set({ selectedTimerPreset: timerPreset, isLoading: false })
 			return timerPreset
-		} catch (error: any) {
+		} catch (error: unknown) {
 			set({
-				error: error.message || 'Failed to fetch timer preset',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to fetch timer preset',
 				isLoading: false,
 				selectedTimerPreset: null,
 			})
 			return null
 		}
 	},
-
 	createTimerPreset: async (timerPreset) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -86,15 +85,17 @@ export const useTimerPresetStore = create<TimerPresetState>((set, get) => ({
 				isLoading: false,
 			}))
 			return newTimerPreset
-		} catch (error: any) {
+		} catch (error: unknown) {
 			set({
-				error: error.message || 'Failed to create timer preset',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to create timer preset',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	updateTimerPreset: async (id, timerPreset) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -111,15 +112,17 @@ export const useTimerPresetStore = create<TimerPresetState>((set, get) => ({
 				isLoading: false,
 			}))
 			return updatedTimerPreset
-		} catch (error: any) {
+		} catch (error: unknown) {
 			set({
-				error: error.message || 'Failed to update timer preset',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to update timer preset',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	deleteTimerPreset: async (id) => {
 		try {
 			set({ isLoading: true, error: null })
@@ -132,15 +135,17 @@ export const useTimerPresetStore = create<TimerPresetState>((set, get) => ({
 						: state.selectedTimerPreset,
 				isLoading: false,
 			}))
-		} catch (error: any) {
+		} catch (error: unknown) {
 			set({
-				error: error.message || 'Failed to delete timer preset',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to delete timer preset',
 				isLoading: false,
 			})
 			throw error
 		}
 	},
-
 	selectTimerPreset: (timerPreset) =>
 		set({ selectedTimerPreset: timerPreset }),
 	clearSelectedTimerPreset: () => set({ selectedTimerPreset: null }),

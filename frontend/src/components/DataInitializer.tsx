@@ -389,7 +389,6 @@ const DataInitializer = () => {
 		<DataInitializerContext.Provider
 			value={{ isInitialized: initialized, isLoading }}
 		>
-			{/* Socket handler manages WebSocket connections */}
 			{isAuthenticated && <SocketHandler />}
 		</DataInitializerContext.Provider>
 	)

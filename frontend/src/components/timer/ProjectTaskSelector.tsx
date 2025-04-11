@@ -433,14 +433,11 @@ export const ProjectTaskSelector = ({
 				</Dialog>
 			</Transition>
 
-			{/* Project Create Modal */}
 			<ProjectCreateModal
 				isOpen={showCreateProjectModal}
 				onClose={() => setShowCreateProjectModal(false)}
 				onProjectCreated={handleProjectCreated}
 			/>
-
-			{/* Task Create Modal */}
 			<TaskCreateModal
 				isOpen={showCreateTaskModal}
 				onClose={() => setShowCreateTaskModal(false)}
@@ -448,7 +445,6 @@ export const ProjectTaskSelector = ({
 				projectId={projectId}
 			/>
 
-			{/* Tag Create Modal */}
 			<TagCreateModal
 				isOpen={showCreateTagModal}
 				onClose={() => setShowCreateTagModal(false)}

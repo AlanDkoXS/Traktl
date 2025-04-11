@@ -111,7 +111,6 @@ export const Timer = () => {
 	return (
 		<div className="flex flex-col space-y-6 dashboard-timer">
 			<div className="bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-				{/* Timer Alert Modal */}
 				<TimerAlertModal />
 
 				<div className="text-center mb-4">
@@ -134,7 +133,6 @@ export const Timer = () => {
 					</div>
 				</div>
 
-				{/* Timer Display */}
 				<TimerDisplay
 					formattedTime={formattedTime}
 					progress={progress}
@@ -142,7 +140,6 @@ export const Timer = () => {
 					isInfiniteMode={infiniteMode}
 				/>
 
-				{/* Timer Controls */}
 				<TimerControls
 					status={timerStatus}
 					mode={timerMode}
@@ -156,7 +153,6 @@ export const Timer = () => {
 					infiniteMode={infiniteMode}
 				/>
 
-				{/* Project and Task Selection */}
 				<ProjectTaskSelector
 					projectId={projectId}
 					taskId={taskId}
@@ -173,7 +169,6 @@ export const Timer = () => {
 					}
 				/>
 
-				{/* Timer Settings */}
 				<TimerSettings
 					workDuration={workDuration}
 					breakDuration={breakDuration}
@@ -184,17 +179,13 @@ export const Timer = () => {
 					setRepetitions={setRepetitions}
 				/>
 
-				{/* Preset Selector */}
 				<PresetSelector onSelectPreset={handlePresetSelect} />
 			</div>
 
-			{/* Activity Heatmap */}
 			<ActivityHeatmap />
 
-			{/* Time Entry List */}
 			<TimeEntryList limit={5} />
 
-			{/* Completion Modal */}
 			<ConfirmModal
 				isOpen={showCompletionModal}
 				title={t('timer.saveSessionTitle')}

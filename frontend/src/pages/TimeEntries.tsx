@@ -140,7 +140,6 @@ const TimeEntries = () => {
 				</div>
 			)}
 
-			{/* The key prop forces the component to re-render when filters change */}
 			<TimeEntryList
 				key={filterKey}
 				projectId={projectId || undefined}

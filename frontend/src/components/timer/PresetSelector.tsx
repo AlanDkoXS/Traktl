@@ -116,7 +116,6 @@ export const PresetSelector = ({
 					<PlusIcon className="h-5 w-5" />
 				</button>
 			</div>
-			{/* Save current settings as preset modal */}
 			<PresetCreateModal
 				isOpen={showCreatePresetModal}
 				onClose={() => setShowCreatePresetModal(false)}

@@ -5,11 +5,9 @@ interface InfiniteModeProps {
 	className?: string
 }
 
-export const InfiniteMode = ({
-	className = '',
-}: InfiniteModeProps) => {
+export const InfiniteMode = ({ className = '' }: InfiniteModeProps) => {
 	const { t } = useTranslation()
-	const { infiniteMode, setInfiniteMode } = useTimer()
+	const { infiniteMode } = useTimer()
 
 	if (!infiniteMode) {
 		return null
@@ -20,7 +18,6 @@ export const InfiniteMode = ({
 			className={`w-14 h-14 flex items-center justify-center rounded-full dynamic-bg-subtle shadow-sm ${className} opacity-70`}
 			title={t('timer.infiniteMode')}
 		>
-			{/* Simple Infinity Icon (deshabilitado) */}
 			<svg
 				className="w-7 h-7 dynamic-color"
 				fill="currentColor"

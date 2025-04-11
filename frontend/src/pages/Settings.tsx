@@ -498,7 +498,6 @@ const Settings = () => {
 				</div>
 			</Modal>
 
-			{/* Change Password Modal */}
 			<ChangePasswordModal
 				isOpen={showChangePasswordModal}
 				onClose={() => setShowChangePasswordModal(false)}

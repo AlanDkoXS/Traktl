@@ -74,7 +74,6 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
 	return (
 		<div className="flex h-full bg-gray-50 dark:bg-[rgb(var(--color-bg-canvas))]">
-			{/* Mobile overlay when menu is open */}
 			{isMobileMenuOpen && (
 				<div
 					className="fixed inset-0 z-20 bg-black/50 backdrop-blur-sm md:hidden"
@@ -82,7 +81,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 				/>
 			)}
 
-			{/* Mobile header - Only visible on mobile */}
+			{/* Mobile header */}
 			<header className="fixed top-0 left-0 right-0 z-10 md:hidden bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] shadow-sm border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
 				<div className="flex items-center justify-between h-14 px-4">
 					<button
@@ -102,7 +101,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 				</div>
 			</header>
 
-			{/* Sidebar - Hidden on mobile unless menu is open */}
+			{/* Sidebar */}
 			<aside
 				className={`fixed inset-y-0 left-0 z-30 md:flex md:flex-col w-64 transform transition-transform duration-300 ease-in-out
 					${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
