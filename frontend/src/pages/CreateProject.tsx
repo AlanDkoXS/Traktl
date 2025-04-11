@@ -12,7 +12,7 @@ const CreateProject = () => {
 
 			<div className="card-project">
 				<div className="px-4 py-5 sm:p-6">
-					<ProjectForm />
+					<ProjectForm project={null} />
 				</div>
 			</div>
 		</div>
