@@ -12,7 +12,6 @@ export class TaskService {
 		userId: string,
 		createTaskDto: CreateTaskDTO,
 	): Promise<Task> {
-		// Double-check ObjectId validity
 		if (!mongoose.Types.ObjectId.isValid(createTaskDto.project)) {
 			throw CustomError.badRequest('Invalid project ID format')
 		}
@@ -40,7 +39,6 @@ export class TaskService {
 			throw CustomError.notFound('Task not found')
 		}
 
-		// Validate project ID if provided
 		if (
 			updateTaskDto.project &&
 			!mongoose.Types.ObjectId.isValid(updateTaskDto.project)
@@ -82,7 +80,6 @@ export class TaskService {
 		page?: number,
 		limit?: number,
 	): Promise<Task[]> {
-		// Validate projectId format
 		if (!mongoose.Types.ObjectId.isValid(projectId)) {
 			throw CustomError.badRequest('Invalid project ID format')
 		}
@@ -109,7 +106,6 @@ export class TaskService {
 	}
 
 	async countProjectTasks(projectId: string): Promise<number> {
-		// Validate projectId format
 		if (!mongoose.Types.ObjectId.isValid(projectId)) {
 			throw CustomError.badRequest('Invalid project ID format')
 		}

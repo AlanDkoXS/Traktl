@@ -34,7 +34,7 @@ export interface TimeEntryRepository {
 		page?: number,
 		limit?: number,
 	): Promise<TimeEntry[]>
-	// Added new method to find a running time entry for a user
+
 	findRunningByUser(userId: string): Promise<TimeEntry | null>
 
 	deleteAllByUserId(userId: string): Promise<boolean>

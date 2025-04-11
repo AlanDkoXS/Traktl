@@ -50,10 +50,9 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 	}
 
 	async findRunningByUser(userId: string): Promise<TimeEntry | null> {
-		// Find the most recent running time entry for this user
 		const timeEntry = await TimeEntryModel.findOne({
 			user: userId,
-			isRunning: true
+			isRunning: true,
 		}).sort({ startTime: -1 })
 
 		if (!timeEntry) return null
@@ -122,8 +121,9 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 		page?: number,
 		limit?: number,
 	): Promise<TimeEntry[]> {
-		const query = TimeEntryModel.find({ user: userId })
-			.sort({ createdAt: -1 })
+		const query = TimeEntryModel.find({ user: userId }).sort({
+			createdAt: -1,
+		})
 
 		if (page && limit) {
 			const skip = (page - 1) * limit
@@ -153,8 +153,9 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 		page?: number,
 		limit?: number,
 	): Promise<TimeEntry[]> {
-		const query = TimeEntryModel.find({ project: projectId })
-			.sort({ createdAt: -1 })
+		const query = TimeEntryModel.find({ project: projectId }).sort({
+			createdAt: -1,
+		})
 
 		if (page && limit) {
 			const skip = (page - 1) * limit
@@ -184,8 +185,9 @@ export class MongoTimeEntryRepository implements TimeEntryRepository {
 		page?: number,
 		limit?: number,
 	): Promise<TimeEntry[]> {
-		const query = TimeEntryModel.find({ task: taskId })
-			.sort({ createdAt: -1 })
+		const query = TimeEntryModel.find({ task: taskId }).sort({
+			createdAt: -1,
+		})
 
 		if (page && limit) {
 			const skip = (page - 1) * limit

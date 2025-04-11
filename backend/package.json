@@ -2,10 +2,10 @@
 	"name": "traktl-backend",
 	"version": "0.0.b",
 	"description": "Backend for Traktl",
-	"main": "src/index.js",
+	"main": "dist/app.js",
 	"scripts": {
 		"build": "tsc",
-		"start": "node dist/index.js",
+		"start": "node dist/app.js",
 		"dev": "tsnd --respawn --clear --rs --quiet false --notify false src/app.ts",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"format": "prettier --write ."
@@ -58,5 +58,8 @@
 		"ts-node-dev": "^2.0.0",
 		"typescript": "^5.8.2",
 		"typescript-eslint": "^8.26.0"
+	},
+	"engines": {
+		"node": ">=18.0.0"
 	}
 }

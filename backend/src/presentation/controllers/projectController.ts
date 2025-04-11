@@ -34,7 +34,6 @@ export class ProjectController extends BaseController {
 
 			const { id } = req.params
 
-			// Validate project ID
 			if (!id || typeof id !== 'string' || id === 'undefined') {
 				return res.status(400).json({ error: 'Invalid project ID' })
 			}

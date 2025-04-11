@@ -6,7 +6,7 @@ export interface TimeEntry {
 	tags: string[]
 	startTime: Date
 	endTime?: Date
-	duration: number // in milliseconds
+	duration: number
 	notes: string
 	createdAt: Date
 	updatedAt: Date

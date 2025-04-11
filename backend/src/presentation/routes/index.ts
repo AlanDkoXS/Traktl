@@ -9,7 +9,6 @@ import { timerPresetRoutes } from './timerPresetRoutes'
 
 const router = Router()
 
-// Test route - make sure it's defined FIRST for visibility
 router.get('/test', (req, res) => {
 	console.log('>>> Test route handler executed!')
 	return res.status(200).json({
@@ -19,7 +18,6 @@ router.get('/test', (req, res) => {
 	})
 })
 
-// Register all routes
 router.use('/users', userRoutes)
 router.use('/projects', projectRoutes)
 router.use('/clients', clientRoutes)

@@ -61,7 +61,7 @@ const UserSchema = new Schema<IUser>(
 		},
 		emailVerificationToken: {
 			token: String,
-			expiresAt: Date
+			expiresAt: Date,
 		},
 	},
 	{
@@ -70,7 +70,6 @@ const UserSchema = new Schema<IUser>(
 	},
 )
 
-// Pre-save hook to hash password
 UserSchema.pre('save', function (next) {
 	if (!this.isModified('password')) return next()
 
@@ -82,7 +81,6 @@ UserSchema.pre('save', function (next) {
 	}
 })
 
-// Method to compare password
 UserSchema.methods.comparePassword = function (password: string): boolean {
 	return encryptAdapter.compare(password, this.password)
 }

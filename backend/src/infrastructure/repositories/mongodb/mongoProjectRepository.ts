@@ -12,7 +12,6 @@ export class MongoProjectRepository implements ProjectRepository {
 	}
 
 	async findById(id: string): Promise<ProjectEntity | null> {
-		// Validate if the ID is valid
 		if (!id || id === 'undefined') {
 			return null
 		}
@@ -30,7 +29,6 @@ export class MongoProjectRepository implements ProjectRepository {
 		id: string,
 		projectData: Partial<ProjectDomain>,
 	): Promise<ProjectEntity | null> {
-		// Si client es null, necesitamos usar $unset para eliminar el campo
 		const updateData = { ...projectData, updatedAt: new Date() }
 
 		if (projectData.client === null) {

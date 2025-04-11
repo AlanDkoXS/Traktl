@@ -59,7 +59,6 @@ export class GoogleAuthService {
 		try {
 			console.log('Login with Google initiated...')
 
-			// Verify the Google token
 			const googleUserInfo = await this.verifyGoogleToken(idToken)
 
 			if (!googleUserInfo.email) {
@@ -74,7 +73,6 @@ export class GoogleAuthService {
 				googleUserInfo.sub,
 			)
 
-			// Find if user exists by Google ID or email
 			const userRepository = this.userService[
 				'userRepository'
 			] as UserRepository
@@ -89,7 +87,6 @@ export class GoogleAuthService {
 					googleUserInfo.email,
 				)
 
-				// Check if user exists with same email
 				const existingUser = await userRepository.findByEmail(
 					googleUserInfo.email,
 				)
@@ -99,7 +96,6 @@ export class GoogleAuthService {
 						'User found with matching email, updating with Google ID',
 					)
 
-					// Update existing user with Google ID
 					userEntity = await userRepository.update(existingUser._id, {
 						googleId: googleUserInfo.sub,
 						picture: googleUserInfo.picture,
@@ -114,11 +110,10 @@ export class GoogleAuthService {
 				} else {
 					console.log('No existing user found, creating new user')
 
-					// Create new user
 					const createUserDto = new CreateUserDTO(
 						googleUserInfo.name || 'Google User',
 						googleUserInfo.email,
-						Math.random().toString(36).slice(-16), // Random password
+						Math.random().toString(36).slice(-16),
 						'en',
 						'light',
 						undefined,
@@ -135,7 +130,6 @@ export class GoogleAuthService {
 				userEntity = user[0]
 			}
 
-			// Generate JWT token
 			console.log('Generating JWT token for user ID:', userEntity._id)
 			const authToken = await JwtAdapter.generateToken({
 				id: userEntity._id,
@@ -153,7 +147,7 @@ export class GoogleAuthService {
 			}
 		} catch (error) {
 			console.error('Google login process failed:', error)
-			throw error // Re-throw to be handled by the controller
+			throw error
 		}
 	}
 }

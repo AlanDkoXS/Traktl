@@ -18,7 +18,6 @@ export class TaskController extends BaseController {
 			const [error, createTaskDto] = CreateTaskDTO.create(req.body)
 			if (error) return res.status(400).json({ error })
 
-			// Validate ObjectId format
 			if (!mongoose.Types.ObjectId.isValid(createTaskDto!.project)) {
 				return res.status(400).json({
 					error: 'Invalid project ID format. Must be a valid MongoDB ObjectID',
@@ -57,7 +56,6 @@ export class TaskController extends BaseController {
 			const [error, updateTaskDto] = UpdateTaskDTO.create(req.body)
 			if (error) return res.status(400).json({ error })
 
-			// Validate ObjectId format for project if provided
 			if (
 				updateTaskDto!.project &&
 				!mongoose.Types.ObjectId.isValid(updateTaskDto!.project)
@@ -106,7 +104,6 @@ export class TaskController extends BaseController {
 				: undefined
 			const projectId = req.query.projectId as string | undefined
 
-			// Validate ObjectId format for projectId if provided
 			if (projectId && !mongoose.Types.ObjectId.isValid(projectId)) {
 				return res.status(400).json({
 					error: 'Invalid project ID format. Must be a valid MongoDB ObjectID',

@@ -38,7 +38,6 @@ const ClientSchema = new Schema<IClient>(
 	},
 )
 
-// Virtual para los proyectos del cliente
 ClientSchema.virtual('projects', {
 	ref: 'Project',
 	localField: '_id',

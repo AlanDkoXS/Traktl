@@ -47,28 +47,32 @@ export class EmailService {
 	): Promise<boolean> {
 		const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`
 
-		let subject = 'Verify Your Email';
-		let heading = 'Email Verification';
-		let buttonText = 'Verify Email';
-		let paragraph = 'Please click the button below to verify your email address:';
-		let linkText = 'If the button doesn\'t work, you can also click on this link:';
-		let expirationText = 'This link will expire in 24 hours.';
+		let subject = 'Verify Your Email'
+		let heading = 'Email Verification'
+		let buttonText = 'Verify Email'
+		let paragraph =
+			'Please click the button below to verify your email address:'
+		let linkText =
+			"If the button doesn't work, you can also click on this link:"
+		let expirationText = 'This link will expire in 24 hours.'
 
-		// Traducir texto según el idioma seleccionado
 		if (language === 'es') {
-			subject = 'Verifica tu Correo Electrónico';
-			heading = 'Verificación de Correo';
-			buttonText = 'Verificar Correo';
-			paragraph = 'Por favor haz clic en el botón a continuación para verificar tu correo electrónico:';
-			linkText = 'Si el botón no funciona, también puedes hacer clic en este enlace:';
-			expirationText = 'Este enlace expirará en 24 horas.';
+			subject = 'Verifica tu Correo Electrónico'
+			heading = 'Verificación de Correo'
+			buttonText = 'Verificar Correo'
+			paragraph =
+				'Por favor haz clic en el botón a continuación para verificar tu correo electrónico:'
+			linkText =
+				'Si el botón no funciona, también puedes hacer clic en este enlace:'
+			expirationText = 'Este enlace expirará en 24 horas.'
 		} else if (language === 'tr') {
-			subject = 'E-posta Adresinizi Doğrulayın';
-			heading = 'E-posta Doğrulama';
-			buttonText = 'E-postayı Doğrula';
-			paragraph = 'E-posta adresinizi doğrulamak için lütfen aşağıdaki düğmeye tıklayın:';
-			linkText = 'Düğme çalışmıyorsa, bu bağlantıya da tıklayabilirsiniz:';
-			expirationText = 'Bu bağlantı 24 saat içinde sona erecektir.';
+			subject = 'E-posta Adresinizi Doğrulayın'
+			heading = 'E-posta Doğrulama'
+			buttonText = 'E-postayı Doğrula'
+			paragraph =
+				'E-posta adresinizi doğrulamak için lütfen aşağıdaki düğmeye tıklayın:'
+			linkText = 'Düğme çalışmıyorsa, bu bağlantıya da tıklayabilirsiniz:'
+			expirationText = 'Bu bağlantı 24 saat içinde sona erecektir.'
 		}
 
 		const emailOptions: EmailOptions = {
@@ -96,30 +100,33 @@ export class EmailService {
 		token: string,
 		language: string = 'en',
 	): Promise<boolean> {
-		const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+		const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`
 
-		let subject = 'Reset Your Password';
-		let heading = 'Password Reset';
-		let buttonText = 'Reset Password';
-		let paragraph = 'Please click the button below to reset your password:';
-		let linkText = 'If the button doesn\'t work, you can also click on this link:';
-		let expirationText = 'This link will expire in 1 hour.';
+		let subject = 'Reset Your Password'
+		let heading = 'Password Reset'
+		let buttonText = 'Reset Password'
+		let paragraph = 'Please click the button below to reset your password:'
+		let linkText =
+			"If the button doesn't work, you can also click on this link:"
+		let expirationText = 'This link will expire in 1 hour.'
 
-		// Traducir texto según el idioma seleccionado
 		if (language === 'es') {
-			subject = 'Restablece tu Contraseña';
-			heading = 'Restablecimiento de Contraseña';
-			buttonText = 'Restablecer Contraseña';
-			paragraph = 'Por favor haz clic en el botón a continuación para restablecer tu contraseña:';
-			linkText = 'Si el botón no funciona, también puedes hacer clic en este enlace:';
-			expirationText = 'Este enlace expirará en 1 hora.';
+			subject = 'Restablece tu Contraseña'
+			heading = 'Restablecimiento de Contraseña'
+			buttonText = 'Restablecer Contraseña'
+			paragraph =
+				'Por favor haz clic en el botón a continuación para restablecer tu contraseña:'
+			linkText =
+				'Si el botón no funciona, también puedes hacer clic en este enlace:'
+			expirationText = 'Este enlace expirará en 1 hora.'
 		} else if (language === 'tr') {
-			subject = 'Şifrenizi Sıfırlayın';
-			heading = 'Şifre Sıfırlama';
-			buttonText = 'Şifreyi Sıfırla';
-			paragraph = 'Şifrenizi sıfırlamak için lütfen aşağıdaki düğmeye tıklayın:';
-			linkText = 'Düğme çalışmıyorsa, bu bağlantıya da tıklayabilirsiniz:';
-			expirationText = 'Bu bağlantı 1 saat içinde sona erecektir.';
+			subject = 'Şifrenizi Sıfırlayın'
+			heading = 'Şifre Sıfırlama'
+			buttonText = 'Şifreyi Sıfırla'
+			paragraph =
+				'Şifrenizi sıfırlamak için lütfen aşağıdaki düğmeye tıklayın:'
+			linkText = 'Düğme çalışmıyorsa, bu bağlantıya da tıklayabilirsiniz:'
+			expirationText = 'Bu bağlantı 1 saat içinde sona erecektir.'
 		}
 
 		const emailOptions: EmailOptions = {

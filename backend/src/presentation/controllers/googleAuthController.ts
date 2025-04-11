@@ -20,7 +20,6 @@ export class GoogleAuthController extends BaseController {
 		try {
 			console.log('Google login request received')
 
-			// Log the request body (be careful not to log sensitive data in production)
 			console.log('Request body:', {
 				hasToken: !!req.body.token,
 				tokenLength: req.body.token ? req.body.token.length : 0,

@@ -13,17 +13,17 @@ export class TimeEntryController extends BaseController {
 		try {
 			const userId = req.user?.id
 			if (!userId) return res.status(401).json({ error: 'Unauthorized' })
-			
+
 			const [error, createTimeEntryDto] = CreateTimeEntryDTO.create(
 				req.body,
 			)
 			if (error) return res.status(400).json({ error })
-			
+
 			const timeEntry = await this.timeEntryService.createTimeEntry(
 				userId,
 				createTimeEntryDto!,
 			)
-			
+
 			return this.handleSuccess(res, timeEntry, 201)
 		} catch (error) {
 			return this.handleError(error, res)
@@ -34,25 +34,24 @@ export class TimeEntryController extends BaseController {
 		try {
 			const userId = req.user?.id
 			if (!userId) return res.status(401).json({ error: 'Unauthorized' })
-			
-			// Check if there's already a running time entry
+
 			const runningEntry = await this.timeEntryService.getRunningTimeEntry(userId)
 			if (runningEntry) {
-				return res.status(400).json({ 
-					error: 'There is already a running time entry. Please stop it before starting a new one.' 
+				return res.status(400).json({
+					error: 'There is already a running time entry. Please stop it before starting a new one.'
 				})
 			}
-			
+
 			const [error, createTimeEntryDto] = CreateTimeEntryDTO.create(
 				req.body,
 			)
 			if (error) return res.status(400).json({ error })
-			
+
 			const timeEntry = await this.timeEntryService.startTimeEntry(
 				userId,
 				createTimeEntryDto!,
 			)
-			
+
 			return this.handleSuccess(res, timeEntry, 201)
 		} catch (error) {
 			return this.handleError(error, res)
@@ -63,22 +62,20 @@ export class TimeEntryController extends BaseController {
 		try {
 			const userId = req.user?.id
 			if (!userId) return res.status(401).json({ error: 'Unauthorized' })
-			
-			// Get the running time entry
+
 			const runningEntry = await this.timeEntryService.getRunningTimeEntry(userId)
 			if (!runningEntry) {
 				return res.status(400).json({ error: 'No running time entry found.' })
 			}
-			
-			// Optional update data from request body
+
 			const [error, updateData] = UpdateTimeEntryDTO.create(req.body)
-			
+
 			const stoppedEntry = await this.timeEntryService.stopTimeEntry(
 				userId,
 				runningEntry._id,
 				error ? undefined : updateData
 			)
-			
+
 			return this.handleSuccess(res, stoppedEntry)
 		} catch (error) {
 			return this.handleError(error, res)
@@ -89,13 +86,13 @@ export class TimeEntryController extends BaseController {
 		try {
 			const userId = req.user?.id
 			if (!userId) return res.status(401).json({ error: 'Unauthorized' })
-			
+
 			const runningEntry = await this.timeEntryService.getRunningTimeEntry(userId)
-			
+
 			if (!runningEntry) {
 				return res.status(404).json({ message: 'No running time entry found' })
 			}
-			
+
 			return this.handleSuccess(res, runningEntry)
 		} catch (error) {
 			return this.handleError(error, res)
@@ -106,13 +103,13 @@ export class TimeEntryController extends BaseController {
 		try {
 			const userId = req.user?.id
 			if (!userId) return res.status(401).json({ error: 'Unauthorized' })
-			
+
 			const { id } = req.params
 			const timeEntry = await this.timeEntryService.getTimeEntryById(
 				userId,
 				id,
 			)
-			
+
 			return this.handleSuccess(res, timeEntry)
 		} catch (error) {
 			return this.handleError(error, res)
@@ -123,20 +120,20 @@ export class TimeEntryController extends BaseController {
 		try {
 			const userId = req.user?.id
 			if (!userId) return res.status(401).json({ error: 'Unauthorized' })
-			
+
 			const { id } = req.params
 			const [error, updateTimeEntryDto] = UpdateTimeEntryDTO.create(
 				req.body,
 			)
 			if (error) return res.status(400).json({ error })
-			
+
 			const updatedTimeEntry =
 				await this.timeEntryService.updateTimeEntry(
 					userId,
 					id,
 					updateTimeEntryDto!,
 				)
-			
+
 			return this.handleSuccess(res, updatedTimeEntry)
 		} catch (error) {
 			return this.handleError(error, res)
@@ -147,10 +144,10 @@ export class TimeEntryController extends BaseController {
 		try {
 			const userId = req.user?.id
 			if (!userId) return res.status(401).json({ error: 'Unauthorized' })
-			
+
 			const { id } = req.params
 			await this.timeEntryService.deleteTimeEntry(userId, id)
-			
+
 			return this.handleSuccess(res, {
 				message: 'Time entry deleted successfully',
 			})
@@ -163,7 +160,7 @@ export class TimeEntryController extends BaseController {
 		try {
 			const userId = req.user?.id
 			if (!userId) return res.status(401).json({ error: 'Unauthorized' })
-			
+
 			const page = req.query.page
 				? parseInt(req.query.page as string)
 				: undefined
@@ -178,7 +175,7 @@ export class TimeEntryController extends BaseController {
 			const endDate = req.query.endDate
 				? new Date(req.query.endDate as string)
 				: undefined
-			
+
 			let timeEntries
 			if (projectId) {
 				timeEntries =
@@ -209,7 +206,7 @@ export class TimeEntryController extends BaseController {
 					limit,
 				)
 			}
-			
+
 			return this.handleSuccess(res, timeEntries)
 		} catch (error) {
 			return this.handleError(error, res)

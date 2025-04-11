@@ -110,7 +110,7 @@ export class UserController extends BaseController {
 
 			await this.userService.forgotPassword(
 				forgotPasswordDto!.email,
-				forgotPasswordDto!.language
+				forgotPasswordDto!.language,
 			)
 
 			// Always return success even if email doesn't exist (security)
@@ -153,13 +153,12 @@ export class UserController extends BaseController {
 				return res.status(400).json({ error: 'User email not found' })
 			}
 
-			// Extraer idioma de la petición o usar preferencia del usuario o default
 			const language = req.body.language || user.preferredLanguage || 'en'
 
 			await this.verificationService.requestVerification(
 				userId,
 				user.email,
-				language
+				language,
 			)
 
 			return this.handleSuccess(res, {

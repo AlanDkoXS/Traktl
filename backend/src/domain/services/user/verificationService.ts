@@ -24,7 +24,6 @@ export class VerificationService {
 		userId: string,
 		email: string,
 	): Promise<string> {
-		// Generate verification token with 24 hours expiration
 		const token = await JwtAdapter.generateToken(
 			{ id: userId, email },
 			'24h',
@@ -45,14 +44,13 @@ export class VerificationService {
 	async requestVerification(
 		userId: string,
 		email: string,
-		language: string = 'en'
+		language: string = 'en',
 	): Promise<boolean> {
 		const user = await this.userRepository.findById(userId)
 		if (!user) {
 			throw CustomError.notFound('User not found')
 		}
 
-		// Check if user is already verified
 		if (user.emailVerificationToken?.token) {
 			throw CustomError.badRequest('Email already verified')
 		}
@@ -80,15 +78,13 @@ export class VerificationService {
 				throw CustomError.notFound('User not found')
 			}
 
-			// If user already has the token, they're already verified
 			if (user.emailVerificationToken?.token === token) {
 				return true
 			}
 
-			// Store the token to mark user as verified
 			const emailVerificationTokenData: EmailVerificationToken = {
 				token,
-				expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+				expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
 			}
 
 			const updated = await this.userRepository.update(userId, {
@@ -112,21 +108,22 @@ export class VerificationService {
 	 * Gets the verification status of a user
 	 * A user is verified if they have a valid token
 	 */
-	async getVerificationStatus(
-		userId: string,
-	): Promise<{ isVerified: boolean, emailVerificationToken?: EmailVerificationToken }> {
+	async getVerificationStatus(userId: string): Promise<{
+		isVerified: boolean
+		emailVerificationToken?: EmailVerificationToken
+	}> {
 		const user = await this.userRepository.findById(userId)
 		if (!user) {
 			throw CustomError.notFound('User not found')
 		}
 
-		// Check if token exists and is not expired
-		const isVerified = !!user.emailVerificationToken?.token &&
+		const isVerified =
+			!!user.emailVerificationToken?.token &&
 			new Date(user.emailVerificationToken.expiresAt) > new Date()
 
 		return {
 			isVerified,
-			emailVerificationToken: user.emailVerificationToken
+			emailVerificationToken: user.emailVerificationToken,
 		}
 	}
 }

@@ -1,8 +1,8 @@
 export interface TimerPreset {
 	_id: string
 	name: string
-	workDuration: number // in minutes
-	breakDuration: number // in minutes
+	workDuration: number
+	breakDuration: number
 	repetitions: number
 	user: string
 	createdAt: Date

@@ -23,13 +23,12 @@ export class Server {
 		this.routes = options.routes
 		this.httpServer = new HttpServer(this.app)
 
-		// Initialize Socket.io server with CORS configuration
 		this.io = new SocketIOServer(this.httpServer, {
 			cors: {
-				origin: envs.FRONTEND_URL || 'http://localhost:5173',
+				origin: envs.FRONTEND_URL || '*',
 				methods: ['GET', 'POST'],
-				credentials: true
-			}
+				credentials: true,
+			},
 		})
 
 		this.configureMiddlewares()
@@ -39,21 +38,23 @@ export class Server {
 
 	private configureMiddlewares() {
 		console.log('Configuring middlewares...')
-		// CORS
-		this.app.use(cors({
-			origin: envs.FRONTEND_URL || 'http://localhost:5173',
-			credentials: true,
-			methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-			allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
-		}))
+		this.app.use(
+			cors({
+				origin: envs.FRONTEND_URL || '*',
+				credentials: true,
+				methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+				allowedHeaders: [
+					'Content-Type',
+					'Authorization',
+					'x-auth-token',
+				],
+			}),
+		)
 
-		// JSON body parser
 		this.app.use(express.json())
 
-		// URL-encoded body parser
 		this.app.use(express.urlencoded({ extended: true }))
 
-		// Log incoming requests
 		this.app.use((req, res, next) => {
 			console.log(`${req.method} ${req.originalUrl}`)
 			next()
@@ -63,7 +64,6 @@ export class Server {
 	private configureRoutes() {
 		console.log('Configuring routes...')
 
-		// API test route - defined directly with app.get
 		this.app.get('/api/test', (req, res) => {
 			console.log('API test route accessed')
 			return res.status(200).json({
@@ -73,16 +73,13 @@ export class Server {
 			})
 		})
 
-		// Main API routes
 		this.app.use('/api', this.routes)
 
-		// Direct test route
 		this.app.get('/direct-test', (req, res) => {
 			console.log('Direct test route accessed')
 			return res.status(200).json({ message: 'Direct test route works!' })
 		})
 
-		// Not found handler - should always be last
 		this.app.use('*', (req, res) => {
 			console.log(`Route not found: ${req.originalUrl}`)
 			return res.status(404).json({
@@ -91,31 +88,25 @@ export class Server {
 			})
 		})
 
-		// Error handler middleware
 		this.app.use(errorMiddleware)
 	}
 
 	private configureSocketIO() {
 		console.log('Configuring Socket.IO...')
 
-		// Authentication middleware for Socket.IO
 		this.io.use(socketAuthMiddleware)
 
-		// Handle socket connections
 		this.io.on('connection', (socket) => {
 			console.log(`Socket connected: ${socket.id}`)
 
-			// Create a room for this user
 			const userId = socket.data.userId
 			if (userId) {
 				socket.join(`user-${userId}`)
 				console.log(`User ${userId} joined their room`)
 			}
 
-			// Handle timer events
 			socket.on('timer:start', (data) => {
 				console.log('Timer started:', data)
-				// Broadcast to all devices for this user
 				socket.to(`user-${userId}`).emit('timer:start', data)
 			})
 
@@ -135,11 +126,9 @@ export class Server {
 			})
 
 			socket.on('timer:tick', (data) => {
-				// Don't log each tick to prevent console flooding
 				socket.to(`user-${userId}`).emit('timer:tick', data)
 			})
 
-			// Handle synchronization events for other entities
 			socket.on('sync:timeEntry', (data) => {
 				console.log('Time entry sync:', data)
 				socket.to(`user-${userId}`).emit('sync:timeEntry', data)
@@ -165,16 +154,16 @@ export class Server {
 				socket.to(`user-${userId}`).emit('sync:timerPreset', data)
 			})
 
-			// Handle reconnection
 			socket.on('reconnect', () => {
 				console.log(`Socket reconnected: ${socket.id}`)
 				if (userId) {
 					socket.join(`user-${userId}`)
-					console.log(`User ${userId} rejoined their room after reconnection`)
+					console.log(
+						`User ${userId} rejoined their room after reconnection`,
+					)
 				}
 			})
 
-			// Handle disconnection
 			socket.on('disconnect', () => {
 				console.log(`Socket disconnected: ${socket.id}`)
 			})
@@ -187,15 +176,12 @@ export class Server {
 				console.log(`🖳  Server running on port: ${this.port}`)
 				console.log(`Environment: ${envs.NODE_ENV}`)
 				console.log(`Test URLs:`)
-				console.log(`- http://localhost:${this.port}/api/test`)
-				console.log(`- http://localhost:${this.port}/direct-test`)
 				console.log(`🔌 Socket.IO server is ready`)
 				resolve()
 			})
 		})
 	}
 
-	// Method to get the Socket.IO instance for use in other parts of the application
 	public getIO(): SocketIOServer {
 		return this.io
 	}
