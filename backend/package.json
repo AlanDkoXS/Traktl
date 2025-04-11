@@ -1,6 +1,6 @@
 {
 	"name": "traktl-backend",
-	"version": "0.0.b",
+	"version": "1.0.a",
 	"description": "Backend for Traktl",
 	"main": "dist/app.js",
 	"scripts": {
