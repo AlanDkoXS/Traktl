@@ -32,10 +32,13 @@ interface AuthState {
 	logout: () => void
 	loadUser: () => Promise<void>
 	updateUser: (userData: Partial<User>) => Promise<void>
-	setVerificationStatus: (isVerified: boolean, emailVerificationToken?: { token: string; expiresAt: Date }) => void
-    checkVerificationStatus: () => Promise<{
-        isVerified: boolean
-    }>
+	setVerificationStatus: (
+		isVerified: boolean,
+		emailVerificationToken?: { token: string; expiresAt: Date },
+	) => void
+	checkVerificationStatus: () => Promise<{
+		isVerified: boolean
+	}>
 	updateUserPreferences: (user: User) => void
 	deleteUser: () => Promise<void>
 }
@@ -52,7 +55,6 @@ export const useAuthStore = create<AuthState>()(
 			preferredLanguage: null,
 			theme: null,
 
-			// Helper function to update user preferences
 			updateUserPreferences: (user: User) => {
 				console.log('Updating user preferences:', {
 					preferredLanguage: user.preferredLanguage,
@@ -70,19 +72,18 @@ export const useAuthStore = create<AuthState>()(
 					set({ isLoading: true, error: null })
 					await authService.deleteUser()
 
-					// Clear all user data and redirect to login
 					localStorage.removeItem('auth-token')
 					localStorage.removeItem('auth-storage')
 
-					// Reset timerStore state
 					import('../store/timerStore').then(({ useTimerStore }) => {
 						useTimerStore.getState().reset()
 					})
 
-					// Clear projects
-					import('../store/projectStore').then(({ useProjectStore }) => {
-						useProjectStore.getState().clearProjects()
-					})
+					import('../store/projectStore').then(
+						({ useProjectStore }) => {
+							useProjectStore.getState().clearProjects()
+						},
+					)
 
 					set({
 						token: null,
@@ -97,7 +98,9 @@ export const useAuthStore = create<AuthState>()(
 					window.location.href = '/login'
 				} catch (err: unknown) {
 					const apiError = err as ApiError
-					const errorMessage = apiError.response?.data?.message || 'Failed to delete account'
+					const errorMessage =
+						apiError.response?.data?.message ||
+						'Failed to delete account'
 					set({ error: errorMessage, isLoading: false })
 					throw new Error(errorMessage)
 				}
@@ -115,7 +118,6 @@ export const useAuthStore = create<AuthState>()(
 					console.log('Login successful, token received:', token)
 					console.log('Login successful, user data:', user)
 
-					// Save token to localStorage (store exactly as received from server)
 					if (token) {
 						localStorage.setItem('auth-token', token)
 
@@ -124,11 +126,10 @@ export const useAuthStore = create<AuthState>()(
 							user,
 							isAuthenticated: true,
 							isLoading: false,
-							// Set verification status based on email verification token
-							isEmailVerified: !!user.emailVerificationToken?.token,
+							isEmailVerified:
+								!!user.emailVerificationToken?.token,
 						})
 
-						// Update user preferences
 						get().updateUserPreferences(user)
 					} else {
 						throw new Error('No token received from server')
@@ -163,7 +164,6 @@ export const useAuthStore = create<AuthState>()(
 					)
 					console.log('Google login successful, user data:', user)
 
-					// Save token to localStorage
 					if (token) {
 						localStorage.setItem('auth-token', token)
 
@@ -172,11 +172,10 @@ export const useAuthStore = create<AuthState>()(
 							user,
 							isAuthenticated: true,
 							isLoading: false,
-							// Set verification status based on email verification token
-							isEmailVerified: !!user.emailVerificationToken?.token,
+							isEmailVerified:
+								!!user.emailVerificationToken?.token,
 						})
 
-						// Update user preferences
 						get().updateUserPreferences(user)
 					} else {
 						throw new Error('No token received from server')
@@ -209,7 +208,6 @@ export const useAuthStore = create<AuthState>()(
 				try {
 					set({ isLoading: true, error: null })
 
-					// Log the registration data for debugging
 					console.log('Register data:', {
 						name,
 						email,
@@ -229,7 +227,6 @@ export const useAuthStore = create<AuthState>()(
 					console.log('Register successful, token received:', token)
 					console.log('Register successful, user data:', user)
 
-					// Save token to localStorage
 					if (token) {
 						localStorage.setItem('auth-token', token)
 
@@ -238,11 +235,10 @@ export const useAuthStore = create<AuthState>()(
 							user,
 							isAuthenticated: true,
 							isLoading: false,
-							// New users are not verified by default
-							isEmailVerified: !!user.emailVerificationToken?.token,
+							isEmailVerified:
+								!!user.emailVerificationToken?.token,
 						})
 
-						// Update user preferences
 						get().updateUserPreferences(user)
 					} else {
 						throw new Error('No token received from server')
@@ -268,36 +264,37 @@ export const useAuthStore = create<AuthState>()(
 			logout: () => {
 				console.log('Logging out, clearing user data')
 
-				// Save reference to current timer data before clearing
 				const timerData = localStorage.getItem('timer-storage')
 
-				// Clear authentication data from localStorage first
 				localStorage.removeItem('auth-token')
 				localStorage.removeItem('auth-storage')
 
-				// Reset timerStore state directly - this completely resets the timer state
 				import('../store/timerStore').then(({ useTimerStore }) => {
-					useTimerStore.getState().reset();
-					console.log('Timer store reset directly');
-				});
+					useTimerStore.getState().reset()
+					console.log('Timer store reset directly')
+				})
 
-				// Also clear any other stores that might contain user data
-				import('../store/projectStore').then(({ useProjectStore }) => {
-					useProjectStore.getState().clearProjects();
-					console.log('Projects cleared');
-				}).catch(err => console.error('Error clearing projects:', err));
+				import('../store/projectStore')
+					.then(({ useProjectStore }) => {
+						useProjectStore.getState().clearProjects()
+						console.log('Projects cleared')
+					})
+					.catch((err) =>
+						console.error('Error clearing projects:', err),
+					)
 
-				// Clear time entries
-				import('../store/timeEntryStore').then(({ useTimeEntryStore }) => {
-					useTimeEntryStore.getState().clearTimeEntries();
-					console.log('Time entries cleared');
-				}).catch(err => console.error('Error clearing time entries:', err));
+				import('../store/timeEntryStore')
+					.then(({ useTimeEntryStore }) => {
+						useTimeEntryStore.getState().clearTimeEntries()
+						console.log('Time entries cleared')
+					})
+					.catch((err) =>
+						console.error('Error clearing time entries:', err),
+					)
 
-				// Reset localStorage data for timer
 				if (timerData) {
 					try {
 						const parsedTimerData = JSON.parse(timerData)
-						// Reset the timer state completely to default values
 						if (parsedTimerData.state) {
 							console.log('Resetting all timer data')
 							parsedTimerData.state = {
@@ -319,7 +316,7 @@ export const useAuthStore = create<AuthState>()(
 							}
 							localStorage.setItem(
 								'timer-storage',
-								JSON.stringify(parsedTimerData)
+								JSON.stringify(parsedTimerData),
 							)
 						}
 					} catch (error) {
@@ -327,7 +324,6 @@ export const useAuthStore = create<AuthState>()(
 					}
 				}
 
-				// Finally, update state
 				set({
 					token: null,
 					user: null,
@@ -337,8 +333,7 @@ export const useAuthStore = create<AuthState>()(
 					theme: null,
 				})
 
-				// Force a page reload to ensure all components reset their state
-				window.location.href = '/login';
+				window.location.href = '/login'
 			},
 
 			loadUser: async () => {
@@ -359,34 +354,37 @@ export const useAuthStore = create<AuthState>()(
 					const user = await authService.getProfile()
 					console.log('User profile loaded:', user)
 
-					// Verificar explícitamente si el usuario tiene token de verificación
-					const hasToken = !!user.emailVerificationToken?.token;
+					const hasToken = !!user.emailVerificationToken?.token
 					console.log('User verification token status:', {
 						hasToken,
 						token: user.emailVerificationToken?.token,
-						userId: user.id
-					});
+						userId: user.id,
+					})
 
 					set({
 						user,
 						isAuthenticated: true,
 						isLoading: false,
-						// Set verification status based on email verification token
 						isEmailVerified: hasToken,
 					})
 
-					// Asegurar que el checkVerificationStatus se ejecute para sincronizar estado
 					setTimeout(() => {
-						get().checkVerificationStatus()
-						.then(result => {
-							console.log('Verification check after loadUser:', result);
-						})
-						.catch(error => {
-							console.error('Error in verification check after loadUser:', error);
-						});
-					}, 500);
+						get()
+							.checkVerificationStatus()
+							.then((result) => {
+								console.log(
+									'Verification check after loadUser:',
+									result,
+								)
+							})
+							.catch((error) => {
+								console.error(
+									'Error in verification check after loadUser:',
+									error,
+								)
+							})
+					}, 500)
 
-					// Update user preferences
 					get().updateUserPreferences(user)
 				} catch (err: unknown) {
 					console.error('Error loading user:', err)
@@ -416,11 +414,10 @@ export const useAuthStore = create<AuthState>()(
 					set({
 						user: updatedUser,
 						isLoading: false,
-						// Update verification status based on email verification token
-						isEmailVerified: !!updatedUser.emailVerificationToken?.token,
+						isEmailVerified:
+							!!updatedUser.emailVerificationToken?.token,
 					})
 
-					// Update user preferences
 					get().updateUserPreferences(updatedUser)
 				} catch (err: unknown) {
 					console.error('Error updating user:', err)
@@ -437,40 +434,42 @@ export const useAuthStore = create<AuthState>()(
 				}
 			},
 
-			// Function to set verification status
 			setVerificationStatus: (isVerified, emailVerificationToken) => {
 				console.log('Setting verification status:', {
 					isVerified,
 					emailVerificationToken,
-					currentUser: get().user
+					currentUser: get().user,
 				})
 
-				// Update user object if available
 				if (get().user) {
-					// Actualizar ambos campos: isVerified y emailVerificationToken si es necesario
-					const currentUser = get().user!;
+					const currentUser = get().user!
 
-					// Si está verificado y no tiene token, usar el proporcionado o crear uno dummy
-					let updatedEmailVerificationToken = emailVerificationToken;
+					let updatedEmailVerificationToken = emailVerificationToken
 					if (isVerified && !updatedEmailVerificationToken) {
 						updatedEmailVerificationToken = {
 							token: 'verified',
-							expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // Far future
-						};
+							expiresAt: new Date(
+								Date.now() + 365 * 24 * 60 * 60 * 1000,
+							), // Far future
+						}
 					}
 
-					// Asegurarse de mantener el ID del usuario intacto
 					set({
 						user: {
 							...currentUser,
-							id: currentUser.id, // Asegurar que el ID se mantiene
+							id: currentUser.id,
 							isVerified: isVerified,
-							emailVerificationToken: isVerified ? updatedEmailVerificationToken : undefined,
+							emailVerificationToken: isVerified
+								? updatedEmailVerificationToken
+								: undefined,
 						},
 						isEmailVerified: isVerified,
 					})
 
-					console.log('User object after verification update:', get().user);
+					console.log(
+						'User object after verification update:',
+						get().user,
+					)
 				} else {
 					set({
 						isEmailVerified: isVerified,
@@ -479,11 +478,10 @@ export const useAuthStore = create<AuthState>()(
 
 				console.log('Verification status set to:', {
 					isVerified,
-					user: get().user
+					user: get().user,
 				})
 			},
 
-			// Function to check verification status
 			checkVerificationStatus: async () => {
 				console.log('Checking verification status...')
 				const currentUser = get().user
@@ -493,11 +491,10 @@ export const useAuthStore = create<AuthState>()(
 					userId: currentUser?.id,
 					userEmail: currentUser?.email,
 					hasToken: !!currentUser?.emailVerificationToken?.token,
-					isEmailVerified: get().isEmailVerified
+					isEmailVerified: get().isEmailVerified,
 				})
 
 				try {
-					// Siempre intentar obtener el estado más reciente del servidor
 					const response = await import(
 						'../services/emailVerificationService'
 					).then((module) =>
@@ -510,35 +507,36 @@ export const useAuthStore = create<AuthState>()(
 						isVerified,
 					})
 
-					// Update the user object if available
 					if (currentUser) {
 						set({
 							isEmailVerified: isVerified,
 							user: {
 								...currentUser,
-								id: currentUser.id, // Asegurar que el ID se mantiene
+								id: currentUser.id,
 								isVerified: isVerified,
-								// Si está verificado, asegurar que tenga un token
 								emailVerificationToken: isVerified
-									? (currentUser.emailVerificationToken || {
-										token: 'verified',
-										expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-									})
-									: undefined
-							}
+									? currentUser.emailVerificationToken || {
+											token: 'verified',
+											expiresAt: new Date(
+												Date.now() +
+													365 * 24 * 60 * 60 * 1000,
+											),
+										}
+									: undefined,
+							},
 						})
 
-						// Validar que el objeto de usuario se actualizó correctamente
-						const updatedUser = get().user;
+						const updatedUser = get().user
 						console.log('User after verification update:', {
 							userId: updatedUser?.id,
 							isVerified: updatedUser?.isVerified,
-							hasToken: !!updatedUser?.emailVerificationToken?.token,
-							token: updatedUser?.emailVerificationToken?.token
-						});
+							hasToken:
+								!!updatedUser?.emailVerificationToken?.token,
+							token: updatedUser?.emailVerificationToken?.token,
+						})
 					} else {
 						set({
-							isEmailVerified: isVerified
+							isEmailVerified: isVerified,
 						})
 					}
 
@@ -546,19 +544,18 @@ export const useAuthStore = create<AuthState>()(
 				} catch (err: unknown) {
 					console.error('Error checking verification status:', err)
 
-					// Si hay un error al verificar con el servidor, usamos los datos locales
 					if (currentUser) {
-						// User is verified if they have an email verification token or isVerified is true
-						const isVerified = !!currentUser.emailVerificationToken?.token || !!currentUser.isVerified
+						const isVerified =
+							!!currentUser.emailVerificationToken?.token ||
+							!!currentUser.isVerified
 
 						set({
-							isEmailVerified: isVerified
+							isEmailVerified: isVerified,
 						})
 
 						return { isVerified }
 					}
 
-					// Don't change the state on error
 					return {
 						isVerified: get().isEmailVerified,
 					}
@@ -577,12 +574,9 @@ export const useAuthStore = create<AuthState>()(
 
 				return {
 					token: state.token,
-					// Now also persist the verification status
 					isEmailVerified: state.isEmailVerified,
-					// Also persist user preferences
 					preferredLanguage: state.preferredLanguage,
 					theme: state.theme,
-					// Don't persist isAuthenticated, as it should be verified on load
 					isAuthenticated: false,
 				}
 			},
