@@ -2,7 +2,7 @@
 	"name": "traktl-backend",
 	"version": "1.0.a",
 	"description": "Backend for Traktl",
-	"main": "dist/app.js",
+	"main": "node src/app.ts",
 	"scripts": {
 		"build": "tsc",
 		"start": "node dist/app.js",
