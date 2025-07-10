@@ -69,7 +69,7 @@ TimeTrack Pro is a full-stack application designed to help professionals, freela
 1. Clone the repository:
 ```bash
 git clone https://github.com/AlanDkoXS/Traktl.git
-cd timetrack
+cd Traktl
 ```
 
 2. Install dependencies:
