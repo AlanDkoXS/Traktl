@@ -72,9 +72,25 @@ git clone https://github.com/AlanDkoXS/Traktl.git
 cd Traktl
 ```
 
-2. Install dependencies:
+2. Install dependencies in this directories: Traktl, frontend & backend:
+
 ```bash
 pnpm install
+```
+
+# frontend
+
+```bash
+pnpm install
+cd frontend
+pnpm install
+cd ..
+
+# backend
+
+cd backend
+pnpm install
+cd ..
 ```
 
 3. Set up environment variables:
