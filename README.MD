@@ -79,7 +79,6 @@ pnpm install
 
 # frontend
 
-pnpm install
 cd frontend
 pnpm install
 cd ..
