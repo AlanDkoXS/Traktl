@@ -14,11 +14,35 @@ export class EmailService {
 		this.transporter = nodemailer.createTransport({
 			host: process.env.EMAIL_HOST,
 			port: Number(process.env.EMAIL_PORT),
-			secure: process.env.EMAIL_SECURE === 'true',
+			secure: false, // false for TLS - as a boolean not string
 			auth: {
 				user: process.env.EMAIL_USER,
 				pass: process.env.EMAIL_PASSWORD,
 			},
+			requireTLS: true,
+			tls: {
+				ciphers: 'SSLv3',
+				rejectUnauthorized: true,
+			},
+			debug: process.env.NODE_ENV === 'development',
+			logger: process.env.NODE_ENV === 'development',
+		})
+
+		// Verify connection configuration
+		this.transporter.verify((error, success) => {
+			if (error) {
+				console.error('SMTP connection error:', {
+					error,
+					config: {
+						host: process.env.EMAIL_HOST,
+						port: process.env.EMAIL_PORT,
+						secure: false,
+						user: process.env.EMAIL_USER,
+					},
+				})
+			} else {
+				console.log('SMTP connection successful:', success)
+			}
 		})
 	}
 
@@ -26,17 +50,43 @@ export class EmailService {
 		try {
 			const { to, subject, html } = options
 
-			await this.transporter.sendMail({
+			const mailOptions = {
 				from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM}>`,
 				to,
 				subject,
 				html,
+			}
+
+			console.log('Attempting to send email with options:', {
+				...mailOptions,
+				html: 'HTML Content hidden',
+			})
+
+			const info = await this.transporter.sendMail(mailOptions)
+			console.log('Email sent successfully:', {
+				messageId: info.messageId,
+				response: info.response,
 			})
 
 			return true
 		} catch (error) {
-			console.error('Email sending error:', error)
-			throw CustomError.internalServer('Error sending email')
+			console.error('Detailed email sending error:', {
+				error,
+				stack: error instanceof Error ? error.stack : undefined,
+				config: {
+					host: process.env.EMAIL_HOST,
+					port: process.env.EMAIL_PORT,
+					secure: false,
+					user: process.env.EMAIL_USER,
+					from: process.env.EMAIL_FROM,
+					fromName: process.env.EMAIL_FROM_NAME,
+				},
+			})
+			throw CustomError.internalServer(
+				`Error sending email: ${
+					error instanceof Error ? error.message : 'Unknown error'
+				}`,
+			)
 		}
 	}
 

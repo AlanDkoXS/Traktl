@@ -2,12 +2,16 @@ import { z } from 'zod'
 
 const RequestVerificationSchema = z.object({
 	email: z.string().email({ message: 'Valid email is required' }),
+    language: z.string().min(2).max(5).optional().default('en')
 })
 
 export type RequestVerificationInput = z.infer<typeof RequestVerificationSchema>
 
 export class RequestVerificationDTO {
-	constructor(public readonly email: string) {}
+	constructor(
+        public readonly email: string,
+        public readonly language: string = 'en'
+    ) {}
 
 	static create(
 		props: Record<string, unknown>,
@@ -22,8 +26,8 @@ export class RequestVerificationDTO {
 			return [errorMessages, undefined]
 		}
 
-		const { email } = result.data
+		const { email, language } = result.data
 
-		return [undefined, new RequestVerificationDTO(email)]
+		return [undefined, new RequestVerificationDTO(email, language)]
 	}
 }
