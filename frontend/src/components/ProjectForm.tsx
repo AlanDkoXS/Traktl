@@ -5,6 +5,7 @@ import { useProjectStore } from '../store/projectStore'
 import { useClientStore } from '../store/clientStore'
 import { useTimerStore } from '../store/timerStore'
 import { Project } from '../types'
+import { toObjectIdOrUndefined } from '../utils/validationHelpers'
 
 interface ProjectFormProps {
 	project: Project | null
@@ -59,7 +60,7 @@ export const ProjectForm = ({
 					name,
 					description,
 					color,
-					client: clientId || null,
+					client: toObjectIdOrUndefined(clientId),
 					status,
 				})
 
@@ -78,7 +79,7 @@ export const ProjectForm = ({
 					name,
 					description,
 					color,
-					client: clientId || null,
+					client: toObjectIdOrUndefined(clientId),
 					status,
 				})
 				navigate('/projects')
