@@ -76,11 +76,9 @@ cd Traktl
 
 ```bash
 pnpm install
-```
 
 # frontend
 
-```bash
 pnpm install
 cd frontend
 pnpm install
