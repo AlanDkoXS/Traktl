@@ -126,13 +126,6 @@ The application exposes RESTful API endpoints for various functionalities:
 
 Detailed API documentation will be available after the first stable release.
 
-## 🧪 Testing
-
-Run the test suite with:
-```bash
-pnpm test
-```
-
 ## 📊 Project Structure
 
 The project follows a clean architecture approach with separation of concerns:
