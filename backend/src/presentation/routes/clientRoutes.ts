@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { ClientController } from '../controllers'
-import { validateJWT } from '../middlewares'
+import { validateJWT, databaseOperationsRateLimit } from '../middlewares'
 import { ClientService } from '../../domain/services/client/clientService'
 import { MongoClientRepository } from '../../infrastructure/repositories/mongodb'
 
@@ -11,6 +11,7 @@ const controller = new ClientController(clientService)
 const router = Router()
 
 router.use(validateJWT)
+router.use(databaseOperationsRateLimit)
 
 router.post('/', controller.createClient)
 router.get('/:id', controller.getClientById)

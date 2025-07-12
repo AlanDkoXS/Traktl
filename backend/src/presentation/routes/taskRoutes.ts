@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { TaskController } from '../controllers'
-import { validateJWT } from '../middlewares'
+import { validateJWT, databaseOperationsRateLimit } from '../middlewares'
 import { TaskService } from '../../domain/services/task/taskService'
 import { MongoTaskRepository } from '../../infrastructure/repositories/mongodb'
 
@@ -11,6 +11,7 @@ const controller = new TaskController(taskService)
 const router = Router()
 
 router.use(validateJWT)
+router.use(databaseOperationsRateLimit)
 
 router.post('/', controller.createTask)
 router.get('/:id', controller.getTaskById)

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { ProjectController } from '../controllers'
-import { validateJWT } from '../middlewares'
+import { validateJWT, databaseOperationsRateLimit } from '../middlewares'
 import { ProjectService } from '../../domain/services/project/projectService'
 import { MongoProjectRepository } from '../../infrastructure/repositories/mongodb'
 
@@ -11,6 +11,7 @@ const controller = new ProjectController(projectService)
 const router = Router()
 
 router.use(validateJWT)
+router.use(databaseOperationsRateLimit)
 
 router.post('/', controller.createProject)
 router.get('/:id', controller.getProjectById)

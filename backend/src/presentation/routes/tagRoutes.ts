@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { TagController } from '../controllers'
-import { validateJWT } from '../middlewares'
+import { validateJWT, databaseOperationsRateLimit } from '../middlewares'
 import { TagService } from '../../domain/services/tag/tagService'
 import { MongoTagRepository } from '../../infrastructure/repositories/mongodb'
 
@@ -11,6 +11,7 @@ const controller = new TagController(tagService)
 const router = Router()
 
 router.use(validateJWT)
+router.use(databaseOperationsRateLimit)
 
 router.post('/', controller.createTag)
 router.get('/:id', controller.getTagById)

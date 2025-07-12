@@ -2,7 +2,7 @@ import express, { Application, Router } from 'express'
 import cors from 'cors'
 import { Server as HttpServer } from 'http'
 import { Server as SocketIOServer } from 'socket.io'
-import { errorMiddleware, socketAuthMiddleware } from './middlewares'
+import { errorMiddleware, socketAuthMiddleware, generalRateLimit } from './middlewares'
 import { envs } from '../config'
 
 interface Options {
@@ -50,6 +50,9 @@ export class Server {
 				],
 			}),
 		)
+
+		// Apply general rate limiting to all routes
+		this.app.use(generalRateLimit)
 
 		this.app.use(express.json())
 

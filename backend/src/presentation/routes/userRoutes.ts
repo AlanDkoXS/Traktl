@@ -5,7 +5,14 @@ import { VerificationService } from '../../domain/services/user/verificationServ
 import { MongoUserRepository } from '../../infrastructure/repositories/mongodb/mongoUserRepository'
 import { MongoProjectRepository } from '../../infrastructure/repositories/mongodb/mongoProjectRepository'
 import { MongoTimerPresetRepository } from '../../infrastructure/repositories/mongodb/mongoTimerPresetRepository'
-import { validateJWT } from '../middlewares'
+import { 
+	validateJWT, 
+	authRateLimit, 
+	emailRateLimit, 
+	passwordResetRateLimit, 
+	registrationRateLimit,
+	databaseOperationsRateLimit 
+} from '../middlewares'
 import { GoogleAuthController } from '../controllers/googleAuthController'
 import { EmailService } from '../../service/emailService'
 
@@ -35,29 +42,31 @@ const googleAuthController = new GoogleAuthController(userService)
 
 const router = Router()
 
-router.post('/register', controller.register)
-router.post('/login', controller.login)
+router.post('/register', registrationRateLimit, controller.register)
+router.post('/login', authRateLimit, controller.login)
 
 router.post('/google', googleAuthController.googleLogin)
 
-router.post('/forgot-password', controller.forgotPassword)
-router.post('/reset-password', controller.resetPassword)
+router.post('/forgot-password', emailRateLimit, controller.forgotPassword)
+router.post('/reset-password', passwordResetRateLimit, controller.resetPassword)
 
-router.get('/profile', validateJWT, controller.getProfile)
-router.put('/profile', validateJWT, controller.updateProfile)
-router.delete('/profile', validateJWT, controller.deleteUser)
+router.get('/profile', validateJWT, databaseOperationsRateLimit, controller.getProfile)
+router.put('/profile', validateJWT, databaseOperationsRateLimit, controller.updateProfile)
+router.delete('/profile', validateJWT, databaseOperationsRateLimit, controller.deleteUser)
 
-router.put('/change-password', validateJWT, controller.changePassword)
+router.put('/change-password', validateJWT, authRateLimit, controller.changePassword)
 
 router.post(
 	'/request-verification',
 	validateJWT,
+	emailRateLimit,
 	controller.requestVerification,
 )
 router.post('/verify-email', controller.verifyEmail)
 router.get(
 	'/verification-status',
 	validateJWT,
+	databaseOperationsRateLimit,
 	controller.getVerificationStatus,
 )
 

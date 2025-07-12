@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { TimerPresetController } from '../controllers'
-import { validateJWT } from '../middlewares'
+import { validateJWT, databaseOperationsRateLimit } from '../middlewares'
 import { TimerPresetService } from '../../domain/services/timerPreset/timerPresetService'
 import { MongoTimerPresetRepository } from '../../infrastructure/repositories/mongodb'
 
@@ -11,6 +11,7 @@ const controller = new TimerPresetController(timerPresetService)
 const router = Router()
 
 router.use(validateJWT)
+router.use(databaseOperationsRateLimit)
 
 router.post('/', controller.createTimerPreset)
 router.get('/:id', controller.getTimerPresetById)
