@@ -6,6 +6,7 @@ import { ChangePasswordModal } from '../components/auth/ChangePasswordModal'
 import { emailVerificationService } from '../services/emailVerificationService'
 import { Modal } from '../components/ui/Modal'
 import {
+	CheckCircleIcon,
 	XCircleIcon,
 	EnvelopeIcon,
 	TrashIcon,
@@ -46,14 +47,11 @@ const Settings = () => {
 	const [countdown, setCountdown] = useState(0)
 
 	useEffect(() => {
-		let timer: NodeJS.Timeout
 		if (countdown > 0) {
-			timer = setInterval(() => {
+			const timer = setTimeout(() => {
 				setCountdown((prev) => prev - 1)
 			}, 1000)
-		}
-		return () => {
-			if (timer) clearInterval(timer)
+			return () => clearTimeout(timer)
 		}
 	}, [countdown])
 
@@ -154,19 +152,34 @@ const Settings = () => {
 	}
 
 	const handleRequestVerification = async () => {
+		if (isVerificationLoading || countdown > 0) {
+			return
+		}
+
 		setIsVerificationLoading(true)
 		setVerificationError('')
+		setSuccessMessage('')
+
 		try {
-			const response = await emailVerificationService.requestVerification()
+			setCountdown(60)
+
+			const response =
+				await emailVerificationService.requestVerification()
+			console.log('Verification response:', response)
+
 			if (response.success) {
 				setSuccessMessage(t('settings.verificationEmailSent'))
 				await checkVerificationStatus()
-				setCountdown(60)
 			} else {
-				setVerificationError(t('errors.verificationRequestFailed'))
+				setCountdown(0)
+				setVerificationError(
+					response.message || t('errors.verificationRequestFailed'),
+				)
 			}
 		} catch (err: unknown) {
+			setCountdown(0)
 			console.error('Error requesting verification:', err)
+
 			if (err instanceof Error) {
 				setVerificationError(err.message)
 			} else {
@@ -176,6 +189,15 @@ const Settings = () => {
 			setIsVerificationLoading(false)
 		}
 	}
+
+	useEffect(() => {
+		if (successMessage) {
+			const timer = setTimeout(() => {
+				setSuccessMessage('')
+			}, 5000)
+			return () => clearTimeout(timer)
+		}
+	}, [successMessage])
 
 	const handleDeleteAccount = async () => {
 		setIsDeleting(true)
@@ -206,9 +228,9 @@ const Settings = () => {
 			)
 		} else {
 			return (
-				<div className="flex flex-col">
-					<div className="flex items-center">
-						<div className="text-sm text-red-600 dark:text-red-400 flex items-center bg-red-50 dark:bg-red-900/30 px-3 py-1.5 rounded-full mr-3">
+				<div className="flex flex-col space-y-3">
+					<div className="flex flex-wrap items-center gap-3">
+						<div className="text-sm text-red-600 dark:text-red-400 flex items-center bg-red-50 dark:bg-red-900/30 px-3 py-1.5 rounded-md">
 							<XCircleIcon className="w-5 h-5 mr-1" />
 							{t('settings.notVerified')}
 						</div>
@@ -216,7 +238,11 @@ const Settings = () => {
 							type="button"
 							onClick={handleRequestVerification}
 							disabled={isVerificationLoading || countdown > 0}
-							className="btn btn-primary dynamic-bg text-white hover:brightness-110 text-sm px-3 py-1.5 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+							className={`btn transition-all min-w-[160px] ${
+								countdown > 0 || isVerificationLoading
+									? 'bg-gray-400 dark:bg-gray-600 text-white opacity-50 pointer-events-none'
+									: 'btn-primary dynamic-bg text-white hover:brightness-110'
+							}`}
 						>
 							{isVerificationLoading ? (
 								<span className="flex items-center">
@@ -257,6 +283,12 @@ const Settings = () => {
 							)}
 						</button>
 					</div>
+					{successMessage && (
+						<div className="text-sm text-green-600 dark:text-green-400 flex items-center mt-2">
+							<CheckCircleIcon className="w-4 h-4 mr-1" />
+							{successMessage}
+						</div>
+					)}
 					{verificationError && (
 						<span className="text-sm text-red-600 dark:text-red-400 mt-1">
 							{verificationError}
@@ -281,11 +313,7 @@ const Settings = () => {
 						</div>
 					)}
 
-					{successMessage && (
-						<div className="bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 p-4 rounded-md">
-							{successMessage}
-						</div>
-					)}
+					{/* El mensaje de éxito global se muestra aquí */}
 
 					<div>
 						<h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4 dynamic-color">

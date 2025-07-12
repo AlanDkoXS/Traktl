@@ -61,11 +61,14 @@ export const emailVerificationService = {
 
 			console.log('Request verification response:', response.data)
 			useAuthStore.getState().setVerificationStatus(false)
-			return response.data
+
+			return {
+				success: true,
+				message: response.data.message || 'Verification email sent successfully'
+			}
 		} catch (error: unknown) {
 			console.error('Error requesting verification:', error)
 
-			// Enhanced error handling
 			if (error && typeof error === 'object' && 'response' in error) {
 				const axiosError = error as {
 					response?: {
@@ -88,7 +91,6 @@ export const emailVerificationService = {
 					const errorData = axiosError.response.data
 					let errorMessage = errorData.message || errorData.error
 
-					// Handle specific SMTP errors
 					if (errorData.code === 'EAUTH' || axiosError.code === 'EAUTH') {
 						errorMessage = 'Email service authentication failed. Please contact support for assistance.'
 						console.error('SMTP Authentication Error:', {
