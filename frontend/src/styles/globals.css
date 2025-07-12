@@ -1,6 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #030712;
+  
+  --color-white: #ffffff;
+  --color-black: #000000;
+}
 
 @layer base {
 	:root {
@@ -141,7 +156,7 @@
 
 	/* Card with project color influence */
 	.card-project {
-		@apply card bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.3)] 
+		@apply bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow rounded-lg p-4 sm:p-6 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.3)] 
            dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),var(--color-project-saturation),15%,0.2)];
 	}
 
@@ -156,7 +171,7 @@
 	}
 
 	.alert-modal-overlay {
-		@apply absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm;
+		@apply absolute inset-0 bg-black/50 backdrop-blur-sm;
 	}
 
 	.alert-modal-content {
