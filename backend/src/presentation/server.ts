@@ -100,75 +100,35 @@ export class Server {
 		this.io.use(socketAuthMiddleware)
 
 		this.io.on('connection', (socket) => {
-			console.log(`Socket connected: ${socket.id}`)
+			console.log(`Cliente conectado: ${socket.id} - Usuario: ${socket.data.userId}`)
 
-			const userId = socket.data.userId
-			if (userId) {
-				socket.join(`user-${userId}`)
-				console.log(`User ${userId} joined their room`)
-			}
+			// Unir al socket a su room personal basada en userId
+			socket.join(`user-${socket.data.userId}`)
 
-			socket.on('timer:start', (data) => {
-				console.log('Timer started:', data)
-				socket.to(`user-${userId}`).emit('timer:start', data)
+			// Manejar solicitud de sincronización
+			socket.on('timer:requestSync', (data) => {
+				console.log(`Sync requested by user ${socket.data.userId}`)
+				// Emitir a todos los sockets del mismo usuario excepto el que solicita
+				socket.to(`user-${socket.data.userId}`).emit('timer:requestState', data)
 			})
 
-			socket.on('timer:pause', (data) => {
-				console.log('Timer paused:', data)
-				socket.to(`user-${userId}`).emit('timer:pause', data)
-			})
-
-			socket.on('timer:resume', (data) => {
-				console.log('Timer resumed:', data)
-				socket.to(`user-${userId}`).emit('timer:resume', data)
-			})
-
-			socket.on('timer:stop', (data) => {
-				console.log('Timer stopped:', data)
-				socket.to(`user-${userId}`).emit('timer:stop', data)
-			})
-
-			socket.on('timer:tick', (data) => {
-				socket.to(`user-${userId}`).emit('timer:tick', data)
-			})
-
-			socket.on('sync:timeEntry', (data) => {
-				console.log('Time entry sync:', data)
-				socket.to(`user-${userId}`).emit('sync:timeEntry', data)
-			})
-
-			socket.on('sync:project', (data) => {
-				console.log('Project sync:', data)
-				socket.to(`user-${userId}`).emit('sync:project', data)
-			})
-
-			socket.on('sync:task', (data) => {
-				console.log('Task sync:', data)
-				socket.to(`user-${userId}`).emit('sync:task', data)
-			})
-
-			socket.on('sync:client', (data) => {
-				console.log('Client sync:', data)
-				socket.to(`user-${userId}`).emit('sync:client', data)
-			})
-
-			socket.on('sync:timerPreset', (data) => {
-				console.log('Timer preset sync:', data)
-				socket.to(`user-${userId}`).emit('sync:timerPreset', data)
-			})
-
-			socket.on('reconnect', () => {
-				console.log(`Socket reconnected: ${socket.id}`)
-				if (userId) {
-					socket.join(`user-${userId}`)
-					console.log(
-						`User ${userId} rejoined their room after reconnection`,
-					)
-				}
+			// Eventos del timer
+			const timerEvents = ['timer:start', 'timer:pause', 'timer:resume', 'timer:stop', 'timer:tick']
+			
+			timerEvents.forEach(event => {
+				socket.on(event, (data) => {
+					console.log(`${event} received from ${socket.data.userId}:`, data)
+					// Emitir a todos los sockets del mismo usuario excepto el emisor
+					socket.to(`user-${socket.data.userId}`).emit(event, {
+						...data,
+						timestamp: new Date(),
+						userId: socket.data.userId
+					})
+				})
 			})
 
 			socket.on('disconnect', () => {
-				console.log(`Socket disconnected: ${socket.id}`)
+				console.log(`Cliente desconectado: ${socket.id} - Usuario: ${socket.data.userId}`)
 			})
 		})
 	}
