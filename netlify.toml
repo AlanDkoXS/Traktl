@@ -5,7 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  PNPM_VERSION = "8"
+  PNPM_VERSION = "10"
 
 # Redirects for SPA routing
 [[redirects]]
