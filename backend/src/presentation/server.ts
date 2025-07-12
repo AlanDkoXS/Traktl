@@ -102,23 +102,18 @@ export class Server {
 		this.io.on('connection', (socket) => {
 			console.log(`Cliente conectado: ${socket.id} - Usuario: ${socket.data.userId}`)
 
-			// Unir al socket a su room personal basada en userId
 			socket.join(`user-${socket.data.userId}`)
 
-			// Manejar solicitud de sincronización
 			socket.on('timer:requestSync', (data) => {
 				console.log(`Sync requested by user ${socket.data.userId}`)
-				// Emitir a todos los sockets del mismo usuario excepto el que solicita
 				socket.to(`user-${socket.data.userId}`).emit('timer:requestState', data)
 			})
 
-			// Eventos del timer
 			const timerEvents = ['timer:start', 'timer:pause', 'timer:resume', 'timer:stop', 'timer:tick']
-			
+
 			timerEvents.forEach(event => {
 				socket.on(event, (data) => {
 					console.log(`${event} received from ${socket.data.userId}:`, data)
-					// Emitir a todos los sockets del mismo usuario excepto el emisor
 					socket.to(`user-${socket.data.userId}`).emit(event, {
 						...data,
 						timestamp: new Date(),

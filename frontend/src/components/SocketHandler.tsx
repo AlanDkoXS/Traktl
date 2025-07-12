@@ -50,10 +50,11 @@ const SocketHandler = () => {
 
 		const timerStore = useTimerStore.getState()
 
-		const handleTimerAction = (actionType: string) => (data: TimerActionData) => {
-			console.log(`Recibido ${actionType}:`, data)
-			timerStore.handleRemoteTimerAction(actionType, data)
-		}
+		const handleTimerAction =
+			(actionType: string) => (data: TimerActionData) => {
+				console.log(`Recibido ${actionType}:`, data)
+				timerStore.handleRemoteTimerAction(actionType, data)
+			}
 
 		// Configurar manejadores para todos los eventos
 		const timerEvents = {
@@ -69,12 +70,10 @@ const SocketHandler = () => {
 			socket.on(event, handler)
 		})
 
-		// Manejar solicitud de estado
 		socket.on('timer:requestState', (data) => {
 			console.log('Estado solicitado por otro cliente:', data)
 			const currentState = timerStore.getState()
-			
-			// Enviar estado actual
+
 			socket.emit('timer:start', {
 				status: currentState.status,
 				mode: currentState.mode,
@@ -88,7 +87,7 @@ const SocketHandler = () => {
 				repetitions: currentState.repetitions,
 				currentRepetition: currentState.currentRepetition,
 				timestamp: new Date(),
-				shouldSave: false
+				shouldSave: false,
 			})
 		})
 
