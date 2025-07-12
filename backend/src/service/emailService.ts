@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import { CustomError } from '../domain/errors/custom.errors'
+import { envs } from '../config/envs'
 
 export interface EmailOptions {
 	to: string
@@ -95,7 +96,9 @@ export class EmailService {
 		token: string,
 		language: string = 'en',
 	): Promise<boolean> {
-		const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`
+		console.log('FRONTEND_URL:', envs.FRONTEND_URL)
+		const verificationUrl = `${envs.FRONTEND_URL}/verify-email/${token}`
+		console.log('Generated verification URL:', verificationUrl)
 
 		let subject = 'Verify Your Email'
 		let heading = 'Email Verification'
@@ -150,7 +153,7 @@ export class EmailService {
 		token: string,
 		language: string = 'en',
 	): Promise<boolean> {
-		const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`
+		const resetUrl = `${envs.FRONTEND_URL}/reset-password?token=${token}`
 
 		let subject = 'Reset Your Password'
 		let heading = 'Password Reset'

@@ -16,8 +16,7 @@ const VerifyEmail = () => {
 
 	useEffect(() => {
 		const verifyEmail = async () => {
-			const searchParams = new URLSearchParams(location.search)
-			const token = searchParams.get('token')
+			const token = location.pathname.split('/verify-email/')[1]
 
 			if (!token) {
 				setIsVerifying(false)
