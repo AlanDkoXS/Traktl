@@ -27,8 +27,8 @@ export const StickyTimer = () => {
 		useState(false)
 
 	const [, setElapsedTime] = useState(0)
-	const requestRef = useRef<number>()
-	const previousTimeRef = useRef<number>()
+	const requestRef = useRef<number | undefined>(undefined)
+	const previousTimeRef = useRef<number | undefined>(undefined)
 	const startTimeRef = useRef<number | null>(null)
 
 	const animate = (time: number) => {
