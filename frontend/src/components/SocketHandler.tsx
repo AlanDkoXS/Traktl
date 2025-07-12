@@ -37,7 +37,7 @@ const SocketHandler = () => {
 
 			if (socket && isConnected) {
 				window.socket = socket
-				// Solicitar estado actual al conectar
+				// Request current state when connecting
 				socket.emit('timer:requestSync', { timestamp: new Date() })
 			} else if (!isConnected && 'socket' in window) {
 				delete window.socket
@@ -48,15 +48,15 @@ const SocketHandler = () => {
 	useEffect(() => {
 		if (!socket || !isConnected) return
 
-		const timerStore = useTimerStore.getState()
-
 		const handleTimerAction =
 			(actionType: string) => (data: TimerActionData) => {
 				console.log(`Recibido ${actionType}:`, data)
+				// Get fresh state and actions directly from the store
+				const timerStore = useTimerStore.getState()
 				timerStore.handleRemoteTimerAction(actionType, data)
 			}
 
-		// Configurar manejadores para todos los eventos
+		// Configure handlers for all events
 		const timerEvents = {
 			'timer:start': handleTimerAction('timer:start'),
 			'timer:pause': handleTimerAction('timer:pause'),
@@ -65,14 +65,15 @@ const SocketHandler = () => {
 			'timer:tick': handleTimerAction('timer:tick'),
 		}
 
-		// Registrar todos los eventos
+		// Register all events
 		Object.entries(timerEvents).forEach(([event, handler]) => {
 			socket.on(event, handler)
 		})
 
 		socket.on('timer:requestState', (data) => {
 			console.log('Estado solicitado por otro cliente:', data)
-			const currentState = timerStore.getState()
+			// Get fresh state directly from the store
+			const currentState = useTimerStore.getState()
 
 			socket.emit('timer:start', {
 				status: currentState.status,
@@ -92,7 +93,7 @@ const SocketHandler = () => {
 		})
 
 		return () => {
-			// Limpiar todos los eventos
+			// Clean up all events
 			Object.keys(timerEvents).forEach((event) => {
 				socket.off(event)
 			})
