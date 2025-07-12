@@ -87,8 +87,14 @@ export const projectService = {
 			}
 
 			return formatProject(newProject)
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Error creating project:', error)
+
+            if (error instanceof Error) {
+            console.error('Error message:', error.message)
+            console.error('Error stack:', error.stack)
+        }
+
 			throw error
 		}
 	},
