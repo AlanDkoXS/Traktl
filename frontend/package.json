@@ -63,6 +63,9 @@
     "pnpm": {
         "ignoredBuiltDependencies": [
             "esbuild"
-        ]
+        ],
+        "overrides": {
+            "jsonwebtoken": "^9.0.2"
+        }
     }
 }
