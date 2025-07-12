@@ -298,7 +298,8 @@
         "passwordLength": "Şifre en az 8 karakter uzunluğunda olmalıdır",
         "passwordStrength": "Şifre en az bir sayı, bir büyük harf ve bir özel karakter içermelidir",
         "serverError": "Sunucu hatası, lütfen tekrar deneyin",
-        "unauthorized": "Yetkisiz, lütfen giriş yapın"
+        "unauthorized": "Yetkisiz, lütfen giriş yapın",
+        "verificationRequestFailed": "Doğrulama e-postası gönderilemedi. Lütfen tekrar deneyin."
     },
     "about": {
         "title": "Hakkında",

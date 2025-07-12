@@ -115,11 +115,6 @@
         "dontSave": "No Guardar",
         "save": "Guardar",
         "shortSessionTitle": "Sesión Corta",
-        "shortSessionMessage": "Esta Sesión es Menor a un Minuto. ¿Aún Deseas Guardarla?",
-        "timeEntrySaved": "Entrada de Tiempo Guardada Exitosamente",
-        "workSessionComplete": "¡Sesión de Trabajo Completada! Tiempo de Descanso.",
-        "breakSessionComplete": "¡Descanso Completado! Listo para la Siguiente Sesión de Trabajo.",
-        "allSessionsComplete": "¡Buen Trabajo! Has Completado Todas tus Sesiones de Trabajo.",
         "shortSessionMessage": "Esta sesión es menor a un minuto. ¿Aún deseas guardarla?",
         "timeEntrySaved": "Entrada de tiempo guardada exitosamente",
         "workSessionComplete": "¡Sesión de trabajo completada! Tiempo de descanso.",
@@ -301,7 +296,8 @@
         "passwordLength": "La contraseña debe tener al menos 8 caracteres",
         "passwordStrength": "La contraseña debe contener al menos un número, una letra mayúscula y un carácter especial",
         "serverError": "Error del servidor, inténtalo de nuevo",
-        "unauthorized": "No autorizado, inicia sesión por favor"
+        "unauthorized": "No autorizado, inicia sesión por favor",
+        "verificationRequestFailed": "No se pudo enviar el correo de verificación. Por favor inténtalo de nuevo."
     },
     "about": {
         "title": "Acerca de",

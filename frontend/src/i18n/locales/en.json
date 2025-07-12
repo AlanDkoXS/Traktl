@@ -64,7 +64,13 @@
         "verifyEmail": "Verify Email",
         "emailVerificationInstructions": "Please check your email and click on the verification link.",
         "emailVerificationExpired": "The verification link has expired. Please request a new one.",
-        "resendVerification": "Resend Verification Email"
+        "resendVerification": "Resend Verification Email",
+        "emailVerifiedDesc": "You now have access to all application features.",
+        "resetPasswordInstructions": "Enter your new password below.",
+        "verifying": "Verifying...",
+        "verificationFailed": "Verification Failed",
+        "noVerificationToken": "No verification token found",
+        "emailVerificationFailed": "Email verification failed"
     },
     "theme": {
         "title": "Theme",
@@ -286,7 +292,8 @@
         "passwordLength": "Password must be at least 8 characters long",
         "passwordStrength": "Password must contain at least one number, one uppercase letter, and one special character",
         "serverError": "Server error, please try again",
-        "unauthorized": "Unauthorized, please sign in"
+        "unauthorized": "Unauthorized, please sign in",
+        "verificationRequestFailed": "Could not send verification email. Please try again."
     },
     "about": {
         "title": "About",

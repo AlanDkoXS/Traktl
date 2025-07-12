@@ -157,16 +157,21 @@ const Settings = () => {
 		setIsVerificationLoading(true)
 		setVerificationError('')
 		try {
-			await emailVerificationService.requestVerification()
-			setShowVerificationModal(true)
-			await checkVerificationStatus()
-			setCountdown(60)
+			const response = await emailVerificationService.requestVerification()
+			if (response.success) {
+				setSuccessMessage(t('settings.verificationEmailSent'))
+				await checkVerificationStatus()
+				setCountdown(60)
+			} else {
+				setVerificationError(t('errors.verificationRequestFailed'))
+			}
 		} catch (err: unknown) {
-			setVerificationError(
-				err instanceof Error
-					? err.message
-					: 'Error requesting verification email',
-			)
+			console.error('Error requesting verification:', err)
+			if (err instanceof Error) {
+				setVerificationError(err.message)
+			} else {
+				setVerificationError(t('errors.verificationRequestFailed'))
+			}
 		} finally {
 			setIsVerificationLoading(false)
 		}
