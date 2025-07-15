@@ -11,7 +11,7 @@
 <a href="https://www.coursera.org/"/><img src="https://img.shields.io/badge/Coursera-0056D2?style=for-the-badge&logo=Coursera&logoColor=white" />
 </div>
 
-# TimeTrack Pro
+# Traktl
 
 A comprehensive time tracking application with advanced project management features, built with modern web and mobile technologies.
 
