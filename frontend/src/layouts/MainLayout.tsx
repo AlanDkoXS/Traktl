@@ -73,17 +73,18 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 	]
 
 	return (
-		<div className="flex h-full bg-gray-50 dark:bg-[rgb(var(--color-bg-canvas))]">
+		<div className="flex h-full bg-gray-200 dark:bg-[rgb(var(--color-bg-canvas))]">
 			{isMobileMenuOpen && (
 				<div
-					className="fixed inset-0 z-20 bg-black/50 backdrop-blur-sm md:hidden"
+					className="fixed inset-0 z-20 bg-black/50 backdrop-blur-[10px] md:hidden"
 					onClick={() => setIsMobileMenuOpen(false)}
 				/>
 			)}
 
 			{/* Mobile header */}
-			<header className="fixed top-0 left-0 right-0 z-10 md:hidden bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)] shadow-sm border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
-				<div className="flex items-center justify-between h-14 px-4">
+			<header className="fixed top-0 left-0 right-0 z-10 md:hidden bg-gradient-to-br from-gray-100/80 to-[hsla(var(--color-project-hue),var(--color-project-saturation),90%,0.24)] dark:from-[rgba(var(--color-bg-inset),0.8)] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.16)] backdrop-blur-md shadow-sm" data-content="mobile-header">
+				<div
+					className="flex items-center justify-between h-14 px-4"				>
 					<button
 						onClick={() => setIsMobileMenuOpen(true)}
 						className="p-2 rounded-md text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-[rgb(var(--color-fg-muted))] dark:hover:text-[rgb(var(--color-fg-default))] dark:hover:bg-[rgb(var(--color-bg-overlay))]"
@@ -106,11 +107,11 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 				className={`fixed inset-y-0 left-0 z-30 md:flex md:flex-col w-64 transform transition-transform duration-300 ease-in-out
 					${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
 					md:translate-x-0 md:relative
-					bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),98%,0.3)]
+					bg-gradient-to-br from-gray-100 to-[hsla(var(--color-project-hue),var(--color-project-saturation),90%,0.3)]
 					dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.2)]
-					shadow-lg border-r border-gray-200 dark:border-[rgb(var(--color-border-primary))]`}
+					shadow-sm`}
 			>
-				<div className="h-16 flex items-center justify-between p-4 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
+				<div className="h-16 flex items-center justify-between p-4">
 					<div className="flex items-center text-xl font-bold dynamic-color">
 						<AppIcon className="w-12 h-12 mr-2" />
 						{t('app.name')}
