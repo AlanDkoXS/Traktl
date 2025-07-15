@@ -324,7 +324,7 @@ const Settings = () => {
 							<div>
 								<label
 									htmlFor="name"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+									className="form-label"
 								>
 									{t('auth.name')}
 								</label>
@@ -333,7 +333,7 @@ const Settings = () => {
 									id="name"
 									value={name}
 									onChange={(e) => setName(e.target.value)}
-									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="form-input"
 								/>
 								<button
 									type="button"
@@ -349,7 +349,7 @@ const Settings = () => {
 							<div>
 								<label
 									htmlFor="email"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+									className="form-label"
 								>
 									{t('auth.email')}
 								</label>
@@ -358,7 +358,7 @@ const Settings = () => {
 									id="email"
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="form-input"
 								/>
 								<div className="mt-4 flex items-center">
 									<span className="text-sm mr-2">
@@ -379,7 +379,7 @@ const Settings = () => {
 							<div>
 								<label
 									htmlFor="language"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+									className="form-label"
 								>
 									{t('settings.language')}
 								</label>
@@ -387,7 +387,7 @@ const Settings = () => {
 									id="language"
 									value={preferredLanguage}
 									onChange={handleLanguageChange}
-									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="form-input"
 								>
 									<option value="en">
 										{t('languages.english')}
@@ -404,7 +404,7 @@ const Settings = () => {
 							<div>
 								<label
 									htmlFor="theme"
-									className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+									className="form-label"
 								>
 									{t('settings.theme')}
 								</label>
@@ -412,7 +412,7 @@ const Settings = () => {
 									id="theme"
 									value={userTheme}
 									onChange={handleThemeChange}
-									className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:dynamic-border focus:ring-0 dark:border-gray-600 dark:bg-gray-800 dark:text-white sm:text-sm"
+									className="form-input"
 								>
 									<option value="light">
 										{t('theme.light')}

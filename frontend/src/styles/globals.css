@@ -73,18 +73,18 @@
 		--color-primary-100: 12, 74, 110;
 		--color-primary-50: 8, 47, 73;
 
-		/* Project colors in dark mode */
-		--color-project-950: var(--color-project-50);
-		--color-project-900: var(--color-project-100);
-		--color-project-800: var(--color-project-200);
-		--color-project-700: var(--color-project-300);
-		--color-project-600: var(--color-project-400);
-		--color-project-500: var(--color-project-500);
-		--color-project-400: var(--color-project-600);
-		--color-project-300: var(--color-project-700);
-		--color-project-200: var(--color-project-800);
-		--color-project-100: var(--color-project-900);
-		--color-project-50: var(--color-project-950);
+		/* Project colors in dark mode - swap light/dark values */
+		--color-project-950: 204, 94%, 97%;
+		--color-project-900: 204, 94%, 94%;
+		--color-project-800: 204, 94%, 86%;
+		--color-project-700: 204, 94%, 74%;
+		--color-project-600: 204, 94%, 60%;
+		--color-project-500: 204, 94%, 48%;
+		--color-project-400: 204, 94%, 39%;
+		--color-project-300: 204, 94%, 32%;
+		--color-project-200: 204, 94%, 27%;
+		--color-project-100: 204, 94%, 22%;
+		--color-project-50: 204, 94%, 16%;
 	}
 
 	body {
@@ -119,6 +119,14 @@
 
 /* Custom component styles */
 @layer components {
+	/* Focus utilities */
+	.focus\:dynamic-border:focus {
+		border-color: hsl(
+			var(--color-project-hue),
+			var(--color-project-saturation),
+			var(--color-project-lightness)
+		);
+	}
 	.btn {
 		@apply rounded-md text-sm font-medium transition-colors disabled:opacity-50 inline-flex items-center px-4 py-2 m-1;
 		@apply focus:ring-0 focus:outline-none shadow-sm;
