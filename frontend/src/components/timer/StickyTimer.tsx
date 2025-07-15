@@ -134,7 +134,8 @@ export const StickyTimer = () => {
 	return (
 		<>
 			<div
-				className={`fixed left-1/2 bottom-20 z-50 rounded-lg overflow-hidden transition-all duration-500 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] shadow-lg border border-gray-200 dark:border-[rgb(var(--color-border-primary))] ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+				className={`fixed left-1/2 bottom-20 z-50 rounded-lg overflow-hidden transition-all duration-500 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] shadow-lg border border-gray-200 dark:border-[rgb(var(--color-border-primary))] backdrop-blur-[10px] ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+				data-component="sticky-timer"
 				style={{
 					transform: 'translateX(-50%)',
 					width: 'min(800px, 90vw)',
