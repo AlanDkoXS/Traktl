@@ -1,20 +1,20 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
-  --color-gray-950: #030712;
-  
-  --color-white: #ffffff;
-  --color-black: #000000;
+	--color-gray-50: #f9fafb;
+	--color-gray-100: #f3f4f6;
+	--color-gray-200: #e5e7eb;
+	--color-gray-300: #d1d5db;
+	--color-gray-400: #9ca3af;
+	--color-gray-500: #6b7280;
+	--color-gray-600: #4b5563;
+	--color-gray-700: #374151;
+	--color-gray-800: #1f2937;
+	--color-gray-900: #111827;
+	--color-gray-950: #030712;
+
+	--color-white: #ffffff;
+	--color-black: #000000;
 }
 
 @layer base {
@@ -100,7 +100,7 @@
 		@apply border-gray-300 dark:border-[rgb(var(--color-border-primary))];
 		@apply text-gray-900 dark:text-[rgb(var(--color-fg-default))];
 		@apply placeholder-gray-500 dark:placeholder-[rgb(var(--color-fg-muted))];
-		@apply focus:ring-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] 
+		@apply focus:ring-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]
            focus:bg-white dark:focus:bg-[rgb(var(--color-bg-inset))];
 	}
 
@@ -125,18 +125,18 @@
 	}
 
 	.btn-primary {
-		@apply bg-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))] 
+		@apply bg-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]
            text-white hover:brightness-110 dark:hover:brightness-125;
 	}
 
 	.btn-secondary {
-		@apply bg-gray-100 text-gray-800 hover:bg-gray-200 
-           dark:bg-[rgb(var(--color-bg-overlay))] dark:text-[rgb(var(--color-fg-default))] 
+		@apply bg-gray-100 text-gray-800 hover:bg-gray-200
+           dark:bg-[rgb(var(--color-bg-overlay))] dark:text-[rgb(var(--color-fg-default))]
            dark:hover:bg-[rgb(var(--color-border-primary))];
 	}
 
 	.form-input {
-		@apply block w-full rounded-md shadow-sm border-gray-300 dark:border-[rgb(var(--color-border-primary))] 
+		@apply block w-full rounded-md shadow-sm border-gray-300 dark:border-[rgb(var(--color-border-primary))]
            dark:bg-[rgb(var(--color-bg-inset))] dark:text-[rgb(var(--color-fg-default))] text-sm;
 	}
 
@@ -156,7 +156,7 @@
 
 	/* Card with project color influence */
 	.card-project {
-		@apply bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow rounded-lg p-4 sm:p-6 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.3)] 
+		@apply bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow rounded-lg p-4 sm:p-6 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.3)]
            dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),var(--color-project-saturation),15%,0.2)];
 	}
 
@@ -383,20 +383,18 @@ input[type='number'].timer-input::-webkit-outer-spin-button {
 	margin: 0;
 }
 
-/* GitHub-like scrollbar */
 ::-webkit-scrollbar {
-	width: 10px;
-	height: 10px;
+	display: none;
 }
 
-::-webkit-scrollbar-track {
+/* ::-webkit-scrollbar-track {
 	background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
 	background: #d1d5db;
 	border-radius: 5px;
-}
+} */
 
 .dark ::-webkit-scrollbar-thumb {
 	background: rgb(var(--color-border-primary));
