@@ -44,7 +44,7 @@ export const Modal = ({
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<div className="fixed inset-0 bg-black/50 backdrop-blur-sm modal-stacked-backdrop" />
+					<div className="fixed inset-0 bg-black/50 overlay-blur-global modal-stacked-backdrop" />
 				</Transition.Child>
 
 				<div className="fixed inset-0 overflow-y-auto">
@@ -59,7 +59,7 @@ export const Modal = ({
 							leaveTo="opacity-0 scale-95"
 						>
 							<Dialog.Panel
-								className={`${maxWidth} w-full transform overflow-hidden rounded-lg border border-gray-200 dark:border-[rgb(var(--color-border-primary))] bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-6 text-left align-middle shadow-xl transition-all`}
+								className={`${maxWidth} w-full transform overflow-hidden rounded-lg border border-gray-200 dark:border-[rgb(var(--color-border-primary))] bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.5)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),calc(var(--color-project-saturation)*0.6),15%,0.3)] p-6 text-left align-middle shadow-xl transition-all backdrop-blur-global`}
 							>
 								<Dialog.Title
 									as="h3"

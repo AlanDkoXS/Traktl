@@ -21,6 +21,9 @@
 
 @layer base {
 	:root {
+		/* Backdrop filter global variable */
+		--backdrop-blur: blur(10px);
+		
 		/* Base color palette - sky blue */
 		--color-primary-50: 240, 249, 255;
 		--color-primary-100: 224, 242, 254;
@@ -181,11 +184,25 @@
 	}
 
 	.alert-modal-overlay {
-		@apply absolute inset-0 bg-black/50 backdrop-blur-sm;
+		@apply absolute inset-0 bg-black/50;
+		-webkit-backdrop-filter: var(--backdrop-blur);
+		backdrop-filter: var(--backdrop-blur);
 	}
 
 	.alert-modal-content {
 		@apply relative bg-white dark:bg-[rgb(var(--color-bg-overlay))] rounded-lg shadow-xl p-6 max-w-md w-full;
+	}
+
+	/* Global backdrop blur utility class */
+	.backdrop-blur-global {
+		-webkit-backdrop-filter: var(--backdrop-blur);
+		backdrop-filter: var(--backdrop-blur);
+	}
+
+	/* Overlay blur utility class */
+	.overlay-blur-global {
+		-webkit-filter: var(--backdrop-blur);
+		filter: var(--backdrop-blur);
 	}
 }
 

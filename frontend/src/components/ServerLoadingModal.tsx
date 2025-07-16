@@ -45,7 +45,7 @@ const ServerLoadingModal = () => {
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+						className="absolute inset-0 bg-black/60 overlay-blur-global"
 						onClick={handleClose}
 					/>
 
@@ -55,7 +55,7 @@ const ServerLoadingModal = () => {
 						animate={{ scale: 1, opacity: 1, y: 0 }}
 						exit={{ scale: 0.9, opacity: 0, y: 20 }}
 						transition={{ type: 'spring', duration: 0.5 }}
-						className="relative bg-white dark:bg-[rgb(var(--color-bg-overlay))] rounded-lg shadow-xl max-w-md w-full mx-4"
+						className="relative bg-white/90 dark:bg-[rgb(var(--color-bg-overlay))]/90 rounded-lg shadow-xl max-w-md w-full mx-4 backdrop-blur-global"
 					>
 						{/* Header */}
 						<div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-[rgb(var(--color-border-primary))]">
