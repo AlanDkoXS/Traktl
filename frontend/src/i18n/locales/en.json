@@ -70,7 +70,9 @@
         "verifying": "Verifying...",
         "verificationFailed": "Verification Failed",
         "noVerificationToken": "No verification token found",
-        "emailVerificationFailed": "Email verification failed"
+        "emailVerificationFailed": "Email verification failed",
+        "demoCredentials": "Demo Credentials",
+        "demoCredentialsDesc": "The fields are already filled with test data for easy access."
     },
     "theme": {
         "title": "Theme",
@@ -300,5 +302,12 @@
         "version": "Version",
         "createdBy": "Created by",
         "contact": "Contact"
+    },
+    "serverLoading": {
+        "title": "Important Notice",
+        "message": "Since we use test servers, the application may take a few seconds to load completely.",
+        "tipTitle": "Tip:",
+        "tipMessage": "If the application doesn't respond immediately, please wait a few moments while the servers activate.",
+        "continue": "Understood, continue"
     }
 }

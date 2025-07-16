@@ -19,6 +19,7 @@ import {
 	setDefaultColorForSection,
 } from './utils/dynamicColors'
 import DataInitializer from './components/DataInitializer'
+import ServerLoadingModal from './components/ServerLoadingModal'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Projects = lazy(() => import('./pages/Projects'))
@@ -82,6 +83,7 @@ function App() {
 			<ErrorProvider>
 				<Router>
 					<SocketProvider>
+						<ServerLoadingModal />
 						<GlobalError />
 						<DataInitializer />
 						<Suspense fallback={<LoadingFallback />}>

@@ -70,7 +70,9 @@
         "verifying": "Verificando...",
         "verificationFailed": "Verificación Fallida",
         "noVerificationToken": "No se encontró token de verificación",
-        "emailVerificationFailed": "La verificación de correo electrónico falló"
+        "emailVerificationFailed": "La verificación de correo electrónico falló",
+        "demoCredentials": "Credenciales de Prueba",
+        "demoCredentialsDesc": "Los campos ya están rellenados con datos de prueba para facilitar el acceso."
     },
     "theme": {
         "title": "Tema",
@@ -308,5 +310,12 @@
     "status": {
         "connected": "Conectado",
         "disconnected": "Desconectado"
+    },
+    "serverLoading": {
+        "title": "Aviso Importante",
+        "message": "Debido a que utilizamos servidores de prueba, la aplicación puede tardar unos segundos en cargar completamente.",
+        "tipTitle": "Consejo:",
+        "tipMessage": "Si la aplicación no responde inmediatamente, por favor espera unos momentos mientras los servidores se activan.",
+        "continue": "Entendido, continuar"
     }
 }

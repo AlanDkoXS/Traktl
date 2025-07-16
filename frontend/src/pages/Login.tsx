@@ -12,8 +12,8 @@ const Login = () => {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
 	const location = useLocation()
-	const [email, setEmail] = useState('')
-	const [password, setPassword] = useState('')
+	const [email, setEmail] = useState('john.doe@example.com')
+	const [password, setPassword] = useState('SecurePass123!@')
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
 	const { setTheme } = useThemeStore()
@@ -115,6 +115,35 @@ const Login = () => {
 							{error}
 						</div>
 					)}
+
+					{/* Demo credentials notice */}
+					<div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-md p-3">
+						<div className="flex items-start space-x-2">
+							<div className="flex-shrink-0">
+								<svg
+									className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+									/>
+								</svg>
+							</div>
+							<div className="text-sm text-blue-800 dark:text-blue-200">
+								<p className="font-medium mb-1">
+									{t('auth.demoCredentials', 'Credenciales de Prueba')}
+								</p>
+								<p className="text-xs">
+									{t('auth.demoCredentialsDesc', 'Los campos ya están rellenados con datos de prueba para facilitar el acceso.')}
+								</p>
+							</div>
+						</div>
+					</div>
 
 					<div className="rounded-md shadow-sm -space-y-px">
 						<div>

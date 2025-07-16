@@ -70,7 +70,9 @@
         "verifying": "Doğrulanıyor...",
         "verificationFailed": "Doğrulama Başarısız",
         "noVerificationToken": "Doğrulama jetonu bulunamadı",
-        "emailVerificationFailed": "E-posta doğrulaması başarısız oldu"
+        "emailVerificationFailed": "E-posta doğrulaması başarısız oldu",
+        "demoCredentials": "Demo Kimlik Bilgileri",
+        "demoCredentialsDesc": "Alanlar kolay erişim için test verileriyle önceden doldurulmuştur."
     },
     "theme": {
         "title": "Tema",
@@ -306,5 +308,12 @@
         "version": "Sürüm",
         "createdBy": "Geliştiren",
         "contact": "İletişim"
+    },
+    "serverLoading": {
+        "title": "Önemli Uyarı",
+        "message": "Test sunucuları kullandığımız için uygulama tamamen yüklenmesi birkaç saniye sürebilir.",
+        "tipTitle": "İpucu:",
+        "tipMessage": "Uygulama hemen yanıt vermezse, sunucular etkinleşirken lütfen birkaç dakika bekleyin.",
+        "continue": "Anladım, devam et"
     }
 }
