@@ -24,7 +24,7 @@ export const LanguageSelector = () => {
 
 	return (
 		<Menu as="div" className="relative">
-			<Menu.Button className="flex items-center p-3 text-sm font-medium rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+			<Menu.Button className="flex items-center p-2 text-sm font-medium rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
 				<LanguageIcon className="h-5 w-5 mr-1" />
 				<span>
 					{languages.find((l) => l.code === currentLanguage)?.name ||
@@ -37,18 +37,19 @@ export const LanguageSelector = () => {
 						<Menu.Item key={language.code}>
 							{({ active }) => (
 								<button
+									type="button"
 									onClick={() =>
 										changeLanguage(language.code)
 									}
 									className={`${
 										active
-											? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
-											: 'text-gray-700 dark:text-gray-200'
+											? 'bg-gray-100 dark:bg-gray-700'
+											: ''
 									} ${
 										currentLanguage === language.code
 											? 'font-bold'
 											: ''
-									} block w-full text-left p-4 text-sm`}
+									} block w-full text-left px-4 py-2 text-sm`}
 								>
 									{language.name}
 								</button>

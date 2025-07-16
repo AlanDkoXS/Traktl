@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { LanguageSelector } from '../components/LanguageSelector'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { useAuthStore } from '../store/authStore'
-import { useThemeStore } from '../store/themeStore'
+import { useTheme } from '../hooks/useTheme'
 import { checkCurrentToken } from '../utils/tokenHelper'
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
 
@@ -16,18 +16,11 @@ const Login = () => {
 	const [password, setPassword] = useState('SecurePass123!@')
 	const [error, setError] = useState('')
 	const [loading, setLoading] = useState(false)
-	const { setTheme } = useThemeStore()
+	
+	// Use the theme hook to properly handle theme state
+	useTheme()
 
 	const { login, isAuthenticated, token } = useAuthStore()
-
-	useEffect(() => {
-		const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-			.matches
-			? 'dark'
-			: 'light'
-		console.log('Setting login page theme from system:', systemTheme)
-		setTheme(systemTheme)
-	}, [setTheme])
 
 	useEffect(() => {
 		console.log('Login component mounted, checking token...')
@@ -74,8 +67,8 @@ const Login = () => {
 	}
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-			<div className="absolute top-4 right-4 flex space-x-4">
+		<div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+			<div className="absolute top-4 right-4 flex items-center space-x-2">
 				<LanguageSelector />
 				<ThemeToggle />
 			</div>

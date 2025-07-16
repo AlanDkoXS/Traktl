@@ -11,26 +11,29 @@ export const ThemeToggle = () => {
 	const { t } = useTranslation()
 
 	return (
-		<div className="flex items-center space-x-3 p-2">
+		<div className="flex items-center space-x-2 p-2">
 			<button
+				type="button"
 				onClick={() => setTheme('light')}
-				className={`p-2 rounded-md ${theme === 'light' ? 'bg-gray-200 dark:bg-gray-800' : ''}`}
+				className={`p-2 rounded-md ${theme === 'light' ? 'bg-gray-200 dark:bg-gray-700' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
 				aria-label={t('theme.light')}
 				title={t('theme.light')}
 			>
 				<SunIcon className="h-5 w-5" />
 			</button>
 			<button
+				type="button"
 				onClick={() => setTheme('dark')}
-				className={`p-2 rounded-md ${theme === 'dark' ? 'bg-gray-200 dark:bg-gray-800' : ''}`}
+				className={`p-2 rounded-md ${theme === 'dark' ? 'bg-gray-200 dark:bg-gray-700' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
 				aria-label={t('theme.dark')}
 				title={t('theme.dark')}
 			>
 				<MoonIcon className="h-5 w-5" />
 			</button>
 			<button
+				type="button"
 				onClick={() => setTheme('system')}
-				className={`p-2 rounded-md ${theme === 'system' ? 'bg-gray-200 dark:bg-gray-800' : ''}`}
+				className={`p-2 rounded-md ${theme === 'system' ? 'bg-gray-200 dark:bg-gray-700' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
 				aria-label={t('theme.system')}
 				title={t('theme.system')}
 			>
