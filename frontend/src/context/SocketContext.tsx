@@ -29,7 +29,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 		if (!token || !user || !isAuthenticated) return
 
 		const socketUrl =
-			import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000'
+			import.meta.env.VITE_SOCKET_URL
 		console.log('Intentando conectar Socket.io a:', socketUrl)
 
 		try {
@@ -40,6 +40,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 				reconnectionDelayMax: 5000,
 				timeout: 20000,
 				transports: ['websocket', 'polling'],
+				withCredentials: true,
 			})
 
 			const newSocket = manager.socket('/', {
@@ -49,7 +50,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 				},
 			})
 
-			console.log('Socket inicializado correctamente')
+			console.log('Socket initializated')
 
 			newSocket.on('connect', () => {
 				console.log('Socket connected')
