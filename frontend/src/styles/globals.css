@@ -2,21 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-@theme {
-	--color-gray-50: #f9fafb;
-	--color-gray-100: #f3f4f6;
-	--color-gray-200: #e5e7eb;
-	--color-gray-300: #d1d5db;
-	--color-gray-400: #9ca3af;
-	--color-gray-500: #6b7280;
-	--color-gray-600: #4b5563;
-	--color-gray-700: #374151;
-	--color-gray-800: #1f2937;
-	--color-gray-900: #111827;
-	--color-gray-950: #030712;
+/* Color variables - Tailwind v4 compatible */
+:root {
+	--color-gray-50: 249, 250, 251;
+	--color-gray-100: 243, 244, 246;
+	--color-gray-200: 229, 231, 235;
+	--color-gray-300: 209, 213, 219;
+	--color-gray-400: 156, 163, 175;
+	--color-gray-500: 107, 114, 128;
+	--color-gray-600: 75, 85, 99;
+	--color-gray-700: 55, 65, 81;
+	--color-gray-800: 31, 41, 55;
+	--color-gray-900: 17, 24, 39;
+	--color-gray-950: 3, 7, 18;
 
-	--color-white: #ffffff;
-	--color-black: #000000;
+	--color-white: 255, 255, 255;
+	--color-black: 0, 0, 0;
 }
 
 @layer base {
