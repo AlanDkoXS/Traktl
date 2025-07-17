@@ -2,6 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Reference the utilities we need */
+@reference bg-gray-50, bg-gray-100, bg-gray-200, bg-gray-300, bg-gray-400, bg-gray-500, bg-gray-600, bg-gray-700, bg-gray-800, bg-gray-900, bg-gray-950;
+@reference text-gray-50, text-gray-100, text-gray-200, text-gray-300, text-gray-400, text-gray-500, text-gray-600, text-gray-700, text-gray-800, text-gray-900, text-gray-950;
+@reference border-gray-50, border-gray-100, border-gray-200, border-gray-300, border-gray-400, border-gray-500, border-gray-600, border-gray-700, border-gray-800, border-gray-900, border-gray-950;
+@reference bg-white, text-white, border-white;
+@reference bg-black, text-black, border-black;
+@reference bg-black/50;
+@reference rounded-md, rounded-lg, rounded-full;
+@reference shadow, shadow-sm, shadow-lg, shadow-xl;
+@reference m-1, m-2, m-4, mt-2, mb-4, mb-6, mx-auto;
+@reference p-2, p-4, p-6, px-3, px-4, px-6, px-8, py-2;
+@reference w-full, h-full, w-20, h-20;
+@reference text-sm, text-xl, text-2xl;
+@reference font-medium, font-semibold;
+@reference items-center, justify-center;
+@reference flex, inline-flex;
+@reference fixed, absolute, relative, inset-0;
+@reference z-50;
+@reference max-w-md, max-w-7xl;
+@reference mx-auto;
+@reference block;
+@reference outline-none;
+@reference placeholder-gray-500;
+@reference bg-gradient-to-br, from-white, to-white;
+@reference focus:ring-0, focus:outline-none, focus:border-*, focus:bg-white;
+@reference hover:bg-gray-200, hover:brightness-110, hover:brightness-125;
+@reference disabled:opacity-50;
+@reference transition-colors;
+@reference dark:bg-*, dark:text-*, dark:border-*, dark:hover:*, dark:focus:*, dark:from-*, dark:to-*;
+@reference sm:*, lg:*;
+@reference overflow-x-hidden;
+@reference bg-transparent;
+@reference border-0, border-transparent, border-radius-50%;
+@reference cursor-pointer;
+@reference margin-top-*, margin-left-*;
+@reference text-gray-700, text-gray-800, text-gray-900;
+@reference bg-[*], text-[*], border-[*], dark:bg-[*], dark:text-[*], dark:border-[*], dark:hover:bg-[*], focus:border-[*];
+
 /* Color variables - Tailwind v4 compatible */
 :root {
 	--color-gray-50: 249, 250, 251;
@@ -24,7 +62,7 @@
 	:root {
 		/* Backdrop filter global variable */
 		--backdrop-blur: blur(10px);
-		
+
 		/* Base color palette - sky blue */
 		--color-primary-50: 240, 249, 255;
 		--color-primary-100: 224, 242, 254;
@@ -106,8 +144,7 @@
 		@apply border-gray-300 dark:border-[rgb(var(--color-border-primary))];
 		@apply text-gray-900 dark:text-[rgb(var(--color-fg-default))];
 		@apply placeholder-gray-500 dark:placeholder-[rgb(var(--color-fg-muted))];
-		@apply focus:ring-0 focus:border-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]
-           focus:bg-white dark:focus:bg-[rgb(var(--color-bg-inset))];
+		@apply focus:ring-0 focus:border-[hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness))] focus:bg-white dark:focus:bg-[rgb(var(--color-bg-inset))];
 	}
 
 	/* Remove default focus outlines and use fill instead */
@@ -125,33 +162,29 @@
 
 /* Custom component styles */
 @layer components {
+
 	/* Focus utilities */
 	.focus\:dynamic-border:focus {
-		border-color: hsl(
-			var(--color-project-hue),
-			var(--color-project-saturation),
-			var(--color-project-lightness)
-		);
+		border-color: hsl(var(--color-project-hue),
+				var(--color-project-saturation),
+				var(--color-project-lightness));
 	}
+
 	.btn {
 		@apply rounded-md text-sm font-medium transition-colors disabled:opacity-50 inline-flex items-center px-4 py-2 m-1;
 		@apply focus:ring-0 focus:outline-none shadow-sm;
 	}
 
 	.btn-primary {
-		@apply bg-[hsl(var(--color-project-hue),var(--color-project-saturation),var(--color-project-lightness))]
-           text-white hover:brightness-110 dark:hover:brightness-125;
+		@apply bg-[hsl(var(--color-project-hue), var(--color-project-saturation), var(--color-project-lightness))] text-white hover:brightness-110 dark:hover:brightness-125;
 	}
 
 	.btn-secondary {
-		@apply bg-gray-100 text-gray-800 hover:bg-gray-200
-           dark:bg-[rgb(var(--color-bg-overlay))] dark:text-[rgb(var(--color-fg-default))]
-           dark:hover:bg-[rgb(var(--color-border-primary))];
+		@apply bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-[rgb(var(--color-bg-overlay))] dark:text-[rgb(var(--color-fg-default))] dark:hover:bg-[rgb(var(--color-border-primary))];
 	}
 
 	.form-input {
-		@apply block w-full rounded-md shadow-sm border-gray-300 dark:border-[rgb(var(--color-border-primary))]
-           dark:bg-[rgb(var(--color-bg-inset))] dark:text-[rgb(var(--color-fg-default))] text-sm;
+		@apply block w-full rounded-md shadow-sm border-gray-300 dark:border-[rgb(var(--color-border-primary))] dark:bg-[rgb(var(--color-bg-inset))] dark:text-[rgb(var(--color-fg-default))] text-sm;
 	}
 
 	.form-label {
@@ -170,8 +203,7 @@
 
 	/* Card with project color influence */
 	.card-project {
-		@apply bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow rounded-lg p-4 sm:p-6 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue),var(--color-project-saturation),96%,0.3)]
-           dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue),var(--color-project-saturation),15%,0.2)];
+		@apply bg-white dark:bg-[rgb(var(--color-bg-inset))] shadow rounded-lg p-4 sm:p-6 bg-gradient-to-br from-white to-[hsla(var(--color-project-hue), var(--color-project-saturation), 96%, 0.3)] dark:from-[rgb(var(--color-bg-inset))] dark:to-[hsla(var(--color-project-hue), var(--color-project-saturation), 15%, 0.2)];
 	}
 
 	/* Page heading */
@@ -218,54 +250,42 @@ body,
 
 /* Dynamic color system */
 .dynamic-color {
-	color: hsl(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		var(--color-project-lightness)
-	);
+	color: hsl(var(--color-project-hue),
+			var(--color-project-saturation),
+			var(--color-project-lightness));
 }
 
 .dynamic-bg {
-	background-color: hsl(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		var(--color-project-lightness)
-	);
+	background-color: hsl(var(--color-project-hue),
+			var(--color-project-saturation),
+			var(--color-project-lightness));
 }
 
 .dynamic-border {
-	border-color: hsl(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		var(--color-project-lightness)
-	);
+	border-color: hsl(var(--color-project-hue),
+			var(--color-project-saturation),
+			var(--color-project-lightness));
 }
 
 .dynamic-fill {
-	fill: hsl(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		var(--color-project-lightness)
-	);
+	fill: hsl(var(--color-project-hue),
+			var(--color-project-saturation),
+			var(--color-project-lightness));
 }
 
 /* Dynamic translucent backgrounds */
 .dynamic-bg-subtle {
-	background-color: hsla(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		var(--color-project-lightness),
-		0.1
-	);
+	background-color: hsla(var(--color-project-hue),
+			var(--color-project-saturation),
+			var(--color-project-lightness),
+			0.1);
 }
 
 .dark .dynamic-bg-subtle {
-	background-color: hsla(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		30%,
-		0.2
-	);
+	background-color: hsla(var(--color-project-hue),
+			var(--color-project-saturation),
+			30%,
+			0.2);
 }
 
 /* Mobile navigation improvements */
@@ -307,23 +327,19 @@ input[type='range']::-webkit-slider-runnable-track {
 	cursor: pointer;
 	animate: 0.2s;
 	box-shadow: none;
-	background: hsla(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		90%,
-		1
-	);
+	background: hsla(var(--color-project-hue),
+			var(--color-project-saturation),
+			90%,
+			1);
 	border-radius: 6px;
 	border: 0px solid transparent;
 }
 
 .dark input[type='range']::-webkit-slider-runnable-track {
-	background: hsla(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		20%,
-		1
-	);
+	background: hsla(var(--color-project-hue),
+			var(--color-project-saturation),
+			20%,
+			1);
 }
 
 input[type='range']::-webkit-slider-thumb {
@@ -332,32 +348,26 @@ input[type='range']::-webkit-slider-thumb {
 	height: 20px;
 	width: 20px;
 	border-radius: 50%;
-	background: hsl(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		var(--color-project-lightness)
-	);
+	background: hsl(var(--color-project-hue),
+			var(--color-project-saturation),
+			var(--color-project-lightness));
 	cursor: pointer;
 	-webkit-appearance: none;
 	margin-top: -6px;
 }
 
 input[type='range']:focus::-webkit-slider-runnable-track {
-	background: hsla(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		85%,
-		1
-	);
+	background: hsla(var(--color-project-hue),
+			var(--color-project-saturation),
+			85%,
+			1);
 }
 
 .dark input[type='range']:focus::-webkit-slider-runnable-track {
-	background: hsla(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		25%,
-		1
-	);
+	background: hsla(var(--color-project-hue),
+			var(--color-project-saturation),
+			25%,
+			1);
 }
 
 input[type='range']::-moz-range-track {
@@ -366,23 +376,19 @@ input[type='range']::-moz-range-track {
 	cursor: pointer;
 	animate: 0.2s;
 	box-shadow: none;
-	background: hsla(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		90%,
-		1
-	);
+	background: hsla(var(--color-project-hue),
+			var(--color-project-saturation),
+			90%,
+			1);
 	border-radius: 6px;
 	border: 0px solid transparent;
 }
 
 .dark input[type='range']::-moz-range-track {
-	background: hsla(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		20%,
-		1
-	);
+	background: hsla(var(--color-project-hue),
+			var(--color-project-saturation),
+			20%,
+			1);
 }
 
 input[type='range']::-moz-range-thumb {
@@ -391,11 +397,9 @@ input[type='range']::-moz-range-thumb {
 	height: 20px;
 	width: 20px;
 	border-radius: 50%;
-	background: hsl(
-		var(--color-project-hue),
-		var(--color-project-saturation),
-		var(--color-project-lightness)
-	);
+	background: hsl(var(--color-project-hue),
+			var(--color-project-saturation),
+			var(--color-project-lightness));
 	cursor: pointer;
 }
 
