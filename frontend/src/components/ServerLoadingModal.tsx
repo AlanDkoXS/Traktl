@@ -7,18 +7,15 @@ const ServerLoadingModal = () => {
 	const [isVisible, setIsVisible] = useState(true)
 
 	useEffect(() => {
-		// Para desarrollo/pruebas, descomenta la siguiente línea para que siempre aparezca:
-		sessionStorage.removeItem('serverLoadingModalShown')
-
-		// Verificar si el modal ya se mostró en esta sesión
-		const hasShownModal = sessionStorage.getItem('serverLoadingModalShown')
+		// Check if the modal has already been shown in this session
+		const hasShownModal = localStorage.getItem('serverLoadingModalShown')
 
 		if (hasShownModal) {
 			setIsVisible(false)
 		} else {
-			// Marcar que el modal se ha mostrado después de un pequeño delay
+			// Mark that the modal has been shown after a small delay
 			setTimeout(() => {
-				sessionStorage.setItem('serverLoadingModalShown', 'true')
+				localStorage.setItem('serverLoadingModalShown', 'true')
 			}, 100)
 		}
 	}, [])
