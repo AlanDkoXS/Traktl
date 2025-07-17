@@ -8,12 +8,7 @@ export const encryptAdapter = {
 
 	compare: (plainPassword: string, hashedPassword: string) => {
 		try {
-			console.log('Comparing passwords:')
-			console.log('- Plain password length:', plainPassword.length)
-			console.log('- Hashed password length:', hashedPassword.length)
-			const result = compareSync(plainPassword, hashedPassword)
-			console.log('- Comparison result:', result)
-			return result
+			return compareSync(plainPassword, hashedPassword)
 		} catch (error) {
 			console.error('Error comparing passwords:', error)
 			return false

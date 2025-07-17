@@ -15,10 +15,7 @@ export class UserService {
 		private readonly projectRepository: ProjectRepository,
 		private readonly timerPresetRepository: TimerPresetRepository,
 		private readonly emailService?: any,
-	) {
-		console.log('UserService constructor called')
-		console.log('UserRepository initialized:', !!this.userRepository)
-	}
+	) {}
 
 	async registerUser(
 		createUserDto: CreateUserDTO,
@@ -51,16 +48,7 @@ export class UserService {
 			const user = await this.userRepository.create(userEntity)
 
 			try {
-				console.log(
-					'Starting initialization of default settings for user:',
-					user.email,
-				)
-
 				if (!user._id) {
-					console.error(
-						'User creation succeeded but _id is missing:',
-						user,
-					)
 					throw new Error('User ID is missing after creation')
 				}
 
@@ -74,22 +62,16 @@ export class UserService {
 					Object.assign(user, updatedUser)
 				}
 			} catch (initError) {
-				console.error('Error during user initialization:', initError)
-				console.error(
-					'Will continue with registration despite initialization failure',
-				)
+				// Continue with registration despite initialization failure
 			}
 
-			console.log('Generating authentication token...')
 			const token = await JwtAdapter.generateToken({ id: user._id })
 			if (!token) {
 				throw CustomError.internalServer('Error generating token')
 			}
 
-			console.log('User registration completed successfully')
 			return { user, token }
 		} catch (error) {
-			console.error('Error during user registration:', error)
 			throw error
 		}
 	}
@@ -98,30 +80,22 @@ export class UserService {
 		loginUserDto: LoginUserDTO,
 	): Promise<{ user: User; token: string }> {
 		const { email, password } = loginUserDto
-		console.log('Login attempt:', email)
 
 		const user = await this.userRepository.findByEmail(email)
 		if (!user) {
-			console.log('User not found:', email)
 			throw CustomError.unauthorized('Invalid credentials')
 		}
 
 		if (user.isActive === false) {
-			console.log('User account is deactivated:', email)
 			throw CustomError.unauthorized('Invalid credentials')
 		}
 
 		if (!user.comparePassword) {
-			console.error(
-				'comparePassword method does not exist on user object',
-			)
 			throw CustomError.internalServer('Authentication system error')
 		}
 
 		const isPasswordValid = user.comparePassword(password)
-		console.log('Password validation result:', isPasswordValid)
 		if (!isPasswordValid) {
-			console.log('Invalid password for user:', email)
 			throw CustomError.unauthorized('Invalid credentials')
 		}
 
@@ -215,10 +189,8 @@ export class UserService {
 					language,
 				)
 			} catch (error) {
-				console.error('Error sending password reset email:', error)
+				// Error handling for email service
 			}
-		} else {
-			console.log(`Password reset token for ${email}: ${token}`)
 		}
 
 		return true
@@ -276,7 +248,7 @@ export class UserService {
 			await this.projectRepository.deleteAllByUserId(userId)
 			await this.timerPresetRepository.deleteAllByUserId(userId)
 		} catch (error) {
-			console.error('Error deleting user data:', error)
+			// Error handling for data deletion
 		}
 
 		return true
