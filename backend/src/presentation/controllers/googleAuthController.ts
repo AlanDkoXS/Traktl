@@ -1,4 +1,25 @@
-class GoogleAuthController extends BaseController {
+import { Request, Response } from 'express'
+import { z } from 'zod'
+import { BaseController } from './baseController'
+import { UserService } from '../../domain/services/user/userService'
+
+// Define GoogleAuthService
+class GoogleAuthService {
+    constructor(private userService: UserService) {}
+
+    async loginWithGoogle(token: string) {
+        // Implement Google authentication logic here
+        // This is a placeholder implementation
+        return { user: { id: 'google-user-id', email: 'google-user@example.com' }, token: 'jwt-token' }
+    }
+}
+
+// Define GoogleTokenSchema
+const GoogleTokenSchema = z.object({
+    token: z.string().min(1, 'Google token is required')
+})
+
+export class GoogleAuthController extends BaseController {
 	private googleAuthService: GoogleAuthService
 
 	constructor(userService: UserService) {
