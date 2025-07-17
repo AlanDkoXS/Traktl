@@ -159,7 +159,7 @@ export const TimerDisplay = ({
 								<path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2c-3.9-3.9-10.1-3.9-14 0z" />
 							</svg>
 							<span className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs rounded px-2 py-1 absolute -top-8 left-1/2 transform -translate-x-1/2 pointer-events-none whitespace-nowrap">
-								{t('status.connected')}
+								{t('common.status.connected')}
 							</span>
 						</div>
 					) : null}
