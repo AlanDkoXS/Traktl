@@ -77,30 +77,32 @@ export const GoogleAuthButton = ({ isLogin = true }: GoogleAuthButtonProps) => {
 					callback: handleGoogleResponse,
 					auto_select: false,
 					cancel_on_tap_outside: true,
+					ux_mode: 'popup' // Usar popup en lugar de iframe para evitar problemas de CSP
 				})
 
 				setIsGoogleReady(true)
 				isInitialized.current = true
 				
-				// Renderizar el botón de Google después de un pequeño delay
-				setTimeout(() => {
-					if (googleButtonRef.current && window.google?.accounts?.id) {
-						try {
-							window.google.accounts.id.renderButton(
-								googleButtonRef.current,
-								{
-									theme: 'outline',
-									size: 'large',
-									width: '100%',
-								}
-							)
-						} catch (renderError) {
-							console.error('Error rendering Google button:', renderError)
-							setError('Error setting up Google authentication')
-						}
+				// Renderizar el botón de Google con configuración específica
+				if (googleButtonRef.current && window.google?.accounts?.id) {
+					try {
+						window.google.accounts.id.renderButton(
+							googleButtonRef.current,
+							{
+								type: 'standard',  // Usar 'standard' en lugar de 'outline'
+								theme: 'filled_blue', // Usar 'filled_blue' para un botón más consistente
+								size: 'large',
+								text: isLogin ? 'signin_with' : 'signup_with', // Especificar el texto explícitamente
+								shape: 'rectangular', // Forma rectangular consistente
+								width: 280, // Ancho fijo en píxeles en lugar de porcentaje
+								logo_alignment: 'left' // Alineación del logo a la izquierda
+							}
+						)
+					} catch (renderError) {
+						console.error('Error rendering Google button:', renderError)
+						setError('Error setting up Google authentication')
 					}
-				}, 100)
-
+				}
 			} catch (error) {
 				console.error('Error initializing Google Sign-In:', error)
 				setError('Error setting up Google authentication')
