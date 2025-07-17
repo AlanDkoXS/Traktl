@@ -2,6 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Reference the utilities we need */
+@reference bg-gray-50, bg-gray-100, bg-gray-200, bg-gray-300, bg-gray-400, bg-gray-500, bg-gray-600, bg-gray-700, bg-gray-800, bg-gray-900, bg-gray-950;
+@reference text-gray-50, text-gray-100, text-gray-200, text-gray-300, text-gray-400, text-gray-500, text-gray-600, text-gray-700, text-gray-800, text-gray-900, text-gray-950;
+@reference border-gray-50, border-gray-100, border-gray-200, border-gray-300, border-gray-400, border-gray-500, border-gray-600, border-gray-700, border-gray-800, border-gray-900, border-gray-950;
+@reference bg-white, text-white, border-white;
+@reference bg-black, text-black, border-black;
+@reference bg-black/50;
+@reference rounded-md, rounded-lg, rounded-full;
+@reference shadow, shadow-sm, shadow-lg, shadow-xl;
+@reference m-1, m-2, m-4, mt-2, mb-4, mb-6, mx-auto;
+@reference p-2, p-4, p-6, px-3, px-4, px-6, px-8, py-2;
+@reference w-full, h-full, w-20, h-20;
+@reference text-sm, text-xl, text-2xl;
+@reference font-medium, font-semibold;
+@reference items-center, justify-center;
+@reference flex, inline-flex;
+@reference fixed, absolute, relative, inset-0;
+@reference z-50;
+@reference max-w-md, max-w-7xl;
+@reference mx-auto;
+@reference block;
+@reference outline-none;
+@reference placeholder-gray-500;
+@reference bg-gradient-to-br, from-white, to-white;
+@reference focus:ring-0, focus:outline-none, focus:border-*, focus:bg-white;
+@reference hover:bg-gray-200, hover:brightness-110, hover:brightness-125;
+@reference disabled:opacity-50;
+@reference transition-colors;
+@reference dark:bg-*, dark:text-*, dark:border-*, dark:hover:*, dark:focus:*, dark:from-*, dark:to-*;
+@reference sm:*, lg:*;
+@reference overflow-x-hidden;
+@reference bg-transparent;
+@reference border-0, border-transparent;
+@reference cursor-pointer;
+@reference text-gray-700, text-gray-800, text-gray-900;
+@reference bg-[*], text-[*], border-[*], dark:bg-[*], dark:text-[*], dark:border-[*], dark:hover:bg-[*], focus:border-[*];
+
 /* Color variables - Tailwind v4 compatible */
 :root {
 	--color-gray-50: 249, 250, 251;
